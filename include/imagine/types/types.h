@@ -18,7 +18,6 @@ struct DiscreteInterval
     uint32_t size;
 };
 
-
 struct Vector {
     float x;
     float y;
@@ -42,6 +41,10 @@ struct Transform {
     uint32_t stamp;
 };
 
+
+// TODOs: 
+// - check if Eigen::Matrix3f raw data is same
+// - check if math is correct
 struct Matrix3x3 {
     float data[3][3];
 
@@ -59,12 +62,6 @@ struct Matrix3x3 {
         return data[i];
     };
 };
-
-// using Matrix2x2 = float[2][2];
-// using Matrix3x3 = float[9];
-// using Matrix4x4 = float[4][4];
-// typedef float[3] Matrix3x3;
-
 
 } // namespace imagine
 

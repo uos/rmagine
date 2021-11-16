@@ -112,13 +112,16 @@ int main(int argc, char** argv)
         std::cout << "- range of last ray: " << cpu_sim->simulateRanges(Tbm)[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
         std::cout << "-- Starting Benchmark --" << std::endl;
 
+        // predefine result buffer
+        Memory<float, RAM> res(Tbm.size() * model->phi.size * model->theta.size);
+
         int run = 0;
         while(elapsed_total < benchmark_duration)
         {
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
-            auto res = cpu_sim->simulateRanges(Tbm);
+            cpu_sim->simulateRanges(Tbm, res);
             elapsed = sw();
             elapsed_total += elapsed;
             double velos_per_second = static_cast<double>(Nposes) / elapsed;
@@ -178,13 +181,16 @@ int main(int argc, char** argv)
 
         double velos_per_second_mean = 0.0;
         
+        // predefine result buffer
+        Memory<float, VRAM_CUDA> res(Tbm.size() * model->phi.size * model->theta.size);
+
         int run = 0;
         while(elapsed_total < benchmark_duration)
         {
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
-            auto res = gpu_sim->simulateRanges(Tbm_gpu);
+            gpu_sim->simulateRanges(Tbm_gpu, res);
             elapsed = sw();
             elapsed_total += elapsed;
             double velos_per_second = static_cast<double>(Nposes) / elapsed;
