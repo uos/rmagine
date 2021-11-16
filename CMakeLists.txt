@@ -24,7 +24,6 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
 )
 
-
 ################################
 ## REQUIRED DEPS
 
@@ -112,7 +111,7 @@ add_library(imagine
     # src/imagine/math/math.cpp
     # src/imagine/math/SVD.cpp
     # Simulators
-    # src/imagine/simulation/EmbreeSimulator.cpp
+    src/imagine/simulation/EmbreeSimulator.cpp
     # Types
     src/imagine/types/Memory.cpp
     # Util
@@ -126,12 +125,13 @@ target_link_libraries(imagine
 
 target_compile_features(imagine PRIVATE cxx_std_17)
 
+add_subdirectory(src/imagine_tests/embree_sim)
+
 if(CUDA_FOUND)
 
 add_library(imagine_cuda
     src/imagine/types/MemoryCuda.cu
     src/imagine/math/math.cu
-    # src/imagine/math/SVD_cuda.cpp
     src/imagine/util/cuda/CudaContext.cpp
 )
 
@@ -143,8 +143,6 @@ set_target_properties(imagine_cuda
 target_link_libraries(imagine_cuda
     imagine
     ${CUDA_LIBRARIES}
-    ${CUDA_cusolver_LIBRARY}
-    ${CUDA_cublas_LIBRARY}
     ${CUDA_CUDA_LIBRARY}
 )
 
@@ -162,40 +160,43 @@ if(OptiX_FOUND)
         src/imagine/util/optix/OptixFunctionTable.cpp
         src/imagine/util/optix/OptixProgram.cpp
         src/imagine/util/optix/OptixUtil.cpp
-#         # Maps
+        # Maps
         src/imagine/map/OptixMap.cpp
-#         # Simulation
-        # src/imagine/simulation/OptixSimulator.cpp
-#         # Simulation Programs
-        # src/imagine/simulation/optix/ScanProgramRange.cpp
+        # Simulation
+        src/imagine/simulation/OptixSimulator.cpp
+        # Simulation Programs
+        src/imagine/simulation/optix/ScanProgramRanges.cpp
     )
 
-#     target_link_libraries(imagine_optix
-#         ${OptiX_LIBRARIES}
-#         ${CUDA_LIBRARIES}
-#         imagine_cuda
-#     )
+    target_link_libraries(imagine_optix
+        ${OptiX_LIBRARIES}
+        imagine_cuda
+    )
 
-#     set(OPTIX_KERNEL_FILES
-# #         # Simulation
-#         src/imagine/simulation/optix/ScanProgramRange.cu
-#     )
+    set(OPTIX_KERNEL_FILES
+#         # Simulation
+        src/imagine/simulation/optix/ScanProgramRanges.cu
+    )
 
-#     set_target_properties(imagine_optix
-#     PROPERTIES 
-#         CUDA_SEPARABLE_COMPILATION ON
-#     )
+    set_target_properties(imagine_optix
+    PROPERTIES 
+        CUDA_SEPARABLE_COMPILATION ON
+    )
 
-#     cuda_compile_ptx(imagine_optix_ptx
-#         ${OPTIX_KERNEL_FILES}
-#     )
+    cuda_compile_ptx(imagine_optix_ptx
+        ${OPTIX_KERNEL_FILES}
+    )
 
-#     add_library(imagine_optix_ptx OBJECT
-#         ${OPTIX_KERNEL_FILES}
-#     )
+    add_library(imagine_optix_ptx OBJECT
+        ${OPTIX_KERNEL_FILES}
+    )
+
+add_subdirectory(src/imagine_tests/optix_sim)
 
 endif(OptiX_FOUND)
 
-add_subdirectory(src/imagine_tests/imagine_cuda_math)
+add_subdirectory(src/imagine_tests/cuda_math)
 
 endif(CUDA_FOUND)
+
+add_subdirectory(src/imagine_tools/imagine_benchmark)

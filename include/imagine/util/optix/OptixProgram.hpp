@@ -44,7 +44,6 @@ namespace imagine {
 class OptixProgram
 {
 public:
-
     ~OptixProgram();
     
     virtual void update(MapPtr map){}

@@ -5,6 +5,20 @@
 
 namespace imagine {
 
+struct Interval {
+    float min;
+    float max;
+};
+
+struct DiscreteInterval
+{
+    float min;
+    float max;
+    float step;
+    uint32_t size;
+};
+
+
 struct Vector {
     float x;
     float y;

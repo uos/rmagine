@@ -32,12 +32,12 @@
  *      Author: Alexander Mock
  */
 
-#ifndef MAMCL_OPTIX_UTIL_HPP
-#define MAMCL_OPTIX_UTIL_HPP
+#ifndef IMAGINE_OPTIX_UTIL_HPP
+#define IMAGINE_OPTIX_UTIL_HPP
 
 #include <optix.h>
 
-namespace mamcl {
+namespace imagine {
 
 OptixResult optixUtilAccumulateStackSizes( 
         OptixProgramGroup programGroup, OptixStackSizes* stackSizes );
@@ -51,6 +51,6 @@ OptixResult optixUtilComputeStackSizes(
         unsigned int*          directCallableStackSizeFromState,
         unsigned int*          continuationStackSize );
 
-} // namespace mamcl
+} // namespace imagine
 
-#endif // MAMCL_OPTIX_UTIL_HPP
+#endif // IMAGINE_OPTIX_UTIL_HPP
