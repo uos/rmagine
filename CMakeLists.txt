@@ -1,0 +1,201 @@
+cmake_minimum_required(VERSION 3.2)
+project(imagine LANGUAGES CXX C)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++17)
+option(BUILD_DOCS "Build documentation" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
+
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+  if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+  endif()
+endif()
+
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+
+set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS On)
+include(GNUInstallDirs)
+
+set(CMAKE_MODULE_PATH
+  ${imagine_SOURCE_DIR}/cmake
+  ${CMAKE_MODULE_PATH}
+)
+
+
+################################
+## REQUIRED DEPS
+
+
+############################
+##    Eigen: Math         ##
+############################
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+############################
+## EMBREE: CPU Raycasting ##
+############################
+find_package(embree 3 REQUIRED)
+if(embree_FOUND)
+    # NO INCLUDE?
+    if(NOT embree_LIBRARY)
+        if(EMBREE_LIBRARY)
+            set(embree_LIBRARY ${EMBREE_LIBRARY})
+        elseif(Embree_LIBRARY)
+            set(embree_LIBRARY ${Embree_LIBRARY})
+        else()
+            set(embree_LIBRARY embree)
+        endif()
+    endif()
+else()
+    message(FATAL "Embree not found")
+endif(embree_FOUND)
+
+####################
+## ASSIMP: MeshIO ##
+####################
+find_package(assimp REQUIRED)
+include_directories(${ASSIMP_INCLUDE_DIRS})
+
+#######################
+## OpenMP: Threading ##
+#######################
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif(OPENMP_FOUND)
+
+########################################
+## Optional Deps
+
+######################################
+## CUDA: For Optix                  ##
+######################################
+find_package(CUDA)
+if(CUDA_FOUND)
+    enable_language(CUDA)
+    include_directories(${CUDA_INCLUDE_DIRS})
+endif(CUDA_FOUND)
+
+######################################
+## OptiX: RTX Raycasting ##
+######################################
+find_package(OptiX)
+if(OptiX_FOUND)
+    include_directories(${OptiX_INCLUDE_DIRS})
+endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+###########
+## Build ##
+###########
+
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+include_directories(
+    include
+)
+
+add_library(imagine
+    # Maps
+    src/imagine/map/AssimpMap.cpp
+    src/imagine/map/EmbreeMap.cpp
+    # Math
+    # src/imagine/math/math.cpp
+    # src/imagine/math/SVD.cpp
+    # Simulators
+    # src/imagine/simulation/EmbreeSimulator.cpp
+    # Types
+    src/imagine/types/Memory.cpp
+    # Util
+    src/imagine/util/StopWatch.cpp
+)
+
+target_link_libraries(imagine
+  ${ASSIMP_LIBRARIES}
+  ${embree_LIBRARY}
+  Eigen3::Eigen)
+
+target_compile_features(imagine PRIVATE cxx_std_17)
+
+if(CUDA_FOUND)
+
+add_library(imagine_cuda
+    src/imagine/types/MemoryCuda.cu
+    src/imagine/math/math.cu
+    # src/imagine/math/SVD_cuda.cpp
+    src/imagine/util/cuda/CudaContext.cpp
+)
+
+set_target_properties(imagine_cuda
+    PROPERTIES 
+        CUDA_SEPARABLE_COMPILATION ON
+)
+
+target_link_libraries(imagine_cuda
+    imagine
+    ${CUDA_LIBRARIES}
+    ${CUDA_cusolver_LIBRARY}
+    ${CUDA_cublas_LIBRARY}
+    ${CUDA_CUDA_LIBRARY}
+)
+
+if(OptiX_FOUND)
+
+    # Settings
+    set(OPTIX_PTX_DIR "${CMAKE_BINARY_DIR}/lib/optix_ptx")
+    set(CUDA_GENERATED_OUTPUT_DIR ${OPTIX_PTX_DIR})
+    add_definitions( -DWITH_OPTIX )
+    add_definitions( -DOPTIX_PTX_DIR="${OPTIX_PTX_DIR}" )
+
+#     # ROS-less library
+    add_library(imagine_optix
+#         # Util 
+        src/imagine/util/optix/OptixFunctionTable.cpp
+        src/imagine/util/optix/OptixProgram.cpp
+        src/imagine/util/optix/OptixUtil.cpp
+#         # Maps
+        src/imagine/map/OptixMap.cpp
+#         # Simulation
+        # src/imagine/simulation/OptixSimulator.cpp
+#         # Simulation Programs
+        # src/imagine/simulation/optix/ScanProgramRange.cpp
+    )
+
+#     target_link_libraries(imagine_optix
+#         ${OptiX_LIBRARIES}
+#         ${CUDA_LIBRARIES}
+#         imagine_cuda
+#     )
+
+#     set(OPTIX_KERNEL_FILES
+# #         # Simulation
+#         src/imagine/simulation/optix/ScanProgramRange.cu
+#     )
+
+#     set_target_properties(imagine_optix
+#     PROPERTIES 
+#         CUDA_SEPARABLE_COMPILATION ON
+#     )
+
+#     cuda_compile_ptx(imagine_optix_ptx
+#         ${OPTIX_KERNEL_FILES}
+#     )
+
+#     add_library(imagine_optix_ptx OBJECT
+#         ${OPTIX_KERNEL_FILES}
+#     )
+
+endif(OptiX_FOUND)
+
+add_subdirectory(src/imagine_tests/imagine_cuda_math)
+
+endif(CUDA_FOUND)

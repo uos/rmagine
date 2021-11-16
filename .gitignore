@@ -1,0 +1,5 @@
+.vscode/
+build
+doc
+**/ext
+ext

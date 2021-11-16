@@ -1,0 +1,3 @@
+
+add_executable(imagine_test_cuda_math Main.cpp)
+target_link_libraries(imagine_test_cuda_math imagine_cuda)
