@@ -4,7 +4,8 @@ project(imagine LANGUAGES CXX C)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
 option(BUILD_DOCS "Build documentation" OFF)
-option(BUILD_EXAMPLES "Build examples" OFF)
+option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TOOLS "Build tools" OFF)
 
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
   if (NOT CMAKE_BUILD_TYPE)
@@ -154,9 +155,8 @@ if(OptiX_FOUND)
     add_definitions( -DWITH_OPTIX )
     add_definitions( -DOPTIX_PTX_DIR="${OPTIX_PTX_DIR}" )
 
-#     # ROS-less library
     add_library(imagine_optix
-#         # Util 
+        # Util 
         src/imagine/util/optix/OptixFunctionTable.cpp
         src/imagine/util/optix/OptixProgram.cpp
         src/imagine/util/optix/OptixUtil.cpp
@@ -174,7 +174,7 @@ if(OptiX_FOUND)
     )
 
     set(OPTIX_KERNEL_FILES
-#         # Simulation
+        # Simulation
         src/imagine/simulation/optix/ScanProgramRanges.cu
     )
 
@@ -191,12 +191,40 @@ if(OptiX_FOUND)
         ${OPTIX_KERNEL_FILES}
     )
 
-add_subdirectory(src/imagine_tests/optix_sim)
-
 endif(OptiX_FOUND)
-
-add_subdirectory(src/imagine_tests/cuda_math)
 
 endif(CUDA_FOUND)
 
+
+#### TESTS
+if(CUDA_FOUND)
+
+add_subdirectory(src/imagine_tests/cuda_math)
+
+if(OptiX_FOUND)
+add_subdirectory(src/imagine_tests/optix_sim)
+endif(OptiX_FOUND)
+
+endif(CUDA_FOUND)
+
+
+#### TOOLS
 add_subdirectory(src/imagine_tools/imagine_benchmark)
+
+
+#### INSTALL
+# 1. Headers
+install(DIRECTORY include/imagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+# 2. Libraries
+install(TARGETS imagine imagine_cuda imagine_optix)
+
+# Executables
+install(TARGETS imagine_benchmark
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+
+# CMAKE FIND SCRIPT
+
+# include(CMakePackageConfigHelpers)
+# set(INCLUDE_INSTALL_DIR include/)
+# set(LIB_INSTALL_DIR lib/)
