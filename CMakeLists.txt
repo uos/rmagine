@@ -126,8 +126,6 @@ target_link_libraries(imagine
 
 target_compile_features(imagine PRIVATE cxx_std_17)
 
-add_subdirectory(src/imagine_tests/embree_sim)
-
 if(CUDA_FOUND)
 
 add_library(imagine_cuda
@@ -202,6 +200,10 @@ endif(OptiX_FOUND)
 endif(CUDA_FOUND)
 
 #### TESTS
+if(BUILD_TESTS)
+
+add_subdirectory(src/imagine_tests/embree_sim)
+
 if(CUDA_FOUND)
 
 add_subdirectory(src/imagine_tests/cuda_math)
@@ -211,6 +213,7 @@ add_subdirectory(src/imagine_tests/optix_sim)
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
+endif(BUILD_TESTS)
 
 #### TOOLS
 add_subdirectory(src/imagine_tools/imagine_benchmark)
