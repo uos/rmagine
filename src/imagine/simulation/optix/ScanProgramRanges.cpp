@@ -22,6 +22,9 @@ typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
+#define STRING2(x) #x
+#define STRING(x) STRING2(x)
+
 ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
 {
     
@@ -32,6 +35,7 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
     OptixModuleCompileOptions module_compile_options = {};
     module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 #ifndef NDEBUG
+    #pragma message __FILE__ "[" STRING(__LINE__) "]: Enabled Debugging Features for OptixProgram. Set NDEBUG to disable."
     module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else

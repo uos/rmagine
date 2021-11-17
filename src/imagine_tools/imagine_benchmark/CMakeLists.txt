@@ -10,4 +10,4 @@ if(CUDA_FOUND AND OptiX_FOUND)
         imagine_optix
     )
     target_compile_definitions(imagine_benchmark PUBLIC WITH_OPTIX)
-endif(OptiX_FOUND)
+endif(CUDA_FOUND AND OptiX_FOUND)

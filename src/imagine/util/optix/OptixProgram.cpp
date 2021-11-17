@@ -9,16 +9,15 @@ namespace imagine {
 
 OptixProgram::~OptixProgram()
 {
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( sbt.raygenRecord       ) ) );
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( sbt.missRecordBase     ) ) );
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) ) );
+    cudaFree( reinterpret_cast<void*>( sbt.raygenRecord       ) );
+    cudaFree( reinterpret_cast<void*>( sbt.missRecordBase     ) );
+    cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) );
 
-    OPTIX_CHECK( optixPipelineDestroy( pipeline ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( hitgroup_prog_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( miss_prog_group ) );
-    OPTIX_CHECK( optixProgramGroupDestroy( raygen_prog_group ) );
-    OPTIX_CHECK( optixModuleDestroy( module ) );   
+    optixPipelineDestroy( pipeline );
+    optixProgramGroupDestroy( hitgroup_prog_group );
+    optixProgramGroupDestroy( miss_prog_group );
+    optixProgramGroupDestroy( raygen_prog_group );
+    optixModuleDestroy( module );
 }
-
 
 } // namespace imagine

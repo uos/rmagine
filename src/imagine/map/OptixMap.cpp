@@ -141,7 +141,7 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
     // Use default options for simplicity.  In a real use case we would want to
     // enable compaction, etc
     OptixAccelBuildOptions accel_options = {};
-#ifdef DEBUG
+#ifndef NDEBUG
     accel_options.buildFlags = OPTIX_BUILD_FLAG_NONE;
 #else
     accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
@@ -197,7 +197,7 @@ OptixMap::~OptixMap()
 
     cudaFree( reinterpret_cast<void*>( d_gas_output_buffer ) );
 
-    OPTIX_CHECK( optixDeviceContextDestroy( context ) );
+    optixDeviceContextDestroy( context );
 }
 
 void OptixMap::initContext(int device)
