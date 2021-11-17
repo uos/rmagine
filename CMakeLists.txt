@@ -148,13 +148,7 @@ target_link_libraries(imagine_cuda
 )
 
 if(OptiX_FOUND)
-
-    # Settings
-    set(OPTIX_PTX_DIR "${CMAKE_BINARY_DIR}/lib/optix_ptx")
-    set(CUDA_GENERATED_OUTPUT_DIR ${OPTIX_PTX_DIR})
-    add_definitions( -DWITH_OPTIX )
-    add_definitions( -DOPTIX_PTX_DIR="${OPTIX_PTX_DIR}" )
-
+    # OptiX GENERAL LIBRARY
     add_library(imagine_optix
         # Util 
         src/imagine/util/optix/OptixFunctionTable.cpp
@@ -173,14 +167,26 @@ if(OptiX_FOUND)
         imagine_cuda
     )
 
-    set(OPTIX_KERNEL_FILES
-        # Simulation
-        src/imagine/simulation/optix/ScanProgramRanges.cu
-    )
-
     set_target_properties(imagine_optix
     PROPERTIES 
         CUDA_SEPARABLE_COMPILATION ON
+    )
+
+    # OptiX KERNEL FILES
+    # Settings
+    set(IMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/imagine_optix_ptx")
+    set(IMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/imagine_optix_ptx")
+
+    set(CUDA_GENERATED_OUTPUT_DIR ${IMAGINE_OPTIX_PTX_DIR})
+    add_definitions( -DWITH_OPTIX )
+    add_definitions( -DIMAGINE_OPTIX_PTX_DIR="${IMAGINE_OPTIX_PTX_DIR}" )
+    add_definitions( -DIMAGINE_OPTIX_PTX_GLOB_DIR="${IMAGINE_OPTIX_PTX_GLOB_DIR}")
+
+    message(STATUS "Writing Optix Kernels to ${IMAGINE_OPTIX_PTX_DIR}")
+    
+    set(OPTIX_KERNEL_FILES
+        # Simulation
+        src/imagine/simulation/optix/ScanProgramRanges.cu
     )
 
     cuda_compile_ptx(imagine_optix_ptx
@@ -195,7 +201,6 @@ endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
 
-
 #### TESTS
 if(CUDA_FOUND)
 
@@ -207,21 +212,20 @@ endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
 
-
 #### TOOLS
 add_subdirectory(src/imagine_tools/imagine_benchmark)
-
 
 #### INSTALL
 # 1. Headers
 install(DIRECTORY include/imagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
 install(TARGETS imagine imagine_cuda imagine_optix)
+# 3. PTX-data
+install(DIRECTORY ${IMAGINE_OPTIX_PTX_DIR} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Executables
 install(TARGETS imagine_benchmark
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 
 # CMAKE FIND SCRIPT
 

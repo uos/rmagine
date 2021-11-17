@@ -36,6 +36,7 @@
 #define IMAGINE_OPTIX_UTIL_HPP
 
 #include <optix.h>
+#include <string>
 
 namespace imagine {
 
@@ -50,6 +51,8 @@ OptixResult optixUtilComputeStackSizes(
         unsigned int*          directCallableStackSizeFromTraversal,
         unsigned int*          directCallableStackSizeFromState,
         unsigned int*          continuationStackSize );
+
+std::string loadProgramPtx(const std::string& program_name);
 
 } // namespace imagine
 

@@ -22,12 +22,8 @@ typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
-#define STRING2(x) #x
-#define STRING(x) STRING2(x)
-
 ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
 {
-    
     // 1. INIT MODULE
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
@@ -43,7 +39,6 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 #endif
     
-
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
     pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
@@ -57,20 +52,13 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
     pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
     pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
 
-    std::string optix_ptx_dir(OPTIX_PTX_DIR);
+
     std::string optix_program_name = "ScanProgramRanges";
+    std::string ptx = loadProgramPtx(optix_program_name);
 
-    std::string filename = optix_ptx_dir + "/cuda_compile_ptx_1_generated_" + optix_program_name + ".cu.ptx";
-
-    std::string ptx;
-
-    std::ifstream file( filename.c_str() );
-    if( file.good() )
+    if(ptx.empty())
     {
-        // Found usable source file
-        std::stringstream source_buffer;
-        source_buffer << file.rdbuf();
-        ptx = source_buffer.str();
+        throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
     OPTIX_CHECK( optixModuleCreateFromPTX(
