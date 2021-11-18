@@ -1,4 +1,6 @@
 #include "imagine/simulation/EmbreeSimulator.hpp"
+#include <set>
+
 
 namespace imagine
 {
@@ -22,6 +24,16 @@ void EmbreeSimulator::setTsb(const Memory<Transform, RAM>& Tsb)
 void EmbreeSimulator::setModel(const Memory<LiDARModel, RAM>& model)
 {
     m_model = model;
+}
+
+void print(RTCHit hit)
+{
+    std::cout << "RTCHit:" << std::endl;
+    std::cout << "- instID: " << hit.instID[0] << std::endl;
+    std::cout << "- geomID: " << hit.geomID << std::endl;
+    std::cout << "- primID: " << hit.primID << std::endl;
+    std::cout << "- Ng: " << hit.Ng_x << " " << hit.Ng_y << " " << hit.Ng_z << std::endl;
+    std::cout << "- uv: " << hit.u << " " << hit.v << std::endl;
 }
 
 void EmbreeSimulator::simulateRanges(

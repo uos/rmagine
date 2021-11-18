@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
-project(imagine LANGUAGES CXX C)
+project(imagine 
+    LANGUAGES CXX C
+    VERSION 1)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
@@ -18,6 +20,12 @@ endif()
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
+
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 include(GNUInstallDirs)
 
 set(CMAKE_MODULE_PATH
@@ -89,10 +97,6 @@ find_package(OptiX)
 if(OptiX_FOUND)
     include_directories(${OptiX_INCLUDE_DIRS})
 endif()
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ###########
 ## Build ##
@@ -231,7 +235,18 @@ install(TARGETS imagine_benchmark
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # CMAKE FIND SCRIPT
+include(CMakePackageConfigHelpers)
 
-# include(CMakePackageConfigHelpers)
-# set(INCLUDE_INSTALL_DIR include/)
-# set(LIB_INSTALL_DIR lib/)
+configure_package_config_file(imagineConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/imagineConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/imagine
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/imagineConfigVersion.cmake
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/imagineConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/imagineConfigVersion.cmake
+              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/imagine )

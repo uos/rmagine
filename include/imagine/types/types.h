@@ -5,17 +5,9 @@
 
 namespace imagine {
 
-struct Interval {
-    float min;
-    float max;
-};
-
-struct DiscreteInterval
-{
-    float min;
-    float max;
-    float step;
-    uint32_t size;
+struct Vector2 {
+    float x;
+    float y;
 };
 
 struct Vector {
@@ -62,6 +54,48 @@ struct Matrix3x3 {
         return data[i];
     };
 };
+
+struct Matrix4x4 {
+    float data[4][4];
+
+    #ifdef __CUDA_ARCH__
+    __host__ __device__ 
+    #endif
+    float* operator[](const unsigned int i) {
+        return data[i];
+    };
+
+    #ifdef __CUDA_ARCH__
+    __host__ __device__ 
+    #endif
+    const float* operator[](const unsigned int i) const {
+        return data[i];
+    };
+};
+
+struct Interval {
+    float min;
+    float max;
+};
+
+struct DiscreteInterval
+{
+    float min;
+    float max;
+    float step;
+    uint32_t size;
+};
+
+struct Rectangle {
+    Vector2 min;
+    Vector2 max;
+};
+
+struct Box {
+    Vector min;
+    Vector max;
+};
+
 
 } // namespace imagine
 

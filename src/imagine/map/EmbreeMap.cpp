@@ -3,73 +3,9 @@
 #include <iostream>
 #include <Eigen/Dense>
 
+#include <map>
+
 namespace imagine {
-
-Eigen::Vector3f closestPointTriangle(
-    const Eigen::Vector3f& p, 
-    const Eigen::Vector3f& a, 
-    const Eigen::Vector3f& b, 
-    const Eigen::Vector3f& c)
-{
-    const Eigen::Vector3f ab = b-a;
-    const Eigen::Vector3f ac = c-a;
-    const Eigen::Vector3f ap = p-a;
-    const Eigen::Vector3f n = ab.cross(ac);
-
-    Eigen::Matrix3f R;
-    R.col(0) = ab;
-    R.col(1) = ac;
-    R.col(2) = n;
-    const Eigen::Matrix3f Rinv = R.inverse();
-    const Eigen::Vector3f p_in_t = Rinv * ap;
-
-    // p0 * ab + p1 * ac + p2 * n == ap
-    // projection: p0 * ab + p1 * ac
-    float p0 = p_in_t.x();
-    float p1 = p_in_t.y();
-
-    const bool on_ab_edge = (p0 >= 0.f && p0 <= 1.f);
-    const bool on_ac_edge = (p1 >= 0.f && p1 <= 1.f);
-
-    if(on_ab_edge && on_ac_edge)
-    {
-        // in triangle
-        return p0 * ab + p1 * ac + a;
-    } 
-    else if(on_ab_edge && !on_ac_edge)
-    {
-        // nearest point on edge (ab)
-        return p0 * ab + a;
-    }
-    else if(!on_ab_edge && on_ac_edge)
-    {
-        // nearest point on edge (ac)
-        return p1 * ac + a;
-    }
-    else
-    {
-        // nearest vertex
-        float d_ap = ap.squaredNorm();
-        float d_bp = (p - b).squaredNorm();
-        float d_cp = (p - c).squaredNorm();
-        
-        if(d_ap < d_bp && d_ap < d_cp)
-        {
-            // a best
-            return a;
-        } 
-        else if(d_bp < d_cp) 
-        { 
-            // b best
-            return b;
-        } 
-        else 
-        {
-            // c best
-            return c;
-        }
-    }
-}
 
 Point closestPointTriangle(
     const Point& p, 
@@ -197,84 +133,204 @@ void errorFunction(void* userPtr, enum RTCError error, const char* str)
     printf("error %d: %s\n", error, str);
 }
 
+void print(const aiMatrix4x4& T)
+{
+    std::cout << T.a1 << " " << T.a2 << " " << T.a3 << " " << T.a4 << std::endl;
+    std::cout << T.b1 << " " << T.b2 << " " << T.b3 << " " << T.b4 << std::endl;
+    std::cout << T.c1 << " " << T.c2 << " " << T.c3 << " " << T.c4 << std::endl;
+    std::cout << T.d1 << " " << T.d2 << " " << T.d3 << " " << T.d4 << std::endl;
+}
+
+void convert(const aiMatrix4x4& aT, Matrix4x4& T)
+{
+    // TODO: check
+    T[0][0] = aT.a1;
+    T[0][1] = aT.a2;
+    T[0][2] = aT.a3;
+    T[0][3] = aT.a4;
+    T[1][0] = aT.b1;
+    T[1][1] = aT.b2;
+    T[1][2] = aT.b3;
+    T[1][3] = aT.b4;
+    T[2][0] = aT.c1;
+    T[2][1] = aT.c2;
+    T[2][2] = aT.c3;
+    T[2][3] = aT.c4;
+    T[3][0] = aT.d1;
+    T[3][1] = aT.d2;
+    T[3][2] = aT.d3;
+    T[3][3] = aT.d4;
+}
+
 EmbreeMap::EmbreeMap(const aiScene* ascene)
 {
     initializeDevice();
+
     scene = rtcNewScene(device);
+
+    std::map<unsigned int, Matrix4x4> Tmap;
+
+    // Parsing transformation tree
+    unsigned int geom_id = 0;
+    const aiNode* root_node = ascene->mRootNode;
+    for(unsigned int i=0; i<root_node->mNumChildren; i++)
+    {
+        const aiNode* n = root_node->mChildren[i];
+        if(n->mNumChildren == 0)
+        {
+            // Leaf
+            if(n->mNumMeshes > 0)
+            {
+                // std::cout << "- Name: " << n->mName.C_Str() << std::endl;
+                // std::cout << "- Meshes: " << n->mNumMeshes << std::endl;
+                // std::cout << "- Mesh Id 0: " << n->mMeshes[0] << std::endl;
+                // std::cout << "- T:" << std::endl;
+                // print(n->mTransformation);
+
+                aiMatrix4x4 aT = n->mTransformation;
+                Matrix4x4 T;
+                convert(aT, T);
+                Tmap[n->mMeshes[0]] = T;
+            }
+        } else {
+            // TODO: handle deeper tree. concatenate transformations
+            // std::cout << "- Children: " << n->mNumChildren << std::endl;
+        }
+    }
+
     for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
     {
-        const aiMesh* mesh = ascene->mMeshes[mesh_id];
-        RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
-        
-        const aiVector3D* ai_vertices = mesh->mVertices;
-        int num_vertices = mesh->mNumVertices;
+        // std::cout << "Mesh " << mesh_id << std::endl;
+        const aiMesh* amesh = ascene->mMeshes[mesh_id];
 
-        const aiFace* ai_faces = mesh->mFaces;
-        int num_faces = mesh->mNumFaces;
+        const aiVector3D* ai_vertices = amesh->mVertices;
+        int num_vertices = amesh->mNumVertices;
 
-        EmbreeMesh part;
+        const aiFace* ai_faces = amesh->mFaces;
+        int num_faces = amesh->mNumFaces;
 
-        part.vertices = (float*) rtcSetNewGeometryBuffer(geom,
+        if(num_faces == 0)
+        {
+            continue;
+        }
+
+        // Mesh
+        EmbreeMesh mesh;
+        mesh.handle = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
+
+        mesh.vertices = (float*) rtcSetNewGeometryBuffer(mesh.handle,
                                                         RTC_BUFFER_TYPE_VERTEX,
                                                         0,
                                                         RTC_FORMAT_FLOAT3,
                                                         3*sizeof(float),
                                                         num_vertices);
 
-        part.faces = (unsigned*) rtcSetNewGeometryBuffer(geom,
+        mesh.faces = (unsigned*) rtcSetNewGeometryBuffer(mesh.handle,
                                                                 RTC_BUFFER_TYPE_INDEX,
                                                                 0,
                                                                 RTC_FORMAT_UINT3,
                                                                 3*sizeof(unsigned),
                                                                 num_faces);
 
-        if (part.vertices && part.faces)
+        Memory<Vector, RAM> vertices_transformed(num_vertices);
+
+        Matrix4x4 T;
+        bool Tfound = false;
+
+        auto fit = Tmap.find(mesh_id);
+        if(fit != Tmap.end())
         {
-            // copy mesh to embree buffers
-            for(int i=0; i<num_vertices; i++)
-            {
-                part.vertices[i*3+0] = ai_vertices[i].x;
-                part.vertices[i*3+1] = ai_vertices[i].y;
-                part.vertices[i*3+2] = ai_vertices[i].z;
-            }
-
-            for(int i=0; i<num_faces; i++)
-            {
-                part.faces[i*3+0] = ai_faces[i].mIndices[0];
-                part.faces[i*3+1] = ai_faces[i].mIndices[1];
-                part.faces[i*3+2] = ai_faces[i].mIndices[2];
-            }
-
-            part.normals.resize(mesh->mNumFaces * 3);
-            for(size_t i=0; i<mesh->mNumFaces; i++)
-            {
-                unsigned int v0_id = ai_faces[i].mIndices[0];
-                unsigned int v1_id = ai_faces[i].mIndices[1];
-                unsigned int v2_id = ai_faces[i].mIndices[2];
-
-                const Vector v0{ai_vertices[v0_id].x, ai_vertices[v0_id].y, ai_vertices[v0_id].z};
-                const Vector v1{ai_vertices[v1_id].x, ai_vertices[v1_id].y, ai_vertices[v1_id].z};
-                const Vector v2{ai_vertices[v2_id].x, ai_vertices[v2_id].y, ai_vertices[v2_id].z};
-                
-                Vector n = normalized( cross(normalized(v1 - v0), normalized(v2 - v0) ) );
-
-                part.normals[i * 3 + 0] = n.x;
-                part.normals[i * 3 + 1] = n.y;
-                part.normals[i * 3 + 2] = n.z;
-            }
-
-            parts.push_back(part);
-        } else {
-            std::cerr << "could not create embree vertices or faces for mesh id " << mesh_id << std::endl;
-            // continue;
+            // Found transform!
+            T = fit->second;
+            Tfound = true;
         }
 
-        // RTCPointQueryFunction cb = std::bind(&EmbreeMesh::closestPointFunc, this);
-        rtcSetGeometryPointQueryFunction(geom, closestPointFunc);
-        rtcCommitGeometry(geom);
-        rtcAttachGeometry(scene, geom);
-        rtcReleaseGeometry(geom);
+        set_identity(mesh.T);
+
+        // copy mesh to embree buffers
+        for(unsigned int i=0; i<num_vertices; i++)
+        {
+            Vector v;
+            v.x = ai_vertices[i].x;
+            v.y = ai_vertices[i].y;
+            v.z = ai_vertices[i].z;
+            
+            if(Tfound)
+            {
+                v = T * v;
+            }
+            
+            vertices_transformed[i] = v;
+        }
+
+        for(unsigned int i=0; i<num_vertices; i++)
+        {
+            mesh.vertices[i*3+0] = vertices_transformed[i].x;
+            mesh.vertices[i*3+1] = vertices_transformed[i].y;
+            mesh.vertices[i*3+2] = vertices_transformed[i].z;
+        }
+
+        // mesh.bb = bb;
+        for(int i=0; i<num_faces; i++)
+        {
+            mesh.faces[i*3+0] = ai_faces[i].mIndices[0];
+            mesh.faces[i*3+1] = ai_faces[i].mIndices[1];
+            mesh.faces[i*3+2] = ai_faces[i].mIndices[2];
+        }
+
+        mesh.normals.resize(amesh->mNumFaces * 3);
+        for(size_t i=0; i<amesh->mNumFaces; i++)
+        {
+            unsigned int v0_id = ai_faces[i].mIndices[0];
+            unsigned int v1_id = ai_faces[i].mIndices[1];
+            unsigned int v2_id = ai_faces[i].mIndices[2];
+
+            const Vector v0 = vertices_transformed[v0_id];
+            const Vector v1 = vertices_transformed[v1_id];
+            const Vector v2 = vertices_transformed[v2_id];
+
+            Vector n = normalized( cross(normalized(v1 - v0), normalized(v2 - v0) ) );
+
+            mesh.normals[i * 3 + 0] = n.x;
+            mesh.normals[i * 3 + 1] = n.y;
+            mesh.normals[i * 3 + 2] = n.z;
+        }
+
+        meshes.push_back(mesh);
     }
+
+    if(meshes.size() == 0)
+    {
+        throw std::runtime_error("No meshes!");
+    }
+
+    // Add everything to embree
+
+    // 1. Meshes
+    for(unsigned int i = 0; i<meshes.size(); i++)
+    {
+        EmbreeMesh& mesh = meshes[i];
+        rtcSetGeometryPointQueryFunction(mesh.handle, closestPointFunc);
+        rtcAttachGeometryByID(scene, mesh.handle, i);
+        rtcReleaseGeometry(mesh.handle);
+        // rtcSetGeometryTransform(mesh.handle, 1.0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, reinterpret_cast<float*>(&mesh.T) );
+        rtcCommitGeometry(mesh.handle);
+    }
+
+    // TODO
+    // // 2. Instances
+    // for(unsigned int i=0; i<instances.size(); i++)
+    // {
+    //     EmbreeInstance& instance = instances[i];
+
+    //     rtcSetGeometryInstancedScene(instance.handle, scene);
+    //     // new scene here?
+    //     rtcAttachGeometryByID(scene, instance.handle, i + meshes.size());
+    //     rtcReleaseGeometry(instance.handle);
+        
+    //     rtcSetGeometryTransform(instance.handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, reinterpret_cast<float*>(&instance.T) );
+    //     rtcCommitGeometry(instance.handle);
+    // }
 
     rtcCommitScene(scene);
 
@@ -299,7 +355,7 @@ Point EmbreeMap::closestPoint(const Point& qp)
     ClosestPointResult result;
 
     PointQueryUserData user_data;
-    user_data.parts = &parts;
+    // user_data.parts = &parts;
     user_data.result = &result;
 
     rtcPointQuery(scene, &query, &pq_context, nullptr, (void*)&user_data);

@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
     // Define and set poses to transform from
     // Transformations between base and map
-    size_t Nposes = 10000;
+    size_t Nposes = 1;
     Memory<Transform, RAM> Tbm(Nposes);
     for(size_t i=0; i<Nposes; i++)
     {

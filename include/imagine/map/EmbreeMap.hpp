@@ -55,9 +55,19 @@
 namespace imagine {
 
 struct EmbreeMesh {
+    RTCGeometry handle;
     float* vertices;
     unsigned int* faces;
     Memory<float, RAM> normals;
+    Box bb;
+    Matrix4x4 T;
+};
+
+struct EmbreeInstance {
+    RTCGeometry handle;
+    unsigned int id;
+    std::vector<EmbreeMesh> meshes;
+    Matrix4x4 T;
 };
 
 struct ClosestPointResult
@@ -89,15 +99,13 @@ public:
     RTCDevice device;
     RTCScene scene;
     
-    std::vector<EmbreeMesh> parts;
+    std::vector<EmbreeInstance> instances;
+    std::vector<EmbreeMesh> meshes;
 
     RTCPointQueryContext pq_context;
 
 protected:
     void initializeDevice();
-
-    // bool closestPointFunc(RTCPointQueryFunctionArguments* args);
-
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
