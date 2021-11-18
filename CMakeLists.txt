@@ -138,10 +138,10 @@ add_library(imagine_cuda
     src/imagine/util/cuda/CudaContext.cpp
 )
 
-set_target_properties(imagine_cuda
-    PROPERTIES 
-        CUDA_SEPARABLE_COMPILATION ON
-)
+# set_target_properties(imagine_cuda
+#     PROPERTIES 
+#         CUDA_SEPARABLE_COMPILATION ON
+# )
 
 target_link_libraries(imagine_cuda
     imagine
@@ -169,10 +169,10 @@ if(OptiX_FOUND)
         imagine_cuda
     )
 
-    set_target_properties(imagine_optix
-    PROPERTIES 
-        CUDA_SEPARABLE_COMPILATION ON
-    )
+    # set_target_properties(imagine_optix
+    # PROPERTIES 
+    #     CUDA_SEPARABLE_COMPILATION ON
+    # )
 
     # OptiX KERNEL FILES
     # Settings

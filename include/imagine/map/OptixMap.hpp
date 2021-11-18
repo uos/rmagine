@@ -49,7 +49,45 @@
 
 #include <imagine/types/MemoryCuda.hpp>
 
+#include <imagine/types/types.h>
+
 namespace imagine {
+
+// TODO: move somewhere else
+struct Face {
+    unsigned int v0;
+    unsigned int v1;
+    unsigned int v2;
+};
+
+/**
+ * @brief Single mesh. 
+ * - Cuda Buffers for vertices, faces, normals
+ * - TraversableHandle for raytracing
+ */
+struct OptixMesh {
+    // Handle of geometry acceleration structure
+    OptixTraversableHandle      gas_handle;
+    
+    Memory<Point, VRAM_CUDA>    vertices;
+    Memory<Face, VRAM_CUDA>     faces;
+    Memory<Vector, VRAM_CUDA>   normals;
+};
+
+using OptixMeshPtr = std::shared_ptr<OptixMesh>;
+
+/**
+ * @brief One instance is a transformed version of a mesh
+ * Multiple instances can connect to a single mesh to save memory
+ * - Example: asteroids. Only one mesh for a lot of instances
+ * 
+ */
+struct OptixInstance {
+    Transform T; // Or Matrix4x4 ?
+    OptixMeshPtr mesh; // connect a mesh to a instance
+};
+
+using OptixInstancePtr = std::shared_ptr<OptixInstance>;
 
 class OptixMap : public Map {
 public:

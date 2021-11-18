@@ -75,7 +75,7 @@ if(NOT embree_LIBRARY)
     endif()
 endif()
 
-list(APPEND imagine_LIBRARIES ${embree_LIBRARY})
+list(APPEND imagine_LIBRARIES @embree_LIBRARY@)
 
 # CUDA
 find_package(CUDA)
@@ -85,6 +85,9 @@ if(CUDA_FOUND)
     list(APPEND imagine_LIBRARIES ${CUDA_CUDA_LIBRARY})
 endif(CUDA_FOUND)
 
-#cmake_policy(POP)
+if(@OptiX_FOUND@)
+    list(APPEND imagine_INCLUDE_DIRS @OptiX_INCLUDE_DIRS@)
+    list(APPEND imagine_LIBRARIES @OptiX_LIBRARIES@)
+endif()
 
 set(imagine_FOUND TRUE)
