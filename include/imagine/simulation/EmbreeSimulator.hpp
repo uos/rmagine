@@ -4,6 +4,7 @@
 #include <imagine/map/EmbreeMap.hpp>
 #include <imagine/types/Memory.hpp>
 #include <imagine/types/sensor_models.h>
+#include "SimulationResults.hpp"
 
 namespace imagine
 {
@@ -23,6 +24,13 @@ public:
         Memory<float, RAM>& ranges);
 
     Memory<float, RAM> simulateRanges(
+        const Memory<Transform, RAM>& Tbm);
+
+    void simulateIds(
+        const Memory<Transform, RAM>& Tbm, 
+        Memory<MeshFace, RAM>& ids);
+
+    Memory<MeshFace, RAM> simulateIds(
         const Memory<Transform, RAM>& Tbm);
     
 protected:
