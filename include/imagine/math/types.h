@@ -746,7 +746,7 @@ struct Matrix3x3 {
     {
         Matrix3x3 res;
         // TODO
-        
+
         return res;
     }
 
