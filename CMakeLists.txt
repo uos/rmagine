@@ -207,6 +207,7 @@ endif(CUDA_FOUND)
 if(BUILD_TESTS)
 
 add_subdirectory(src/imagine_tests/embree_sim)
+add_subdirectory(src/imagine_tests/basic_math)
 
 if(CUDA_FOUND)
 

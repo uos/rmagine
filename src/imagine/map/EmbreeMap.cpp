@@ -16,7 +16,7 @@ Point closestPointTriangle(
     const Vector ab = b-a;
     const Vector ac = c-a;
     const Vector ap = p-a;
-    const Vector n = cross(ab, ac);
+    const Vector n = ab.cross(ac);
 
     Eigen::Matrix3f R;
     R.col(0) = Eigen::Vector3f(ab.x, ab.y, ab.z);
@@ -52,9 +52,9 @@ Point closestPointTriangle(
     else
     {
         // nearest vertex
-        float d_ap = l2normSquared(ap);
-        float d_bp = l2normSquared(p - b);
-        float d_cp = l2normSquared(p - c);
+        float d_ap = ap.l2normSquared();
+        float d_bp = (p - b).l2normSquared();
+        float d_cp = (p - c).l2normSquared();
         
         if(d_ap < d_bp && d_ap < d_cp)
         {
@@ -110,7 +110,7 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
 
     const Vector p = closestPointTriangle(q, v1, v2, v3);
 
-    float d = l2norm(p - q);
+    float d = (p - q).l2norm();
 
     if (d < args->query->radius)
     {
@@ -289,7 +289,7 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             const Vector v1 = vertices_transformed[v1_id];
             const Vector v2 = vertices_transformed[v2_id];
 
-            Vector n = normalized( cross(normalized(v1 - v0), normalized(v2 - v0) ) );
+            Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
 
             mesh.normals[i * 3 + 0] = n.x;
             mesh.normals[i * 3 + 1] = n.y;

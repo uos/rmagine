@@ -46,11 +46,15 @@
 
 #include <iostream>
 #include <vector>
-#include <imagine/types/Memory.hpp>
+
 #include <Eigen/Dense>
 
-#include <imagine/types/types.h>
+#include <imagine/math/types.h>
 #include <imagine/math/math.h>
+
+#include <imagine/types/Memory.hpp>
+#include <imagine/types/sensor_models.h>
+
 
 namespace imagine {
 

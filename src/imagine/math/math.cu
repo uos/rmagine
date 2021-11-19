@@ -1,6 +1,6 @@
 #include "imagine/math/math.cuh"
 #include <imagine/math/math.h>
-#include <imagine/types/types.h>
+#include <imagine/math/types.h>
 
 namespace imagine 
 {
@@ -65,7 +65,6 @@ Memory<Vector, VRAM_CUDA> multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Vector, VRAM_CUDA>& b)
 {
-    
     Memory<Vector, VRAM_CUDA> c(A.size());
     multNxN(A, b, c);
     return c;

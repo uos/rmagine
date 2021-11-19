@@ -3,7 +3,7 @@
 
 #include <imagine/util/optix/OptixData.hpp>
 #include <imagine/types/sensor_models.h>
-#include <imagine/types/types.h>
+#include <imagine/math/types.h>
 
 #include <optix.h>
 #include <cuda_runtime.h>

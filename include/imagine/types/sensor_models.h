@@ -1,12 +1,36 @@
 #ifndef IMAGINE_TYPES_SENSOR_MODELS_H
 #define IMAGINE_TYPES_SENSOR_MODELS_H
 
-#include "types.h"
+#include <imagine/math/types.h>
 #include <cstdint>
 #include <math.h>
 
 namespace imagine
 {
+
+struct Interval {
+    float min;
+    float max;
+};
+
+struct DiscreteInterval
+{
+    float min;
+    float max;
+    float step;
+    uint32_t size;
+};
+
+struct Rectangle {
+    Vector2 min;
+    Vector2 max;
+};
+
+struct Box {
+    Vector min;
+    Vector max;
+};
+
 
 struct SphericalModel 
 {

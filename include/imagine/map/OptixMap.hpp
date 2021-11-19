@@ -49,7 +49,7 @@
 
 #include <imagine/types/MemoryCuda.hpp>
 
-#include <imagine/types/types.h>
+#include <imagine/math/types.h>
 
 namespace imagine {
 

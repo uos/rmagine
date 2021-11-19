@@ -1,7 +1,7 @@
 #ifndef IMAGINE_MATH_MATH_CUH
 #define IMAGINE_MATH_MATH_CUH
 
-#include <imagine/types/types.h>
+#include <imagine/math/types.h>
 #include <cuda_runtime.h>
 #include <imagine/types/MemoryCuda.hpp>
 
