@@ -18,6 +18,26 @@ Point closestPointTriangle(
     const Vector ap = p-a;
     const Vector n = ab.cross(ac);
 
+    // TODO: comment this in and test
+    // Matrix3x3 R;
+    // R(0,0) = ab.x;
+    // R(0,1) = ab.y;
+    // R(0,2) = ab.z;
+    
+    // R(1,0) = ac.x;
+    // R(1,1) = ac.y;
+    // R(1,2) = ac.z;
+
+    // R(2,0) = n.x;
+    // R(2,1) = n.y;
+    // R(2,2) = n.z;
+
+    // Matrix3x3 Rinv = R.inv();
+    // Vector p_in_t = Rinv * ap;
+    // float p0 = p_in_t.x;
+    // float p1 = p_in_t.y;
+
+    // Instead of this
     Eigen::Matrix3f R;
     R.col(0) = Eigen::Vector3f(ab.x, ab.y, ab.z);
     R.col(1) = Eigen::Vector3f(ac.x, ac.y, ac.z);
