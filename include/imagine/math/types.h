@@ -396,7 +396,7 @@ struct Vector3 {
     IMAGINE_INLINE_FUNCTION
     Vector3 operator*(const float& s) const 
     {
-        return {x * s, y * s};
+        return mult(s);
     }
 
     IMAGINE_INLINE_FUNCTION
