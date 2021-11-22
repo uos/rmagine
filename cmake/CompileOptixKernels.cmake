@@ -1,8 +1,14 @@
-
+### COMPILE OPTIX KERNEL ###
+# Problem: nvcc cannot compile optix launches in kernels
+# but we can precompile to ptx files + include the strings in optix programs
+# Next problem: pathes to ptx files differ for installation and raw build
+# Solution:
+# 1. Compile to ptx 
+# Here:
+# 2. Copy contents of ptx to temporary header file with R("...")
+# 3. Include temporary header file static into a char* variable
 
 # Capsule PTX-Strings in files
-
-
 foreach(OPTIX_KERNEL_FILE ${OPTIX_KERNEL_FILES})
     # Get Name of Kernel
     get_filename_component(OPTIX_KERNEL_NAME ${OPTIX_KERNEL_FILE} NAME_WLE)

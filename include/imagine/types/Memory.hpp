@@ -40,6 +40,8 @@
 #include <cstring>
 #include <type_traits>
 
+#include <imagine/types/SharedFunctions.hpp>
+
 namespace imagine {
 
 struct RAM;

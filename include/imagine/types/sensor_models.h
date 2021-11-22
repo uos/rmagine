@@ -5,14 +5,7 @@
 #include <cstdint>
 #include <math.h>
 
-#ifdef __CUDA_ARCH__
-#define IMAGINE_FUNCTION __host__ __device__
-#define IMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
-#else
-#define IMAGINE_FUNCTION
-#define IMAGINE_INLINE_FUNCTION inline
-#endif
-
+#include <imagine/types/SharedFunctions.hpp>
 
 namespace imagine
 {
@@ -20,6 +13,18 @@ namespace imagine
 struct Interval {
     float min;
     float max;
+
+    IMAGINE_INLINE_FUNCTION
+    float invalidValue() const
+    {
+        return max + 1.0;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    bool inside(const float& value) const 
+    {
+        return (value >= min && value <= max);
+    } 
 };
 
 struct DiscreteInterval
@@ -43,11 +48,19 @@ struct DiscreteInterval
     {
         return min + static_cast<float>(id) * step;
     }
+
+    IMAGINE_INLINE_FUNCTION
+    bool inside(const float& value) const 
+    {
+        return (value >= min && value <= max);
+    } 
 };
 
 struct Rectangle {
     Vector2 min;
     Vector2 max;
+
+
 };
 
 struct Box {

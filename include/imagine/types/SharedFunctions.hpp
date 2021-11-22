@@ -1,0 +1,12 @@
+#ifndef IMAGINE_TYPES_SHARED_FUNCTIONS_HPP
+#define IMAGINE_TYPES_SHARED_FUNCTIONS_HPP
+
+#ifdef __CUDA_ARCH__
+#define IMAGINE_FUNCTION __host__ __device__
+#define IMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
+#else
+#define IMAGINE_FUNCTION
+#define IMAGINE_INLINE_FUNCTION inline
+#endif
+
+#endif // IMAGINE_TYPES_SHARED_FUNCTIONS_HPP

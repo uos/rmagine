@@ -5,7 +5,6 @@
 namespace imagine
 {
 
-
 template<typename BundleT>
 void resizeMemoryBundle(BundleT& res, 
     unsigned int W,
