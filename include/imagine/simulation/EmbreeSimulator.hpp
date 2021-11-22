@@ -26,6 +26,13 @@ public:
     Memory<float, RAM> simulateRanges(
         const Memory<Transform, RAM>& Tbm);
 
+    void simulateHits(
+        const Memory<Transform, RAM>& Tbm, 
+        Memory<uint8_t, RAM>& hits);
+
+    Memory<uint8_t, RAM> simulateHits(
+        const Memory<Transform, RAM>& Tbm);
+
     void simulateIds(
         const Memory<Transform, RAM>& Tbm, 
         Memory<MeshFace, RAM>& ids);

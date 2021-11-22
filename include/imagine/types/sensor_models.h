@@ -5,6 +5,15 @@
 #include <cstdint>
 #include <math.h>
 
+#ifdef __CUDA_ARCH__
+#define IMAGINE_FUNCTION __host__ __device__
+#define IMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
+#else
+#define IMAGINE_FUNCTION
+#define IMAGINE_INLINE_FUNCTION inline
+#endif
+
+
 namespace imagine
 {
 
@@ -19,6 +28,15 @@ struct DiscreteInterval
     float max;
     float step;
     uint32_t size;
+
+    /**
+    * @brief compute step value from given others
+    */
+    IMAGINE_INLINE_FUNCTION
+    void computeStep()
+    {
+        step = (max - min) / ( static_cast<float>(size - 1) );
+    }
 };
 
 struct Rectangle {
@@ -41,11 +59,7 @@ struct SphericalModel
     // RANGE: range
     Interval range; // range is valid if <= range_max && >= range_min
 
-    #ifdef __CUDA_ARCH__
-    __inline__ __host__ __device__
-    #else 
-    inline 
-    #endif    
+    IMAGINE_INLINE_FUNCTION
     Vector getRay(uint32_t phi_id, uint32_t theta_id) const
     {
         const float phi_ = phi.min + static_cast<float>(phi_id) * phi.step;
