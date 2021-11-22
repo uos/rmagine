@@ -117,7 +117,7 @@ public:
     std::vector<OptixInstance> instances;
 
     // Top Level AS. If loaded map consists of one mesh -> GAS. Else IAS
-    OptixAccelerationStructure acc;
+    OptixAccelerationStructure as;
 
 private:
 

@@ -118,9 +118,8 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
         }
 
         // Build IAS
-
     } else {
-        buildGAS(meshes[0], acc);
+        buildGAS(meshes[0], as);
     }
 }
 
@@ -129,7 +128,7 @@ OptixMap::~OptixMap()
     cudaFree( reinterpret_cast<void*>( m_vertices ) );
     cudaFree( reinterpret_cast<void*>( m_faces ) );
 
-    cudaFree( reinterpret_cast<void*>( acc.buffer ) );
+    cudaFree( reinterpret_cast<void*>( as.buffer ) );
 
     optixDeviceContextDestroy( context );
 }

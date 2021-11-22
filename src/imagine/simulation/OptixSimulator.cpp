@@ -56,7 +56,7 @@ void OptixSimulator::simulateRanges(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->acc.handle;
+    mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
 
     Memory<OptixSimulationDataRanges, VRAM_CUDA> d_mem;
