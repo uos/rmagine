@@ -22,6 +22,10 @@ typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
+const char *kernel =
+#include "kernels/ScanProgramRangesString.h"
+;
+
 ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
 {
     // 1. INIT MODULE
@@ -52,9 +56,7 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
     pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
     pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
 
-
-    std::string optix_program_name = "ScanProgramRanges";
-    std::string ptx = loadProgramPtx(optix_program_name);
+    std::string ptx(kernel);
 
     if(ptx.empty())
     {

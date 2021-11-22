@@ -150,6 +150,45 @@ target_link_libraries(imagine_cuda
 )
 
 if(OptiX_FOUND)
+    # Optix Kernels
+    set(IMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/imagine_optix_ptx")
+    set(IMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/imagine_optix_ptx")
+
+    set(CUDA_GENERATED_OUTPUT_DIR ${IMAGINE_OPTIX_PTX_DIR})
+    add_definitions( -DWITH_OPTIX )
+    add_definitions( -DIMAGINE_OPTIX_PTX_DIR="${IMAGINE_OPTIX_PTX_DIR}" )
+    add_definitions( -DIMAGINE_OPTIX_PTX_GLOB_DIR="${IMAGINE_OPTIX_PTX_GLOB_DIR}")
+
+    message(STATUS "Writing Optix Kernels to ${IMAGINE_OPTIX_PTX_DIR}")
+
+    set(OPTIX_KERNEL_FILES
+        # Simulation
+        src/imagine/simulation/optix/ScanProgramRanges.cu
+    )
+
+    cuda_compile_ptx(imagine_optix_ptx
+        ${OPTIX_KERNEL_FILES}
+    )
+
+    add_library(imagine_optix_ptx
+        ${OPTIX_KERNEL_FILES}
+    )
+
+    message(STATUS "CMAKE_SOURCE_DIR: ${imagine_SOURCE_DIR}")
+
+    # 
+    add_custom_command(
+        TARGET imagine_optix_ptx
+        COMMAND ${CMAKE_COMMAND} 
+            -DIMAGINE_SOURCE_DIR=${imagine_SOURCE_DIR} 
+            -DIMAGINE_OPTIX_PTX_DIR=${IMAGINE_OPTIX_PTX_DIR} 
+            -DOPTIX_KERNEL_FILES=${OPTIX_KERNEL_FILES} 
+            -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
+    )
+
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+
+
     # OptiX GENERAL LIBRARY
     add_library(imagine_optix
         # Util 
@@ -169,36 +208,9 @@ if(OptiX_FOUND)
         imagine_cuda
     )
 
-    # set_target_properties(imagine_optix
-    # PROPERTIES 
-    #     CUDA_SEPARABLE_COMPILATION ON
-    # )
-
-    # OptiX KERNEL FILES
-    # Settings
-    set(IMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/imagine_optix_ptx")
-    set(IMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/imagine_optix_ptx")
-
-    set(CUDA_GENERATED_OUTPUT_DIR ${IMAGINE_OPTIX_PTX_DIR})
-    add_definitions( -DWITH_OPTIX )
-    add_definitions( -DIMAGINE_OPTIX_PTX_DIR="${IMAGINE_OPTIX_PTX_DIR}" )
-    add_definitions( -DIMAGINE_OPTIX_PTX_GLOB_DIR="${IMAGINE_OPTIX_PTX_GLOB_DIR}")
-
-    message(STATUS "Writing Optix Kernels to ${IMAGINE_OPTIX_PTX_DIR}")
-    
-    set(OPTIX_KERNEL_FILES
-        # Simulation
-        src/imagine/simulation/optix/ScanProgramRanges.cu
+    add_dependencies(imagine_optix
+        imagine_optix_ptx
     )
-
-    cuda_compile_ptx(imagine_optix_ptx
-        ${OPTIX_KERNEL_FILES}
-    )
-
-    add_library(imagine_optix_ptx OBJECT
-        ${OPTIX_KERNEL_FILES}
-    )
-
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
