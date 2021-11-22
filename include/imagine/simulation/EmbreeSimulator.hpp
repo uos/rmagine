@@ -33,12 +33,15 @@ public:
     Memory<uint8_t, RAM> simulateHits(
         const Memory<Transform, RAM>& Tbm);
 
-    void simulateIds(
-        const Memory<Transform, RAM>& Tbm, 
-        Memory<MeshFace, RAM>& ids);
 
-    Memory<MeshFace, RAM> simulateIds(
-        const Memory<Transform, RAM>& Tbm);
+
+    // Generic Version
+    template<typename BundleT>
+    void simulate(const Memory<Transform, RAM>& Tbm,
+        BundleT& ret);
+
+    template<typename BundleT>
+    BundleT simulate(const Memory<Transform, RAM>& Tbm);
     
 protected:
     const EmbreeMapPtr m_map;
@@ -51,5 +54,7 @@ protected:
 using EmbreeSimulatorPtr = std::shared_ptr<EmbreeSimulator>;
 
 } // namespace imagine
+
+#include "EmbreeSimulator.tcc"
 
 #endif // IMAGINE_EMBREE_SIMULATOR_HPP

@@ -1,0 +1,194 @@
+#include "EmbreeSimulator.hpp"
+#include <imagine/simulation/SimulationResults.hpp>
+
+
+namespace imagine
+{
+
+
+template<typename BundleT>
+void resizeMemoryBundle(BundleT& res, 
+    unsigned int W,
+    unsigned int H,
+    unsigned int N )
+{
+    if constexpr(BundleT::template has<Hits<RAM> >())
+    {
+        res.Hits<RAM>::hits.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Ranges<RAM> >())
+    {
+        res.Ranges<RAM>::ranges.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<ScanPoints<RAM> >())
+    {
+        res.ScanPoints<RAM>::scan_points.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Points<RAM> >())
+    {
+        res.Points<RAM>::points.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Normals<RAM> >())
+    {
+        res.Normals<RAM>::normals.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<FaceIds<RAM> >())
+    {
+        res.FaceIds<RAM>::face_ids.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<ObjectIds<RAM> >())
+    {
+        res.ObjectIds<RAM>::object_ids.resize(W*H*N);
+    }
+}
+
+template<typename BundleT>
+void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
+    BundleT& ret)
+{
+    #pragma omp parallel for
+    for(size_t pid = 0; pid < Tbm.size(); pid++)
+    {
+        const Transform Tbm_ = Tbm[pid];
+        const Transform Tsm_ = Tbm_ * m_Tsb[0];
+
+        // TODO: only required for certain elements (Normals, ...)
+        const Transform Tms_ = Tsm_.inv();
+
+        for(unsigned int vid = 0; vid < m_model->phi.size; vid++)
+        {
+            for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
+            {
+                const unsigned int loc_id = vid * m_model->theta.size + hid;
+                const unsigned int glob_id = pid * m_model->theta.size * m_model->phi.size + loc_id;
+
+                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_m = Tsm_.R * ray_dir_s;
+
+                RTCRayHit rayhit;
+                rayhit.ray.org_x = Tsm_.t.x;
+                rayhit.ray.org_y = Tsm_.t.y;
+                rayhit.ray.org_z = Tsm_.t.z;
+                rayhit.ray.dir_x = ray_dir_m.x;
+                rayhit.ray.dir_y = ray_dir_m.y;
+                rayhit.ray.dir_z = ray_dir_m.z;
+                rayhit.ray.tnear = 0;
+                rayhit.ray.tfar = INFINITY;
+                rayhit.ray.mask = 0;
+                rayhit.ray.flags = 0;
+                rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+                rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+
+                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+
+                if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+                {
+                    if constexpr(BundleT::template has<Hits<RAM> >())
+                    {
+                        ret.Hits<RAM>::hits[glob_id] = 1;
+                    }
+
+                    if constexpr(BundleT::template has<Ranges<RAM> >())
+                    {
+                        ret.Ranges<RAM>::ranges[glob_id] = rayhit.ray.tfar;
+                    }
+
+                    if constexpr(BundleT::template has<ScanPoints<RAM> >())
+                    {
+                        ret.ScanPoints<RAM>::scan_points[glob_id].x() = m_model->getPhi(vid);
+                        ret.ScanPoints<RAM>::scan_points[glob_id].y() = m_model->getTheta(hid);
+                        ret.ScanPoints<RAM>::scan_points[glob_id].z() = rayhit.ray.tfar;
+                    }
+
+                    if constexpr(BundleT::template has<Points<RAM> >())
+                    {
+                        Vector pint = ray_dir_s * rayhit.ray.tfar;
+                        ret.Points<RAM>::points[glob_id] = pint;
+                    }
+
+                    if constexpr(BundleT::template has<Normals<RAM> >())
+                    {
+                        Vector nint{
+                                rayhit.hit.Ng_x,
+                                rayhit.hit.Ng_y,
+                                rayhit.hit.Ng_z
+                            };
+                        nint.normalize();
+
+                        // nint in local frame
+                        ret.Normals<RAM>::normals[glob_id] = Tms_.R * nint;
+                    }
+
+                    if constexpr(BundleT::template has<FaceIds<RAM> >())
+                    {
+                        ret.FaceIds<RAM>::face_ids[glob_id] = rayhit.hit.primID;
+                    }
+
+                    if constexpr(BundleT::template has<ObjectIds<RAM> >())
+                    {
+                        ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
+                    }
+                } else {
+                    if constexpr(BundleT::template has<Hits<RAM> >())
+                    {
+                        ret.Hits<RAM>::hits[glob_id] = 0;
+                    }
+
+                    if constexpr(BundleT::template has<Ranges<RAM> >())
+                    {
+                        ret.Ranges<RAM>::ranges[glob_id] = m_model->range.max + 1.0;
+                    }
+
+                    if constexpr(BundleT::template has<ScanPoints<RAM> >())
+                    {
+                        ret.ScanPoints<RAM>::scan_points[glob_id].x = m_model->getPhi(vid);
+                        ret.ScanPoints<RAM>::scan_points[glob_id].y = m_model->getTheta(hid);
+                        ret.ScanPoints<RAM>::scan_points[glob_id].z = m_model->range.max + 1.0;
+                    }
+
+                    if constexpr(BundleT::template has<Points<RAM> >())
+                    {
+                        ret.Points<RAM>::points[glob_id].x = std::numeric_limits<float>::quiet_NaN();
+                        ret.Points<RAM>::points[glob_id].y = std::numeric_limits<float>::quiet_NaN();
+                        ret.Points<RAM>::points[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                    }
+
+                    if constexpr(BundleT::template has<Normals<RAM> >())
+                    {
+                        ret.Normals<RAM>::normals[glob_id].x = std::numeric_limits<float>::quiet_NaN();
+                        ret.Normals<RAM>::normals[glob_id].y = std::numeric_limits<float>::quiet_NaN();
+                        ret.Normals<RAM>::normals[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                    }
+
+                    if constexpr(BundleT::template has<FaceIds<RAM> >())
+                    {
+                        ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::quiet_NaN();
+                    }
+
+                    if constexpr(BundleT::template has<ObjectIds<RAM> >())
+                    {
+                        ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::quiet_NaN();
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename BundleT>
+BundleT EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm)
+{
+    BundleT res;
+    size_t Nrays = m_model->phi.size * m_model->theta.size * Tbm.size();
+    resizeMemoryBundle(res, m_model->theta.size, m_model->phi.size, Tbm.size());
+    simulate(Tbm, res);
+    return res;
+}
+
+} // namespace imagine

@@ -49,7 +49,6 @@ struct Box {
     Vector max;
 };
 
-
 struct SphericalModel 
 {
     // PHI: vertical, y-rot, pitch, polar angle 
@@ -58,6 +57,18 @@ struct SphericalModel
     DiscreteInterval theta;
     // RANGE: range
     Interval range; // range is valid if <= range_max && >= range_min
+
+    IMAGINE_INLINE_FUNCTION
+    float getPhi(uint32_t phi_id) const
+    {
+        return phi.min + static_cast<float>(phi_id) * phi.step;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    float getTheta(uint32_t theta_id) const
+    {
+        return theta.min + static_cast<float>(theta_id) * theta.step;
+    }
 
     IMAGINE_INLINE_FUNCTION
     Vector getRay(uint32_t phi_id, uint32_t theta_id) const

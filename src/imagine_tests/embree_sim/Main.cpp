@@ -2,7 +2,29 @@
 #include <imagine/simulation/EmbreeSimulator.hpp>
 #include <imagine/util/StopWatch.hpp>
 
+#include <imagine/types/Bundle.hpp>
+#include <imagine/simulation/SimulationResults.hpp>
+
 using namespace imagine;
+
+Memory<LiDARModel, RAM> velodyne_model()
+{
+    Memory<LiDARModel, RAM> model;
+    model->theta.min = -M_PI;
+    model->theta.max = M_PI; 
+    model->theta.size = 440;
+    model->theta.computeStep();
+    
+    model->phi.min = -0.261799;
+    model->phi.max = 0.261799;
+    model->phi.size = 16;
+    model->phi.computeStep();
+    
+    model->range.min = 0.5;
+    model->range.max = 130.0;
+    return model;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -25,21 +47,7 @@ int main(int argc, char** argv)
     EmbreeSimulator sim(map);
 
     // Define and set Scanner Model
-    Memory<LiDARModel, RAM> model;
-    model->theta.min = -M_PI;
-    model->theta.max = M_PI; 
-    model->theta.size = 440;
-    model->theta.step = (model->theta.max - model->theta.min) / ( static_cast<float>(model->theta.size - 1) );
-    
-    model->phi.min = -M_PI;
-    model->phi.max = M_PI;
-    model->phi.size = 16;
-    // automate this somehow?
-    model->phi.step = (model->phi.max - model->phi.min) / ( static_cast<float>(model->phi.size - 1) );
-    
-    model->range.min = 1.0;
-    model->range.max = 100.0;
-
+    Memory<LiDARModel, RAM> model = velodyne_model();
     sim.setModel(model);
 
 
@@ -78,6 +86,16 @@ int main(int argc, char** argv)
     std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
 
     std::cout << "Result: " << ranges[0] << std::endl;
+
+
+    // Generic API
+    using SimulatedT = Bundle<Hits<RAM> >;
+
+    SimulatedT res = sim.simulate<SimulatedT>(Tbm);
+
+    std::cout << "first ray hit?: " << (unsigned int)res.hits[0] << std::endl;
+    
+
 
     return 0;
 }
