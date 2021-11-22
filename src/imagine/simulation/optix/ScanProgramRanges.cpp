@@ -75,7 +75,6 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
                 ));
 
     // 2. initProgramGroups
-
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
 
     OptixProgramGroupDesc raygen_prog_group_desc    = {}; //

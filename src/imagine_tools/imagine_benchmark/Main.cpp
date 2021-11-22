@@ -198,7 +198,9 @@ int main(int argc, char** argv)
             std::cout
             << "[ " << int((elapsed_total / benchmark_duration)*100.0) << "%" << " - " 
             << "velos/s: " << velos_per_second 
-            << ", mean: " << velos_per_second_mean  << "] \r";
+            << ", mean: " << velos_per_second_mean 
+            << ", rays/s: " << velos_per_second_mean * model->phi.size * model->theta.size 
+            << "] \r";
             std::cout.flush();
 
             run++;

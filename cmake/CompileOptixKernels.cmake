@@ -17,6 +17,3 @@ foreach(OPTIX_KERNEL_FILE ${OPTIX_KERNEL_FILES})
     # Write to static readable file e.g. R("")
     configure_file(${IMAGINE_SOURCE_DIR}/cmake/FileToString.h.in "include/kernels/${OPTIX_KERNEL_NAME}String.h")
 endforeach()
-
-
-
