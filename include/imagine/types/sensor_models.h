@@ -83,6 +83,12 @@ struct SphericalModel
         const float theta_ = getTheta(theta_id);
         return {cosf(phi_) * cosf(theta_), cosf(phi_) * sinf(theta_), sinf(phi_)};
     }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t phi_id, uint32_t theta_id) const 
+    {
+        return phi_id * theta.size + theta_id;
+    }
 };
 
 using LiDARModel = SphericalModel;

@@ -65,7 +65,7 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
         {
             for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
             {
-                const unsigned int loc_id = vid * m_model->theta.size + hid;
+                const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = pid * m_model->theta.size * m_model->phi.size + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
