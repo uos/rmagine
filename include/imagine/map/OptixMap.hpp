@@ -39,6 +39,7 @@
 #include <memory>
 #include <vector>
 #include <optix.h>
+#include <optix_types.h>
 #include <cuda_runtime.h>
 #include "AssimpMap.hpp"
 #include "Map.hpp"
@@ -91,10 +92,10 @@ using OptixMeshPtr = std::shared_ptr<OptixMesh>;
  * - Example: asteroids. Only one mesh for a lot of instances
  * 
  */
-struct OptixInstance {
-    Transform T; // Or Matrix4x4 ?
-    OptixMeshPtr mesh; // connect a mesh to a instance
-};
+// struct OptixInstance {
+//     Transform T; // Or Matrix4x4 ?
+//     OptixMeshPtr mesh; // connect a mesh to a instance
+// };
 
 using OptixInstancePtr = std::shared_ptr<OptixInstance>;
 
@@ -118,6 +119,11 @@ public:
 
     // Top Level AS. If loaded map consists of one mesh -> GAS. Else IAS
     OptixAccelerationStructure as;
+
+    bool ias() const
+    {
+        return m_instance_level;
+    }
 
 private:
 

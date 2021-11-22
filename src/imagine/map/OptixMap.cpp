@@ -6,6 +6,7 @@
 #include <optix.h>
 #include <optix_stubs.h>
 
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -110,14 +111,41 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
 
     if(meshes.size() > 1)
     {
+
+
         // Build GASes
         for(unsigned int mesh_id = 0; mesh_id < meshes.size(); mesh_id++)
         {
             // OptixMesh& mesh = meshes[mesh_id];
             buildGAS(meshes[mesh_id], meshes[mesh_id].gas);
+
+            // Build IAS
+
+            OptixInstance instance;
+            instance.transform[ 0] = 1.0; // Rxx
+            instance.transform[ 1] = 0.0; // Rxy
+            instance.transform[ 2] = 0.0; // Rxz
+            instance.transform[ 3] = 0.0; // tx
+            instance.transform[ 4] = 0.0; // Ryx
+            instance.transform[ 5] = 1.0; // Ryy
+            instance.transform[ 6] = 0.0; // Ryz
+            instance.transform[ 7] = 0.0; // ty 
+            instance.transform[ 8] = 0.0; // Rzx
+            instance.transform[ 9] = 0.0; // Rzy
+            instance.transform[10] = 1.0; // Rzz
+            instance.transform[11] = 0.0; // tz
+            // ..
+            instance.instanceId = mesh_id;
+            instance.sbtOffset = 0;
+            instance.visibilityMask = 255;
+            // you could override the geometry flags here: OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT
+            instance.flags = OPTIX_INSTANCE_FLAG_NONE;
+        
+            instances.push_back(instance);
         }
 
-        // Build IAS
+
+
     } else {
         buildGAS(meshes[0], as);
     }
