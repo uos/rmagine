@@ -4,13 +4,7 @@
 #include <math.h>
 #include <stdint.h>
 
-#ifdef __CUDA_ARCH__
-#define IMAGINE_FUNCTION __host__ __device__
-#define IMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
-#else
-#define IMAGINE_FUNCTION
-#define IMAGINE_INLINE_FUNCTION inline
-#endif
+#include <imagine/types/SharedFunctions.hpp>
 
 namespace imagine
 {

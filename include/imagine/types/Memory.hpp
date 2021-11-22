@@ -70,81 +70,59 @@ public:
 
     void resize(size_t N);
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     DataT* raw();
     
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     const DataT* raw() const;
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     DataT* operator->()
     {
         return raw();
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     const DataT* operator->() const
     {
         return raw();
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     DataT& at(unsigned long idx)
     {
         return m_mem[idx];
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     const DataT& at(unsigned long idx) const
     {
         return m_mem[idx];
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     DataT& operator[](unsigned long idx)
     {
         return m_mem[idx];
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     const DataT& operator[](unsigned long idx) const
     {
         return m_mem[idx];
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     const DataT& operator*() const {
         return *m_mem;
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     DataT& operator*() {
         return *m_mem;
     }
 
-    #ifdef __CUDA_ARCH__ 
-    __host__ __device__ 
-    #endif
+    IMAGINE_FUNCTION
     size_t size() const {
         return m_size;
     }
