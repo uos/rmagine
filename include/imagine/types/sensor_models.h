@@ -37,6 +37,12 @@ struct DiscreteInterval
     {
         step = (max - min) / ( static_cast<float>(size - 1) );
     }
+
+    IMAGINE_INLINE_FUNCTION
+    float getValue(uint32_t id) const
+    {
+        return min + static_cast<float>(id) * step;
+    }
 };
 
 struct Rectangle {
@@ -61,21 +67,20 @@ struct SphericalModel
     IMAGINE_INLINE_FUNCTION
     float getPhi(uint32_t phi_id) const
     {
-        return phi.min + static_cast<float>(phi_id) * phi.step;
+        return phi.getValue(phi_id);
     }
 
     IMAGINE_INLINE_FUNCTION
     float getTheta(uint32_t theta_id) const
     {
-        return theta.min + static_cast<float>(theta_id) * theta.step;
+        return theta.getValue(theta_id);
     }
 
     IMAGINE_INLINE_FUNCTION
     Vector getRay(uint32_t phi_id, uint32_t theta_id) const
     {
-        const float phi_ = phi.min + static_cast<float>(phi_id) * phi.step;
-        const float theta_ = theta.min + static_cast<float>(theta_id) * theta.step;
-        // return {0.0, 0.0, 0.0};
+        const float phi_ = getPhi(phi_id);
+        const float theta_ = getTheta(theta_id);
         return {cosf(phi_) * cosf(theta_), cosf(phi_) * sinf(theta_), sinf(phi_)};
     }
 };
@@ -83,7 +88,7 @@ struct SphericalModel
 using LiDARModel = SphericalModel;
 
 struct CylindricModel {
-
+    // TODO
 };
 
 struct PinholeModel {
