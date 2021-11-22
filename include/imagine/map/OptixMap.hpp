@@ -60,6 +60,12 @@ struct Face {
     unsigned int v2;
 };
 
+struct OptixAccelerationStructure
+{
+    OptixTraversableHandle      handle;
+    CUdeviceptr                 buffer;
+};
+
 /**
  * @brief Single mesh. 
  * - Cuda Buffers for vertices, faces, normals
@@ -67,11 +73,14 @@ struct Face {
  */
 struct OptixMesh {
     // Handle of geometry acceleration structure
-    OptixTraversableHandle      gas_handle;
+    
     
     Memory<Point, VRAM_CUDA>    vertices;
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   normals;
+
+    // GAS
+    OptixAccelerationStructure  gas;
 };
 
 using OptixMeshPtr = std::shared_ptr<OptixMesh>;
@@ -95,7 +104,7 @@ public:
 
     ~OptixMap();
 
-    OptixTraversableHandle gas_handle;
+    // OptixTraversableHandle gas_handle;
     OptixDeviceContext context = nullptr;
     int m_device;
 
@@ -104,15 +113,26 @@ public:
 
     Memory<float3, VRAM_CUDA> normals;
 
+    std::vector<OptixMesh> meshes;
+    std::vector<OptixInstance> instances;
+
+    // Top Level AS. If loaded map consists of one mesh -> GAS. Else IAS
+    OptixAccelerationStructure acc;
+
 private:
+
+    void buildGAS(const OptixMesh& mesh, OptixAccelerationStructure& gas);
+
     CUdeviceptr             m_vertices = 0;
     unsigned int            m_num_vertices;
     CUdeviceptr             m_faces = 0;
     unsigned int            m_num_faces;
 
+    bool                    m_instance_level;
+
     void initContext(int device = 0);
 
-    CUdeviceptr            d_gas_output_buffer;
+    // CUdeviceptr            d_gas_output_buffer;
 };
 
 using OptixMapPtr = std::shared_ptr<OptixMap>;

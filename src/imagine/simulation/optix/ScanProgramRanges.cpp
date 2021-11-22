@@ -45,7 +45,8 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
-    pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+    // pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+    pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     pipeline_compile_options.numPayloadValues      = 1;
     pipeline_compile_options.numAttributeValues    = 0;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
@@ -124,7 +125,10 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
                 );
 
     // 3. link pipeline
+    // traverse depth = 2 for ias + gas
+    const uint32_t    max_traversable_depth = 2;
     const uint32_t    max_trace_depth  = 1;
+    
     OptixProgramGroup program_groups[] = { 
         raygen_prog_group, 
         miss_prog_group, 
@@ -156,6 +160,7 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
         OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
     }
 
+
     uint32_t direct_callable_stack_size_from_traversal;
     uint32_t direct_callable_stack_size_from_state;
     uint32_t continuation_stack_size;
@@ -166,7 +171,7 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr mesh)
                                                 &direct_callable_stack_size_from_state, &continuation_stack_size ) );
     OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
                                             direct_callable_stack_size_from_state, continuation_stack_size,
-                                            1  // maxTraversableDepth
+                                            max_traversable_depth  // maxTraversableDepth
                                             ) );
 
     // 4. setup shader binding table
