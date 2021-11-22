@@ -26,13 +26,13 @@ Memory<LiDARModel, RAM> velodyne_model()
     model->theta.size = 440;
     model->theta.computeStep();
     
-    model->phi.min = -M_PI;
-    model->phi.max = M_PI;
+    model->phi.min = -0.261799;
+    model->phi.max = 0.261799;
     model->phi.size = 16;
     model->phi.computeStep();
     
-    model->range.min = 1.0;
-    model->range.max = 100.0;
+    model->range.min = 0.5;
+    model->range.max = 130.0;
     return model;
 }
 
