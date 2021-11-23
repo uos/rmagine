@@ -108,7 +108,7 @@ include_directories(
     include
 )
 
-add_library(imagine
+add_library(imagine SHARED
     # Maps
     src/imagine/map/AssimpMap.cpp
     src/imagine/map/EmbreeMap.cpp
@@ -132,21 +132,20 @@ target_compile_features(imagine PRIVATE cxx_std_17)
 
 if(CUDA_FOUND)
 
-add_library(imagine_cuda
+add_library(imagine_cuda SHARED
     src/imagine/types/MemoryCuda.cu
     src/imagine/math/math.cu
     src/imagine/util/cuda/CudaContext.cpp
 )
 
-# set_target_properties(imagine_cuda
-#     PROPERTIES 
-#         CUDA_SEPARABLE_COMPILATION ON
-# )
-
 target_link_libraries(imagine_cuda
     imagine
     ${CUDA_LIBRARIES}
     ${CUDA_CUDA_LIBRARY}
+)
+
+add_dependencies(imagine_cuda
+    imagine
 )
 
 if(OptiX_FOUND)
@@ -188,9 +187,8 @@ if(OptiX_FOUND)
 
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
-
     # OptiX GENERAL LIBRARY
-    add_library(imagine_optix
+    add_library(imagine_optix SHARED
         # Util 
         src/imagine/util/optix/OptixFunctionTable.cpp
         src/imagine/util/optix/OptixProgram.cpp
@@ -210,7 +208,9 @@ if(OptiX_FOUND)
 
     add_dependencies(imagine_optix
         imagine_optix_ptx
+        imagine_cuda
     )
+
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)

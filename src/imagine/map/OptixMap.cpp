@@ -1,7 +1,7 @@
 #include "imagine/map/OptixMap.hpp"
 #include "imagine/util/optix/OptixDebug.hpp"
 #include "imagine/types/MemoryCuda.hpp"
-
+#include "imagine/util/GenericAlign.hpp"
 
 #include <optix.h>
 #include <optix_stubs.h>
@@ -16,7 +16,7 @@
 
 #include <map>
 
-#include "imagine/util/GenericAlign.hpp"
+
 
 static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {

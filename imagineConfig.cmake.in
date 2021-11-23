@@ -27,20 +27,22 @@ set(imagine_INCLUDE_DIRS @CMAKE_INSTALL_INCLUDEDIR@)
 ###########
 
 # CORE LIB
+set(imagine_LIBRARY imagine)
 set(imagine_LIBRARIES imagine)
 
 # CUDA LIB
 if(@CUDA_FOUND@)
 list(APPEND imagine_LIBRARIES imagine_cuda)
+set(imagine_cuda_LIBRARY imagine_cuda)
 endif(@CUDA_FOUND@)
 
 # OptiX LIB
 if(@OptiX_FOUND@)
 list(APPEND imagine_LIBRARIES imagine_optix)
+set(imagine_optix_LIBRARY imagine_optix)
 endif(@CUDA_FOUND@)
 
 set(imagine_DEFINITIONS @imagine_DEFINITIONS@)
-
 
 ############
 ### EXTERNAL
@@ -58,6 +60,7 @@ endif(OPENMP_FOUND)
 find_package(assimp REQUIRED)
 list(APPEND imagine_INCLUDE_DIRS ${ASSIMP_INCLUDE_DIRS})
 list(APPEND imagine_LIBRARIES ${ASSIMP_LIBRARIES})
+list(APPEND imagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 
 # Eigen
 find_package(Eigen3 REQUIRED)
@@ -76,18 +79,21 @@ if(NOT embree_LIBRARY)
 endif()
 
 list(APPEND imagine_LIBRARIES @embree_LIBRARY@)
+list(APPEND imagine_ext_LIBRARIES @embree_LIBRARY@)
 
 # CUDA
-find_package(CUDA)
-if(CUDA_FOUND)
-    list(APPEND imagine_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS})
-    list(APPEND imagine_LIBRARIES ${CUDA_LIBRARIES})
-    list(APPEND imagine_LIBRARIES ${CUDA_CUDA_LIBRARY})
-endif(CUDA_FOUND)
+if(@CUDA_FOUND@)
+    list(APPEND imagine_INCLUDE_DIRS @CUDA_INCLUDE_DIRS@)
+    list(APPEND imagine_LIBRARIES @CUDA_LIBRARIES@)
+    list(APPEND imagine_LIBRARIES @CUDA_CUDA_LIBRARY@)
+    list(APPEND imagine_ext_LIBRARIES @CUDA_LIBRARIES@)
+    list(APPEND imagine_ext_LIBRARIES @CUDA_CUDA_LIBRARY@)
+endif()
 
 if(@OptiX_FOUND@)
     list(APPEND imagine_INCLUDE_DIRS @OptiX_INCLUDE_DIRS@)
     list(APPEND imagine_LIBRARIES @OptiX_LIBRARIES@)
+    list(APPEND imagine_ext_LIBRARIES @OptiX_LIBRARIES@)
 endif()
 
 set(imagine_FOUND TRUE)
