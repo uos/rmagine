@@ -52,6 +52,8 @@
 
 #include <imagine/math/types.h>
 
+#include <unordered_map>
+
 namespace imagine {
 
 // TODO: move somewhere else
@@ -74,8 +76,8 @@ struct OptixAccelerationStructure
  */
 struct OptixMesh {
     // Handle of geometry acceleration structure
-    
-    
+    unsigned int id;
+
     Memory<Point, VRAM_CUDA>    vertices;
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   normals;
@@ -105,21 +107,30 @@ public:
 
     ~OptixMap();
 
-    // OptixTraversableHandle gas_handle;
     OptixDeviceContext context = nullptr;
     int m_device;
 
     // TODO: make own cuda context class
     CUcontext cuda_context;
 
-    Memory<float3, VRAM_CUDA> normals;
-
+    Memory<OptixInstance, RAM> instances;
     std::vector<OptixMesh> meshes;
-    std::vector<OptixInstance> instances;
 
-    // Top Level AS. If loaded map consists of one mesh -> GAS. Else IAS
+    /** top-level structure: can be one of:
+    * - Geometry Acceleration Structure (GAS). If loaded map contains only one mesh
+    * - Instance Acceleration Structure (IAS). If loaded map contrains more than one mesh. 
+    * 
+    * Current Implementation: Each Instance has exactly one mesh (TODO)
+    *
+    */ 
     OptixAccelerationStructure as;
 
+    /**
+     * @brief If the map has a instance level acceleration structure
+     * 
+     * @return true Yes
+     * @return false No
+     */
     bool ias() const
     {
         return m_instance_level;
@@ -127,7 +138,25 @@ public:
 
 private:
 
-    void buildGAS(const OptixMesh& mesh, OptixAccelerationStructure& gas);
+    // BUILD GAS
+    void fillMeshes(const aiScene* ascene);
+
+    void buildGAS(
+        const OptixMesh& mesh, 
+        OptixAccelerationStructure& gas);
+
+    // BUILD IAS
+    // fillInstances, buildIAS requires fillMeshes and buildGAS to be called first
+    void fillInstances(const aiScene* ascene);
+
+    void buildIAS(
+        const Memory<OptixInstance, VRAM_CUDA>& instances,
+        OptixAccelerationStructure& ias
+    );
+
+    void buildIAS(
+        const Memory<OptixInstance, RAM>& instances,
+        OptixAccelerationStructure& ias);
 
     CUdeviceptr             m_vertices = 0;
     unsigned int            m_num_vertices;

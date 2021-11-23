@@ -201,12 +201,6 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             // Leaf
             if(n->mNumMeshes > 0)
             {
-                // std::cout << "- Name: " << n->mName.C_Str() << std::endl;
-                // std::cout << "- Meshes: " << n->mNumMeshes << std::endl;
-                // std::cout << "- Mesh Id 0: " << n->mMeshes[0] << std::endl;
-                // std::cout << "- T:" << std::endl;
-                // print(n->mTransformation);
-
                 aiMatrix4x4 aT = n->mTransformation;
                 Matrix4x4 T;
                 convert(aT, T);

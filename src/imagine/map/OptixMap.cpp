@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <Eigen/Dense>
 
+#include <map>
+
 #include "imagine/util/GenericAlign.hpp"
 
 static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
@@ -29,7 +31,75 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
 {
     initContext(device);
 
-    for(size_t mesh_id=0; mesh_id<ascene->mNumMeshes; mesh_id++)
+    fillMeshes(ascene);
+
+    if(meshes.size() > 1)
+    {
+        // enable instance level
+        m_instance_level = true;
+    } else if(meshes.size() == 1) {
+        m_instance_level = false;
+    } else {
+        throw std::runtime_error("No Meshes?");
+    }
+
+    // Build instance acceleration structure IAS if required
+    if(meshes.size() > 1)
+    {
+        // Build GASes
+        for(unsigned int mesh_id = 0; mesh_id < meshes.size(); mesh_id++)
+        {
+            // OptixMesh& mesh = meshes[mesh_id];
+            buildGAS(meshes[mesh_id], meshes[mesh_id].gas);
+        }
+
+        // Get Instance information and fill the instances memory
+        fillInstances(ascene);
+        // Build the GAS
+        buildIAS(instances, as);
+
+    } else {
+        buildGAS(meshes[0], as);
+    }
+}
+
+OptixMap::~OptixMap()
+{
+    cudaFree( reinterpret_cast<void*>( m_vertices ) );
+    cudaFree( reinterpret_cast<void*>( m_faces ) );
+
+    cudaFree( reinterpret_cast<void*>( as.buffer ) );
+
+    optixDeviceContextDestroy( context );
+}
+
+void OptixMap::initContext(int device)
+{
+    // Initialize CUDA
+    cudaDeviceProp info;
+    CUDA_CHECK( cudaGetDeviceProperties(&info, device) );
+    std::cout << "[OptixMesh] Init context on device " << device << " " << info.name << " " << info.luid << std::endl;
+
+    cuCtxCreate(&cuda_context, 0, device);
+
+    // Check flags
+    cuInit(0);
+
+    // Initialize the OptiX API, loading all API entry points
+    OPTIX_CHECK( optixInit() );
+
+    // Specify context options
+    OptixDeviceContextOptions options = {};
+    options.logCallbackFunction       = &context_log_cb;
+    options.logCallbackLevel          = 3;
+
+    OPTIX_CHECK( optixDeviceContextCreate( cuda_context, &options, &context ) );
+}
+
+void OptixMap::fillMeshes(const aiScene* ascene)
+{
+    meshes.resize(ascene->mNumMeshes);
+    for(size_t mesh_id=0; mesh_id < ascene->mNumMeshes; mesh_id++)
     {
         const aiMesh* ai_mesh = ascene->mMeshes[mesh_id];
         const aiVector3D* ai_vertices = ai_mesh->mVertices;
@@ -86,102 +156,80 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
         mesh.vertices = vertices_cpu;
         mesh.faces = faces_cpu;
         mesh.normals = normals_cpu;
-
-        meshes.push_back(mesh);
-        // instances.push_back(instance);
+        meshes[mesh_id] = mesh;
     }
+}
 
-    if(meshes.size() > 1)
+void OptixMap::fillInstances(const aiScene* ascene)
+{
+    // get Transform from aiscene
+    
+    std::map<unsigned int, aiMatrix4x4> Tmap;
+
+    // Parsing transformation tree
+    unsigned int geom_id = 0;
+    const aiNode* root_node = ascene->mRootNode;
+    for(unsigned int i=0; i<root_node->mNumChildren; i++)
     {
-        // enable instance level
-        m_instance_level = true;
-    } else if(meshes.size() == 1) {
-        m_instance_level = false;
-    } else {
-        throw std::runtime_error("No Meshes?");
-    }
-
-
-    if(ascene->mNumMeshes > 1)
-    {
-        std::cout << "OptixMesh WARNING: multiple meshes found in scene. TODO: implement" << std::endl;
-    }
-
-    // Build instance acceleration structure IAS if required
-
-    if(meshes.size() > 1)
-    {
-
-
-        // Build GASes
-        for(unsigned int mesh_id = 0; mesh_id < meshes.size(); mesh_id++)
+        const aiNode* n = root_node->mChildren[i];
+        if(n->mNumChildren == 0)
         {
-            // OptixMesh& mesh = meshes[mesh_id];
-            buildGAS(meshes[mesh_id], meshes[mesh_id].gas);
+            // Leaf
+            if(n->mNumMeshes > 0)
+            {
+                aiMatrix4x4 aT = n->mTransformation;
+                Tmap[n->mMeshes[0]] = aT;
+            }
+        } else {
+            // TODO: handle deeper tree. concatenate transformations
+            // std::cout << "- Children: " << n->mNumChildren << std::endl;
+        }
+    }
+
+    std::cout << "Transformations Found: " << Tmap.size() << std::endl;
+
+    if(Tmap.size() > 0)
+    {
+        instances.resize(ascene->mNumMeshes);
+        for(size_t mesh_id=0; mesh_id < ascene->mNumMeshes; mesh_id++)
+        {
+            auto fit = Tmap.find(mesh_id);
+            bool Tfound = false;
+            aiMatrix4x4 T;
+            if(fit != Tmap.end())
+            {
+                // Found transform!
+                T = fit->second;
+                Tfound = true;
+            }
+            
+            // convert 
+            OptixInstance& instance = instances[mesh_id];
 
             // Build IAS
-
-            OptixInstance instance;
-            instance.transform[ 0] = 1.0; // Rxx
-            instance.transform[ 1] = 0.0; // Rxy
-            instance.transform[ 2] = 0.0; // Rxz
-            instance.transform[ 3] = 0.0; // tx
-            instance.transform[ 4] = 0.0; // Ryx
-            instance.transform[ 5] = 1.0; // Ryy
-            instance.transform[ 6] = 0.0; // Ryz
-            instance.transform[ 7] = 0.0; // ty 
-            instance.transform[ 8] = 0.0; // Rzx
-            instance.transform[ 9] = 0.0; // Rzy
-            instance.transform[10] = 1.0; // Rzz
-            instance.transform[11] = 0.0; // tz
+            instance.transform[ 0] = T.a1; // Rxx
+            instance.transform[ 1] = T.a2; // Rxy
+            instance.transform[ 2] = T.a3; // Rxz
+            instance.transform[ 3] = T.a4; // tx
+            instance.transform[ 4] = T.b1; // Ryx
+            instance.transform[ 5] = T.b2; // Ryy
+            instance.transform[ 6] = T.b3; // Ryz
+            instance.transform[ 7] = T.b4; // ty 
+            instance.transform[ 8] = T.c1; // Rzx
+            instance.transform[ 9] = T.c2; // Rzy
+            instance.transform[10] = T.c3; // Rzz
+            instance.transform[11] = T.c4; // tz
             // ..
             instance.instanceId = mesh_id;
             instance.sbtOffset = 0;
             instance.visibilityMask = 255;
             // you could override the geometry flags here: OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT
             instance.flags = OPTIX_INSTANCE_FLAG_NONE;
-        
-            instances.push_back(instance);
+            instance.traversableHandle = meshes[mesh_id].gas.handle;
         }
-
-
-
-    } else {
-        buildGAS(meshes[0], as);
     }
-}
 
-OptixMap::~OptixMap()
-{
-    cudaFree( reinterpret_cast<void*>( m_vertices ) );
-    cudaFree( reinterpret_cast<void*>( m_faces ) );
-
-    cudaFree( reinterpret_cast<void*>( as.buffer ) );
-
-    optixDeviceContextDestroy( context );
-}
-
-void OptixMap::initContext(int device)
-{
-    // Initialize CUDA
-    cudaDeviceProp info;
-    CUDA_CHECK( cudaGetDeviceProperties(&info, device) );
-    std::cout << "[OptixMesh] Init context on device " << device << " " << info.name << " " << info.luid << std::endl;
-
-    cuCtxCreate(&cuda_context, 0, device);
-
-    // Check flags
-    cuInit(0);
-
-    // Initialize the OptiX API, loading all API entry points
-    OPTIX_CHECK( optixInit() );
-
-    // Specify context options
-    OptixDeviceContextOptions options = {};
-    options.logCallbackFunction       = &context_log_cb;
-    options.logCallbackLevel          = 3;
-
-    OPTIX_CHECK( optixDeviceContextCreate( cuda_context, &options, &context ) );
+    std::cout << "Finished filling Instances" << std::endl;
 }
 
 void OptixMap::buildGAS(
@@ -266,5 +314,64 @@ void OptixMap::buildGAS(
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 }
 
+void OptixMap::buildIAS(
+    const Memory<OptixInstance, VRAM_CUDA>& instances,
+    OptixAccelerationStructure& ias)
+{
+    OptixBuildInput instance_input = {};
+    instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    instance_input.instanceArray.numInstances = instances.size();
+    instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
+
+    OptixAccelBuildOptions ias_accel_options = {};
+    ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+    ias_accel_options.motionOptions.numKeys = 1;
+    ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+    OptixAccelBufferSizes ias_buffer_sizes;
+    OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+        context, 
+        &ias_accel_options, 
+        &instance_input, 
+        1, 
+        &ias_buffer_sizes ) );
+
+    CUdeviceptr d_temp_buffer_ias;
+    CUDA_CHECK( cudaMalloc(
+        reinterpret_cast<void**>( &d_temp_buffer_ias ),
+        ias_buffer_sizes.tempSizeInBytes) );
+
+    CUDA_CHECK( cudaMalloc(
+                reinterpret_cast<void**>( &ias.buffer ),
+                ias_buffer_sizes.outputSizeInBytes
+                ) );
+
+    OPTIX_CHECK( optixAccelBuild( 
+        context, 
+        0, 
+        &ias_accel_options, 
+        &instance_input, 
+        1, 
+        d_temp_buffer_ias,
+        ias_buffer_sizes.tempSizeInBytes, 
+        ias.buffer,
+        ias_buffer_sizes.outputSizeInBytes,
+        &ias.handle,
+        nullptr, 
+        0 
+        ) );
+
+    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+}
+
+void OptixMap::buildIAS(
+    const Memory<OptixInstance, RAM>& instances,
+    OptixAccelerationStructure& ias)
+{
+    // copy to gpu
+    Memory<OptixInstance, VRAM_CUDA> instances_gpu;
+    instances_gpu = instances;
+    buildIAS(instances_gpu, ias);
+}
 
 } // namespace mamcl

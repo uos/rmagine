@@ -5,6 +5,16 @@
 
 using namespace imagine;
 
+struct MyMesh
+{
+    unsigned int id;
+};
+
+struct MyInstance
+{
+    unsigned int id;
+};
+
 int main(int argc, char** argv)
 {
     std::cout << "Imagine Test: Optix Simulation" << std::endl;
@@ -87,10 +97,7 @@ int main(int argc, char** argv)
     ranges = ranges_gpu;
 
     std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
-
     std::cout << "Result: " << ranges[0] << std::endl;
-
-
 
     return 0;
 }

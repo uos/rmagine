@@ -39,6 +39,7 @@
 #include <memory>
 #include <string>
 #include <assimp/scene.h>
+#include <imagine/math/types.h>
 
 namespace imagine {
 
