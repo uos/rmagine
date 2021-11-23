@@ -36,6 +36,7 @@
 #define IMAGINE_OPTIX_DATA_HPP
 
 #include <cuda_runtime.h>
+#include <imagine/math/types.h>
 
 namespace imagine 
 {
@@ -53,7 +54,7 @@ struct HitGroupDataEmpty {
 };
 
 struct HitGroupDataNormals {
-    float3* normals;
+    Vector* normals;
 };
 
 } // namespace imagine

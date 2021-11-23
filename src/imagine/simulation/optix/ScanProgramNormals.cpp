@@ -1,4 +1,4 @@
-#include "imagine/simulation/optix/ScanProgramRanges.hpp"
+#include "imagine/simulation/optix/ScanProgramNormals.hpp"
 
 #include "imagine/util/GenericAlign.hpp"
 #include "imagine/util/optix/OptixDebug.hpp"
@@ -20,14 +20,12 @@ namespace imagine {
 
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
+typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
 
-
-
-ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
+ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
 {
     const char *kernel =
-    #include "kernels/ScanProgramRangesString.h"
+    #include "kernels/ScanProgramNormalsString.h"
     ;
 
     // 1. INIT MODULE
@@ -52,8 +50,8 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
     } else {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     }
-    pipeline_compile_options.numPayloadValues      = 1;
-    pipeline_compile_options.numAttributeValues    = 0;
+    pipeline_compile_options.numPayloadValues      = 3;
+    pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
 #else
@@ -214,6 +212,8 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     HitGroupSbtRecord hg_sbt;
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+    hg_sbt.data.normals = map->meshes[0].normals.raw();
+
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
                 &hg_sbt,

@@ -1,4 +1,4 @@
-#include "imagine/simulation/optix/ScanProgramRanges.hpp"
+#include "imagine/simulation/optix/ScanProgramGeneric.hpp"
 
 #include "imagine/util/GenericAlign.hpp"
 #include "imagine/util/optix/OptixDebug.hpp"
@@ -24,15 +24,62 @@ typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
 
 
-ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
+ScanProgramGeneric::ScanProgramGeneric(OptixMapPtr map)
 {
     const char *kernel =
-    #include "kernels/ScanProgramRangesString.h"
+    #include "kernels/ScanProgramGenericString.h"
     ;
 
     // 1. INIT MODULE
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
+    
+    // Try to enable something during compilation
+    OptixSimulationDataGeneric tmp_mem;
+    tmp_mem.computeHits   = true;
+    tmp_mem.computeRanges = true;
+    tmp_mem.computePoints = true;
+    tmp_mem.computeNormals = true;
+    tmp_mem.computeFaceIds = true;
+    tmp_mem.computeObjectIds = true;
+
+    // determine number of payload values
+    int numPayloadValues = 1;
+    // if(tmp_mem.computeRanges)
+    // {
+    //     numPayloadValues = std::max(numPayloadValues, 1);
+    // }
+    // if(tmp_mem.computePoints)
+    // {
+    //     numPayloadValues = std::max(numPayloadValues, 1);
+    // }
+
+    OptixModuleCompileBoundValueEntry options[6];
+    // computeHits
+    options[0].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeHits);
+    options[0].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeHits );
+    options[0].boundValuePtr = &tmp_mem.computeHits;
+    // computeRanges
+    options[1].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeRanges);
+    options[1].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeRanges );
+    options[1].boundValuePtr = &tmp_mem.computeRanges;
+    // computePoints
+    options[2].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computePoints);
+    options[2].sizeInBytes = sizeof( OptixSimulationDataGeneric::computePoints );
+    options[2].boundValuePtr = &tmp_mem.computePoints;
+    // computeNormals
+    options[3].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeNormals);
+    options[3].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeNormals );
+    options[3].boundValuePtr = &tmp_mem.computeNormals;
+    // computeFaceIds
+    options[4].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeFaceIds);
+    options[4].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeFaceIds );
+    options[4].boundValuePtr = &tmp_mem.computeFaceIds;
+    // computeObjectIds
+    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeObjectIds);
+    options[5].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeObjectIds );
+    options[5].boundValuePtr = &tmp_mem.computeObjectIds;
+
 
     OptixModuleCompileOptions module_compile_options = {};
     module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
@@ -43,6 +90,8 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
     module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 #endif
+    module_compile_options.boundValues = &options[0];
+    module_compile_options.numBoundValues = 6;
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
@@ -52,8 +101,8 @@ ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
     } else {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     }
-    pipeline_compile_options.numPayloadValues      = 1;
-    pipeline_compile_options.numAttributeValues    = 0;
+    pipeline_compile_options.numPayloadValues      = numPayloadValues;
+    pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
 #else

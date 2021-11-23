@@ -163,6 +163,8 @@ if(OptiX_FOUND)
     set(OPTIX_KERNEL_FILES
         # Simulation
         src/imagine/simulation/optix/ScanProgramRanges.cu
+        src/imagine/simulation/optix/ScanProgramNormals.cu
+        src/imagine/simulation/optix/ScanProgramGeneric.cu
     )
 
     cuda_compile_ptx(imagine_optix_ptx
@@ -181,12 +183,12 @@ if(OptiX_FOUND)
         COMMAND ${CMAKE_COMMAND} 
             -DIMAGINE_SOURCE_DIR=${imagine_SOURCE_DIR} 
             -DIMAGINE_OPTIX_PTX_DIR=${IMAGINE_OPTIX_PTX_DIR} 
-            -DOPTIX_KERNEL_FILES=${OPTIX_KERNEL_FILES} 
+            -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}" 
             -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
     )
 
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-
+    
     # OptiX GENERAL LIBRARY
     add_library(imagine_optix SHARED
         # Util 
@@ -199,6 +201,8 @@ if(OptiX_FOUND)
         src/imagine/simulation/OptixSimulator.cpp
         # Simulation Programs
         src/imagine/simulation/optix/ScanProgramRanges.cpp
+        src/imagine/simulation/optix/ScanProgramNormals.cpp
+        src/imagine/simulation/optix/ScanProgramGeneric.cpp
     )
 
     target_link_libraries(imagine_optix

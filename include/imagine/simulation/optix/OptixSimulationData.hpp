@@ -13,14 +13,50 @@ namespace imagine
 
 struct OptixSimulationDataRanges {
     // Input
+    const Transform*        Tsb; // Static offset of sensor
+    const LiDARModel*       model; // Scanner Model
+    const Transform*        Tbm; // Poses
+    uint32_t                Nposes;
+    // Handle
+    OptixTraversableHandle  handle;
+    // Result
+    float*                  ranges;
+};
+
+struct OptixSimulationDataNormals {
     // Input
     const Transform*        Tsb; // Static offset of sensor
     const LiDARModel*       model; // Scanner Model
     const Transform*        Tbm; // Poses
     uint32_t                Nposes;
+    // Handle
     OptixTraversableHandle  handle;
     // Result
+    Vector*                 normals;
+};
+
+struct OptixSimulationDataGeneric {
+    // Input
+    const Transform*        Tsb; // Static offset of sensor
+    const LiDARModel*       model; // Scanner Model
+    const Transform*        Tbm; // Poses
+    uint32_t                Nposes;
+    // Handle
+    OptixTraversableHandle  handle;
+    // Generic Options
+    bool                    computeHits;
+    bool                    computeRanges;
+    bool                    computePoints;
+    bool                    computeNormals;
+    bool                    computeFaceIds;
+    bool                    computeObjectIds;
+    // Result
+    uint8_t*                hits;
     float*                  ranges;
+    Point*                  points;
+    Vector*                 normals;
+    unsigned int*           face_ids;
+    unsigned int*           object_ids;
 };
 
 } // namespace imagine

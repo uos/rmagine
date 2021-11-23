@@ -10,6 +10,7 @@
 
 // Scan Programs
 #include <imagine/simulation/optix/ScanProgramRanges.hpp>
+#include <imagine/simulation/optix/ScanProgramNormals.hpp>
 
 namespace imagine
 {
@@ -17,10 +18,11 @@ namespace imagine
 OptixSimulator::OptixSimulator(OptixMapPtr map)
 :m_map(map)
 {
-    m_programs.resize(1);
+    m_programs.resize(2);
     
     // programs[0].reset(new ScanProgramHit(mesh));
     m_programs[0].reset(new ScanProgramRanges(map));
+    m_programs[1].reset(new ScanProgramNormals(map));
     // programs[2].reset(new ScanProgramScanPoint(mesh));
     // programs[3].reset(new ScanProgramFaceId(mesh));
     // programs[4].reset(new ScanProgramObjectId(mesh));
@@ -85,9 +87,48 @@ Memory<float, VRAM_CUDA> OptixSimulator::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
     Memory<float, VRAM_CUDA> res(m_width * m_height * Tbm.size());
-
     simulateRanges(Tbm, res);
+    return res;
+}
 
+void OptixSimulator::simulateNormals(
+    const Memory<Transform, VRAM_CUDA>& Tbm, 
+    Memory<Vector, VRAM_CUDA>& normals) const
+{
+    Memory<OptixSimulationDataNormals, RAM> mem;
+    mem->Tsb = m_Tsb.raw();
+    mem->model = m_model.raw();
+    mem->Tbm = Tbm.raw();
+    mem->handle = m_map->as.handle;
+    mem->normals = normals.raw();
+
+    Memory<OptixSimulationDataNormals, VRAM_CUDA> d_mem;
+    copy(mem, d_mem, m_stream);
+
+    OptixProgramPtr program = m_programs[1];
+
+    if(program)
+    {
+        OPTIX_CHECK( optixLaunch(
+                program->pipeline,
+                m_stream,
+                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+                sizeof( OptixSimulationDataNormals ),
+                &program->sbt,
+                m_width, // width Xdim
+                m_height, // height Ydim
+                Tbm.size() // depth Zdim
+                ));
+    } else {
+        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
+    }
+}
+
+Memory<Vector, VRAM_CUDA> OptixSimulator::simulateNormals(
+    const Memory<Transform, VRAM_CUDA>& Tbm) const
+{
+    Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());
+    simulateNormals(Tbm, res);
     return res;
 }
 

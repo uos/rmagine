@@ -53,18 +53,6 @@ struct ObjectIds {
     Memory<unsigned int, MemT> object_ids;
 };
 
-
-
-
-
-struct MeshFace
-{
-    unsigned int mesh_id;
-    unsigned int face_id;
-};
-
-
-
 } // namespace imagine
 
 #endif // IMAGINE_SIMULATION_RESULTS_HPP

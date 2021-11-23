@@ -16,8 +16,6 @@
 
 #include <map>
 
-
-
 static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {
     std::cerr << "[" << std::setw( 2 ) << level << "][" << std::setw( 12 ) << tag << "]: "
@@ -185,8 +183,6 @@ void OptixMap::fillInstances(const aiScene* ascene)
             // std::cout << "- Children: " << n->mNumChildren << std::endl;
         }
     }
-
-    std::cout << "Transformations Found: " << Tmap.size() << std::endl;
 
     if(Tmap.size() > 0)
     {
