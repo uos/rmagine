@@ -240,7 +240,10 @@ add_subdirectory(src/imagine_tools/imagine_benchmark)
 install(DIRECTORY include/imagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
 install(TARGETS imagine imagine_cuda imagine_optix)
-
+# TODO: Components?
+# install(TARGETS imagine COMPONENT core)
+# install(TARGETS imagine_cuda COMPONENT cuda)
+# install(TARGETS imagine_optix COMPONENT optix)
 
 # Executables
 install(TARGETS imagine_benchmark
@@ -262,7 +265,6 @@ write_basic_package_version_file(
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/imagineConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/imagineConfigVersion.cmake
               DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/imagine )
-
 
 # Uninstall
 add_custom_target(uninstall COMMENT "Uninstall installed files")
