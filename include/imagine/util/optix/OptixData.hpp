@@ -54,7 +54,8 @@ struct HitGroupDataEmpty {
 };
 
 struct HitGroupDataNormals {
-    Vector* normals;
+    // instance -> normals
+    Vector* normals[10];
 };
 
 } // namespace imagine

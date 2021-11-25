@@ -54,65 +54,65 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
-    const float t = optixGetRayTmax();
-    const unsigned int face_id = optixGetPrimitiveIndex();
-    const unsigned int object_id = optixGetInstanceId();
-    imagine::HitGroupDataNormals* hg_data  = reinterpret_cast<imagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
+    // const float t = optixGetRayTmax();
+    // const unsigned int face_id = optixGetPrimitiveIndex();
+    // const unsigned int object_id = optixGetInstanceId();
+    // imagine::HitGroupDataNormals* hg_data  = reinterpret_cast<imagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
 
-    optixSetPayload_0( float_as_int(t) );
-    optixSetPayload_1( face_id );
-    optixSetPayload_2( object_id );
-    optixSetPayload_3( float_as_int(hg_data->normals[face_id].x) );
-    optixSetPayload_4( float_as_int(hg_data->normals[face_id].y) );
-    optixSetPayload_5( float_as_int(hg_data->normals[face_id].z) );
+    // optixSetPayload_0( float_as_int(t) );
+    // optixSetPayload_1( face_id );
+    // optixSetPayload_2( object_id );
+    // optixSetPayload_3( float_as_int(hg_data->normals[face_id].x) );
+    // optixSetPayload_4( float_as_int(hg_data->normals[face_id].y) );
+    // optixSetPayload_5( float_as_int(hg_data->normals[face_id].z) );
 
-    if( mem.computeHits 
-        && mem.computeRanges 
-        && mem.computePoints 
-        && mem.computeNormals 
-        && mem.computeFaceIds 
-        && mem.computeObjectIds )
-    {
+    // if( mem.computeHits 
+    //     && mem.computeRanges 
+    //     && mem.computePoints 
+    //     && mem.computeNormals 
+    //     && mem.computeFaceIds 
+    //     && mem.computeObjectIds )
+    // {
 
-    }
+    // }
 
-    if( mem.computeHits 
-        && mem.computeRanges 
-        && mem.computePoints 
-        && mem.computeNormals 
-        && mem.computeFaceIds 
-        && !mem.computeObjectIds )
-    {
+    // if( mem.computeHits 
+    //     && mem.computeRanges 
+    //     && mem.computePoints 
+    //     && mem.computeNormals 
+    //     && mem.computeFaceIds 
+    //     && !mem.computeObjectIds )
+    // {
         
-    }
+    // }
 
-    if( mem.computeHits 
-        && mem.computeRanges 
-        && mem.computePoints 
-        && mem.computeNormals 
-        && !mem.computeFaceIds 
-        && mem.computeObjectIds )
-    {
+    // if( mem.computeHits 
+    //     && mem.computeRanges 
+    //     && mem.computePoints 
+    //     && mem.computeNormals 
+    //     && !mem.computeFaceIds 
+    //     && mem.computeObjectIds )
+    // {
         
-    }
+    // }
 
-    if( mem.computeHits 
-        && mem.computeRanges 
-        && mem.computePoints 
-        && mem.computeNormals 
-        && !mem.computeFaceIds 
-        && !mem.computeObjectIds )
-    {
+    // if( mem.computeHits 
+    //     && mem.computeRanges 
+    //     && mem.computePoints 
+    //     && mem.computeNormals 
+    //     && !mem.computeFaceIds 
+    //     && !mem.computeObjectIds )
+    // {
         
-    }
+    // }
 
-    if( mem.computeHits 
-        && mem.computeRanges 
-        && mem.computePoints 
-        && !mem.computeNormals 
-        && mem.computeFaceIds 
-        && mem.computeObjectIds )
-    {
+    // if( mem.computeHits 
+    //     && mem.computeRanges 
+    //     && mem.computePoints 
+    //     && !mem.computeNormals 
+    //     && mem.computeFaceIds 
+    //     && mem.computeObjectIds )
+    // {
         
-    }
+    // }
 }

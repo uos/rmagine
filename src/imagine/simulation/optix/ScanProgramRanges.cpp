@@ -22,8 +22,6 @@ typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
-
-
 ScanProgramRanges::ScanProgramRanges(OptixMapPtr map)
 {
     const char *kernel =

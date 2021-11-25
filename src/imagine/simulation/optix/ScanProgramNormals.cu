@@ -47,6 +47,7 @@ extern "C" __global__ void __raygen__rg()
     
     // mem.ranges[glob_id] = int_as_float( p0 );
     Vector nint{int_as_float(p0), int_as_float(p1), int_as_float(p2)};
+    nint.normalize();
     nint = Tms.R * nint;
 
     if(ray_dir_s.dot(nint) > 0.0)
@@ -54,7 +55,7 @@ extern "C" __global__ void __raygen__rg()
         nint *= -1.0;
     }
 
-    mem.normals[glob_id] = nint;
+    mem.normals[glob_id] = nint.normalized();
 }
 
 extern "C" __global__ void __miss__ms()
@@ -64,10 +65,16 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
-    unsigned int prim_id = optixGetPrimitiveIndex();
+    unsigned int face_id = optixGetPrimitiveIndex();
+    unsigned int object_id = optixGetInstanceIndex();
+
+    // TODO: test to receive the normal as attribute instead. like barycentrics    
     imagine::HitGroupDataNormals* hg_data  = reinterpret_cast<imagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
 
-    optixSetPayload_0( float_as_int( hg_data->normals[prim_id].x ) );
-    optixSetPayload_1( float_as_int( hg_data->normals[prim_id].y ) );
-    optixSetPayload_2( float_as_int( hg_data->normals[prim_id].z ) );
+    float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
+    float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
+
+    optixSetPayload_0( float_as_int( normal_world.x ) );
+    optixSetPayload_1( float_as_int( normal_world.y ) );
+    optixSetPayload_2( float_as_int( normal_world.z ) );
 }

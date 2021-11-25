@@ -212,7 +212,11 @@ ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     HitGroupSbtRecord hg_sbt;
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-    hg_sbt.data.normals = map->meshes[0].normals.raw();
+
+    for(size_t i=0; i<map->meshes.size(); i++)
+    {
+        hg_sbt.data.normals[i] = map->meshes[i].normals.raw();
+    }
 
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
