@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.82.7</authoring_tool>
     </contributor>
-    <created>2021-11-18T12:09:27</created>
-    <modified>2021-11-18T12:09:27</modified>
+    <created>2021-11-25T10:27:08</created>
+    <modified>2021-11-25T10:27:08</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -76,6 +76,23 @@
     </light>
   </library_lights>
   <library_effects>
+    <effect id="Material_001-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.8 0.8 0.8 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
     <effect id="Material-effect">
       <profile_COMMON>
         <technique sid="common">
@@ -96,6 +113,9 @@
   </library_effects>
   <library_images/>
   <library_materials>
+    <material id="Material_001-material" name="Material.001">
+      <instance_effect url="#Material_001-effect"/>
+    </material>
     <material id="Material-material" name="Material">
       <instance_effect url="#Material-effect"/>
     </material>
@@ -135,7 +155,7 @@
         <vertices id="Cube_001-mesh-vertices">
           <input semantic="POSITION" source="#Cube_001-mesh-positions"/>
         </vertices>
-        <triangles material="Material-material" count="12">
+        <triangles material="Material_001-material" count="12">
           <input semantic="VERTEX" source="#Cube_001-mesh-vertices" offset="0"/>
           <input semantic="NORMAL" source="#Cube_001-mesh-normals" offset="1"/>
           <input semantic="TEXCOORD" source="#Cube_001-mesh-map-0" offset="2" set="0"/>
@@ -189,11 +209,11 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Cube_001" name="Cube.001" type="NODE">
-        <matrix sid="transform">1 0 0 2.988937 0 1 0 2.024299 0 0 1 0.598219 0 0 0 1</matrix>
+        <matrix sid="transform">1 0 0 5.018768 0 1 0 3.785816 0 0 1 1.010261 0 0 0 1</matrix>
         <instance_geometry url="#Cube_001-mesh" name="Cube.001">
           <bind_material>
             <technique_common>
-              <instance_material symbol="Material-material" target="#Material-material">
+              <instance_material symbol="Material_001-material" target="#Material_001-material">
                 <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
               </instance_material>
             </technique_common>
@@ -209,7 +229,7 @@
         <instance_light url="#Light-light"/>
       </node>
       <node id="Cube" name="Cube" type="NODE">
-        <matrix sid="transform">1 0 0 4.088902 0 1 0 -2.088319 0 0 1 0.3226824 0 0 0 1</matrix>
+        <matrix sid="transform">1.64731 1.341416 -0.2990053 5.739205 -1.287207 1.342372 -1.069376 -4.660336 -0.4815588 1.000535 1.835609 1.694956 0 0 0 1</matrix>
         <instance_geometry url="#Cube-mesh" name="Cube">
           <bind_material>
             <technique_common>
