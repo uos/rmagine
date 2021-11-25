@@ -213,11 +213,25 @@ ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
     HitGroupSbtRecord hg_sbt;
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
 
+    // build array of normal buffer. one normal buffer per mesh
+    Memory<Vector*, RAM> normals_cpu(map->meshes.size());
     for(size_t i=0; i<map->meshes.size(); i++)
     {
-        hg_sbt.data.normals[i] = map->meshes[i].normals.raw();
+        normals_cpu[i] = map->meshes[i].normals.raw();
     }
 
+    // TODO: check if this will be freed
+    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
+
+    // gpu array of gpu pointers
+    CUDA_CHECK( cudaMemcpy(
+                reinterpret_cast<void*>(hg_sbt.data.normals),
+                reinterpret_cast<void*>(normals_cpu.raw()),
+                map->meshes.size() * sizeof(Vector*),
+                cudaMemcpyHostToDevice
+                ) );
+
+    // cpu -> gpu hitgroup record
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
                 &hg_sbt,
