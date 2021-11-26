@@ -59,36 +59,62 @@ void print(Transform T)
     print(T.t);
 }
 
+void rotationConversionTest()
+{
+    std::cout << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "---- rotationConversionTest ----" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << std::endl;
+
+    EulerAngles e;
+    Quaternion q;
+    Matrix3x3 R;
+
+    e.roll = 0.0;
+    e.pitch = 0.0;
+    e.yaw = M_PI / 2.0;
+    
+    Vector x1{1.0, 0.0, 0.0};
+    Vector x2{0.0, 1.0, 0.0};
+    Vector x3{0.0, 0.0, 1.0};
+
+    std::cout << "Euler -> Quat" << std::endl;
+    q = e;
+    print(q * x1);
+    print(q * x2);
+    print(q * x3);
+    std::cout << std::endl;
+
+    std::cout << "Euler -> Matrix" << std::endl;
+    R = e;
+    print(R * x1);
+    print(R * x2);
+    print(R * x3);
+    std::cout << std::endl;
+
+
+    std::cout << "Quat -> Matrix" << std::endl;
+    R = q;
+    print(R * x1);
+    print(R * x2);
+    print(R * x3);
+    std::cout << std::endl;
+
+    std::cout << "Matrix -> Quat" << std::endl;
+    q = R;
+    print(q * x1);
+    print(q * x2);
+    print(q * x3);
+    std::cout << std::endl;
+
+
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Imagine Test: Basic Math" << std::endl;
-    Transform T;
-    T.setIdentity();
-
-    Matrix4x4 M2;
-    M2.setIdentity();
-    M2.setTranslation({2.0, 1.0, 0.5});
-
-    Matrix3x3 R = M2.rotation();
-    
-    print(R);
-    print(M2);
-
-    Eigen::Matrix4f Meig;
-    Meig.setIdentity();
-    Meig(0,3) = 2.0;
-    Meig(1,3) = 1.0;
-    Meig(2,3) = 0.5;
-
-    Eigen::Vector4f xeig(1.0, 2.0, 2.5, 1.0);
-    Vector x{1.0, 2.0, 2.5};
-
-    std::cout << Meig << std::endl;
-    std::cout << (Meig * xeig).transpose() << std::endl;
-
-
-    print(M2 * x);
-
+    rotationConversionTest();
 
     return 0;
 }
