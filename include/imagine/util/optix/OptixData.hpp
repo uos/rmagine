@@ -37,12 +37,18 @@
 
 #include <cuda_runtime.h>
 #include <imagine/math/types.h>
+#include <imagine/types/sensor_models.h>
 
 namespace imagine 
 {
 
 struct RayGenDataEmpty {
 
+};
+
+// For fixed spherical model
+struct RayGenDataSpherical {
+    SphericalModel model;
 };
 
 struct MissDataEmpty {

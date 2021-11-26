@@ -43,7 +43,7 @@ extern "C" __global__ void __raygen__rg()
             1,             // SBT stride
             0,          // missSBTIndex
             p0 );
-    
+     
     mem.ranges[glob_id] = int_as_float( p0 );
 }
 

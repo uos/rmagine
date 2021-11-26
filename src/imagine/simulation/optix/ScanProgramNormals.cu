@@ -41,7 +41,7 @@ extern "C" __global__ void __raygen__rg()
             OptixVisibilityMask( 1 ),   // Specify always visible
             OPTIX_RAY_FLAG_DISABLE_ANYHIT,
             0,          // SBT offset
-            1,             // SBT stride
+            1,          // SBT stride
             0,          // missSBTIndex
             p0, p1, p2 );
     
@@ -54,6 +54,7 @@ extern "C" __global__ void __raygen__rg()
     {
         nint *= -1.0;
     }
+    
 
     mem.normals[glob_id] = nint.normalized();
 }
@@ -61,6 +62,8 @@ extern "C" __global__ void __raygen__rg()
 extern "C" __global__ void __miss__ms()
 {
     optixSetPayload_0( float_as_int( mem.model->range.max + 1.0f ) );
+    optixSetPayload_1( float_as_int( mem.model->range.max + 1.0f ) );
+    optixSetPayload_2( float_as_int( mem.model->range.max + 1.0f ) );
 }
 
 extern "C" __global__ void __closesthit__ch()
@@ -68,10 +71,12 @@ extern "C" __global__ void __closesthit__ch()
     unsigned int face_id = optixGetPrimitiveIndex();
     unsigned int object_id = optixGetInstanceIndex();
 
-    // TODO: test to receive the normal as attribute instead. like barycentrics    
+    // Test to receive the normal as attribute instead. like barycentrics  
+    // doesnt work: attributes are fixed for primitive types. in this case triangles: only barycentrics  
     imagine::HitGroupDataNormals* hg_data  = reinterpret_cast<imagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
 
     float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
+    
     float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     optixSetPayload_0( float_as_int( normal_world.x ) );

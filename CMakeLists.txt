@@ -167,27 +167,27 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/ScanProgramGeneric.cu
     )
 
-    cuda_compile_ptx(imagine_optix_ptx
+    cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
         ${OPTIX_KERNEL_FILES}
     )
 
-    add_library(imagine_optix_ptx
-        ${OPTIX_KERNEL_FILES}
-    )
+    message(STATUS "IMAGINE_OPTIX_PTX_FILES: ${IMAGINE_OPTIX_PTX_FILES}")
+
+    add_custom_target(imagine_optix_ptx ALL
+        DEPENDS ${IMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
+        SOURCES ${OPTIX_KERNEL_FILES}
+        VERBATIM)
 
     message(STATUS "CMAKE_SOURCE_DIR: ${imagine_SOURCE_DIR}")
 
-    # 
     add_custom_command(
-        TARGET imagine_optix_ptx
+        TARGET imagine_optix_ptx POST_BUILD
         COMMAND ${CMAKE_COMMAND} 
             -DIMAGINE_SOURCE_DIR=${imagine_SOURCE_DIR} 
             -DIMAGINE_OPTIX_PTX_DIR=${IMAGINE_OPTIX_PTX_DIR} 
             -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}" 
             -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
     )
-
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
     
     # OptiX GENERAL LIBRARY
     add_library(imagine_optix SHARED
@@ -205,6 +205,10 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/ScanProgramGeneric.cpp
     )
 
+    target_include_directories(imagine_optix PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    )
+
     target_link_libraries(imagine_optix
         ${OptiX_LIBRARIES}
         imagine_cuda
@@ -214,6 +218,7 @@ if(OptiX_FOUND)
         imagine_optix_ptx
         imagine_cuda
     )
+    
 
 endif(OptiX_FOUND)
 

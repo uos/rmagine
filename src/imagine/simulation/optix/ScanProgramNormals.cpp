@@ -21,6 +21,7 @@ namespace imagine {
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
+// typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
 ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
 {
@@ -212,6 +213,8 @@ ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     HitGroupSbtRecord hg_sbt;
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+
+    // std::cout << "Skip old SBT stuff" << std::endl;
 
     // build array of normal buffer. one normal buffer per mesh
     Memory<Vector*, RAM> normals_cpu(map->meshes.size());
