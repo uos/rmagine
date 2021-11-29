@@ -133,72 +133,96 @@ ScanProgramGeneric::ScanProgramGeneric(OptixMapPtr map)
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
-
-    OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
-    raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    raygen_prog_group_desc.raygen.module            = module;
-    raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
     sizeof_log = sizeof( log );
 
-    optixProgramGroupCreate(
+    // 2.1. RAYGEN
+    {  
+        OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
+        raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+        raygen_prog_group_desc.raygen.module            = module;
+        raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
+        
+
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                    map->context,
+                    &raygen_prog_group_desc,
+                    1,   // num program groups
+                    &program_group_options,
+                    log,
+                    &sizeof_log,
+                    &raygen_prog_group
+                    ) );
+    }
+
+    // 2.2 Miss programs
+    {
+        OptixProgramGroupDesc miss_prog_group_desc;
+
+        miss_prog_group_desc = {};
+        miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+        miss_prog_group_desc.miss.module            = module;
+        miss_prog_group_desc.miss.entryFunctionName = "__miss__ranges";
+
+        OPTIX_CHECK_LOG(optixProgramGroupCreate(
                 map->context,
-                &raygen_prog_group_desc,
+                &miss_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
                 log,
                 &sizeof_log,
-                &raygen_prog_group
-                );
+                &miss_prog_groups[0]
+                ));
 
-    OptixProgramGroupOptions program_group_options_arr[2];
-    program_group_options_arr[0] = {};
-    program_group_options_arr[1] = {};
+        miss_prog_group_desc = {};
+        miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+        miss_prog_group_desc.miss.module            = module;
+        miss_prog_group_desc.miss.entryFunctionName = "__miss__normals";   
 
-    OptixProgramGroupDesc miss_prog_group_desc[2];
-
-    miss_prog_group_desc[0] = {};
-    miss_prog_group_desc[0].kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    miss_prog_group_desc[0].miss.module            = module;
-    miss_prog_group_desc[0].miss.entryFunctionName = "__miss__ranges";
-
-    miss_prog_group_desc[1] = {};
-    miss_prog_group_desc[1].kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    miss_prog_group_desc[1].miss.module            = module;
-    miss_prog_group_desc[1].miss.entryFunctionName = "__miss__normals";
-
-    sizeof_log = sizeof( log );
-    optixProgramGroupCreate(
+        OPTIX_CHECK_LOG(optixProgramGroupCreate(
                 map->context,
-                &miss_prog_group_desc[0],
-                2,   // num program groups
-                &program_group_options_arr[0],
+                &miss_prog_group_desc,
+                1,   // num program groups
+                &program_group_options,
                 log,
                 &sizeof_log,
-                &miss_prog_groups[0]
-                );
+                &miss_prog_groups[1]
+                ));     
+    }
+    
+    // 2.3 Closest Hit programs
+    {
+        OptixProgramGroupDesc hitgroup_prog_group_desc;
 
-    OptixProgramGroupDesc hitgroup_prog_group_desc[2];
+        hitgroup_prog_group_desc = {};
+        hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+        hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
+        hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ranges";
 
-    hitgroup_prog_group_desc[0] = {};
-    hitgroup_prog_group_desc[0].kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    hitgroup_prog_group_desc[0].hitgroup.moduleCH            = module;
-    hitgroup_prog_group_desc[0].hitgroup.entryFunctionNameCH = "__closesthit__ranges";
-
-    hitgroup_prog_group_desc[1] = {};
-    hitgroup_prog_group_desc[1].kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    hitgroup_prog_group_desc[1].hitgroup.moduleCH            = module;
-    hitgroup_prog_group_desc[1].hitgroup.entryFunctionNameCH = "__closesthit__normals";
-
-    sizeof_log = sizeof( log );
-    optixProgramGroupCreate(
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
                 map->context,
-                &hitgroup_prog_group_desc[0],
-                2,   // num program groups
-                &program_group_options_arr[0],
+                &hitgroup_prog_group_desc,
+                1,   // num program groups
+                &program_group_options,
                 log,
                 &sizeof_log,
                 &hitgroup_prog_groups[0]
-                );
+                ));
+
+        hitgroup_prog_group_desc = {};
+        hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+        hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
+        hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__normals";
+
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                map->context,
+                &hitgroup_prog_group_desc,
+                1,   // num program groups
+                &program_group_options,
+                log,
+                &sizeof_log,
+                &hitgroup_prog_groups[1]
+                ));
+    }
 
     std::cout << "link pipeline" << std::endl;
     // 3. link pipeline
@@ -257,6 +281,8 @@ ScanProgramGeneric::ScanProgramGeneric(OptixMapPtr map)
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
 
+
+
     // 4. setup shader binding table
     CUdeviceptr  raygen_record;
     const size_t raygen_record_size = sizeof( RayGenSbtRecord );
@@ -271,54 +297,65 @@ ScanProgramGeneric::ScanProgramGeneric(OptixMapPtr map)
                 ) );
 
     
-    CUdeviceptr miss_record;
+    // Number of ray types: for normals, ranges -> 2
+    unsigned int ray_type_count = 2;
+
+    CUdeviceptr d_miss_records;
     size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
-    MissSbtRecord ms_sbt;
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &d_miss_records ), miss_record_size * ray_type_count ) );
     
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_groups[0], &ms_sbt ) );
+    MissSbtRecord ms_sbt[2];
+    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_groups[0], &ms_sbt[0] ) );
+    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_groups[1], &ms_sbt[1] ) );
+
+
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( miss_record ),
-                &ms_sbt,
-                miss_record_size,
+                reinterpret_cast<void*>( d_miss_records ),
+                ms_sbt,
+                miss_record_size * ray_type_count,
                 cudaMemcpyHostToDevice
                 ) );
 
-    CUdeviceptr hitgroup_record;
+    CUdeviceptr d_hitgroup_records;
     size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
-    HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_groups[0], &hg_sbt ) );
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &d_hitgroup_records ), hitgroup_record_size * ray_type_count ) );
     
-    Memory<Vector*, RAM> normals_cpu(map->meshes.size());
-    for(size_t i=0; i<map->meshes.size(); i++)
+    HitGroupSbtRecord hg_sbt[2];
+
+    for(unsigned int ray_id = 0; ray_id < 2; ray_id++)
     {
-        normals_cpu[i] = map->meshes[i].normals.raw();
+        OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_groups[ray_id], &hg_sbt[ray_id] ) );
+
+        Memory<Vector*, RAM> normals_cpu(map->meshes.size());
+        for(size_t i=0; i<map->meshes.size(); i++)
+        {
+            normals_cpu[i] = map->meshes[i].normals.raw();
+        }
+        
+        cudaMalloc(reinterpret_cast<void**>(&hg_sbt[ray_id].data.normals), map->meshes.size() * sizeof(Vector*));
+        // gpu array of gpu pointers
+        CUDA_CHECK( cudaMemcpy(
+                    reinterpret_cast<void*>(hg_sbt[ray_id].data.normals),
+                    reinterpret_cast<void*>(normals_cpu.raw()),
+                    map->meshes.size() * sizeof(Vector*),
+                    cudaMemcpyHostToDevice
+                    ) );
     }
-    
-    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
-    // gpu array of gpu pointers
-    CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>(hg_sbt.data.normals),
-                reinterpret_cast<void*>(normals_cpu.raw()),
-                map->meshes.size() * sizeof(Vector*),
-                cudaMemcpyHostToDevice
-                ) );
 
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( hitgroup_record ),
-                &hg_sbt,
-                hitgroup_record_size,
+                reinterpret_cast<void*>( d_hitgroup_records ),
+                hg_sbt,
+                hitgroup_record_size * ray_type_count,
                 cudaMemcpyHostToDevice
                 ) );
 
     sbt.raygenRecord                = raygen_record;
-    sbt.missRecordBase              = miss_record;
+    sbt.missRecordBase              = d_miss_records;
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-    sbt.missRecordCount             = 2;
-    sbt.hitgroupRecordBase          = hitgroup_record;
+    sbt.missRecordCount             = ray_type_count;
+    sbt.hitgroupRecordBase          = d_hitgroup_records;
     sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-    sbt.hitgroupRecordCount         = 2;
+    sbt.hitgroupRecordCount         = ray_type_count;
 }
 
 } // namespace imagine

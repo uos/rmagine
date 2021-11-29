@@ -59,6 +59,10 @@ extern "C" __global__ void __miss__ranges()
 {
     const unsigned int glob_id = optixGetPayload_0();
     mem.ranges[glob_id] = mem.model->range.max + 1.0f;
+    if(glob_id == 0)
+    {
+        printf("Range Miss program!\n");
+    }
 }
 
 extern "C" __global__ void __closesthit__ranges()
@@ -81,6 +85,11 @@ extern "C" __global__ void __miss__normals()
         mem.model->range.max + 1.0f,
         mem.model->range.max + 1.0f
     };
+
+    if(glob_id == 0)
+    {
+        printf("Normal Miss program!\n");
+    }
 }
 
 extern "C" __global__ void __closesthit__normals()
