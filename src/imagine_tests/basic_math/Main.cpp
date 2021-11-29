@@ -71,8 +71,8 @@ void rotationConversionTest()
     Quaternion q;
     Matrix3x3 R;
 
-    e.roll = 0.0;
-    e.pitch = 0.0;
+    e.roll = -0.1;
+    e.pitch = 0.1;
     e.yaw = M_PI / 2.0;
     
     Vector x1{1.0, 0.0, 0.0};
@@ -86,6 +86,11 @@ void rotationConversionTest()
     print(q * x3);
     std::cout << std::endl;
 
+    std::cout << "Quat -> Euler" << std::endl;
+    e = q;
+    std::cout << e.roll << " " << e.pitch << " " << e.yaw << std::endl;
+    std::cout << std::endl;
+
     std::cout << "Euler -> Matrix" << std::endl;
     R = e;
     print(R * x1);
@@ -93,6 +98,10 @@ void rotationConversionTest()
     print(R * x3);
     std::cout << std::endl;
 
+    std::cout << "Matrix -> Euler" << std::endl;
+    e = R;
+    std::cout << e.roll << " " << e.pitch << " " << e.yaw << std::endl;
+    std::cout << std::endl;
 
     std::cout << "Quat -> Matrix" << std::endl;
     R = q;

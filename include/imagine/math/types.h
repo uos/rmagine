@@ -18,7 +18,6 @@ struct Transform;
 struct Matrix3x3;
 struct Matrix4x4;
 
-
 /**
  * @brief Vector2 class with functions
  * 
@@ -613,6 +612,9 @@ struct Matrix4x4 {
     void setRotation(const Quaternion& q);
 
     IMAGINE_INLINE_FUNCTION
+    void setRotation(const EulerAngles& e);
+
+    IMAGINE_INLINE_FUNCTION
     Vector translation() const;
 
     IMAGINE_INLINE_FUNCTION
@@ -949,7 +951,7 @@ void EulerAngles::set(const Quaternion& q)
 {
     // TODO: check
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-    
+    // checked once
 
     // roll (x-axis)
     const float sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
@@ -981,17 +983,17 @@ void EulerAngles::set(const Matrix3x3& M)
 {
     // extracted from knowledge of Matrix3x3::set(EulerAngles)
     // plus EulerAngles::set(Quaternion)
-    // TODO: check
+    // TODO: check. tested once: correct
     
     // roll (x-axis)
-    const float sinr_cosp = M(2,1);
+    const float sinr_cosp = -M(1,2);
     const float cosr_cosp = M(2,2);
     
     // pitch (y-axis)
-    const float sinp = -M(2,0);
+    const float sinp = M(0,2);
 
     // yaw (z-axis)
-    const float siny_cosp = M(1,0);
+    const float siny_cosp = -M(0,1);
     const float cosy_cosp = M(0,0);
 
     // roll (x-axis)
@@ -1522,15 +1524,17 @@ void Matrix4x4::setRotation(const Matrix3x3& R)
 IMAGINE_INLINE_FUNCTION
 void Matrix4x4::setRotation(const Quaternion& q)
 {
-    at(0,0) = 2.0f * (q.w * q.w + q.x * q.x) - 1.0f;
-    at(0,1) = 2.0f * (q.x * q.y - q.w * q.z);
-    at(0,2) = 2.0f * (q.x * q.z + q.w * q.y);
-    at(1,0) = 2.0f * (q.x * q.y + q.w * q.z);
-    at(1,1) = 2.0f * (q.w * q.w + q.y * q.y) - 1.0f;
-    at(1,2) = 2.0f * (q.y * q.z - q.w * q.x);
-    at(2,0) = 2.0f * (q.x * q.z - q.w * q.y);
-    at(2,1) = 2.0f * (q.y * q.z + q.w * q.x);
-    at(2,2) = 2.0f * (q.w * q.w + q.z * q.z) - 1.0f;
+    Matrix3x3 R;
+    R = q;
+    setRotation(R);
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix4x4::setRotation(const EulerAngles& e)
+{
+    Matrix3x3 R;
+    R = e;
+    setRotation(R);
 }
 
 IMAGINE_INLINE_FUNCTION
