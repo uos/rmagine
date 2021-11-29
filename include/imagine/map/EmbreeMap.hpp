@@ -47,8 +47,6 @@
 #include <iostream>
 #include <vector>
 
-#include <Eigen/Dense>
-
 #include <imagine/math/types.h>
 #include <imagine/math/math.h>
 

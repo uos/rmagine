@@ -294,6 +294,9 @@ struct EulerAngles
     IMAGINE_INLINE_FUNCTION
     void set(const Matrix3x3& M);
 
+    IMAGINE_INLINE_FUNCTION
+    Vector3 mult(const Vector3& v) const;
+
     // Operators
     IMAGINE_INLINE_FUNCTION
     void operator=(const Quaternion& q)
@@ -305,6 +308,12 @@ struct EulerAngles
     void operator=(const Matrix3x3& M)
     {
         set(M);
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Vector3 operator*(const Vector3& v) const 
+    {
+        return mult(v);
     }
 };
 
@@ -367,6 +376,10 @@ struct Quaternion
 
     IMAGINE_INLINE_FUNCTION
     void set(const EulerAngles& e);
+
+    // TODO: Quatenrion from rotation around an axis v by an angle a
+    // IMAGINE_INLINE_FUNCTION
+    // void set(const Vector3& v, float a);
 
     // OPERATORS
     IMAGINE_INLINE_FUNCTION
@@ -505,6 +518,12 @@ struct Matrix3x3 {
     void setIdentity();
 
     IMAGINE_INLINE_FUNCTION
+    void setZeros();
+
+    IMAGINE_INLINE_FUNCTION
+    void setOnes();
+
+    IMAGINE_INLINE_FUNCTION
     void set(const Quaternion& q);
 
     IMAGINE_INLINE_FUNCTION
@@ -537,12 +556,30 @@ struct Matrix3x3 {
     Matrix3x3 invRigid() const;
 
     IMAGINE_INLINE_FUNCTION
+    Matrix3x3 mult(const float& s) const;
+
+    IMAGINE_INLINE_FUNCTION
+    void multInplace(const float& s);
+
+    IMAGINE_INLINE_FUNCTION
     Vector mult(const Vector& p) const;
 
     IMAGINE_INLINE_FUNCTION
     Matrix3x3 mult(const Matrix3x3& M) const;
 
     // OPERATORS
+    IMAGINE_INLINE_FUNCTION
+    Matrix3x3 operator*(const float& s) const
+    {
+        return mult(s);
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    void operator*=(const float& s)
+    {
+        multInplace(s);
+    }
+
     IMAGINE_INLINE_FUNCTION
     Vector operator*(const Vector& p) const
     {
@@ -600,6 +637,12 @@ struct Matrix4x4 {
     void setIdentity();
 
     IMAGINE_INLINE_FUNCTION
+    void setZeros();
+
+    IMAGINE_INLINE_FUNCTION
+    void setOnes();
+
+    IMAGINE_INLINE_FUNCTION
     void set(const Transform& T);
 
     IMAGINE_INLINE_FUNCTION
@@ -619,7 +662,6 @@ struct Matrix4x4 {
 
     IMAGINE_INLINE_FUNCTION
     void setTranslation(const Vector& t);
-
 
     IMAGINE_INLINE_FUNCTION
     Matrix4x4 transpose() const;
@@ -645,6 +687,12 @@ struct Matrix4x4 {
     Matrix4x4 invRigid();
 
     IMAGINE_INLINE_FUNCTION
+    Matrix4x4 mult(const float& s) const;
+
+    IMAGINE_INLINE_FUNCTION
+    void multInplace(const float& s);
+
+    IMAGINE_INLINE_FUNCTION
     Vector mult(const Vector& v) const;
 
     IMAGINE_INLINE_FUNCTION
@@ -655,6 +703,18 @@ struct Matrix4x4 {
     void operator=(const Transform& T)
     {
         set(T);
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Matrix4x4 operator*(const float& s) const
+    {
+        return mult(s);
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    void operator*=(const float& s)
+    {
+        multInplace(s);
     }
 
     IMAGINE_INLINE_FUNCTION
@@ -1011,6 +1071,13 @@ void EulerAngles::set(const Matrix3x3& M)
     yaw = atan2f(siny_cosp, cosy_cosp);
 }
 
+IMAGINE_INLINE_FUNCTION
+Vector3 EulerAngles::mult(const Vector3& v) const
+{
+    Quaternion q;
+    q = *this;
+    return q * v;
+}
 
 ////////////////////
 //// Quaternion ////
@@ -1206,13 +1273,13 @@ Vector3 Transform::mult(const Vector3& v) const
 IMAGINE_INLINE_FUNCTION
 float& Matrix3x3::at(unsigned int i, unsigned int j)
 {
-    return data[i][j];
+    return data[j][i];
 }
 
 IMAGINE_INLINE_FUNCTION
 float Matrix3x3::at(unsigned int i, unsigned int j) const
 {
-    return data[i][j];
+    return data[j][i];
 }   
 
 IMAGINE_INLINE_FUNCTION
@@ -1250,6 +1317,34 @@ void Matrix3x3::setIdentity()
     at(1,2) = 0.0f;
     at(2,0) = 0.0f;
     at(2,1) = 0.0f;
+    at(2,2) = 1.0f;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix3x3::setZeros()
+{
+    at(0,0) = 0.0f;
+    at(0,1) = 0.0f;
+    at(0,2) = 0.0f;
+    at(1,0) = 0.0f;
+    at(1,1) = 0.0f;
+    at(1,2) = 0.0f;
+    at(2,0) = 0.0f;
+    at(2,1) = 0.0f;
+    at(2,2) = 0.0f;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix3x3::setOnes()
+{
+    at(0,0) = 1.0f;
+    at(0,1) = 1.0f;
+    at(0,2) = 1.0f;
+    at(1,0) = 1.0f;
+    at(1,1) = 1.0f;
+    at(1,2) = 1.0f;
+    at(2,0) = 1.0f;
+    at(2,1) = 1.0f;
     at(2,2) = 1.0f;
 }
 
@@ -1398,6 +1493,36 @@ Matrix3x3 Matrix3x3::invRigid() const
 }
 
 IMAGINE_INLINE_FUNCTION
+Matrix3x3 Matrix3x3::mult(const float& s) const
+{
+    Matrix3x3 ret;
+    ret(0,0) = at(0,0) * s;
+    ret(0,1) = at(0,1) * s;
+    ret(0,2) = at(0,2) * s;
+    ret(1,0) = at(1,0) * s;
+    ret(1,1) = at(1,1) * s;
+    ret(1,2) = at(1,2) * s;
+    ret(2,0) = at(2,0) * s;
+    ret(2,1) = at(2,1) * s;
+    ret(2,2) = at(2,2) * s;
+    return ret;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix3x3::multInplace(const float& s)
+{
+    at(0,0) *= s;
+    at(0,1) *= s;
+    at(0,2) *= s;
+    at(1,0) *= s;
+    at(1,1) *= s;
+    at(1,2) *= s;
+    at(2,0) *= s;
+    at(2,1) *= s;
+    at(2,2) *= s;
+}
+
+IMAGINE_INLINE_FUNCTION
 Vector Matrix3x3::mult(const Vector& p) const
 {
     return {
@@ -1411,10 +1536,11 @@ IMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::mult(const Matrix3x3& M) const
 {
     Matrix3x3 res;
+    res.setZeros();
     for (unsigned int row = 0; row < 3; row++) {
         for (unsigned int col = 0; col < 3; col++) {
             for (unsigned int inner = 0; inner < 3; inner++) {
-                res(row,col) += at(row,inner) * M(inner,col);
+                res(row,col) += at(row, inner) * M(inner, col);
             }
         }
     }
@@ -1428,13 +1554,13 @@ Matrix3x3 Matrix3x3::mult(const Matrix3x3& M) const
 IMAGINE_INLINE_FUNCTION
 float& Matrix4x4::at(unsigned int i, unsigned int j)
 {
-    return data[i][j];
+    return data[j][i];
 }
 
 IMAGINE_INLINE_FUNCTION
 float Matrix4x4::at(unsigned int i, unsigned int j) const
 {
-    return data[i][j];
+    return data[j][i];
 }   
 
 IMAGINE_INLINE_FUNCTION
@@ -1465,22 +1591,64 @@ const float* Matrix4x4::operator[](const unsigned int i) const
 IMAGINE_INLINE_FUNCTION
 void Matrix4x4::setIdentity()
 {
-    data[0][0] = 1.0;
-    data[0][1] = 0.0;
-    data[0][2] = 0.0;
-    data[0][3] = 0.0;
-    data[1][0] = 0.0;
-    data[1][1] = 1.0;
-    data[1][2] = 0.0;
-    data[1][3] = 0.0;
-    data[2][0] = 0.0;
-    data[2][1] = 0.0;
-    data[2][2] = 1.0;
-    data[2][3] = 0.0;
-    data[3][0] = 0.0;
-    data[3][1] = 0.0;
-    data[3][2] = 0.0;
-    data[3][3] = 1.0;
+    at(0,0) = 1.0;
+    at(0,1) = 0.0;
+    at(0,2) = 0.0;
+    at(0,3) = 0.0;
+    at(1,0) = 0.0;
+    at(1,1) = 1.0;
+    at(1,2) = 0.0;
+    at(1,3) = 0.0;
+    at(2,0) = 0.0;
+    at(2,1) = 0.0;
+    at(2,2) = 1.0;
+    at(2,3) = 0.0;
+    at(3,0) = 0.0;
+    at(3,1) = 0.0;
+    at(3,2) = 0.0;
+    at(3,3) = 1.0;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix4x4::setZeros()
+{
+    at(0,0) = 0.0;
+    at(0,1) = 0.0;
+    at(0,2) = 0.0;
+    at(0,3) = 0.0;
+    at(1,0) = 0.0;
+    at(1,1) = 0.0;
+    at(1,2) = 0.0;
+    at(1,3) = 0.0;
+    at(2,0) = 0.0;
+    at(2,1) = 0.0;
+    at(2,2) = 0.0;
+    at(2,3) = 0.0;
+    at(3,0) = 0.0;
+    at(3,1) = 0.0;
+    at(3,2) = 0.0;
+    at(3,3) = 0.0;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix4x4::setOnes()
+{
+    at(0,0) = 1.0;
+    at(0,1) = 1.0;
+    at(0,2) = 1.0;
+    at(0,3) = 1.0;
+    at(1,0) = 1.0;
+    at(1,1) = 1.0;
+    at(1,2) = 1.0;
+    at(1,3) = 1.0;
+    at(2,0) = 1.0;
+    at(2,1) = 1.0;
+    at(2,2) = 1.0;
+    at(2,3) = 1.0;
+    at(3,0) = 1.0;
+    at(3,1) = 1.0;
+    at(3,2) = 1.0;
+    at(3,3) = 1.0;
 }
 
 IMAGINE_INLINE_FUNCTION
@@ -1540,7 +1708,7 @@ void Matrix4x4::setRotation(const EulerAngles& e)
 IMAGINE_INLINE_FUNCTION
 Vector Matrix4x4::translation() const
 {
-    return {data[0][3], data[1][3], data[2][3]};
+    return {at(0,3), at(1,3), at(2,3)};
 }
 
 IMAGINE_INLINE_FUNCTION
@@ -1595,29 +1763,29 @@ IMAGINE_INLINE_FUNCTION
 float Matrix4x4::det() const 
 {
     // TODO: check
-    const float A2323 = data[2][2] * data[3][3] - data[2][3] * data[3][2];
-    const float A1323 = data[2][1] * data[3][3] - data[2][3] * data[3][1];
-    const float A1223 = data[2][1] * data[3][2] - data[2][2] * data[3][1];
-    const float A0323 = data[2][0] * data[3][3] - data[2][3] * data[3][0];
-    const float A0223 = data[2][0] * data[3][2] - data[2][2] * data[3][0];
-    const float A0123 = data[2][0] * data[3][1] - data[2][1] * data[3][0];
-    const float A2313 = data[1][2] * data[3][3] - data[1][3] * data[3][2];
-    const float A1313 = data[1][1] * data[3][3] - data[1][3] * data[3][1];
-    const float A1213 = data[1][1] * data[3][2] - data[1][2] * data[3][1];
-    const float A2312 = data[1][2] * data[2][3] - data[1][3] * data[2][2];
-    const float A1312 = data[1][1] * data[2][3] - data[1][3] * data[2][1];
-    const float A1212 = data[1][1] * data[2][2] - data[1][2] * data[2][1];
-    const float A0313 = data[1][0] * data[3][3] - data[1][3] * data[3][0];
-    const float A0213 = data[1][0] * data[3][2] - data[1][2] * data[3][0];
-    const float A0312 = data[1][0] * data[2][3] - data[1][3] * data[2][0];
-    const float A0212 = data[1][0] * data[2][2] - data[1][2] * data[2][0];
-    const float A0113 = data[1][0] * data[3][1] - data[1][1] * data[3][0];
-    const float A0112 = data[1][0] * data[2][1] - data[1][1] * data[2][0];
+    const float A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
+    const float A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
+    const float A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
+    const float A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
+    const float A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
+    const float A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
+    const float A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
+    const float A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
+    const float A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
+    const float A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
+    const float A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
+    const float A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
+    const float A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
+    const float A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
+    const float A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
+    const float A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
+    const float A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
+    const float A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
 
-    return  data[0][0] * ( data[1][1] * A2323 - data[1][2] * A1323 + data[1][3] * A1223 ) 
-            - data[0][1] * ( data[1][0] * A2323 - data[1][2] * A0323 + data[1][3] * A0223 ) 
-            + data[0][2] * ( data[1][0] * A1323 - data[1][1] * A0323 + data[1][3] * A0123 ) 
-            - data[0][3] * ( data[1][0] * A1223 - data[1][1] * A0223 + data[1][2] * A0123 );;
+    return  at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
+            - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
+            + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
+            - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );;
 }
 
 IMAGINE_INLINE_FUNCTION
@@ -1626,50 +1794,50 @@ Matrix4x4 Matrix4x4::inv() const
     // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
     // answer of willnode at Jun 8 '17 at 23:09
 
-    const float A2323 = data[2][2] * data[3][3] - data[2][3] * data[3][2];
-    const float A1323 = data[2][1] * data[3][3] - data[2][3] * data[3][1];
-    const float A1223 = data[2][1] * data[3][2] - data[2][2] * data[3][1];
-    const float A0323 = data[2][0] * data[3][3] - data[2][3] * data[3][0];
-    const float A0223 = data[2][0] * data[3][2] - data[2][2] * data[3][0];
-    const float A0123 = data[2][0] * data[3][1] - data[2][1] * data[3][0];
-    const float A2313 = data[1][2] * data[3][3] - data[1][3] * data[3][2];
-    const float A1313 = data[1][1] * data[3][3] - data[1][3] * data[3][1];
-    const float A1213 = data[1][1] * data[3][2] - data[1][2] * data[3][1];
-    const float A2312 = data[1][2] * data[2][3] - data[1][3] * data[2][2];
-    const float A1312 = data[1][1] * data[2][3] - data[1][3] * data[2][1];
-    const float A1212 = data[1][1] * data[2][2] - data[1][2] * data[2][1];
-    const float A0313 = data[1][0] * data[3][3] - data[1][3] * data[3][0];
-    const float A0213 = data[1][0] * data[3][2] - data[1][2] * data[3][0];
-    const float A0312 = data[1][0] * data[2][3] - data[1][3] * data[2][0];
-    const float A0212 = data[1][0] * data[2][2] - data[1][2] * data[2][0];
-    const float A0113 = data[1][0] * data[3][1] - data[1][1] * data[3][0];
-    const float A0112 = data[1][0] * data[2][1] - data[1][1] * data[2][0];
+    const float A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
+    const float A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
+    const float A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
+    const float A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
+    const float A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
+    const float A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
+    const float A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
+    const float A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
+    const float A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
+    const float A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
+    const float A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
+    const float A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
+    const float A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
+    const float A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
+    const float A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
+    const float A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
+    const float A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
+    const float A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
 
-    float det   = data[0][0] * ( data[1][1] * A2323 - data[1][2] * A1323 + data[1][3] * A1223 ) 
-                - data[0][1] * ( data[1][0] * A2323 - data[1][2] * A0323 + data[1][3] * A0223 ) 
-                + data[0][2] * ( data[1][0] * A1323 - data[1][1] * A0323 + data[1][3] * A0123 ) 
-                - data[0][3] * ( data[1][0] * A1223 - data[1][1] * A0223 + data[1][2] * A0123 ) ;
+    float det_  = at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
+                - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
+                + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
+                - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 ) ;
 
     // inv det
-    det = 1 / det;
+    det_ = 1.0f / det_;
 
     Matrix4x4 ret;
-    ret(0,0) = det *   ( data[1][1] * A2323 - data[1][2] * A1323 + data[1][3] * A1223 );
-    ret(0,1) = det * - ( data[0][1] * A2323 - data[0][2] * A1323 + data[0][3] * A1223 );
-    ret(0,2) = det *   ( data[0][1] * A2313 - data[0][2] * A1313 + data[0][3] * A1213 );
-    ret(0,3) = det * - ( data[0][1] * A2312 - data[0][2] * A1312 + data[0][3] * A1212 );
-    ret(1,0) = det * - ( data[1][0] * A2323 - data[1][2] * A0323 + data[1][3] * A0223 );
-    ret(1,1) = det *   ( data[0][0] * A2323 - data[0][2] * A0323 + data[0][3] * A0223 );
-    ret(1,2) = det * - ( data[0][0] * A2313 - data[0][2] * A0313 + data[0][3] * A0213 );
-    ret(1,3) = det *   ( data[0][0] * A2312 - data[0][2] * A0312 + data[0][3] * A0212 );
-    ret(2,0) = det *   ( data[1][0] * A1323 - data[1][1] * A0323 + data[1][3] * A0123 );
-    ret(2,1) = det * - ( data[0][0] * A1323 - data[0][1] * A0323 + data[0][3] * A0123 );
-    ret(2,2) = det *   ( data[0][0] * A1313 - data[0][1] * A0313 + data[0][3] * A0113 );
-    ret(2,3) = det * - ( data[0][0] * A1312 - data[0][1] * A0312 + data[0][3] * A0112 );
-    ret(3,0) = det * - ( data[1][0] * A1223 - data[1][1] * A0223 + data[1][2] * A0123 );
-    ret(3,1) = det *   ( data[0][0] * A1223 - data[0][1] * A0223 + data[0][2] * A0123 );
-    ret(3,2) = det * - ( data[0][0] * A1213 - data[0][1] * A0213 + data[0][2] * A0113 );
-    ret(3,3) = det *   ( data[0][0] * A1212 - data[0][1] * A0212 + data[0][2] * A0112 );
+    ret(0,0) = det_ *   ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 );
+    ret(0,1) = det_ * - ( at(0,1) * A2323 - at(0,2) * A1323 + at(0,3) * A1223 );
+    ret(0,2) = det_ *   ( at(0,1) * A2313 - at(0,2) * A1313 + at(0,3) * A1213 );
+    ret(0,3) = det_ * - ( at(0,1) * A2312 - at(0,2) * A1312 + at(0,3) * A1212 );
+    ret(1,0) = det_ * - ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 );
+    ret(1,1) = det_ *   ( at(0,0) * A2323 - at(0,2) * A0323 + at(0,3) * A0223 );
+    ret(1,2) = det_ * - ( at(0,0) * A2313 - at(0,2) * A0313 + at(0,3) * A0213 );
+    ret(1,3) = det_ *   ( at(0,0) * A2312 - at(0,2) * A0312 + at(0,3) * A0212 );
+    ret(2,0) = det_ *   ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 );
+    ret(2,1) = det_ * - ( at(0,0) * A1323 - at(0,1) * A0323 + at(0,3) * A0123 );
+    ret(2,2) = det_ *   ( at(0,0) * A1313 - at(0,1) * A0313 + at(0,3) * A0113 );
+    ret(2,3) = det_ * - ( at(0,0) * A1312 - at(0,1) * A0312 + at(0,3) * A0112 );
+    ret(3,0) = det_ * - ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+    ret(3,1) = det_ *   ( at(0,0) * A1223 - at(0,1) * A0223 + at(0,2) * A0123 );
+    ret(3,2) = det_ * - ( at(0,0) * A1213 - at(0,1) * A0213 + at(0,2) * A0113 );
+    ret(3,3) = det_ *   ( at(0,0) * A1212 - at(0,1) * A0212 + at(0,2) * A0112 );
 
     return ret;
 }
@@ -1691,6 +1859,58 @@ Matrix4x4 Matrix4x4::invRigid()
 }
 
 IMAGINE_INLINE_FUNCTION
+Matrix4x4 Matrix4x4::mult(const float& s) const
+{
+    Matrix4x4 ret;
+
+    ret(0,0) = at(0,0) * s;
+    ret(0,1) = at(0,1) * s;
+    ret(0,2) = at(0,2) * s;
+    ret(0,3) = at(0,3) * s;
+
+    ret(1,0) = at(1,0) * s;
+    ret(1,1) = at(1,1) * s;
+    ret(1,2) = at(1,2) * s;
+    ret(1,3) = at(1,3) * s;
+
+    ret(2,0) = at(2,0) * s;
+    ret(2,1) = at(2,1) * s;
+    ret(2,2) = at(2,2) * s;
+    ret(2,3) = at(2,3) * s;
+
+    ret(3,0) = at(3,0) * s;
+    ret(3,1) = at(3,1) * s;
+    ret(3,2) = at(3,2) * s;
+    ret(3,3) = at(3,3) * s;
+
+    return ret;
+}
+
+IMAGINE_INLINE_FUNCTION
+void Matrix4x4::multInplace(const float& s)
+{
+    at(0,0) *= s;
+    at(0,1) *= s;
+    at(0,2) *= s;
+    at(0,3) *= s;
+
+    at(1,0) *= s;
+    at(1,1) *= s;
+    at(1,2) *= s;
+    at(1,3) *= s;
+
+    at(2,0) *= s;
+    at(2,1) *= s;
+    at(2,2) *= s;
+    at(2,3) *= s;
+
+    at(3,0) *= s;
+    at(3,1) *= s;
+    at(3,2) *= s;
+    at(3,3) *= s;
+}
+
+IMAGINE_INLINE_FUNCTION
 Vector Matrix4x4::mult(const Vector& v) const
 {
     return {
@@ -1704,6 +1924,7 @@ IMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::mult(const Matrix4x4& M) const 
 {
     Matrix4x4 res;
+    res.setZeros();
 
     for (unsigned int row = 0; row < 4; row++) {
         for (unsigned int col = 0; col < 4; col++) {

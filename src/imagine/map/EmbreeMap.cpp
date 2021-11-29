@@ -1,9 +1,9 @@
 #include "imagine/map/EmbreeMap.hpp"
 
 #include <iostream>
-#include <Eigen/Dense>
 
 #include <map>
+#include <cassert>
 
 namespace imagine {
 
@@ -19,37 +19,38 @@ Point closestPointTriangle(
     const Vector n = ab.cross(ac);
 
     // TODO: comment this in and test
-    // Matrix3x3 R;
-    // R(0,0) = ab.x;
-    // R(0,1) = ab.y;
-    // R(0,2) = ab.z;
+    Matrix3x3 R;
+    R(0,0) = ab.x;
+    R(1,0) = ab.y;
+    R(2,0) = ab.z;
     
-    // R(1,0) = ac.x;
-    // R(1,1) = ac.y;
-    // R(1,2) = ac.z;
+    R(0,1) = ac.x;
+    R(1,1) = ac.y;
+    R(2,1) = ac.z;
 
-    // R(2,0) = n.x;
-    // R(2,1) = n.y;
-    // R(2,2) = n.z;
+    R(0,2) = n.x;
+    R(1,2) = n.y;
+    R(2,2) = n.z;
 
-    // Matrix3x3 Rinv = R.inv();
-    // Vector p_in_t = Rinv * ap;
-    // float p0 = p_in_t.x;
-    // float p1 = p_in_t.y;
+    Matrix3x3 Rinv = R.inv();
+    Vector p_in_t = Rinv * ap;
+    float p0 = p_in_t.x;
+    float p1 = p_in_t.y;
 
     // Instead of this
-    Eigen::Matrix3f R;
-    R.col(0) = Eigen::Vector3f(ab.x, ab.y, ab.z);
-    R.col(1) = Eigen::Vector3f(ac.x, ac.y, ac.z);
-    R.col(2) = Eigen::Vector3f(n.x, n.y, n.z);
-    
-    const Eigen::Matrix3f Rinv = R.inverse();
-    const Eigen::Vector3f p_in_t = Rinv * Eigen::Vector3f(ap.x, ap.y, ap.z);
 
-    // p0 * ab + p1 * ac + p2 * n == ap
-    // projection: p0 * ab + p1 * ac
-    float p0 = p_in_t.x();
-    float p1 = p_in_t.y();
+    // Eigen::Matrix3f R;
+    // R.col(0) = Eigen::Vector3f(ab.x, ab.y, ab.z);
+    // R.col(1) = Eigen::Vector3f(ac.x, ac.y, ac.z);
+    // R.col(2) = Eigen::Vector3f(n.x, n.y, n.z);
+    
+    // const Eigen::Matrix3f Rinv = R.inverse();
+    // const Eigen::Vector3f p_in_t = Rinv * Eigen::Vector3f(ap.x, ap.y, ap.z);
+
+    // // p0 * ab + p1 * ac + p2 * n == ap
+    // // projection: p0 * ab + p1 * ac
+    // float p0 = p_in_t.x();
+    // float p1 = p_in_t.y();
 
     const bool on_ab_edge = (p0 >= 0.f && p0 <= 1.f);
     const bool on_ac_edge = (p1 >= 0.f && p1 <= 1.f);
