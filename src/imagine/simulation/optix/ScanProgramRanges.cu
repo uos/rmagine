@@ -29,7 +29,7 @@ extern "C" __global__ void __raygen__rg()
     const Vector ray_dir_s = mem.model->getRay(vid, hid);
     const Vector ray_dir_m = Tsm.R * ray_dir_s;
 
-    unsigned int p0;
+    unsigned int p0 = glob_id;
     optixTrace(
             mem.handle,
             make_float3(Tsm.t.x, Tsm.t.y, Tsm.t.z ),
@@ -41,19 +41,19 @@ extern "C" __global__ void __raygen__rg()
             OPTIX_RAY_FLAG_DISABLE_ANYHIT,
             0,          // SBT offset
             1,             // SBT stride
-            0,          // missSBTIndex
-            p0 );
-     
-    mem.ranges[glob_id] = int_as_float( p0 );
+            0,          // missSBTIndex 
+            p0);
 }
 
 extern "C" __global__ void __miss__ms()
 {
-    optixSetPayload_0( float_as_int( mem.model->range.max + 1.0f ) );
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.ranges[glob_id] = mem.model->range.max + 1.0f;
 }
 
 extern "C" __global__ void __closesthit__ch()
 {
     const float t = optixGetRayTmax();
-    optixSetPayload_0( float_as_int( t ) );
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.ranges[glob_id] = t;
 }

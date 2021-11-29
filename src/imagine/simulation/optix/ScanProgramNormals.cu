@@ -25,12 +25,20 @@ extern "C" __global__ void __raygen__rg()
     const unsigned int glob_id = pid * mem.model->theta.size * mem.model->phi.size + loc_id;
     
     const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
-    const Transform Tms = Tsm.inv();
-
     const Vector ray_dir_s = mem.model->getRay(vid, hid);
     const Vector ray_dir_m = Tsm.R * ray_dir_s;
 
-    unsigned int p0, p1, p2;
+    unsigned int p0, p1, p2, p3, p4, p5, p6, p7;
+    
+    p0 = glob_id;
+    p1 = float_as_uint(Tsm.R.x);
+    p2 = float_as_uint(Tsm.R.y);
+    p3 = float_as_uint(Tsm.R.z);
+    p4 = float_as_uint(Tsm.R.w);
+    p5 = float_as_uint(Tsm.t.x);
+    p6 = float_as_uint(Tsm.t.y);
+    p7 = float_as_uint(Tsm.t.z);
+
     optixTrace(
             mem.handle,
             make_float3(Tsm.t.x, Tsm.t.y, Tsm.t.z ),
@@ -43,33 +51,43 @@ extern "C" __global__ void __raygen__rg()
             0,          // SBT offset
             1,          // SBT stride
             0,          // missSBTIndex
-            p0, p1, p2 );
-    
-    // mem.ranges[glob_id] = int_as_float( p0 );
-    Vector nint{int_as_float(p0), int_as_float(p1), int_as_float(p2)};
-    nint.normalize();
-    nint = Tms.R * nint;
-
-    if(ray_dir_s.dot(nint) > 0.0)
-    {
-        nint *= -1.0;
-    }
-    
-
-    mem.normals[glob_id] = nint.normalized();
+            p0, p1, p2, p3, p4, p5, p6, p7 );
 }
 
 extern "C" __global__ void __miss__ms()
 {
-    optixSetPayload_0( float_as_int( mem.model->range.max + 1.0f ) );
-    optixSetPayload_1( float_as_int( mem.model->range.max + 1.0f ) );
-    optixSetPayload_2( float_as_int( mem.model->range.max + 1.0f ) );
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.normals[glob_id] = {
+        mem.model->range.max + 1.0f,
+        mem.model->range.max + 1.0f,
+        mem.model->range.max + 1.0f
+    };
 }
 
 extern "C" __global__ void __closesthit__ch()
 {
-    unsigned int face_id = optixGetPrimitiveIndex();
-    unsigned int object_id = optixGetInstanceIndex();
+    // Get Payloads
+    const unsigned int glob_id = optixGetPayload_0();
+    Transform Tsm;
+    Tsm.R.x = uint_as_float(optixGetPayload_1());
+    Tsm.R.y = uint_as_float(optixGetPayload_2());
+    Tsm.R.z = uint_as_float(optixGetPayload_3());
+    Tsm.R.w = uint_as_float(optixGetPayload_4());
+    Tsm.t.x = uint_as_float(optixGetPayload_5());
+    Tsm.t.y = uint_as_float(optixGetPayload_6());
+    Tsm.t.z = uint_as_float(optixGetPayload_7());
+    const Transform Tms = Tsm.inv();
+
+    // Get additionals info
+    const unsigned int face_id = optixGetPrimitiveIndex();
+    const unsigned int object_id = optixGetInstanceIndex();
+    const float3 dir_m = optixGetWorldRayDirection();
+    const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
+
+    const Vector ray_dir_s = Tms.R * ray_dir_m;
+    
+
+    // const Vector ray_dir_m =
 
     // Test to receive the normal as attribute instead. like barycentrics  
     // doesnt work: attributes are fixed for primitive types. in this case triangles: only barycentrics  
@@ -79,7 +97,16 @@ extern "C" __global__ void __closesthit__ch()
     
     float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
-    optixSetPayload_0( float_as_int( normal_world.x ) );
-    optixSetPayload_1( float_as_int( normal_world.y ) );
-    optixSetPayload_2( float_as_int( normal_world.z ) );
+    
+
+    Vector nint{normal_world.x, normal_world.y, normal_world.z};
+    nint.normalize();
+    nint = Tms.R * nint;
+
+    if(ray_dir_s.dot(nint) > 0.0)
+    {
+        nint *= -1.0;
+    }
+
+    mem.normals[glob_id] = nint.normalized();
 }

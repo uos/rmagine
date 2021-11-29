@@ -110,6 +110,11 @@ public:
     Memory<Vector, VRAM_CUDA> simulateNormals(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
+    void simulate(
+        const Memory<Transform, VRAM_CUDA>& Tbm,
+        Memory<float, VRAM_CUDA>& ranges,
+        Memory<Vector, VRAM_CUDA>& normals) const;
+
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 

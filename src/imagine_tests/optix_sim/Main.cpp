@@ -88,10 +88,20 @@ int main(int argc, char** argv)
 
     // predefine memory
     Memory<float, VRAM_CUDA> ranges_gpu(Nposes * 440 * 16);
+    Memory<Vector, VRAM_CUDA> normals_gpu(Nposes * 440 * 16);
+
 
     sw();
     sim.simulateRanges(Tbm_gpu, ranges_gpu);
     el = sw();
+
+
+    sw();
+    sim.simulate(Tbm_gpu, ranges_gpu, normals_gpu);
+    el = sw();
+
+
+
 
     Memory<float, RAM> ranges;
     ranges = ranges_gpu;

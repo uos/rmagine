@@ -51,7 +51,7 @@ ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
     } else {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     }
-    pipeline_compile_options.numPayloadValues      = 3;
+    pipeline_compile_options.numPayloadValues      = 8;
     pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;

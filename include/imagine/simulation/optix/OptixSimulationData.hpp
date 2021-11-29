@@ -44,12 +44,12 @@ struct OptixSimulationDataGeneric {
     // Handle
     OptixTraversableHandle  handle;
     // Generic Options
-    bool                    computeHits;
-    bool                    computeRanges;
-    bool                    computePoints;
-    bool                    computeNormals;
-    bool                    computeFaceIds;
-    bool                    computeObjectIds;
+    // bool                    computeHits;
+    // bool                    computeRanges;
+    // bool                    computePoints;
+    // bool                    computeNormals;
+    // bool                    computeFaceIds;
+    // bool                    computeObjectIds;
     // Result
     uint8_t*                hits;
     float*                  ranges;

@@ -11,6 +11,7 @@
 // Scan Programs
 #include <imagine/simulation/optix/ScanProgramRanges.hpp>
 #include <imagine/simulation/optix/ScanProgramNormals.hpp>
+#include <imagine/simulation/optix/ScanProgramGeneric.hpp>
 
 namespace imagine
 {
@@ -18,11 +19,12 @@ namespace imagine
 OptixSimulator::OptixSimulator(OptixMapPtr map)
 :m_map(map)
 {
-    m_programs.resize(2);
+    m_programs.resize(3);
     
     // programs[0].reset(new ScanProgramHit(mesh));
     m_programs[0].reset(new ScanProgramRanges(map));
     m_programs[1].reset(new ScanProgramNormals(map));
+    m_programs[2].reset(new ScanProgramGeneric(map));
     // programs[2].reset(new ScanProgramScanPoint(mesh));
     // programs[3].reset(new ScanProgramFaceId(mesh));
     // programs[4].reset(new ScanProgramObjectId(mesh));
@@ -130,6 +132,42 @@ Memory<Vector, VRAM_CUDA> OptixSimulator::simulateNormals(
     Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());
     simulateNormals(Tbm, res);
     return res;
+}
+
+void OptixSimulator::simulate(
+    const Memory<Transform, VRAM_CUDA>& Tbm,
+    Memory<float, VRAM_CUDA>& ranges,
+    Memory<Vector, VRAM_CUDA>& normals) const
+{
+    Memory<OptixSimulationDataGeneric, RAM> mem;
+    mem->Tsb = m_Tsb.raw();
+    mem->model = m_model.raw();
+    mem->Tbm = Tbm.raw();
+    mem->handle = m_map->as.handle;
+    mem->ranges = ranges.raw();
+    mem->normals = normals.raw();
+
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
+    copy(mem, d_mem, m_stream);
+
+    OptixProgramPtr program = m_programs[2];
+
+    if(program)
+    {
+        OPTIX_CHECK( optixLaunch(
+                program->pipeline,
+                m_stream,
+                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+                sizeof( OptixSimulationDataGeneric ),
+                &program->sbt,
+                m_width, // width Xdim
+                m_height, // height Ydim
+                Tbm.size() // depth Zdim
+                ));
+    } else {
+        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
+    }
+
 }
 
 } // imagine

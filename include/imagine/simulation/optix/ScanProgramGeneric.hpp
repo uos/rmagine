@@ -10,6 +10,9 @@ class ScanProgramGeneric : public OptixProgram
 {
 public:
     ScanProgramGeneric(OptixMapPtr map);
+
+    OptixProgramGroup miss_prog_groups[2];
+    OptixProgramGroup hitgroup_prog_groups[2];
 };
 
 } // namespace imagine
