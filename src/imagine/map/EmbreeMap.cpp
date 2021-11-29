@@ -260,7 +260,7 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             Tfound = true;
         }
 
-        set_identity(mesh.T);
+        // set_identity(mesh.T);
 
         // copy mesh to embree buffers
         for(unsigned int i=0; i<num_vertices; i++)

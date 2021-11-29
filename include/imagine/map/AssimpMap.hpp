@@ -26,7 +26,7 @@
  */
 
 /*
- * AssimpMesh.hpp
+ * AssimpMap.hpp
  *
  *  Created on: Jul 17, 2021
  *      Author: Alexander Mock

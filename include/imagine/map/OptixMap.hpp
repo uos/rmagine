@@ -51,17 +51,11 @@
 #include <imagine/types/MemoryCuda.hpp>
 
 #include <imagine/math/types.h>
+#include <imagine/types/mesh_types.h>
 
 #include <unordered_map>
 
 namespace imagine {
-
-// TODO: move somewhere else
-struct Face {
-    unsigned int v0;
-    unsigned int v1;
-    unsigned int v2;
-};
 
 struct OptixAccelerationStructure
 {

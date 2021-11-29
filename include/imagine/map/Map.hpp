@@ -26,7 +26,7 @@
  */
 
 /*
- * Mesh.hpp
+ * Map.hpp
  *
  *  Created on: Jul 17, 2021
  *      Author: Alexander Mock

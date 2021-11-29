@@ -26,7 +26,7 @@
  */
 
 /*
- * EmbreeMesh.hpp
+ * EmbreeMap.hpp
  *
  *  Created on: Jul 17, 2021
  *      Author: Alexander Mock
@@ -61,16 +61,16 @@ struct EmbreeMesh {
     float* vertices;
     unsigned int* faces;
     Memory<float, RAM> normals;
-    Box bb;
-    Matrix4x4 T;
+    // Box bb;
+    // Matrix4x4 T;
 };
 
-struct EmbreeInstance {
-    RTCGeometry handle;
-    unsigned int id;
-    std::vector<EmbreeMesh> meshes;
-    Matrix4x4 T;
-};
+// struct EmbreeInstance {
+//     RTCGeometry handle;
+//     unsigned int id;
+//     std::vector<EmbreeMesh> meshes;
+//     Matrix4x4 T;
+// };
 
 struct ClosestPointResult
 {
@@ -101,7 +101,8 @@ public:
     RTCDevice device;
     RTCScene scene;
     
-    std::vector<EmbreeInstance> instances;
+    // TODO:
+    // std::vector<EmbreeInstance> instances;
     std::vector<EmbreeMesh> meshes;
 
     RTCPointQueryContext pq_context;
