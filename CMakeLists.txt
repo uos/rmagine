@@ -236,6 +236,7 @@ add_subdirectory(src/imagine_tests/cuda_math)
 
 if(OptiX_FOUND)
 add_subdirectory(src/imagine_tests/optix_sim)
+add_subdirectory(src/imagine_tests/generic_sim)
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)

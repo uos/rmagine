@@ -169,6 +169,8 @@ public:
 
 protected:
 
+Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
+
     OptixMapPtr m_map;
     cudaStream_t m_stream;
 

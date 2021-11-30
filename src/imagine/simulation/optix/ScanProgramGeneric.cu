@@ -160,6 +160,7 @@ void computeNormal()
     nint.normalize();
     nint = Tms.R * nint;
 
+    // flip?
     if(ray_dir_s.dot(nint) > 0.0)
     {
         nint *= -1.0;

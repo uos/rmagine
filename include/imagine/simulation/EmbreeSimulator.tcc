@@ -107,9 +107,16 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
                                 rayhit.hit.Ng_z
                             };
                         nint.normalize();
+                        nint = Tms_.R * nint;
+
+                        // flip?
+                        if(ray_dir_s.dot(nint) > 0.0)
+                        {
+                            nint *= -1.0;
+                        }
 
                         // nint in local frame
-                        ret.Normals<RAM>::normals[glob_id] = Tms_.R * nint;
+                        ret.Normals<RAM>::normals[glob_id] = nint.normalized();
                     }
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())

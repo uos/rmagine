@@ -165,22 +165,22 @@ void print(const aiMatrix4x4& T)
 void convert(const aiMatrix4x4& aT, Matrix4x4& T)
 {
     // TODO: check
-    T[0][0] = aT.a1;
-    T[0][1] = aT.a2;
-    T[0][2] = aT.a3;
-    T[0][3] = aT.a4;
-    T[1][0] = aT.b1;
-    T[1][1] = aT.b2;
-    T[1][2] = aT.b3;
-    T[1][3] = aT.b4;
-    T[2][0] = aT.c1;
-    T[2][1] = aT.c2;
-    T[2][2] = aT.c3;
-    T[2][3] = aT.c4;
-    T[3][0] = aT.d1;
-    T[3][1] = aT.d2;
-    T[3][2] = aT.d3;
-    T[3][3] = aT.d4;
+    T(0,0) = aT.a1;
+    T(0,1) = aT.a2;
+    T(0,2) = aT.a3;
+    T(0,3) = aT.a4;
+    T(1,0) = aT.b1;
+    T(1,1) = aT.b2;
+    T(1,2) = aT.b3;
+    T(1,3) = aT.b4;
+    T(2,0) = aT.c1;
+    T(2,1) = aT.c2;
+    T(2,2) = aT.c3;
+    T(2,3) = aT.c4;
+    T(3,0) = aT.d1;
+    T(3,1) = aT.d2;
+    T(3,2) = aT.d3;
+    T(3,3) = aT.d4;
 }
 
 EmbreeMap::EmbreeMap(const aiScene* ascene)
@@ -250,14 +250,23 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
         Memory<Vector, RAM> vertices_transformed(num_vertices);
 
         Matrix4x4 T;
-        bool Tfound = false;
+        T.setIdentity();
 
         auto fit = Tmap.find(mesh_id);
         if(fit != Tmap.end())
         {
             // Found transform!
             T = fit->second;
-            Tfound = true;
+
+            // std::cout << "Got Transform: " << std::endl;
+            // for(size_t i=0; i<4; i++)
+            // {
+            //     for(size_t j=0; j<4; j++)
+            //     {
+            //         std::cout << T(i,j) << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
         }
 
         // set_identity(mesh.T);
@@ -270,10 +279,7 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             v.y = ai_vertices[i].y;
             v.z = ai_vertices[i].z;
             
-            if(Tfound)
-            {
-                v = T * v;
-            }
+            v = T * v;
             
             vertices_transformed[i] = v;
         }

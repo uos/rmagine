@@ -4,6 +4,8 @@
 #include <optix.h>
 #include <optix_stubs.h>
 
+// #include <imagine/util/StopWatch.hpp>
+
 namespace imagine
 {
 
@@ -141,6 +143,7 @@ void OptixSimulator::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
+
     Memory<OptixSimulationDataGeneric, RAM> mem;
     setGenericFlags<BundleT>(mem[0]);
 
@@ -163,7 +166,10 @@ void OptixSimulator::simulate(
     // set generic data
     setGenericData(res, mem[0]);
 
-    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
+    // 10000 velodynes 
+    // - upload Params: 0.000602865s
+    // - launch: 5.9642e-05s
+    // => this takes too long. Can we somehow preupload stuff?
     copy(mem, d_mem, m_stream);
 
     if(program)
@@ -181,6 +187,7 @@ void OptixSimulator::simulate(
     } else {
         throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
     }
+
 }
 
 template<typename BundleT>
