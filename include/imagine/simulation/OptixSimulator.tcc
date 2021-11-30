@@ -170,6 +170,7 @@ void OptixSimulator::simulate(
     // - upload Params: 0.000602865s
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
     copy(mem, d_mem, m_stream);
 
     if(program)
