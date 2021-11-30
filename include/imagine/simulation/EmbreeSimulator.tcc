@@ -21,11 +21,6 @@ void resizeMemoryBundle(BundleT& res,
         res.Ranges<RAM>::ranges.resize(W*H*N);
     }
 
-    if constexpr(BundleT::template has<ScanPoints<RAM> >())
-    {
-        res.ScanPoints<RAM>::scan_points.resize(W*H*N);
-    }
-
     if constexpr(BundleT::template has<Points<RAM> >())
     {
         res.Points<RAM>::points.resize(W*H*N);
@@ -98,13 +93,6 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
                         ret.Ranges<RAM>::ranges[glob_id] = rayhit.ray.tfar;
                     }
 
-                    if constexpr(BundleT::template has<ScanPoints<RAM> >())
-                    {
-                        ret.ScanPoints<RAM>::scan_points[glob_id].x() = m_model->getPhi(vid);
-                        ret.ScanPoints<RAM>::scan_points[glob_id].y() = m_model->getTheta(hid);
-                        ret.ScanPoints<RAM>::scan_points[glob_id].z() = rayhit.ray.tfar;
-                    }
-
                     if constexpr(BundleT::template has<Points<RAM> >())
                     {
                         Vector pint = ray_dir_s * rayhit.ray.tfar;
@@ -142,13 +130,6 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
                     if constexpr(BundleT::template has<Ranges<RAM> >())
                     {
                         ret.Ranges<RAM>::ranges[glob_id] = m_model->range.max + 1.0;
-                    }
-
-                    if constexpr(BundleT::template has<ScanPoints<RAM> >())
-                    {
-                        ret.ScanPoints<RAM>::scan_points[glob_id].x = m_model->getPhi(vid);
-                        ret.ScanPoints<RAM>::scan_points[glob_id].y = m_model->getTheta(hid);
-                        ret.ScanPoints<RAM>::scan_points[glob_id].z = m_model->range.max + 1.0;
                     }
 
                     if constexpr(BundleT::template has<Points<RAM> >())

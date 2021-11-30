@@ -2,6 +2,8 @@
 #include "imagine/math/math.h"
 #include "imagine/simulation/optix/OptixSimulationData.hpp"
 
+#include <math_constants.h>
+
 using namespace imagine;
 
 extern "C" {
@@ -55,52 +57,42 @@ extern "C" __global__ void __raygen__rg()
             p0, p1, p2, p3, p4, p5, p6, p7 );
 }
 
-extern "C" __global__ void __miss__ranges()
+
+
+__forceinline__ __device__
+void computeHit()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.hits[glob_id] = 1;
+}
+
+__forceinline__ __device__
+void computeNoHit()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.hits[glob_id] = 0;
+}
+
+__forceinline__ __device__
+void computeRange()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    const float t = optixGetRayTmax();
+    mem.ranges[glob_id] = t;
+}
+
+__forceinline__ __device__
+void computeNoRange()
 {
     const unsigned int glob_id = optixGetPayload_0();
     mem.ranges[glob_id] = mem.model->range.max + 1.0f;
-    if(glob_id == 0)
-    {
-        printf("Range Miss program!\n");
-    }
 }
 
-extern "C" __global__ void __closesthit__ranges()
+__forceinline__ __device__
+void computePoint()
 {
-    const float t = optixGetRayTmax();
+    // compute points in sensor space
     const unsigned int glob_id = optixGetPayload_0();
-    mem.ranges[glob_id] = t;
-    
-    if(glob_id == 0)
-    {
-        printf("Range Hit program!\n");
-    }
-}
-
-extern "C" __global__ void __miss__normals()
-{
-    const unsigned int glob_id = optixGetPayload_0();
-    mem.normals[glob_id] = {
-        mem.model->range.max + 1.0f,
-        mem.model->range.max + 1.0f,
-        mem.model->range.max + 1.0f
-    };
-
-    if(glob_id == 0)
-    {
-        printf("Normal Miss program!\n");
-    }
-}
-
-extern "C" __global__ void __closesthit__normals()
-{
-    // Get Payloads
-    const unsigned int glob_id = optixGetPayload_0();
-
-    if(glob_id == 0)
-    {
-        printf("Normal Hit program!\n");
-    }
 
     Transform Tsm;
     Tsm.R.x = uint_as_float(optixGetPayload_1());
@@ -112,22 +104,60 @@ extern "C" __global__ void __closesthit__normals()
     Tsm.t.z = uint_as_float(optixGetPayload_7());
     const Transform Tms = Tsm.inv();
 
-    // Get additionals info
+    const float3 pos_m = optixGetWorldRayOrigin();
+    const float3 dir_m = optixGetWorldRayDirection();
+    const float t = optixGetRayTmax();
+
+    const Vector ray_pos_m{pos_m.x, pos_m.y, pos_m.z};
+    const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
+
+    const Vector ray_pos_s = Tms * ray_pos_m;
+    const Vector ray_dir_s = Tms.R * ray_dir_m;
+
+    mem.points[glob_id] = ray_pos_s + ray_dir_s * t;
+}
+
+__forceinline__ __device__
+void computeNoPoint()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+
+    mem.points[glob_id] = {
+        CUDART_NAN_F,
+        CUDART_NAN_F,
+        CUDART_NAN_F
+    };
+}
+
+__forceinline__ __device__
+void computeNormal()
+{
+    // Get Payloads
+    const unsigned int glob_id = optixGetPayload_0();
+    Transform Tsm;
+    Tsm.R.x = uint_as_float(optixGetPayload_1());
+    Tsm.R.y = uint_as_float(optixGetPayload_2());
+    Tsm.R.z = uint_as_float(optixGetPayload_3());
+    Tsm.R.w = uint_as_float(optixGetPayload_4());
+    Tsm.t.x = uint_as_float(optixGetPayload_5());
+    Tsm.t.y = uint_as_float(optixGetPayload_6());
+    Tsm.t.z = uint_as_float(optixGetPayload_7());
+    const Transform Tms = Tsm.inv();
+
+    // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
     const unsigned int object_id = optixGetInstanceIndex();
     const float3 dir_m = optixGetWorldRayDirection();
-
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
 
     const Vector ray_dir_s = Tms.R * ray_dir_m;
-    
+
     imagine::HitGroupDataNormals* hg_data  = reinterpret_cast<imagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
-    float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
-    float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
+    const float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
+    const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
     nint.normalize();
-
     nint = Tms.R * nint;
 
     if(ray_dir_s.dot(nint) > 0.0)
@@ -136,4 +166,114 @@ extern "C" __global__ void __closesthit__normals()
     }
 
     mem.normals[glob_id] = nint.normalized();
+
+}
+
+__forceinline__ __device__
+void computeNoNormal()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+
+    mem.normals[glob_id] = {
+        CUDART_NAN_F,
+        CUDART_NAN_F,
+        CUDART_NAN_F
+    };
+}
+
+__forceinline__ __device__
+void computeFaceId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    const unsigned int face_id = optixGetPrimitiveIndex();
+    mem.face_ids[glob_id] = face_id;
+}
+
+__forceinline__ __device__
+void computeNoFaceId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.face_ids[glob_id] = __INT_MAX__ * 2U + 1;
+}
+
+__forceinline__ __device__
+void computeObjectId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    const unsigned int object_id = optixGetInstanceIndex();
+    mem.object_ids[glob_id] = object_id;
+}
+
+__forceinline__ __device__
+void computeNoObjectId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.object_ids[glob_id] = __INT_MAX__ * 2U + 1;
+}
+
+extern "C" __global__ void __miss__ms()
+{
+    if(mem.computeHits)
+    {
+        computeNoHit();
+    }
+
+    if(mem.computeRanges)
+    {
+        computeNoRange();
+    }
+
+    if(mem.computePoints)
+    {
+        computeNoPoint();
+    }
+
+    if(mem.computeNormals)
+    {
+        computeNoNormal();
+    }
+
+    if(mem.computeFaceIds)
+    {
+        computeNoFaceId();
+    }
+
+    if(mem.computeObjectIds)
+    {
+        computeNoObjectId();
+    }
+}
+
+
+extern "C" __global__ void __closesthit__ch()
+{
+    if(mem.computeHits)
+    {
+        computeHit();
+    }
+
+    if(mem.computeRanges)
+    {
+        computeRange();
+    }
+
+    if(mem.computePoints)
+    {
+        computePoint();
+    }
+
+    if(mem.computeNormals)
+    {
+        computeNormal();
+    }
+
+    if(mem.computeFaceIds)
+    {
+        computeFaceId();
+    }
+
+    if(mem.computeObjectIds)
+    {
+        computeObjectId();
+    }
 }

@@ -3,16 +3,16 @@
 
 #include <imagine/map/OptixMap.hpp>
 #include <imagine/util/optix/OptixProgram.hpp>
+#include <imagine/simulation/optix/OptixSimulationData.hpp>
 
 namespace imagine {
 
 class ScanProgramGeneric : public OptixProgram
 {
 public:
-    ScanProgramGeneric(OptixMapPtr map);
-
-    OptixProgramGroup miss_prog_groups[2];
-    OptixProgramGroup hitgroup_prog_groups[2];
+    ScanProgramGeneric(
+        OptixMapPtr map,
+        const OptixSimulationDataGeneric& flags);
 };
 
 } // namespace imagine

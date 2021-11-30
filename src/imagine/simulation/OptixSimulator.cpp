@@ -24,13 +24,19 @@ OptixSimulator::OptixSimulator(OptixMapPtr map)
     // programs[0].reset(new ScanProgramHit(mesh));
     m_programs[0].reset(new ScanProgramRanges(map));
     m_programs[1].reset(new ScanProgramNormals(map));
-    m_programs[2].reset(new ScanProgramGeneric(map));
-    // programs[2].reset(new ScanProgramScanPoint(mesh));
-    // programs[3].reset(new ScanProgramFaceId(mesh));
-    // programs[4].reset(new ScanProgramObjectId(mesh));
-    // programs[5].reset(new ScanProgramPoint(mesh));
-    // programs[6].reset(new ScanProgramNormal(mesh));
-    // programs[7].reset(new ScanProgramRangeNormal(mesh));
+
+
+
+    
+    OptixSimulationDataGeneric flags;
+    flags.computeHits = false;
+    flags.computeRanges = true;
+    flags.computePoints = false;
+    flags.computeNormals = true;
+    flags.computeFaceIds = false;
+    flags.computeObjectIds = false;
+
+    m_programs[2].reset(new ScanProgramGeneric(map, flags));
 
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
@@ -134,40 +140,6 @@ Memory<Vector, VRAM_CUDA> OptixSimulator::simulateNormals(
     return res;
 }
 
-void OptixSimulator::simulate(
-    const Memory<Transform, VRAM_CUDA>& Tbm,
-    Memory<float, VRAM_CUDA>& ranges,
-    Memory<Vector, VRAM_CUDA>& normals) const
-{
-    Memory<OptixSimulationDataGeneric, RAM> mem;
-    mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
-    mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
-    mem->ranges = ranges.raw();
-    mem->normals = normals.raw();
 
-    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
-    copy(mem, d_mem, m_stream);
-
-    OptixProgramPtr program = m_programs[2];
-
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
-                program->pipeline,
-                m_stream,
-                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGeneric ),
-                &program->sbt,
-                m_width, // width Xdim
-                m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
-
-}
 
 } // imagine

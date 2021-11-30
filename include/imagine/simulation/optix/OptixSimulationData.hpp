@@ -35,6 +35,7 @@ struct OptixSimulationDataNormals {
     Vector*                 normals;
 };
 
+
 struct OptixSimulationDataGeneric {
     // Input
     const Transform*        Tsb; // Static offset of sensor
@@ -44,12 +45,12 @@ struct OptixSimulationDataGeneric {
     // Handle
     OptixTraversableHandle  handle;
     // Generic Options
-    // bool                    computeHits;
-    // bool                    computeRanges;
-    // bool                    computePoints;
-    // bool                    computeNormals;
-    // bool                    computeFaceIds;
-    // bool                    computeObjectIds;
+    bool                    computeHits;
+    bool                    computeRanges;
+    bool                    computePoints;
+    bool                    computeNormals;
+    bool                    computeFaceIds;
+    bool                    computeObjectIds;
     // Result
     uint8_t*                hits;
     float*                  ranges;
@@ -57,6 +58,16 @@ struct OptixSimulationDataGeneric {
     Vector*                 normals;
     unsigned int*           face_ids;
     unsigned int*           object_ids;
+
+    // bool operator==(const OptixSimulationDataGeneric &other) const
+    // { 
+    //     return (computeHits == other.computeHits
+    //             && computeRanges == other.computeRanges
+    //             && computePoints == other.computePoints
+    //             && computeNormals == other.computeNormals
+    //             && computeFaceIds == other.computeFaceIds
+    //             && computeObjectIds == other.computeObjectIds );
+    // }
 };
 
 } // namespace imagine

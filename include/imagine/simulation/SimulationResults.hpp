@@ -18,21 +18,6 @@ struct Ranges {
     Memory<float, MemT> ranges;
 };
 
-/**
- * @brief 
- * 
- * @tparam MemT 
- * 
- * Vector3d. 
- * x = phi
- * y = theta
- * z = range
- */
-template<typename MemT>
-struct ScanPoints {
-    Memory<Point, MemT> scan_points;
-};
-
 template<typename MemT>
 struct Points {
     Memory<Point, MemT> points;

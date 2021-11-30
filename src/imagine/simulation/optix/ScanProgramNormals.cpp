@@ -81,52 +81,61 @@ ScanProgramNormals::ScanProgramNormals(OptixMapPtr map)
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
-
-    OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
-    raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    raygen_prog_group_desc.raygen.module            = module;
-    raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
     sizeof_log = sizeof( log );
 
-    optixProgramGroupCreate(
-                map->context,
-                &raygen_prog_group_desc,
-                1,   // num program groups
-                &program_group_options,
-                log,
-                &sizeof_log,
-                &raygen_prog_group
-                );
+    // 2.1 Raygen
+    {
+        OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
+        raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+        raygen_prog_group_desc.raygen.module            = module;
+        raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
 
-    OptixProgramGroupDesc miss_prog_group_desc  = {};
-    miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    miss_prog_group_desc.miss.module            = module;
-    miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
-    sizeof_log = sizeof( log );
-    optixProgramGroupCreate(
-                map->context,
-                &miss_prog_group_desc,
-                1,   // num program groups
-                &program_group_options,
-                log,
-                &sizeof_log,
-                &miss_prog_group
-                );
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                    map->context,
+                    &raygen_prog_group_desc,
+                    1,   // num program groups
+                    &program_group_options,
+                    log,
+                    &sizeof_log,
+                    &raygen_prog_group
+                    ) );
+    }
 
-    OptixProgramGroupDesc hitgroup_prog_group_desc = {};
-    hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
-    hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
-    sizeof_log = sizeof( log );
-    optixProgramGroupCreate(
-                map->context,
-                &hitgroup_prog_group_desc,
-                1,   // num program groups
-                &program_group_options,
-                log,
-                &sizeof_log,
-                &hitgroup_prog_group
-                );
+    // 2.2 Miss program
+    {
+        OptixProgramGroupDesc miss_prog_group_desc  = {};
+        miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+        miss_prog_group_desc.miss.module            = module;
+        miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
+        
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                    map->context,
+                    &miss_prog_group_desc,
+                    1,   // num program groups
+                    &program_group_options,
+                    log,
+                    &sizeof_log,
+                    &miss_prog_group
+                    ) );
+    }
+
+    // 2.3 Closest Hit program
+    {
+        OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+        hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+        hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
+        hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
+        
+        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                    map->context,
+                    &hitgroup_prog_group_desc,
+                    1,   // num program groups
+                    &program_group_options,
+                    log,
+                    &sizeof_log,
+                    &hitgroup_prog_group
+                    ) );
+    }
 
     // 3. link pipeline
     // traverse depth = 2 for ias + gas

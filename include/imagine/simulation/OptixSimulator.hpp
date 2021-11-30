@@ -42,9 +42,47 @@
 #include <imagine/types/MemoryCuda.hpp>
 #include <imagine/types/sensor_models.h>
 
+// Generic
+#include <imagine/simulation/SimulationResults.hpp>
+#include <imagine/types/Bundle.hpp>
+#include <imagine/simulation/optix/OptixSimulationData.hpp>
+
 #include <cuda_runtime.h>
 
+#include <unordered_map>
+
+namespace std {
+
+    template <>
+    struct hash<imagine::OptixSimulationDataGeneric>
+    {
+        std::size_t operator()(const imagine::OptixSimulationDataGeneric& k) const
+        {
+            unsigned int hitsKey = static_cast<unsigned int>(k.computeHits) << 0;
+            unsigned int rangesKey = static_cast<unsigned int>(k.computeRanges) << 1;
+            unsigned int pointKey = static_cast<unsigned int>(k.computeRanges) << 2;
+            unsigned int normalsKey = static_cast<unsigned int>(k.computeRanges) << 3;
+            unsigned int faceIdsKey = static_cast<unsigned int>(k.computeRanges) << 4;
+            unsigned int objectIdsKey = static_cast<unsigned int>(k.computeRanges) << 5;
+            // bitwise or
+            return (hitsKey | rangesKey | pointKey | normalsKey | faceIdsKey | objectIdsKey);
+        }
+    };
+}
+
+
+
 namespace imagine {
+
+bool operator==(const OptixSimulationDataGeneric &a, const OptixSimulationDataGeneric &b)
+{ 
+    return (a.computeHits == b.computeHits
+            && a.computeRanges == b.computeRanges
+            && a.computePoints == b.computePoints
+            && a.computeNormals == b.computeNormals
+            && a.computeFaceIds == b.computeFaceIds
+            && a.computeObjectIds == b.computeObjectIds );
+}
 
 /**
  * @brief Sensor data simulation on GPU via Embree
@@ -110,32 +148,26 @@ public:
     Memory<Vector, VRAM_CUDA> simulateNormals(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    void simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm,
-        Memory<float, VRAM_CUDA>& ranges,
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 
      * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
-     * @param Tsb Transformation from sensor to base frame. In VRAM
-     * @param model Model of the sensor. In RAM
      * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
      * @return ResultT 
      */
-    // template<typename ResultT>
-    // ResultT simulate(
-    //     const Memory<Eigen::Affine3f, VRAM_CUDA>& Tsb,
-    //     const Memory<LiDARModel, RAM>& model,
-    //     const Memory<Eigen::Affine3f, VRAM_CUDA>& Tbm);
+    template<typename BundleT>
+    BundleT simulate(
+        const Memory<Transform, VRAM_CUDA>& Tbm);
+
+    template<typename BundleT>
+    void simulate(
+        const Memory<Transform, VRAM_CUDA>& Tbm,
+        BundleT& res);
+
+    template<typename BundleT>
+    void preBuildProgram();
 
 protected:
-    // template<typename ResultT>
-    // void resizeBuffers(ResultT& mem, size_t W, size_t H, size_t N) const;
-
-    // template<typename ResultT>
-    // OptixProgramPtr getProgram() const;
 
     OptixMapPtr m_map;
     cudaStream_t m_stream;
@@ -147,10 +179,15 @@ protected:
 
 private:
     std::vector<OptixProgramPtr> m_programs;
+
+    std::unordered_map<OptixSimulationDataGeneric, OptixProgramPtr> m_generic_programs;
+
 };
 
 using OptixSimulatorPtr = std::shared_ptr<OptixSimulator>;
 
 } // namespace imagine
+
+#include "OptixSimulator.tcc"
 
 #endif // IMAGINE_OPTIX_SIMULATOR_HPP

@@ -78,7 +78,7 @@ extern "C" __global__ void __closesthit__ch()
     Tsm.t.z = uint_as_float(optixGetPayload_7());
     const Transform Tms = Tsm.inv();
 
-    // Get additionals info
+    // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
     const unsigned int object_id = optixGetInstanceIndex();
     const float3 dir_m = optixGetWorldRayDirection();

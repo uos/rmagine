@@ -94,19 +94,28 @@ int main(int argc, char** argv)
     sw();
     sim.simulateRanges(Tbm_gpu, ranges_gpu);
     el = sw();
+    std::cout << "OLD: Simulated " << Tbm.size() << " poses / " << ranges_gpu.size() << " ranges in " << el << "s" << std::endl;
 
+
+    using ResultT = Bundle<Ranges<VRAM_CUDA> >;
+
+    ResultT res;
+    res.ranges.resize(Nposes * 440 * 16);
+    // res.normals.resize(Nposes * 440 * 16);
+
+    sim.preBuildProgram<ResultT>();
 
     sw();
-    sim.simulate(Tbm_gpu, ranges_gpu, normals_gpu);
+    sim.simulate<ResultT>(Tbm_gpu, res);
     el = sw();
 
-
+    std::cout << "NEW: Simulated " << Tbm.size() << " poses / " << ranges_gpu.size() << " ranges in " << el << "s" << std::endl;
 
 
     Memory<float, RAM> ranges;
     ranges = ranges_gpu;
 
-    std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
+    // std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
     std::cout << "Result: " << ranges[0] << std::endl;
 
     return 0;
