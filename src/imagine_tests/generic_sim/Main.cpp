@@ -177,6 +177,52 @@ bool compareResults(const BundleT1& res1, const BundleT2& res2)
         }
     }
 
+    if constexpr(BundleT1::template has<FaceIds<RAM> >() 
+                && BundleT2::template has<FaceIds<VRAM_CUDA> >() )
+    {
+        Memory<unsigned int, RAM> face_ids;
+        face_ids = res2.face_ids;
+
+        if(face_ids.size() != res1.face_ids.size())
+        {
+            std::cout << "FaceIds size differ!" << std::endl;
+            return false;
+        }
+        for(unsigned int i=0; i<checkN; i++)
+        {
+            if( face_ids[i] != res1.face_ids[i] )
+            {
+                std::cout << "FaceId entry " << i << " differ " << std::endl;
+                std::cout << "- GPU: " << face_ids[i] << std::endl;
+                std::cout << "- CPU: " << res1.face_ids[i] << std::endl;
+                res &= false;
+            }
+        }
+    }
+
+    if constexpr(BundleT1::template has<ObjectIds<RAM> >() 
+                && BundleT2::template has<ObjectIds<VRAM_CUDA> >() )
+    {
+        Memory<unsigned int, RAM> object_ids;
+        object_ids = res2.object_ids;
+
+        if(object_ids.size() != res1.object_ids.size())
+        {
+            std::cout << "ObjectIds size differ!" << std::endl;
+            return false;
+        }
+        for(unsigned int i=0; i<checkN; i++)
+        {
+            if( object_ids[i] != res1.object_ids[i] )
+            {
+                std::cout << "ObjectId entry " << i << " differ " << std::endl;
+                std::cout << "- GPU: " << object_ids[i] << std::endl;
+                std::cout << "- CPU: " << res1.object_ids[i] << std::endl;
+                res &= false;
+            }
+        }
+    }
+
     return res;
 }
 

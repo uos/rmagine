@@ -155,12 +155,12 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
                     {
-                        ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::quiet_NaN();
+                        ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                     }
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::quiet_NaN();
+                        ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                     }
                 }
             }
