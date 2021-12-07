@@ -58,9 +58,13 @@ namespace imagine {
 
 struct EmbreeMesh {
     RTCGeometry handle;
+    unsigned int Nvertices;
     float* vertices;
+    unsigned int Nfaces;
     unsigned int* faces;
     Memory<float, RAM> normals;
+    
+    
     // Box bb;
     // Matrix4x4 T;
 };

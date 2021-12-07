@@ -2,6 +2,7 @@
 
 #include <imagine/simulation/OptixSimulator.hpp>
 #include <imagine/util/StopWatch.hpp>
+#include <fstream>
 
 using namespace imagine;
 
@@ -71,6 +72,11 @@ int main(int argc, char** argv)
     // Define and set poses to transform from
     // Transformations between base and map
     size_t Nposes = 10000;
+
+
+
+    size_t Nrays = Nposes * model->theta.size * model->phi.size;
+
     Memory<Transform, RAM> Tbm(Nposes);
     for(size_t i=0; i<Nposes; i++)
     {
@@ -87,30 +93,37 @@ int main(int argc, char** argv)
     Tbm_gpu = Tbm;
 
     // predefine memory
-    Memory<float, VRAM_CUDA> ranges_gpu(Nposes * 440 * 16);
-    Memory<Vector, VRAM_CUDA> normals_gpu(Nposes * 440 * 16);
+    Memory<float, VRAM_CUDA> ranges_gpu(Nrays);
+    Memory<Vector, VRAM_CUDA> normals_gpu(Nrays);
 
-
-    sw();
     sim.simulateRanges(Tbm_gpu, ranges_gpu);
-    el = sw();
-    std::cout << "OLD: Simulated " << Tbm.size() << " poses / " << ranges_gpu.size() << " ranges in " << el << "s" << std::endl;
-
 
     using ResultT = Bundle<Ranges<VRAM_CUDA> >;
 
     ResultT res;
-    res.ranges.resize(Nposes * 440 * 16);
-    // res.normals.resize(Nposes * 440 * 16);
+    res.ranges.resize(Nrays);
 
     sim.preBuildProgram<ResultT>();
 
-    sw();
-    sim.simulate<ResultT>(Tbm_gpu, res);
-    el = sw();
+    double el1, el2;
 
-    std::cout << "NEW: Simulated " << Tbm.size() << " poses / " << ranges_gpu.size() << " ranges in " << el << "s" << std::endl;
+    std::vector<double> runtimes;
 
+    for(size_t i=0; i<1000; i++)
+    {
+        // sw();
+        // sim.simulateRanges(Tbm_gpu, ranges_gpu);
+        // cudaDeviceSynchronize();
+        // el1 = sw();
+        
+        sw();
+        sim.simulate<ResultT>(Tbm_gpu, res);
+        cudaDeviceSynchronize();
+        el2 = sw();
+
+        runtimes.push_back(el2);
+    }
+    
 
     Memory<float, RAM> ranges;
     ranges = ranges_gpu;

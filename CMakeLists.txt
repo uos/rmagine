@@ -244,6 +244,7 @@ endif(BUILD_TESTS)
 
 #### TOOLS
 add_subdirectory(src/imagine_tools/imagine_benchmark)
+add_subdirectory(src/imagine_tools/imagine_evaluation)
 
 #### INSTALL
 # 1. Headers

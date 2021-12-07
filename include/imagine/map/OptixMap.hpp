@@ -152,16 +152,9 @@ private:
         const Memory<OptixInstance, RAM>& instances,
         OptixAccelerationStructure& ias);
 
-    CUdeviceptr             m_vertices = 0;
-    unsigned int            m_num_vertices;
-    CUdeviceptr             m_faces = 0;
-    unsigned int            m_num_faces;
-
     bool                    m_instance_level;
 
     void initContext(int device = 0);
-
-    // CUdeviceptr            d_gas_output_buffer;
 };
 
 using OptixMapPtr = std::shared_ptr<OptixMap>;

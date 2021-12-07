@@ -233,12 +233,16 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
         EmbreeMesh mesh;
         mesh.handle = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
 
+        mesh.Nvertices = num_vertices;
+
         mesh.vertices = (float*) rtcSetNewGeometryBuffer(mesh.handle,
                                                         RTC_BUFFER_TYPE_VERTEX,
                                                         0,
                                                         RTC_FORMAT_FLOAT3,
                                                         3*sizeof(float),
                                                         num_vertices);
+
+        mesh.Nfaces = num_faces;
 
         mesh.faces = (unsigned*) rtcSetNewGeometryBuffer(mesh.handle,
                                                                 RTC_BUFFER_TYPE_INDEX,

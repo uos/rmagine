@@ -63,11 +63,7 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
 
 OptixMap::~OptixMap()
 {
-    cudaFree( reinterpret_cast<void*>( m_vertices ) );
-    cudaFree( reinterpret_cast<void*>( m_faces ) );
-
     cudaFree( reinterpret_cast<void*>( as.buffer ) );
-
     optixDeviceContextDestroy( context );
 }
 
