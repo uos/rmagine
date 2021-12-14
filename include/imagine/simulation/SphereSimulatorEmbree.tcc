@@ -1,4 +1,4 @@
-#include "EmbreeSimulator.hpp"
+#include "SphereSimulatorEmbree.hpp"
 #include <imagine/simulation/SimulationResults.hpp>
 
 
@@ -6,44 +6,7 @@ namespace imagine
 {
 
 template<typename BundleT>
-void resizeMemoryBundle(BundleT& res, 
-    unsigned int W,
-    unsigned int H,
-    unsigned int N )
-{
-    if constexpr(BundleT::template has<Hits<RAM> >())
-    {
-        res.Hits<RAM>::hits.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Ranges<RAM> >())
-    {
-        res.Ranges<RAM>::ranges.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Points<RAM> >())
-    {
-        res.Points<RAM>::points.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Normals<RAM> >())
-    {
-        res.Normals<RAM>::normals.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<FaceIds<RAM> >())
-    {
-        res.FaceIds<RAM>::face_ids.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<RAM> >())
-    {
-        res.ObjectIds<RAM>::object_ids.resize(W*H*N);
-    }
-}
-
-template<typename BundleT>
-void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
+void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -169,11 +132,11 @@ void EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT EmbreeSimulator::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
 {
     BundleT res;
     size_t Nrays = m_model->phi.size * m_model->theta.size * Tbm.size();
-    resizeMemoryBundle(res, m_model->theta.size, m_model->phi.size, Tbm.size());
+    resizeMemoryBundle<RAM>(res, m_model->theta.size, m_model->phi.size, Tbm.size());
     simulate(Tbm, res);
     return res;
 }

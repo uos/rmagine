@@ -1,4 +1,4 @@
-#include "imagine/simulation/OptixSimulator.hpp"
+#include "imagine/simulation/SphereSimulatorOptix.hpp"
 
 #include "imagine/simulation/optix/OptixSimulationData.hpp"
 #include "imagine/util/optix/OptixDebug.hpp"
@@ -9,67 +9,54 @@
 #include <cuda_runtime.h>
 
 // Scan Programs
-#include <imagine/simulation/optix/ScanProgramRanges.hpp>
-#include <imagine/simulation/optix/ScanProgramNormals.hpp>
-#include <imagine/simulation/optix/ScanProgramGeneric.hpp>
+#include <imagine/simulation/optix/SphereProgramRanges.hpp>
+#include <imagine/simulation/optix/SphereProgramNormals.hpp>
+#include <imagine/simulation/optix/SphereProgramGeneric.hpp>
 
 namespace imagine
 {
 
-OptixSimulator::OptixSimulator(OptixMapPtr map)
+SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
 :m_map(map)
 {
-    m_programs.resize(3);
+    m_programs.resize(2);
     
     // programs[0].reset(new ScanProgramHit(mesh));
-    m_programs[0].reset(new ScanProgramRanges(map));
-    m_programs[1].reset(new ScanProgramNormals(map));
-
-
-
-    
-    OptixSimulationDataGeneric flags;
-    flags.computeHits = false;
-    flags.computeRanges = true;
-    flags.computePoints = false;
-    flags.computeNormals = true;
-    flags.computeFaceIds = false;
-    flags.computeObjectIds = false;
-
-    m_programs[2].reset(new ScanProgramGeneric(map, flags));
+    m_programs[0].reset(new SphereProgramRanges(map));
+    m_programs[1].reset(new SphereProgramNormals(map));
 
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
-OptixSimulator::~OptixSimulator()
+SphereSimulatorOptix::~SphereSimulatorOptix()
 {
     cudaStreamDestroy(m_stream);
 }
 
-void OptixSimulator::setTsb(const Memory<Transform, RAM>& Tsb)
+void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
     
-void OptixSimulator::setModel(const Memory<LiDARModel, RAM>& model)
+void SphereSimulatorOptix::setModel(const Memory<LiDARModel, RAM>& model)
 {
     m_width = model->theta.size;
     m_height = model->phi.size;
     m_model = model;
 }
 
-void OptixSimulator::simulateRanges(
+void SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    Memory<OptixSimulationDataRanges, RAM> mem;
+    Memory<OptixSimulationDataRangesSphere, RAM> mem;
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
 
-    Memory<OptixSimulationDataRanges, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem;
     copy(mem, d_mem, m_stream);
 
     OptixProgramPtr program = m_programs[0];
@@ -80,7 +67,7 @@ void OptixSimulator::simulateRanges(
                 program->pipeline,
                 m_stream,
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataRanges ),
+                sizeof( OptixSimulationDataRangesSphere ),
                 &program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
@@ -91,7 +78,7 @@ void OptixSimulator::simulateRanges(
     }
 }
 
-Memory<float, VRAM_CUDA> OptixSimulator::simulateRanges(
+Memory<float, VRAM_CUDA> SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
     Memory<float, VRAM_CUDA> res(m_width * m_height * Tbm.size());
@@ -99,18 +86,18 @@ Memory<float, VRAM_CUDA> OptixSimulator::simulateRanges(
     return res;
 }
 
-void OptixSimulator::simulateNormals(
+void SphereSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<Vector, VRAM_CUDA>& normals) const
 {
-    Memory<OptixSimulationDataNormals, RAM> mem;
+    Memory<OptixSimulationDataNormalsSphere, RAM> mem;
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->normals = normals.raw();
 
-    Memory<OptixSimulationDataNormals, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataNormalsSphere, VRAM_CUDA> d_mem;
     copy(mem, d_mem, m_stream);
 
     OptixProgramPtr program = m_programs[1];
@@ -121,7 +108,7 @@ void OptixSimulator::simulateNormals(
                 program->pipeline,
                 m_stream,
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataNormals ),
+                sizeof( OptixSimulationDataNormalsSphere ),
                 &program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
@@ -132,7 +119,7 @@ void OptixSimulator::simulateNormals(
     }
 }
 
-Memory<Vector, VRAM_CUDA> OptixSimulator::simulateNormals(
+Memory<Vector, VRAM_CUDA> SphereSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
     Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());

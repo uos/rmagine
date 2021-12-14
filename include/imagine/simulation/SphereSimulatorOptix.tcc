@@ -1,5 +1,5 @@
 
-#include <imagine/simulation/optix/ScanProgramGeneric.hpp>
+#include <imagine/simulation/optix/SphereProgramGeneric.hpp>
 #include <imagine/util/optix/OptixDebug.hpp>
 #include <optix.h>
 #include <optix_stubs.h>
@@ -8,6 +8,7 @@
 
 namespace imagine
 {
+
 
 template<typename BundleT>
 void resizeMemoryBundleGPU(BundleT& res, 
@@ -49,7 +50,7 @@ void resizeMemoryBundleGPU(BundleT& res,
 template<typename BundleT>
 void setGenericData(
     BundleT& res, 
-    OptixSimulationDataGeneric& mem)
+    OptixSimulationDataGenericSphere& mem)
 {
     if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
     {
@@ -84,7 +85,7 @@ void setGenericData(
 
 template<typename BundleT>
 void setGenericFlags(
-    OptixSimulationDataGeneric& flags)
+    OptixSimulationDataGenericSphere& flags)
 {
     flags.computeHits = false;
     flags.computeRanges = false;
@@ -125,33 +126,33 @@ void setGenericFlags(
 }
 
 template<typename BundleT>
-void OptixSimulator::preBuildProgram()
+void SphereSimulatorOptix::preBuildProgram()
 {
-    OptixSimulationDataGeneric flags;
+    OptixSimulationDataGenericSphere flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new ScanProgramGeneric(m_map, flags ) );
+        OptixProgramPtr program(new SphereProgramGeneric(m_map, flags ) );
         m_generic_programs[flags] = program;
     }
 }
 
 template<typename BundleT>
-void OptixSimulator::simulate(
+void SphereSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
 
-    Memory<OptixSimulationDataGeneric, RAM> mem;
+    Memory<OptixSimulationDataGenericSphere, RAM> mem;
     setGenericFlags<BundleT>(mem[0]);
 
     auto it = m_generic_programs.find(mem[0]);
     OptixProgramPtr program;
     if(it == m_generic_programs.end())
     {
-        program.reset(new ScanProgramGeneric(m_map, mem[0] ) );
+        program.reset(new SphereProgramGeneric(m_map, mem[0] ) );
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
@@ -170,7 +171,7 @@ void OptixSimulator::simulate(
     // - upload Params: 0.000602865s
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem;
     copy(mem, d_mem, m_stream);
 
     if(program)
@@ -179,7 +180,7 @@ void OptixSimulator::simulate(
                 program->pipeline,
                 m_stream,
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGeneric ),
+                sizeof( OptixSimulationDataGenericSphere ),
                 &program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
@@ -192,7 +193,7 @@ void OptixSimulator::simulate(
 }
 
 template<typename BundleT>
-BundleT OptixSimulator::simulate(
+BundleT SphereSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm)
 {
     BundleT res;

@@ -8,10 +8,10 @@
 
 namespace std {
 
-template <>
-struct hash<imagine::OptixSimulationDataGeneric>
+template <typename ModelT>
+struct hash<imagine::OptixSimulationDataGeneric<ModelT> >
 {
-    std::size_t operator()(const imagine::OptixSimulationDataGeneric& k) const
+    std::size_t operator()(const imagine::OptixSimulationDataGeneric<ModelT>& k) const
     {
         unsigned int hitsKey = static_cast<unsigned int>(k.computeHits) << 0;
         unsigned int rangesKey = static_cast<unsigned int>(k.computeRanges) << 1;
@@ -29,7 +29,8 @@ struct hash<imagine::OptixSimulationDataGeneric>
 namespace imagine
 {
 
-bool operator==(const OptixSimulationDataGeneric &a, const OptixSimulationDataGeneric &b)
+template<typename ModelT>
+bool operator==(const OptixSimulationDataGeneric<ModelT> &a, const OptixSimulationDataGeneric<ModelT> &b)
 { 
     return (a.computeHits == b.computeHits
             && a.computeRanges == b.computeRanges

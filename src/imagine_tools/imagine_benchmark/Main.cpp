@@ -5,18 +5,24 @@
 #include <imagine/util/StopWatch.hpp>
 
 // CPU
-#include <imagine/simulation/EmbreeSimulator.hpp>
+#include <imagine/simulation/SphereSimulatorEmbree.hpp>
+#include <imagine/simulation/PinholeSimulatorEmbree.hpp>
+
 #include <imagine/types/Memory.hpp>
 
 // GPU
 #if defined WITH_OPTIX
-#include <imagine/simulation/OptixSimulator.hpp>
+#include <imagine/simulation/SphereSimulatorOptix.hpp>
 #include <imagine/types/MemoryCuda.hpp>
+
+
+
 #endif
 
 #include <iomanip>
 
 using namespace imagine;
+
 
 Memory<LiDARModel, RAM> velodyne_model()
 {
@@ -98,7 +104,7 @@ int main(int argc, char** argv)
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
         // std::cout << "Mesh loaded to CPU." << std::endl;
-        EmbreeSimulatorPtr cpu_sim(new EmbreeSimulator(cpu_mesh));
+        SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
         // std::cout << "Initialized CPU simulator." << std::endl;
 
         cpu_sim->setTsb(Tsb);
@@ -162,7 +168,7 @@ int main(int argc, char** argv)
         
         // Load mesh
         OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
-        OptixSimulatorPtr gpu_sim(new OptixSimulator(gpu_mesh));
+        SphereSimulatorOptixPtr gpu_sim(new SphereSimulatorOptix(gpu_mesh));
 
         gpu_sim->setTsb(Tsb);
         gpu_sim->setModel(model);
@@ -172,16 +178,21 @@ int main(int argc, char** argv)
         Tbm_gpu = Tbm;
 
         // Define what to simulate
-        Memory<float, RAM_CUDA> ranges;
-        ranges = gpu_sim->simulateRanges(Tbm_gpu);
+
+        Memory<float, RAM> ranges_cpu;
+        using ResultT = Bundle<Ranges<VRAM_CUDA> >;
+        ResultT res;
+        res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
+        gpu_sim->simulate(Tbm_gpu, res);
+        ranges_cpu = res.ranges;
         
-        std::cout << "- range of last ray: " << ranges[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
+        std::cout << "- range of last ray: " << ranges_cpu[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
         std::cout << "-- Starting Benchmark --" << std::endl;
 
         double velos_per_second_mean = 0.0;
         
         // predefine result buffer
-        Memory<float, VRAM_CUDA> res(Tbm.size() * model->phi.size * model->theta.size);
+        // Memory<float, VRAM_CUDA> res(Tbm.size() * model->phi.size * model->theta.size);
 
         int run = 0;
         while(elapsed_total < benchmark_duration)
@@ -189,7 +200,7 @@ int main(int argc, char** argv)
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
-            gpu_sim->simulateRanges(Tbm_gpu, res);
+            gpu_sim->simulate(Tbm_gpu, res);
             elapsed = sw();
             elapsed_total += elapsed;
             double velos_per_second = static_cast<double>(Nposes) / elapsed;

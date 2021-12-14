@@ -1,4 +1,4 @@
-#include "imagine/simulation/optix/ScanProgramGeneric.hpp"
+#include "imagine/simulation/optix/SphereProgramRanges.hpp"
 
 #include "imagine/util/GenericAlign.hpp"
 #include "imagine/util/optix/OptixDebug.hpp"
@@ -20,52 +20,17 @@ namespace imagine {
 
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
+typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
-ScanProgramGeneric::ScanProgramGeneric(
-    OptixMapPtr map,
-    const OptixSimulationDataGeneric& flags)
+SphereProgramRanges::SphereProgramRanges(OptixMapPtr map)
 {
     const char *kernel =
-    #include "kernels/ScanProgramGenericString.h"
+    #include "kernels/SphereProgramRangesString.h"
     ;
 
     // 1. INIT MODULE
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
-    
-    OptixModuleCompileBoundValueEntry options[6];
-    // computeHits
-    options[0] = {};
-    options[0].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeHits);
-    options[0].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeHits );
-    options[0].boundValuePtr = &flags.computeHits;
-    // computeRanges
-    options[1] = {};
-    options[1].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeRanges);
-    options[1].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeRanges );
-    options[1].boundValuePtr = &flags.computeRanges;
-    // computePoints
-    options[2] = {};
-    options[2].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computePoints);
-    options[2].sizeInBytes = sizeof( OptixSimulationDataGeneric::computePoints );
-    options[2].boundValuePtr = &flags.computePoints;
-    // computeNormals
-    options[3] = {};
-    options[3].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeNormals);
-    options[3].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeNormals );
-    options[3].boundValuePtr = &flags.computeNormals;
-    // computeFaceIds
-    options[4] = {};
-    options[4].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeFaceIds);
-    options[4].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeFaceIds );
-    options[4].boundValuePtr = &flags.computeFaceIds;
-    // computeObjectIds
-    options[5] = {};
-    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeObjectIds);
-    options[5].sizeInBytes = sizeof( OptixSimulationDataGeneric::computeObjectIds );
-    options[5].boundValuePtr = &flags.computeObjectIds;
-
 
     OptixModuleCompileOptions module_compile_options = {};
     module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
@@ -76,8 +41,6 @@ ScanProgramGeneric::ScanProgramGeneric(
     module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 #endif
-    module_compile_options.boundValues = &options[0];
-    module_compile_options.numBoundValues = 6;
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
@@ -87,7 +50,7 @@ ScanProgramGeneric::ScanProgramGeneric(
     } else {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     }
-    pipeline_compile_options.numPayloadValues      = 8;
+    pipeline_compile_options.numPayloadValues      = 1;
     pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
@@ -117,36 +80,29 @@ ScanProgramGeneric::ScanProgramGeneric(
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
+
+    OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
+    raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    raygen_prog_group_desc.raygen.module            = module;
+    raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
     sizeof_log = sizeof( log );
 
-    // 2.1. RAYGEN
-    {  
-        OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
-        raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-        raygen_prog_group_desc.raygen.module            = module;
-        raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
-        
+    optixProgramGroupCreate(
+                map->context,
+                &raygen_prog_group_desc,
+                1,   // num program groups
+                &program_group_options,
+                log,
+                &sizeof_log,
+                &raygen_prog_group
+                );
 
-        OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                    map->context,
-                    &raygen_prog_group_desc,
-                    1,   // num program groups
-                    &program_group_options,
-                    log,
-                    &sizeof_log,
-                    &raygen_prog_group
-                    ) );
-    }
-
-    // 2.2 Miss programs
-    {
-        OptixProgramGroupDesc miss_prog_group_desc = {};
-
-        miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-        miss_prog_group_desc.miss.module            = module;
-        miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
-
-        OPTIX_CHECK_LOG(optixProgramGroupCreate(
+    OptixProgramGroupDesc miss_prog_group_desc  = {};
+    miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    miss_prog_group_desc.miss.module            = module;
+    miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
+    sizeof_log = sizeof( log );
+    optixProgramGroupCreate(
                 map->context,
                 &miss_prog_group_desc,
                 1,   // num program groups
@@ -154,18 +110,14 @@ ScanProgramGeneric::ScanProgramGeneric(
                 log,
                 &sizeof_log,
                 &miss_prog_group
-                ));  
-    }
-    
-    // 2.3 Closest Hit programs
-    {
-        OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+                );
 
-        hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-        hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
-        hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
-
-        OPTIX_CHECK_LOG( optixProgramGroupCreate(
+    OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+    hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
+    hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
+    sizeof_log = sizeof( log );
+    optixProgramGroupCreate(
                 map->context,
                 &hitgroup_prog_group_desc,
                 1,   // num program groups
@@ -173,8 +125,7 @@ ScanProgramGeneric::ScanProgramGeneric(
                 log,
                 &sizeof_log,
                 &hitgroup_prog_group
-                ));
-    }
+                );
 
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
@@ -188,7 +139,7 @@ ScanProgramGeneric::ScanProgramGeneric(
     OptixProgramGroup program_groups[] = { 
         raygen_prog_group, 
         miss_prog_group, 
-        hitgroup_prog_group
+        hitgroup_prog_group 
     };
 
     OptixPipelineLinkOptions pipeline_link_options = {};
@@ -230,8 +181,6 @@ ScanProgramGeneric::ScanProgramGeneric(
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
 
-
-
     // 4. setup shader binding table
     CUdeviceptr  raygen_record;
     const size_t raygen_record_size = sizeof( RayGenSbtRecord );
@@ -247,12 +196,10 @@ ScanProgramGeneric::ScanProgramGeneric(
 
     CUdeviceptr miss_record;
     size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size) );
-    
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
     MissSbtRecord ms_sbt;
+    
     OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
-
-
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( miss_record ),
                 &ms_sbt,
@@ -263,26 +210,8 @@ ScanProgramGeneric::ScanProgramGeneric(
     CUdeviceptr hitgroup_record;
     size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
-    
     HitGroupSbtRecord hg_sbt;
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-
-    Memory<Vector*, RAM> normals_cpu(map->meshes.size());
-    for(size_t i=0; i<map->meshes.size(); i++)
-    {
-        normals_cpu[i] = map->meshes[i].normals.raw();
-    }
-    
-    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
-    // gpu array of gpu pointers
-    CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>(hg_sbt.data.normals),
-                reinterpret_cast<void*>(normals_cpu.raw()),
-                map->meshes.size() * sizeof(Vector*),
-                cudaMemcpyHostToDevice
-                ) );
-    
-
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
                 &hg_sbt,

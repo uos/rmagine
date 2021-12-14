@@ -1,42 +1,30 @@
-#include "imagine/simulation/EmbreeSimulator.hpp"
-#include <set>
-
+#include "imagine/simulation/SphereSimulatorEmbree.hpp"
 
 namespace imagine
 {
 
-EmbreeSimulator::EmbreeSimulator(const EmbreeMapPtr map)
+SphereSimulatorEmbree::SphereSimulatorEmbree(const EmbreeMapPtr map)
 :m_map(map)
 {
     rtcInitIntersectContext(&m_context);
 }
 
-EmbreeSimulator::~EmbreeSimulator()
+SphereSimulatorEmbree::~SphereSimulatorEmbree()
 {
     
 }
 
-void EmbreeSimulator::setTsb(const Memory<Transform, RAM>& Tsb)
+void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void EmbreeSimulator::setModel(const Memory<LiDARModel, RAM>& model)
+void SphereSimulatorEmbree::setModel(const Memory<SphericalModel, RAM>& model)
 {
     m_model = model;
 }
 
-void print(RTCHit hit)
-{
-    std::cout << "RTCHit:" << std::endl;
-    std::cout << "- instID: " << hit.instID[0] << std::endl;
-    std::cout << "- geomID: " << hit.geomID << std::endl;
-    std::cout << "- primID: " << hit.primID << std::endl;
-    std::cout << "- Ng: " << hit.Ng_x << " " << hit.Ng_y << " " << hit.Ng_z << std::endl;
-    std::cout << "- uv: " << hit.u << " " << hit.v << std::endl;
-}
-
-void EmbreeSimulator::simulateRanges(
+void SphereSimulatorEmbree::simulateRanges(
     const Memory<Transform, RAM>& Tbm,
     Memory<float, RAM>& ranges)
 {
@@ -83,7 +71,7 @@ void EmbreeSimulator::simulateRanges(
     }
 }
 
-Memory<float, RAM> EmbreeSimulator::simulateRanges(
+Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
     const Memory<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
@@ -91,7 +79,7 @@ Memory<float, RAM> EmbreeSimulator::simulateRanges(
     return res;
 }
 
-void EmbreeSimulator::simulateHits(
+void SphereSimulatorEmbree::simulateHits(
     const Memory<Transform, RAM>& Tbm, 
     Memory<uint8_t, RAM>& hits)
 {
@@ -138,7 +126,7 @@ void EmbreeSimulator::simulateHits(
     }
 }
 
-Memory<uint8_t, RAM> EmbreeSimulator::simulateHits(
+Memory<uint8_t, RAM> SphereSimulatorEmbree::simulateHits(
     const Memory<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());

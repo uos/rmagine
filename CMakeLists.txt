@@ -116,7 +116,8 @@ add_library(imagine SHARED
     # src/imagine/math/math.cpp
     # src/imagine/math/SVD.cpp
     # Simulators
-    src/imagine/simulation/EmbreeSimulator.cpp
+    src/imagine/simulation/SphereSimulatorEmbree.cpp
+    src/imagine/simulation/PinholeSimulatorEmbree.cpp
     # Types
     src/imagine/types/Memory.cpp
     # Util
@@ -162,9 +163,9 @@ if(OptiX_FOUND)
 
     set(OPTIX_KERNEL_FILES
         # Simulation
-        src/imagine/simulation/optix/ScanProgramRanges.cu
-        src/imagine/simulation/optix/ScanProgramNormals.cu
-        src/imagine/simulation/optix/ScanProgramGeneric.cu
+        src/imagine/simulation/optix/SphereProgramRanges.cu
+        src/imagine/simulation/optix/SphereProgramNormals.cu
+        src/imagine/simulation/optix/SphereProgramGeneric.cu
     )
 
     cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
@@ -198,11 +199,11 @@ if(OptiX_FOUND)
         # Maps
         src/imagine/map/OptixMap.cpp
         # Simulation
-        src/imagine/simulation/OptixSimulator.cpp
+        src/imagine/simulation/SphereSimulatorOptix.cpp
         # Simulation Programs
-        src/imagine/simulation/optix/ScanProgramRanges.cpp
-        src/imagine/simulation/optix/ScanProgramNormals.cpp
-        src/imagine/simulation/optix/ScanProgramGeneric.cpp
+        src/imagine/simulation/optix/SphereProgramRanges.cpp
+        src/imagine/simulation/optix/SphereProgramNormals.cpp
+        src/imagine/simulation/optix/SphereProgramGeneric.cpp
     )
 
     target_include_directories(imagine_optix PUBLIC

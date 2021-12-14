@@ -70,6 +70,8 @@ struct Box {
 
 struct SphericalModel 
 {
+    static constexpr char name[] = "Sphere";
+
     // PHI: vertical, y-rot, pitch, polar angle 
     DiscreteInterval phi;
     // THETA: horizontal, z-rot, yaw, azimuth
@@ -102,15 +104,21 @@ struct SphericalModel
     {
         return phi_id * theta.size + theta_id;
     }
+
+    
 };
 
 using LiDARModel = SphericalModel;
 
 struct CylindricModel {
+    static constexpr char name[] = "Cylinder";
     // TODO
+    
 };
 
 struct PinholeModel {
+    static constexpr char name[] = "Pinhole";
+
     uint32_t width;
     uint32_t height;
 
@@ -121,6 +129,31 @@ struct PinholeModel {
     float f[2];
     // Center cx and cy
     float c[2];
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getRay(uint32_t vid, uint32_t hid) const
+    {
+        // pX = fx * X + cx
+        // pY = fy * Y + cy
+        // X = (pX - cx) / fx
+        float pX = (static_cast<float>(hid) - c[0]) / f[0];
+        float pY = (static_cast<float>(vid) - c[1]) / f[1];
+
+        // z->x
+        // -y->z
+        // -x->y
+        Vector dir_optical = {pX, pY, 1.0};
+        dir_optical.normalize();
+        Vector dir = {dir_optical.z, -dir_optical.x, -dir_optical.y};
+        return dir;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * width + hid;
+    }
+
 };
 // Distortion? Fisheye / radial-tangential ? 
 

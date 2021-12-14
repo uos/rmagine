@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_OPTIX_SIMULATOR_HPP
-#define IMAGINE_OPTIX_SIMULATOR_HPP
+#ifndef IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
+#define IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -95,15 +95,15 @@ namespace imagine {
  * @endcode
  * 
  */
-class OptixSimulator {
+class SphereSimulatorOptix {
 public:
-    OptixSimulator(OptixMapPtr map);
+    SphereSimulatorOptix(OptixMapPtr map);
 
-    ~OptixSimulator();
+    ~SphereSimulatorOptix();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
 
-    void setModel(const Memory<LiDARModel, RAM>& model);
+    void setModel(const Memory<SphericalModel, RAM>& model);
 
     void simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm, 
@@ -161,14 +161,13 @@ protected:
 private:
     std::vector<OptixProgramPtr> m_programs;
 
-    std::unordered_map<OptixSimulationDataGeneric, OptixProgramPtr> m_generic_programs;
-
+    std::unordered_map<OptixSimulationDataGenericSphere, OptixProgramPtr> m_generic_programs;
 };
 
-using OptixSimulatorPtr = std::shared_ptr<OptixSimulator>;
+using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;
 
 } // namespace imagine
 
-#include "OptixSimulator.tcc"
+#include "SphereSimulatorOptix.tcc"
 
 #endif // IMAGINE_OPTIX_SIMULATOR_HPP

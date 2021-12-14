@@ -7,7 +7,7 @@
 using namespace imagine;
 
 extern "C" {
-__constant__ OptixSimulationDataGeneric mem;
+__constant__ OptixSimulationDataGenericSphere mem;
 }
 
 extern "C" __global__ void __raygen__rg()

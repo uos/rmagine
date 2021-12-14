@@ -11,64 +11,68 @@
 namespace imagine
 {
 
+template<typename ModelT>
 struct OptixSimulationDataRanges {
     // Input
-    const Transform*        Tsb; // Static offset of sensor
-    const LiDARModel*       model; // Scanner Model
-    const Transform*        Tbm; // Poses
-    uint32_t                Nposes;
+    const Transform*            Tsb; // Static offset of sensor
+    const ModelT*               model; // Scanner Model
+    const Transform*            Tbm; // Poses
+    uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle  handle;
+    OptixTraversableHandle      handle;
     // Result
-    float*                  ranges;
+    float*                      ranges;
 };
 
+using OptixSimulationDataRangesSphere = OptixSimulationDataRanges<SphericalModel>;
+using OptixSimulationDataRangesPinhole = OptixSimulationDataRanges<PinholeModel>;
+// using OptixSimulationDataRangesCylindrical = OptixSimulationDataRanges<CylindricModel>;
+
+
+template<typename ModelT>
 struct OptixSimulationDataNormals {
     // Input
-    const Transform*        Tsb; // Static offset of sensor
-    const LiDARModel*       model; // Scanner Model
-    const Transform*        Tbm; // Poses
-    uint32_t                Nposes;
+    const Transform*            Tsb; // Static offset of sensor
+    const ModelT*               model; // Scanner Model
+    const Transform*            Tbm; // Poses
+    uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle  handle;
+    OptixTraversableHandle      handle;
     // Result
-    Vector*                 normals;
+    Vector*                     normals;
 };
 
+using OptixSimulationDataNormalsSphere = OptixSimulationDataNormals<SphericalModel>;
+using OptixSimulationDataNormalsPinhole = OptixSimulationDataNormals<PinholeModel>;
 
+
+template<typename ModelT>
 struct OptixSimulationDataGeneric {
     // Input
-    const Transform*        Tsb; // Static offset of sensor
-    const LiDARModel*       model; // Scanner Model
-    const Transform*        Tbm; // Poses
-    uint32_t                Nposes;
+    const Transform*            Tsb; // Static offset of sensor
+    const ModelT*               model; // Scanner Model
+    const Transform*            Tbm; // Poses
+    uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle  handle;
+    OptixTraversableHandle      handle;
     // Generic Options
-    bool                    computeHits;
-    bool                    computeRanges;
-    bool                    computePoints;
-    bool                    computeNormals;
-    bool                    computeFaceIds;
-    bool                    computeObjectIds;
+    bool                        computeHits;
+    bool                        computeRanges;
+    bool                        computePoints;
+    bool                        computeNormals;
+    bool                        computeFaceIds;
+    bool                        computeObjectIds;
     // Result
-    uint8_t*                hits;
-    float*                  ranges;
-    Point*                  points;
-    Vector*                 normals;
-    unsigned int*           face_ids;
-    unsigned int*           object_ids;
-
-    // bool operator==(const OptixSimulationDataGeneric &other) const
-    // { 
-    //     return (computeHits == other.computeHits
-    //             && computeRanges == other.computeRanges
-    //             && computePoints == other.computePoints
-    //             && computeNormals == other.computeNormals
-    //             && computeFaceIds == other.computeFaceIds
-    //             && computeObjectIds == other.computeObjectIds );
-    // }
+    uint8_t*                    hits;
+    float*                      ranges;
+    Point*                      points;
+    Vector*                     normals;
+    unsigned int*               face_ids;
+    unsigned int*               object_ids;
 };
+
+using OptixSimulationDataGenericSphere = OptixSimulationDataGeneric<SphericalModel>;
+using OptixSimulationDataGenericPinhole = OptixSimulationDataGeneric<PinholeModel>;
 
 } // namespace imagine
 

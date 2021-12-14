@@ -1,6 +1,7 @@
 #ifndef IMAGINE_SIMULATION_RESULTS_HPP
 #define IMAGINE_SIMULATION_RESULTS_HPP
 
+#include <imagine/types/Bundle.hpp>
 #include <imagine/types/Memory.hpp>
 #include <imagine/math/types.h>
 
@@ -37,6 +38,45 @@ template<typename MemT>
 struct ObjectIds {
     Memory<unsigned int, MemT> object_ids;
 };
+
+
+template<typename BundleT, typename MemT>
+void resizeMemoryBundle(BundleT& res, 
+    unsigned int W,
+    unsigned int H,
+    unsigned int N )
+{
+    if constexpr(BundleT::template has<Hits<MemT> >())
+    {
+        res.Hits<MemT>::hits.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Ranges<MemT> >())
+    {
+        res.Ranges<MemT>::ranges.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Points<MemT> >())
+    {
+        res.Points<MemT>::points.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<Normals<MemT> >())
+    {
+        res.Normals<MemT>::normals.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<FaceIds<MemT> >())
+    {
+        res.FaceIds<MemT>::face_ids.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<ObjectIds<MemT> >())
+    {
+        res.ObjectIds<MemT>::object_ids.resize(W*H*N);
+    }
+}
+
 
 } // namespace imagine
 
