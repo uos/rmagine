@@ -229,6 +229,9 @@ struct O1DnModel {
     uint32_t width;
     uint32_t height;
 
+    // maximum and minimum allowed range
+    Interval range;
+
     Vector orig;
     Memory<Vector, MemT> rays;
 
@@ -274,6 +277,9 @@ struct OnDnModel {
     uint32_t width;
     uint32_t height;
 
+    // maximum and minimum allowed range
+    Interval range;
+
     const Memory<Vector, MemT> orig;
     const Memory<Vector, MemT> rays;
 
@@ -302,7 +308,6 @@ struct OnDnModel {
     {
         return vid * getWidth() + hid;
     }
-
 
     IMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 

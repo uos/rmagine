@@ -1,12 +1,13 @@
-#include "PinholeSimulatorEmbree.hpp"
+#include "O1DnSimulatorEmbree.hpp"
 #include <imagine/simulation/SimulationResults.hpp>
 
 
 namespace imagine
 {
 
+
 template<typename BundleT>
-void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void O1DnSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -28,10 +29,13 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
+                const Vector ray_orig_s = m_model->getOrigin(vid, hid);
+                const Vector ray_orig_m = Tsm_ * ray_orig_s;
+
                 RTCRayHit rayhit;
-                rayhit.ray.org_x = Tsm_.t.x;
-                rayhit.ray.org_y = Tsm_.t.y;
-                rayhit.ray.org_z = Tsm_.t.z;
+                rayhit.ray.org_x = ray_orig_m.x;
+                rayhit.ray.org_y = ray_orig_m.y;
+                rayhit.ray.org_z = ray_orig_m.z;
                 rayhit.ray.dir_x = ray_dir_m.x;
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
@@ -132,7 +136,7 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT O1DnSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

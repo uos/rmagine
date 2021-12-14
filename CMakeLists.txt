@@ -118,6 +118,7 @@ add_library(imagine SHARED
     # Simulators
     src/imagine/simulation/SphereSimulatorEmbree.cpp
     src/imagine/simulation/PinholeSimulatorEmbree.cpp
+    src/imagine/simulation/O1DnSimulatorEmbree.cpp
     # Types
     src/imagine/types/Memory.cpp
     # Util
