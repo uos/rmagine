@@ -40,7 +40,7 @@ struct ObjectIds {
 };
 
 
-template<typename BundleT, typename MemT>
+template<typename MemT, typename BundleT>
 void resizeMemoryBundle(BundleT& res, 
     unsigned int W,
     unsigned int H,

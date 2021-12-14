@@ -1,78 +1,19 @@
 #include <iostream>
 
-#include <imagine/simulation/OptixSimulator.hpp>
-#include <imagine/simulation/EmbreeSimulator.hpp>
+#include <imagine/simulation/SphereSimulatorOptix.hpp>
+#include <imagine/simulation/SphereSimulatorEmbree.hpp>
 #include <imagine/util/StopWatch.hpp>
 
 using namespace imagine;
 
-OptixSimulatorPtr   sim_gpu;
-EmbreeSimulatorPtr  sim_cpu;
+SphereSimulatorOptixPtr   sim_gpu;
+SphereSimulatorEmbreePtr  sim_cpu;
 
 template<typename BundleT>
 void resizeResults(BundleT& res, unsigned int W, unsigned int H, unsigned int N)
 {
-    // CPU
-    if constexpr(BundleT::template has<Hits<RAM> >())
-    {
-        res.Hits<RAM>::hits.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Ranges<RAM> >())
-    {
-        res.Ranges<RAM>::ranges.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Points<RAM> >())
-    {
-        res.Points<RAM>::points.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Normals<RAM> >())
-    {
-        res.Normals<RAM>::normals.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<FaceIds<RAM> >())
-    {
-        res.FaceIds<RAM>::face_ids.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<RAM> >())
-    {
-        res.ObjectIds<RAM>::object_ids.resize(W*H*N);
-    }
-
-    // GPU
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
-    {
-        res.Hits<VRAM_CUDA>::hits.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
-    {
-        res.Ranges<VRAM_CUDA>::ranges.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
-    {
-        res.Points<VRAM_CUDA>::points.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
-    {
-        res.Normals<VRAM_CUDA>::normals.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
-    {
-        res.FaceIds<VRAM_CUDA>::face_ids.resize(W*H*N);
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
-    {
-        res.ObjectIds<VRAM_CUDA>::object_ids.resize(W*H*N);
-    }
+    resizeMemoryBundle<RAM>(res, W, H, N);
+    resizeMemoryBundle<VRAM_CUDA>(res, W, H, N);
 }
 
 template<typename BundleT1, typename BundleT2>
@@ -243,17 +184,16 @@ int main(int argc, char** argv)
 
     sw();
     EmbreeMapPtr map_cpu = importEmbreeMap(argv[1]);
-    sim_cpu.reset(new EmbreeSimulator(map_cpu));
+    sim_cpu.reset(new SphereSimulatorEmbree(map_cpu));
     el = sw();
     std::cout << "- CPU: loaded in " << el << "s" << std::endl;
 
 
     sw();
     OptixMapPtr map_gpu = importOptixMap(argv[1]);
-    sim_gpu.reset(new OptixSimulator(map_gpu));
+    sim_gpu.reset(new SphereSimulatorOptix(map_gpu));
     el = sw();
     std::cout << "- GPU: loaded in " << el << "s" << std::endl;
-
 
     // Define and set Scanner Model
     Memory<LiDARModel, RAM> model;
@@ -355,7 +295,6 @@ int main(int argc, char** argv)
     } else {
         std::cout << "GPU != CPU" << std::endl;
     }
-
 
     sim_gpu.reset();
 

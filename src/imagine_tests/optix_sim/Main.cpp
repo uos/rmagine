@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <imagine/simulation/OptixSimulator.hpp>
+#include <imagine/simulation/SphereSimulatorOptix.hpp>
 #include <imagine/util/StopWatch.hpp>
 #include <fstream>
 
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     std::cout << argv[1] << ": loaded in " << el << "s" << std::endl;
 
     
-    OptixSimulator sim(map);
+    SphereSimulatorOptix sim(map);
 
     // Define and set Scanner Model
     Memory<LiDARModel, RAM> model;

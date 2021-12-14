@@ -1,5 +1,5 @@
 #include <iostream>
-#include <imagine/simulation/EmbreeSimulator.hpp>
+#include <imagine/simulation/SphereSimulatorEmbree.hpp>
 #include <imagine/util/StopWatch.hpp>
 
 #include <imagine/types/Bundle.hpp>
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     el = sw();
     std::cout << argv[1] << ": loaded in " << el << "s" << std::endl;
 
-    EmbreeSimulator sim(map);
+    SphereSimulatorEmbree sim(map);
 
     // Define and set Scanner Model
     Memory<LiDARModel, RAM> model = velodyne_model();

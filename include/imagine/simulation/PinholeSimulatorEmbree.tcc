@@ -24,7 +24,7 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
             for(unsigned int hid = 0; hid < m_model->width; hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
-                const unsigned int glob_id = pid * m_model->width * m_model->height + loc_id;
+                const unsigned int glob_id = pid * m_model->size() + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
@@ -136,8 +136,7 @@ template<typename BundleT>
 BundleT PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
 {
     BundleT res;
-
-    resizeMemoryBundle<RAM>(res, m_model->width, m_model->height, Tbm.size());
+    resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
     simulate(Tbm, res);
     return res;
 }
