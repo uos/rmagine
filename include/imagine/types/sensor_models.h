@@ -72,12 +72,30 @@ struct SphericalModel
 {
     static constexpr char name[] = "Sphere";
 
-    // PHI: vertical, y-rot, pitch, polar angle 
+    // PHI: vertical, y-rot, pitch, polar angle, height
     DiscreteInterval phi;
-    // THETA: horizontal, z-rot, yaw, azimuth
+    // THETA: horizontal, z-rot, yaw, azimuth, width
     DiscreteInterval theta;
     // RANGE: range
     Interval range; // range is valid if <= range_max && >= range_min
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getWidth() const
+    {
+        return phi.size;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getHeight() const
+    {
+        return theta.size;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t size() const
+    {
+        return getWidth() * getHeight();
+    }
 
     IMAGINE_INLINE_FUNCTION
     float getPhi(uint32_t phi_id) const
@@ -129,6 +147,24 @@ struct PinholeModel {
     float f[2];
     // Center cx and cy
     float c[2];
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getWidth() const
+    {
+        return width;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getHeight() const
+    {
+        return height;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t size() const
+    {
+        return getWidth() * getHeight();
+    }
 
     IMAGINE_INLINE_FUNCTION
     Vector getRay(uint32_t vid, uint32_t hid) const

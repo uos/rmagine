@@ -163,9 +163,14 @@ if(OptiX_FOUND)
 
     set(OPTIX_KERNEL_FILES
         # Simulation
+        ## Spherical
         src/imagine/simulation/optix/SphereProgramRanges.cu
         src/imagine/simulation/optix/SphereProgramNormals.cu
         src/imagine/simulation/optix/SphereProgramGeneric.cu
+        ## Pinhole
+        src/imagine/simulation/optix/PinholeProgramRanges.cu
+        src/imagine/simulation/optix/PinholeProgramNormals.cu
+        src/imagine/simulation/optix/PinholeProgramGeneric.cu
     )
 
     cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
@@ -200,10 +205,16 @@ if(OptiX_FOUND)
         src/imagine/map/OptixMap.cpp
         # Simulation
         src/imagine/simulation/SphereSimulatorOptix.cpp
+        src/imagine/simulation/PinholeSimulatorOptix.cpp
         # Simulation Programs
+        ## Spherical
         src/imagine/simulation/optix/SphereProgramRanges.cpp
         src/imagine/simulation/optix/SphereProgramNormals.cpp
         src/imagine/simulation/optix/SphereProgramGeneric.cpp
+        ## Pinhole
+        src/imagine/simulation/optix/PinholeProgramRanges.cpp
+        src/imagine/simulation/optix/PinholeProgramNormals.cpp
+        src/imagine/simulation/optix/PinholeProgramGeneric.cpp
     )
 
     target_include_directories(imagine_optix PUBLIC

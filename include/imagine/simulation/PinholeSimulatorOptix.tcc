@@ -1,5 +1,4 @@
-
-#include <imagine/simulation/optix/SphereProgramGeneric.hpp>
+#include <imagine/simulation/optix/PinholeProgramGeneric.hpp>
 #include <imagine/util/optix/OptixDebug.hpp>
 #include <optix.h>
 #include <optix_stubs.h>
@@ -12,7 +11,7 @@ namespace imagine
 template<typename BundleT>
 void setGenericData(
     BundleT& res, 
-    OptixSimulationDataGenericSphere& mem)
+    OptixSimulationDataGenericPinhole& mem)
 {
     if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
     {
@@ -47,7 +46,7 @@ void setGenericData(
 
 template<typename BundleT>
 void setGenericFlags(
-    OptixSimulationDataGenericSphere& flags)
+    OptixSimulationDataGenericPinhole& flags)
 {
     flags.computeHits = false;
     flags.computeRanges = false;
@@ -88,33 +87,33 @@ void setGenericFlags(
 }
 
 template<typename BundleT>
-void SphereSimulatorOptix::preBuildProgram()
+void PinholeSimulatorOptix::preBuildProgram()
 {
-    OptixSimulationDataGenericSphere flags;
+    OptixSimulationDataGenericPinhole flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new SphereProgramGeneric(m_map, flags ) );
+        OptixProgramPtr program(new PinholeProgramGeneric(m_map, flags ) );
         m_generic_programs[flags] = program;
     }
 }
 
 template<typename BundleT>
-void SphereSimulatorOptix::simulate(
+void PinholeSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
 
-    Memory<OptixSimulationDataGenericSphere, RAM> mem;
+    Memory<OptixSimulationDataGenericPinhole, RAM> mem;
     setGenericFlags<BundleT>(mem[0]);
 
     auto it = m_generic_programs.find(mem[0]);
     OptixProgramPtr program;
     if(it == m_generic_programs.end())
     {
-        program.reset(new SphereProgramGeneric(m_map, mem[0] ) );
+        program.reset(new PinholeProgramGeneric(m_map, mem[0] ) );
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
@@ -133,7 +132,7 @@ void SphereSimulatorOptix::simulate(
     // - upload Params: 0.000602865s
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataGenericPinhole, VRAM_CUDA> d_mem;
     copy(mem, d_mem, m_stream);
 
     if(program)
@@ -142,7 +141,7 @@ void SphereSimulatorOptix::simulate(
                 program->pipeline,
                 m_stream,
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGenericSphere ),
+                sizeof( OptixSimulationDataGenericPinhole ),
                 &program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
@@ -155,7 +154,7 @@ void SphereSimulatorOptix::simulate(
 }
 
 template<typename BundleT>
-BundleT SphereSimulatorOptix::simulate(
+BundleT PinholeSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm)
 {
     BundleT res;

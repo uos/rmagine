@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
-#define IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
+#ifndef IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
+#define IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -95,15 +95,15 @@ namespace imagine {
  * @endcode
  * 
  */
-class SphereSimulatorOptix {
+class PinholeSimulatorOptix {
 public:
-    SphereSimulatorOptix(OptixMapPtr map);
+    PinholeSimulatorOptix(OptixMapPtr map);
 
-    ~SphereSimulatorOptix();
+    ~PinholeSimulatorOptix();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
 
-    void setModel(const Memory<SphericalModel, RAM>& model);
+    void setModel(const Memory<PinholeModel, RAM>& model);
 
     void simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm, 
@@ -156,18 +156,18 @@ protected:
     uint32_t m_width;
     uint32_t m_height;
     Memory<Transform, VRAM_CUDA> m_Tsb;
-    Memory<SphericalModel, VRAM_CUDA> m_model;
+    Memory<PinholeModel, VRAM_CUDA> m_model;
 
 private:
     std::vector<OptixProgramPtr> m_programs;
 
-    std::unordered_map<OptixSimulationDataGenericSphere, OptixProgramPtr> m_generic_programs;
+    std::unordered_map<OptixSimulationDataGenericPinhole, OptixProgramPtr> m_generic_programs;
 };
 
-using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;
+using PinholeSimulatorOptixPtr = std::shared_ptr<PinholeSimulatorOptix>;
 
 } // namespace imagine
 
-#include "SphereSimulatorOptix.tcc"
+#include "PinholeSimulatorOptix.tcc"
 
-#endif // IMAGINE_OPTIX_SIMULATOR_HPP
+#endif // IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
