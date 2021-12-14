@@ -28,18 +28,18 @@ void PinholeSimulatorEmbree::simulateRanges(
     const Memory<Transform, RAM>& Tbm,
     Memory<float, RAM>& ranges)
 {
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
         const Transform Tbm_ = Tbm[pid];
         const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
-        for(unsigned int vid = 0; vid < m_model->height; vid++)
+        for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
-            for(unsigned int hid = 0; hid < m_model->width; hid++)
+            for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
-                const unsigned int glob_id = pid * m_model->width * m_model->height + loc_id;
+                const unsigned int glob_id = pid * m_model->size() + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
@@ -76,7 +76,7 @@ void PinholeSimulatorEmbree::simulateRanges(
 Memory<float, RAM> PinholeSimulatorEmbree::simulateRanges(
     const Memory<Transform, RAM>& Tbm)
 {
-    Memory<float, RAM> res(m_model->width * m_model->height * Tbm.size());
+    Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
     return res;
 }
@@ -85,53 +85,53 @@ void PinholeSimulatorEmbree::simulateHits(
     const Memory<Transform, RAM>& Tbm, 
     Memory<uint8_t, RAM>& hits)
 {
-    // #pragma omp parallel for
-    // for(size_t pid = 0; pid < Tbm.size(); pid++)
-    // {
-    //     const Transform Tbm_ = Tbm[pid];
-    //     const Transform Tsm_ = Tbm_ * m_Tsb[0];
+    #pragma omp parallel for
+    for(size_t pid = 0; pid < Tbm.size(); pid++)
+    {
+        const Transform Tbm_ = Tbm[pid];
+        const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
-    //     for(unsigned int vid = 0; vid < m_model->phi.size; vid++)
-    //     {
-    //         for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
-    //         {
-    //             const unsigned int loc_id = vid * m_model->theta.size + hid;
-    //             const unsigned int glob_id = pid * m_model->theta.size * m_model->phi.size + loc_id;
+        for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
+        {
+            for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
+            {
+                const unsigned int loc_id = m_model->getBufferId(vid, hid);
+                const unsigned int glob_id = pid * m_model->size() + loc_id;
 
-    //             const Vector ray_dir_s = m_model->getRay(vid, hid);
-    //             const Vector ray_dir_m = Tsm_.R * ray_dir_s;
+                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
-    //             RTCRayHit rayhit;
-    //             rayhit.ray.org_x = Tsm_.t.x;
-    //             rayhit.ray.org_y = Tsm_.t.y;
-    //             rayhit.ray.org_z = Tsm_.t.z;
-    //             rayhit.ray.dir_x = ray_dir_m.x;
-    //             rayhit.ray.dir_y = ray_dir_m.y;
-    //             rayhit.ray.dir_z = ray_dir_m.z;
-    //             rayhit.ray.tnear = 0;
-    //             rayhit.ray.tfar = INFINITY;
-    //             rayhit.ray.mask = 0;
-    //             rayhit.ray.flags = 0;
-    //             rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    //             rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+                RTCRayHit rayhit;
+                rayhit.ray.org_x = Tsm_.t.x;
+                rayhit.ray.org_y = Tsm_.t.y;
+                rayhit.ray.org_z = Tsm_.t.z;
+                rayhit.ray.dir_x = ray_dir_m.x;
+                rayhit.ray.dir_y = ray_dir_m.y;
+                rayhit.ray.dir_z = ray_dir_m.z;
+                rayhit.ray.tnear = 0;
+                rayhit.ray.tfar = INFINITY;
+                rayhit.ray.mask = 0;
+                rayhit.ray.flags = 0;
+                rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+                rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    //             rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene, &m_context, &rayhit);
 
-    //             if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-    //             {
-    //                 hits[glob_id] = 1;
-    //             } else {
-    //                 hits[glob_id] = 0;
-    //             }
-    //         }
-    //     }
-    // }
+                if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+                {
+                    hits[glob_id] = 1;
+                } else {
+                    hits[glob_id] = 0;
+                }
+            }
+        }
+    }
 }
 
 Memory<uint8_t, RAM> PinholeSimulatorEmbree::simulateHits(
     const Memory<Transform, RAM>& Tbm)
 {
-    Memory<uint8_t, RAM> res(m_model->width * m_model->height * Tbm.size());
+    Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);
     return res;
 }

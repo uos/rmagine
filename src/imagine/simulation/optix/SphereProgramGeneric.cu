@@ -23,8 +23,8 @@ extern "C" __global__ void __raygen__rg()
     // pose id
     const unsigned int pid = idx.z;
 
-    const unsigned int loc_id = vid * mem.model->theta.size + hid;
-    const unsigned int glob_id = pid * mem.model->theta.size * mem.model->phi.size + loc_id;
+    const unsigned int loc_id = mem.model->getBufferId(vid, hid);
+    const unsigned int glob_id = pid * mem.model->size() + loc_id;
     
     const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
 

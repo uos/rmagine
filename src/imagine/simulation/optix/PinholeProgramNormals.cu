@@ -22,7 +22,7 @@ extern "C" __global__ void __raygen__rg()
     const unsigned int pid = idx.z;
 
     const unsigned int loc_id = mem.model->getBufferId(vid, hid);
-    const unsigned int glob_id = pid * mem.model->width * mem.model->height + loc_id;
+    const unsigned int glob_id = pid * mem.model->size() + loc_id;
     
     const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
     const Vector ray_dir_s = mem.model->getRay(vid, hid);
