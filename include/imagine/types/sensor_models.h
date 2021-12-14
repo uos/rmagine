@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include <imagine/types/SharedFunctions.hpp>
+#include <imagine/types/Memory.hpp>
 
 namespace imagine
 {
@@ -118,6 +119,12 @@ struct SphericalModel
     }
 
     IMAGINE_INLINE_FUNCTION
+    Vector getOrigin(uint32_t phi_id, uint32_t theta_id) const 
+    {
+        return {0.0, 0.0, 0.0};
+    }
+
+    IMAGINE_INLINE_FUNCTION
     uint32_t getBufferId(uint32_t phi_id, uint32_t theta_id) const 
     {
         return phi_id * theta.size + theta_id;
@@ -127,12 +134,6 @@ struct SphericalModel
 };
 
 using LiDARModel = SphericalModel;
-
-struct CylindricModel {
-    static constexpr char name[] = "Cylinder";
-    // TODO
-    
-};
 
 struct PinholeModel {
     static constexpr char name[] = "Pinhole";
@@ -167,21 +168,32 @@ struct PinholeModel {
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRay(uint32_t vid, uint32_t hid) const
+    Vector getRayOptical(uint32_t vid, uint32_t hid) const
     {
         // pX = fx * X + cx
         // pY = fy * Y + cy
         // X = (pX - cx) / fx
-        float pX = (static_cast<float>(hid) - c[0]) / f[0];
-        float pY = (static_cast<float>(vid) - c[1]) / f[1];
+        const float pX = (static_cast<float>(hid) - c[0]) / f[0];
+        const float pY = (static_cast<float>(vid) - c[1]) / f[1];
+        
+        const Vector dir_optical = {pX, pY, 1.0};
+        return dir_optical.normalized();
+    }
 
-        // z->x
-        // -y->z
-        // -x->y
-        Vector dir_optical = {pX, pY, 1.0};
-        dir_optical.normalize();
-        Vector dir = {dir_optical.z, -dir_optical.x, -dir_optical.y};
-        return dir;
+    IMAGINE_INLINE_FUNCTION
+    Vector getRay(uint32_t vid, uint32_t hid) const
+    {
+        const Vector dir_optical = getRayOptical(vid, hid);
+        //  z -> x
+        // -y -> z
+        // -x -> y
+        return {dir_optical.z, -dir_optical.x, -dir_optical.y};
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getOrigin(uint32_t phi_id, uint32_t theta_id) const 
+    {
+        return {0.0, 0.0, 0.0};
     }
 
     IMAGINE_INLINE_FUNCTION
@@ -196,6 +208,7 @@ struct PinholeModel {
 using CameraModel = PinholeModel;
 using DepthCameraModel = PinholeModel;
 
+// TODO: distortion
 struct RadialTangentialDistortion {
     // TODO
 };
@@ -203,6 +216,108 @@ struct RadialTangentialDistortion {
 struct FisheyeDistortion {
 
 };
+
+
+struct CylindricModel {
+    static constexpr char name[] = "Cylinder";
+    // TODO
+    
+};
+
+template<typename MemT>
+struct O1DnModel {
+    uint32_t width;
+    uint32_t height;
+
+    Vector orig;
+    Memory<Vector, MemT> rays;
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getWidth() const 
+    {
+        return width;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getHeight() const 
+    {
+        return height;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t size() const 
+    {
+        return getWidth() * getHeight();
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getOrigin(uint32_t vid, uint32_t hid) const 
+    {
+        return orig;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getRay(uint32_t vid, uint32_t hid) const 
+    {
+        return rays[getBufferId(vid, hid)];
+    }
+};
+
+template<typename MemT>
+struct OnDnModel {
+    uint32_t width;
+    uint32_t height;
+
+    const Memory<Vector, MemT> orig;
+    const Memory<Vector, MemT> rays;
+
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getWidth() const 
+    {
+        return width;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getHeight() const 
+    {
+        return height;
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t size() const 
+    {
+        return getWidth() * getHeight();
+    }
+
+
+    IMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getOrigin(uint32_t vid, uint32_t hid) const 
+    {
+        return orig[getBufferId(vid, hid)];
+    }
+
+    IMAGINE_INLINE_FUNCTION
+    Vector getRay(uint32_t vid, uint32_t hid) const 
+    {
+        return rays[getBufferId(vid, hid)];
+    }
+
+};
+
 
 } // namespace imagine
 
