@@ -19,9 +19,9 @@ void O1DnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
-void O1DnSimulatorEmbree::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
+void O1DnSimulatorEmbree::setModel(const O1DnModel<RAM>& model)
 {
-    m_model = model;
+    m_model[0] = model;
 }
 
 void O1DnSimulatorEmbree::simulateRanges(
