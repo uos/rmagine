@@ -250,6 +250,7 @@ if(BUILD_TESTS)
 add_subdirectory(src/imagine_tests/memory)
 add_subdirectory(src/imagine_tests/embree_sim)
 add_subdirectory(src/imagine_tests/basic_math)
+add_subdirectory(src/imagine_tests/generic_model_sim)
 
 if(CUDA_FOUND)
 

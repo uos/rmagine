@@ -14,7 +14,7 @@ O1DnSimulatorEmbree::O1DnSimulatorEmbree(const EmbreeMapPtr map)
 
 O1DnSimulatorEmbree::~O1DnSimulatorEmbree()
 {
-    
+    // std::cout << "O1DnSimulatorEmbree - Destructor " << std::endl;
 }
 
 void O1DnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
@@ -24,12 +24,20 @@ void O1DnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 
 void O1DnSimulatorEmbree::setModel(const O1DnModel<RAM>& model)
 {
+    // copy(model, m_model);
     m_model[0] = model;
 }
 
 void O1DnSimulatorEmbree::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
 {
-    m_model = model;
+    m_model->width = model->width;
+    m_model->height = model->height;
+    m_model->range = model->range;
+    m_model->rays = model->rays;
+    // m_model = model;
+    // copy(model[0].rays, m_model[0].rays);
+    // std::cout << "Set Model" << std::endl;
+    // std::cout << model[0].rays.raw() << " -> " << m_model[0].rays.raw() << std::endl; 
 }
 
 void O1DnSimulatorEmbree::simulateRanges(

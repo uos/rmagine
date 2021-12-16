@@ -1,6 +1,8 @@
 #include <iostream>
 #include <imagine/types/Memory.hpp>
 #include <imagine/types/MemoryCuda.hpp>
+#include <imagine/types/sensor_models.h>
+
 
 using namespace imagine;
 
@@ -97,13 +99,58 @@ void test_gpu()
 
 }
 
+class TestClass 
+{
+public:
+    TestClass()
+    :mem(1)
+    {
+
+    }
+
+    ~TestClass()
+    {
+        
+    }
+
+    void setMem(const Memory<O1DnModel<RAM>, RAM>& bla)
+    {
+        mem = bla;
+    }
+
+    void printSomething()
+    {
+        std::cout << mem->getHeight() << std::endl;
+    }
+    
+private:
+    Memory<O1DnModel<RAM>, RAM> mem;
+
+};
+
+void test_sensor_models()
+{
+    O1DnModel<RAM> model;
+    model.height = 100;
+
+    Memory<O1DnModel<RAM>, RAM> model_mem(1);
+    model_mem[0] = model;
+
+    TestClass bla;
+    bla.setMem(model_mem);
+    bla.printSomething();
+
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Imagine Tests: Memory" << std::endl;
 
     test_cpu();
 
-    test_gpu();
+    // test_gpu();
+
+    test_sensor_models();
 
     return 0;
 }
