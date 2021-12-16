@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     Tsb->R.y = 0.0;
     Tsb->R.z = 0.0;
     Tsb->R.w = 1.0;
-    Tsb->t.x = 0.01;
+    Tsb->t.x = 0.0;
     Tsb->t.y = 0.0;
     Tsb->t.z = 0.0; // offset on z axis
 
@@ -76,34 +76,46 @@ int main(int argc, char** argv)
         Tbm[i].R.y = 0.0;
         Tbm[i].R.z = 0.0;
         Tbm[i].R.w = 1.0;
-        Tbm[i].t.x = 0.1;
+        Tbm[i].t.x = 0.0;
         Tbm[i].t.y = 0.0;
         Tbm[i].t.z = 0.0;
     }
 
 
-    for(size_t i=0; i<Nposes; i++)
-    {
-        std::cout << Tbm[i] << std::endl;
-    }
+    // for(size_t i=0; i<Nposes; i++)
+    // {
+    //     std::cout << Tbm[i] << std::endl;
+    // }
 
-    std::cout << "SIMULATE" << std::endl;
+    // std::cout << "SIMULATE" << std::endl;
+
+    using ResultT = Bundle<Ranges<RAM> >;
+    ResultT res;
+    res.ranges.resize(model->size() * Tbm.size());
 
     sw();
-    Memory<float, RAM> ranges = sim.simulateRanges(Tbm);
+    sim.simulate(Tbm, res);
     el = sw();
+    std::cout << "Simulated " << Tbm.size() << " poses / " << res.ranges.size() << " ranges in " << el << "s" << std::endl;
+    std::cout << "first range: " << res.ranges[0] << std::endl;
 
-    std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
+    // this does not work anymore?
+    // sw();
+    // sim.simulateRanges(Tbm, res.ranges);
+    // el = sw();
+    // std::cout << "Simulated " << Tbm.size() << " poses / " << res.ranges.size() << " ranges in " << el << "s" << std::endl;
 
-    std::cout << "Result: " << ranges[0] << std::endl;
+    // std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
+
+    // std::cout << "Result: " << ranges[0] << std::endl;
 
 
-    // Generic API
-    using SimulatedT = Bundle<Hits<RAM> >;
+    // // Generic API
+    // using SimulatedT = Bundle<Hits<RAM> >;
 
-    SimulatedT res = sim.simulate<SimulatedT>(Tbm);
+    // SimulatedT res = sim.simulate<SimulatedT>(Tbm);
 
-    std::cout << "first ray hit?: " << (unsigned int)res.hits[0] << std::endl;
+    // std::cout << "first ray hit?: " << (unsigned int)res.hits[0] << std::endl;
     
 
 

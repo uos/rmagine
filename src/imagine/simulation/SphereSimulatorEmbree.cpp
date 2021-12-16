@@ -1,7 +1,5 @@
 #include "imagine/simulation/SphereSimulatorEmbree.hpp"
 
-#include <imagine/util/prints.h>
-
 namespace imagine
 {
 
