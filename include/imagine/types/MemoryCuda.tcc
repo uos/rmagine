@@ -4,7 +4,6 @@ namespace imagine
 {
 
 /// VRAM_CUDA
-
 template<typename DataT>
 DataT* VRAM_CUDA::alloc(size_t N)
 {

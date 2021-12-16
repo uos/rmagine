@@ -41,14 +41,14 @@ void O1DnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
 
 void O1DnSimulatorOptix::setModel(const O1DnModel<VRAM_CUDA>& model)
 {
-    Memory<O1DnModel<VRAM_CUDA>, RAM> mem;
+    Memory<O1DnModel<VRAM_CUDA>, RAM> mem(1);
     mem[0] = model;
     setModel(mem);
 }
 
 void O1DnSimulatorOptix::setModel(const O1DnModel<RAM>& model)
 {
-    Memory<O1DnModel<RAM>, RAM> mem;
+    Memory<O1DnModel<RAM>, RAM> mem(1);
     mem[0] = model;
     setModel(mem);
 }
@@ -57,12 +57,12 @@ void O1DnSimulatorOptix::setModel(const Memory<O1DnModel<VRAM_CUDA>, RAM>& model
 {
     m_width = model->width;
     m_height = model->height;
-    m_model = model;
+    copy(model, m_model, m_stream);
 }
 
 void O1DnSimulatorOptix::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
 {
-    Memory<O1DnModel<VRAM_CUDA>, RAM> model_tmp;
+    Memory<O1DnModel<VRAM_CUDA>, RAM> model_tmp(1);
     // copy fields
     model_tmp->range = model->range;
     model_tmp->width = model->width;
@@ -83,7 +83,7 @@ void O1DnSimulatorOptix::simulateRanges(
     mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
 
-    Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
 
     OptixProgramPtr program = m_programs[0];

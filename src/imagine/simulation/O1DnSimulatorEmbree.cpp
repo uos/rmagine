@@ -24,7 +24,6 @@ void O1DnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 
 void O1DnSimulatorEmbree::setModel(const O1DnModel<RAM>& model)
 {
-    // copy(model, m_model);
     m_model[0] = model;
 }
 
@@ -33,7 +32,10 @@ void O1DnSimulatorEmbree::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
     m_model->width = model->width;
     m_model->height = model->height;
     m_model->range = model->range;
+    m_model->orig = model->orig;
     m_model->rays = model->rays;
+
+    // this is shallow copy becauce pointer is copied
     // m_model = model;
     // copy(model[0].rays, m_model[0].rays);
     // std::cout << "Set Model" << std::endl;
