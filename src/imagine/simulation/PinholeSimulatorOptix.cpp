@@ -58,7 +58,7 @@ void PinholeSimulatorOptix::simulateRanges(
     mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
 
-    Memory<OptixSimulationDataRangesPinhole, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataRangesPinhole, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
 
     OptixProgramPtr program = m_programs[0];

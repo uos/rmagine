@@ -38,16 +38,8 @@ Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::~Memory()
-{   
-    if constexpr( !std::is_trivially_destructible<DataT>::value )
-    {
-        // we need to destruct the elements first
-        for(size_t i=0; i<size(); i++)
-        {
-            m_mem[i].~DataT();
-        }
-    }
-    MemT::free(m_mem);
+{
+    MemT::free(m_mem, m_size);
 }
 
 template<typename DataT, typename MemT>
@@ -79,7 +71,7 @@ void Memory<DataT, MemT>::resize(size_t N)
     if(m_mem != nullptr)
     {
         // initialized -> resize
-        m_mem = MemT::realloc(m_mem, N);
+        m_mem = MemT::realloc(m_mem, m_size, N);
     } else {
         // not initialized -> make new buffer of size N
         m_mem = MemT::template alloc<DataT>(N);
@@ -117,25 +109,44 @@ DataT* RAM::alloc(size_t N)
 }
 
 template<typename DataT>
-DataT* RAM::realloc(DataT* mem, size_t N)
+DataT* RAM::realloc(DataT* mem, size_t Nold, size_t Nnew)
 {
-    DataT* ret = static_cast<DataT*>(::realloc(mem, N * sizeof(DataT)));
-    if(ret == mem)
+    DataT* ret = static_cast<DataT*>(::realloc(mem, Nnew * sizeof(DataT)));
+    
+    if constexpr( !std::is_trivially_constructible<DataT>::value )
     {
-        // same beginning
-    } else {
-        // beginnings differ: recall constructors
+        // construct new elements
+        size_t id_b = Nold;
+        size_t id_e = Nnew;
 
+        if(ret != mem)
+        {
+            // beginnings differ: recall all constructors
+            id_b = 0;
+        }
 
+        for(size_t i=id_b; i < id_e; i++)
+        {
+            new (&ret[i]) DataT();
+        }
     }
-    // return ::realloc(mem, N * sizeof(DataT));
 
     return ret;
 }
 
 template<typename DataT>
-void RAM::free(DataT* mem)
+void RAM::free(DataT* mem, size_t N)
 {
+    if constexpr( !std::is_trivially_destructible<DataT>::value )
+    {
+        // we need to destruct the elements first
+        // std::cout << "Call buffers desctructors..." << std::endl;
+        for(size_t i=0; i<N; i++)
+        {
+            mem[i].~DataT();
+        }
+    }
+
     ::free(mem);
 }
 

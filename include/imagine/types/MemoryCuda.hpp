@@ -58,10 +58,10 @@ struct VRAM_CUDA {
     static DataT* alloc(size_t N);
 
     template<typename DataT>
-    static DataT* realloc(DataT* mem, size_t N);
+    static DataT* realloc(DataT* mem, size_t Nold, size_t Nnew);
 
     template<typename DataT>
-    static void free(DataT* mem);
+    static void free(DataT* mem, size_t N);
 };
 
 struct RAM_CUDA {
@@ -69,10 +69,10 @@ struct RAM_CUDA {
     static DataT* alloc(size_t N);
 
     template<typename DataT>
-    static DataT* realloc(DataT* mem, size_t N);
+    static DataT* realloc(DataT* mem, size_t Nold, size_t Nnew);
 
     template<typename DataT>
-    static void free(DataT* mem);
+    static void free(DataT* mem, size_t N);
 };
 
 // Copy Functions
