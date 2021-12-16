@@ -146,8 +146,6 @@ int main(int argc, char** argv)
     } else if(device == "gpu") {
         #if defined WITH_OPTIX
 
-        std::cout << "Define Tsb" << std::endl;
-
         // Define one Transform Sensor to Base
         Memory<Transform, RAM> Tsb(1);
         Tsb->R.x = 0.0;
@@ -158,7 +156,6 @@ int main(int argc, char** argv)
         Tsb->t.y = 0.0;
         Tsb->t.z = 0.0;
 
-        std::cout << "Define Tbm" << std::endl;
         // Define Transforms Base to Map (Poses)
         Memory<Transform, RAM_CUDA> Tbm(Nposes);
         for(size_t i=0; i<Tbm.size(); i++)
@@ -167,18 +164,13 @@ int main(int argc, char** argv)
         }
 
         // Get Sensor Model
-        std::cout << "Get Sensor Model" << std::endl;
         Memory<LiDARModel, RAM> model = velodyne_model();
         
         // Load mesh
-        std::cout << "Load map" << std::endl;
         OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
-        std::cout << "Init sphere simulator" << std::endl;
         SphereSimulatorOptixPtr gpu_sim(new SphereSimulatorOptix(gpu_mesh));
 
-        std::cout << "Set Tsb" << std::endl;
         gpu_sim->setTsb(Tsb);
-        std::cout << "Set Model" << std::endl;
         gpu_sim->setModel(model);
 
         // upload
@@ -191,10 +183,8 @@ int main(int argc, char** argv)
         using ResultT = Bundle<Ranges<VRAM_CUDA> >;
         ResultT res;
         res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
-        std::cout << "Simulate Generic" << std::endl;
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;
-        std::cout << "Done." << std::endl;
         
         std::cout << "- range of last ray: " << ranges_cpu[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
         std::cout << "-- Starting Benchmark --" << std::endl;

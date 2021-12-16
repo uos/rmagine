@@ -1,5 +1,7 @@
 #include "imagine/simulation/SphereSimulatorEmbree.hpp"
 
+#include <imagine/util/prints.h>
+
 namespace imagine
 {
 
@@ -39,12 +41,14 @@ void SphereSimulatorEmbree::simulateRanges(
         const Transform Tbm_ = Tbm[pid];
         const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
+        const unsigned int glob_shift = pid * m_model->size();
+
         for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
             for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
-                const unsigned int glob_id = pid * m_model->size() + loc_id;
+                const unsigned int glob_id = glob_shift + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
@@ -66,7 +70,7 @@ void SphereSimulatorEmbree::simulateRanges(
                 rtcIntersect1(m_map->scene, &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-                {
+                {    
                     ranges[glob_id] = rayhit.ray.tfar;
                 } else {
                     ranges[glob_id] = m_model->range.max + 1.0;
@@ -94,12 +98,14 @@ void SphereSimulatorEmbree::simulateHits(
         const Transform Tbm_ = Tbm[pid];
         const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
-        for(unsigned int vid = 0; vid < m_model->phi.size; vid++)
+        const unsigned int glob_shift = pid * m_model->size();
+
+        for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
-            for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
+            for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
-                const unsigned int loc_id = vid * m_model->theta.size + hid;
-                const unsigned int glob_id = pid * m_model->theta.size * m_model->phi.size + loc_id;
+                const unsigned int loc_id = m_model->getBufferId(vid, hid);
+                const unsigned int glob_id = glob_shift + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;

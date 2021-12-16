@@ -42,12 +42,14 @@ void O1DnSimulatorEmbree::simulateRanges(
         const Transform Tbm_ = Tbm[pid];
         const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
+        const unsigned int glob_shift = pid * m_model->size();
+
         for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
             for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
-                const unsigned int glob_id = pid * m_model->size() + loc_id;
+                const unsigned int glob_id = glob_shift + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
@@ -102,12 +104,14 @@ void O1DnSimulatorEmbree::simulateHits(
         const Transform Tbm_ = Tbm[pid];
         const Transform Tsm_ = Tbm_ * m_Tsb[0];
 
+        const unsigned int glob_shift = pid * m_model->size();
+
         for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
             for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
-                const unsigned int glob_id = pid * m_model->size() + loc_id;
+                const unsigned int glob_id = glob_shift + loc_id;
 
                 const Vector ray_dir_s = m_model->getRay(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;

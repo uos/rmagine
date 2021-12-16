@@ -14,19 +14,18 @@ Memory<LiDARModel, RAM> velodyne_model()
     Memory<LiDARModel, RAM> model(1);
     model->theta.min = -M_PI;
     model->theta.max = M_PI; 
-    model->theta.size = 440;
+    model->theta.size = 20;
     model->theta.computeStep();
     
     model->phi.min = -0.261799;
     model->phi.max = 0.261799;
-    model->phi.size = 16;
+    model->phi.size = 10;
     model->phi.computeStep();
     
     model->range.min = 0.5;
     model->range.max = 130.0;
     return model;
 }
-
 
 int main(int argc, char** argv)
 {
@@ -81,7 +80,6 @@ int main(int argc, char** argv)
         Tbm[i].t.z = 0.0;
     }
 
-
     // for(size_t i=0; i<Nposes; i++)
     // {
     //     std::cout << Tbm[i] << std::endl;
@@ -89,21 +87,24 @@ int main(int argc, char** argv)
 
     // std::cout << "SIMULATE" << std::endl;
 
-    using ResultT = Bundle<Ranges<RAM> >;
-    ResultT res;
-    res.ranges.resize(model->size() * Tbm.size());
+    // using ResultT = Bundle<Ranges<RAM> >;
+    // ResultT res;
+    // res.ranges.resize(model->size() * Tbm.size());
 
-    sw();
-    sim.simulate(Tbm, res);
-    el = sw();
-    std::cout << "Simulated " << Tbm.size() << " poses / " << res.ranges.size() << " ranges in " << el << "s" << std::endl;
-    std::cout << "first range: " << res.ranges[0] << std::endl;
-
-    // this does not work anymore?
     // sw();
-    // sim.simulateRanges(Tbm, res.ranges);
+    // sim.simulate(Tbm, res);
     // el = sw();
     // std::cout << "Simulated " << Tbm.size() << " poses / " << res.ranges.size() << " ranges in " << el << "s" << std::endl;
+    // std::cout << "first range: " << res.ranges[0] << std::endl;
+
+    // this does not work anymore?
+
+    // Memory<float, RAM> ranges(model->getWidth() * model->getHeight() * Tbm.size());
+
+    sw();
+    Memory<float, RAM> ranges = sim.simulateRanges(Tbm);
+    el = sw();
+    std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
 
     // std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
 

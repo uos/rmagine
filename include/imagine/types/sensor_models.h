@@ -83,13 +83,13 @@ struct SphericalModel
     IMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const
     {
-        return phi.size;
+        return theta.size;
     }
 
     IMAGINE_INLINE_FUNCTION
     uint32_t getHeight() const
     {
-        return theta.size;
+        return phi.size;
     }
 
     IMAGINE_INLINE_FUNCTION

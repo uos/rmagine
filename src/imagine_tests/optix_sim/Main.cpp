@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
     std::vector<double> runtimes;
 
-    for(size_t i=0; i<1000; i++)
+    for(size_t i=0; i<10; i++)
     {
         // sw();
         // sim.simulateRanges(Tbm_gpu, ranges_gpu);
