@@ -15,7 +15,9 @@ public:
     ~O1DnSimulatorEmbree();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+
     void setModel(const O1DnModel<RAM>& model);
+    void setModel(const Memory<O1DnModel<RAM>, RAM>& model);
 
     void simulateRanges(
         const Memory<Transform, RAM>& Tbm, 

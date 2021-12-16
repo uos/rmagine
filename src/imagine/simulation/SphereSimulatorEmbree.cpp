@@ -1,11 +1,16 @@
 #include "imagine/simulation/SphereSimulatorEmbree.hpp"
 
+#include <imagine/util/prints.h>
+
 namespace imagine
 {
 
 SphereSimulatorEmbree::SphereSimulatorEmbree(const EmbreeMapPtr map)
 :m_map(map)
+,m_model(1)
+,m_Tsb(1)
 {
+    m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 
@@ -16,12 +21,14 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
 
 void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 {
-    m_Tsb = Tsb;
+    // m_Tsb = Tsb;
+    copy(Tsb, m_Tsb);
 }
 
 void SphereSimulatorEmbree::setModel(const Memory<SphericalModel, RAM>& model)
 {
-    m_model = model;
+    // m_model = model;
+    copy(model, m_model);
 }
 
 void SphereSimulatorEmbree::simulateRanges(

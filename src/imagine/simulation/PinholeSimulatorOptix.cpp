@@ -18,6 +18,8 @@ namespace imagine
 
 PinholeSimulatorOptix::PinholeSimulatorOptix(OptixMapPtr map)
 :m_map(map)
+,m_model(1)
+,m_Tsb(1)
 {
     m_programs.resize(2);
     
@@ -49,7 +51,7 @@ void PinholeSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    Memory<OptixSimulationDataRangesPinhole, RAM> mem;
+    Memory<OptixSimulationDataRangesPinhole, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
@@ -90,14 +92,14 @@ void PinholeSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<Vector, VRAM_CUDA>& normals) const
 {
-    Memory<OptixSimulationDataNormalsPinhole, RAM> mem;
+    Memory<OptixSimulationDataNormalsPinhole, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->normals = normals.raw();
 
-    Memory<OptixSimulationDataNormalsPinhole, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataNormalsPinhole, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
 
     OptixProgramPtr program = m_programs[1];

@@ -44,7 +44,7 @@ protected:
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;
-    Memory<LiDARModel, RAM> m_model;
+    Memory<SphericalModel, RAM> m_model;
 };
 
 using SphereSimulatorEmbreePtr = std::shared_ptr<SphereSimulatorEmbree>;

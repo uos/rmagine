@@ -5,7 +5,10 @@ namespace imagine
 
 O1DnSimulatorEmbree::O1DnSimulatorEmbree(const EmbreeMapPtr map)
 :m_map(map)
+,m_model(1)
+,m_Tsb(1)
 {
+    m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 
@@ -22,6 +25,11 @@ void O1DnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 void O1DnSimulatorEmbree::setModel(const O1DnModel<RAM>& model)
 {
     m_model[0] = model;
+}
+
+void O1DnSimulatorEmbree::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
+{
+    m_model = model;
 }
 
 void O1DnSimulatorEmbree::simulateRanges(

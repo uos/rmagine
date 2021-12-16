@@ -5,11 +5,13 @@
 #include <imagine/types/Bundle.hpp>
 #include <imagine/simulation/SimulationResults.hpp>
 
+#include <imagine/util/prints.h>
+
 using namespace imagine;
 
 Memory<LiDARModel, RAM> velodyne_model()
 {
-    Memory<LiDARModel, RAM> model;
+    Memory<LiDARModel, RAM> model(1);
     model->theta.min = -M_PI;
     model->theta.max = M_PI; 
     model->theta.size = 440;
@@ -53,7 +55,7 @@ int main(int argc, char** argv)
 
     // Define and set Transformation between sensor and base 
     // (sensor offset to poses)
-    Memory<Transform, RAM> Tsb;
+    Memory<Transform, RAM> Tsb(1);
     Tsb->R.x = 0.0;
     Tsb->R.y = 0.0;
     Tsb->R.z = 0.0;
@@ -66,7 +68,7 @@ int main(int argc, char** argv)
 
     // Define and set poses to transform from
     // Transformations between base and map
-    size_t Nposes = 1;
+    size_t Nposes = 10;
     Memory<Transform, RAM> Tbm(Nposes);
     for(size_t i=0; i<Nposes; i++)
     {
@@ -78,6 +80,14 @@ int main(int argc, char** argv)
         Tbm[i].t.y = 0.0;
         Tbm[i].t.z = 0.0;
     }
+
+
+    for(size_t i=0; i<Nposes; i++)
+    {
+        std::cout << Tbm[i] << std::endl;
+    }
+
+    std::cout << "SIMULATE" << std::endl;
 
     sw();
     Memory<float, RAM> ranges = sim.simulateRanges(Tbm);

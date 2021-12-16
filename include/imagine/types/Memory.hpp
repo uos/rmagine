@@ -128,89 +128,9 @@ public:
     }
 
 private:
-    DataT* m_mem;
-    size_t m_size;
+    DataT* m_mem = nullptr;
+    size_t m_size = 0;
 };
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::Memory()
-:m_size(1)
-{
-    m_mem = reinterpret_cast<DataT*>(MemT::alloc(sizeof(DataT)));
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::Memory(size_t N)
-:m_size(N)
-{
-    m_mem = reinterpret_cast<DataT*>(MemT::alloc(sizeof(DataT) * N)) ;
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::Memory(const Memory<DataT, MemT>& o)
-:Memory(o.size())
-{
-    copy(o, *this);
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
-: m_mem(o.m_mem)
-, m_size(o.m_size)
-{
-    o.m_size = 0;
-    o.m_mem = nullptr;
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::~Memory()
-{   
-    MemT::free(m_mem);
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT>& o)
-{
-    if(o.size() != this->size())
-    {
-        this->resize(o.size());
-    }
-    copy(o, *this);
-    return *this;
-}
-
-template<typename DataT, typename MemT>
-template<typename MemT2>
-Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT2>& o)
-{
-    if(o.size() != this->size())
-    {
-        this->resize(o.size());
-    }
-    copy(o, *this);
-    return *this;
-}
-
-template<typename DataT, typename MemT>
-void Memory<DataT, MemT>::resize(size_t N) {
-    m_mem = reinterpret_cast<DataT*>(MemT::realloc(m_mem, sizeof(DataT) * N));
-    m_size = N;
-}
-
-template<typename DataT, typename MemT>
-DataT* Memory<DataT, MemT>::raw()
-{
-    return m_mem;
-}
-
-template<typename DataT, typename MemT>
-const DataT* Memory<DataT, MemT>::raw() const {
-    return m_mem;
-}
-
-// Some functions that can be specialized:
-template<typename DataT, typename SMT, typename TMT>
-void copy(const Memory<DataT, SMT>& from, Memory<DataT, TMT>& to);
 
 // template<typename DataT, typename MemT>
 // Memory<DataT, MemT> wrap(const DataT& data);
@@ -220,24 +140,20 @@ void copy(const Memory<DataT, SMT>& from, Memory<DataT, TMT>& to);
 // RAM Type
 struct RAM {
     
-    static void* alloc(size_t N)
-    {
-        return malloc(N);
-    }
+    template<typename DataT>
+    static DataT* alloc(size_t N);
 
-    static void* realloc(void* mem, size_t N)
-    {
-        return ::realloc(mem, N);
-    }
+    template<typename DataT>
+    static DataT* realloc(DataT* mem, size_t N);
 
-    static void free(void* mem)
-    {
-        if(mem)
-        {
-            ::free(mem);
-        }
-    }
+    template<typename DataT>
+    static void free(DataT* mem);
 };
+
+// Some functions that can be specialized:
+template<typename DataT, typename SMT, typename TMT>
+void copy(const Memory<DataT, SMT>& from, Memory<DataT, TMT>& to);
+
 
 template<typename DataT>
 void copy(const Memory<DataT, RAM>& from, Memory<DataT, RAM>& to)
@@ -258,5 +174,7 @@ void copy(const Memory<DataT, RAM>& from, DataT& to)
 }
 
 } // namespace imagine
+
+#include "Memory.tcc"
 
 #endif // IMAGINE_MEMORY_HPP

@@ -113,8 +113,6 @@ add_library(imagine SHARED
     src/imagine/map/AssimpMap.cpp
     src/imagine/map/EmbreeMap.cpp
     # Math
-    # src/imagine/math/math.cpp
-    # src/imagine/math/SVD.cpp
     # Simulators
     src/imagine/simulation/SphereSimulatorEmbree.cpp
     src/imagine/simulation/PinholeSimulatorEmbree.cpp
@@ -172,6 +170,10 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/PinholeProgramRanges.cu
         src/imagine/simulation/optix/PinholeProgramNormals.cu
         src/imagine/simulation/optix/PinholeProgramGeneric.cu
+        ## Generic: O1Dn
+        src/imagine/simulation/optix/O1DnProgramRanges.cu
+        src/imagine/simulation/optix/O1DnProgramNormals.cu
+        src/imagine/simulation/optix/O1DnProgramGeneric.cu
     )
 
     cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
@@ -207,6 +209,7 @@ if(OptiX_FOUND)
         # Simulation
         src/imagine/simulation/SphereSimulatorOptix.cpp
         src/imagine/simulation/PinholeSimulatorOptix.cpp
+        src/imagine/simulation/O1DnSimulatorOptix.cpp
         # Simulation Programs
         ## Spherical
         src/imagine/simulation/optix/SphereProgramRanges.cpp
@@ -216,6 +219,10 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/PinholeProgramRanges.cpp
         src/imagine/simulation/optix/PinholeProgramNormals.cpp
         src/imagine/simulation/optix/PinholeProgramGeneric.cpp
+        ## O1Dn
+        src/imagine/simulation/optix/O1DnProgramRanges.cpp
+        src/imagine/simulation/optix/O1DnProgramNormals.cpp
+        src/imagine/simulation/optix/O1DnProgramGeneric.cpp
     )
 
     target_include_directories(imagine_optix PUBLIC
@@ -240,6 +247,7 @@ endif(CUDA_FOUND)
 #### TESTS
 if(BUILD_TESTS)
 
+add_subdirectory(src/imagine_tests/memory)
 add_subdirectory(src/imagine_tests/embree_sim)
 add_subdirectory(src/imagine_tests/basic_math)
 

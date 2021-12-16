@@ -53,17 +53,27 @@ void* memcpyHostToHost(void* dest, const void* src, std::size_t count);
 } // namespace cuda
 
 struct VRAM_CUDA {
-    static void* alloc(size_t N);
-    static void* realloc(void* mem, size_t N);
-    static void free(void* mem);
+
+    template<typename DataT>
+    static DataT* alloc(size_t N);
+
+    template<typename DataT>
+    static DataT* realloc(DataT* mem, size_t N);
+
+    template<typename DataT>
+    static void free(DataT* mem);
 };
 
 struct RAM_CUDA {
-    static void* alloc(size_t N);
-    static void* realloc(void* mem, size_t N);
-    static void free(void* mem);
-};
+    template<typename DataT>
+    static DataT* alloc(size_t N);
 
+    template<typename DataT>
+    static DataT* realloc(DataT* mem, size_t N);
+
+    template<typename DataT>
+    static void free(DataT* mem);
+};
 
 // Copy Functions
 
@@ -145,5 +155,7 @@ void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to)
 }
 
 } // namespace imagine
+
+#include "MemoryCuda.tcc"
 
 #endif // IMAGINE_MEMORY_CUDA_HPP

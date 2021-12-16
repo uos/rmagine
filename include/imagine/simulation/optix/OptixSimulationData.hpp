@@ -4,6 +4,7 @@
 #include <imagine/util/optix/OptixData.hpp>
 #include <imagine/types/sensor_models.h>
 #include <imagine/math/types.h>
+#include <imagine/types/MemoryCuda.hpp>
 
 #include <optix.h>
 #include <cuda_runtime.h>
@@ -26,8 +27,7 @@ struct OptixSimulationDataRanges {
 
 using OptixSimulationDataRangesSphere = OptixSimulationDataRanges<SphericalModel>;
 using OptixSimulationDataRangesPinhole = OptixSimulationDataRanges<PinholeModel>;
-// using OptixSimulationDataRangesCylindrical = OptixSimulationDataRanges<CylindricModel>;
-
+using OptixSimulationDataRangesO1Dn = OptixSimulationDataRanges<O1DnModel<VRAM_CUDA> >;
 
 template<typename ModelT>
 struct OptixSimulationDataNormals {
@@ -44,6 +44,7 @@ struct OptixSimulationDataNormals {
 
 using OptixSimulationDataNormalsSphere = OptixSimulationDataNormals<SphericalModel>;
 using OptixSimulationDataNormalsPinhole = OptixSimulationDataNormals<PinholeModel>;
+using OptixSimulationDataNormalsO1Dn = OptixSimulationDataNormals<O1DnModel<VRAM_CUDA> >;
 
 
 template<typename ModelT>
@@ -73,6 +74,8 @@ struct OptixSimulationDataGeneric {
 
 using OptixSimulationDataGenericSphere = OptixSimulationDataGeneric<SphericalModel>;
 using OptixSimulationDataGenericPinhole = OptixSimulationDataGeneric<PinholeModel>;
+using OptixSimulationDataGenericO1Dn = OptixSimulationDataGeneric<O1DnModel<VRAM_CUDA> >;
+
 
 } // namespace imagine
 

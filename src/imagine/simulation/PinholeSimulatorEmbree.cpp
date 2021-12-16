@@ -5,7 +5,10 @@ namespace imagine
 
 PinholeSimulatorEmbree::PinholeSimulatorEmbree(const EmbreeMapPtr map)
 :m_map(map)
+,m_model(1)
+,m_Tsb(1)
 {
+    m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 

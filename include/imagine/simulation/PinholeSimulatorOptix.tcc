@@ -106,7 +106,7 @@ void PinholeSimulatorOptix::simulate(
     BundleT& res)
 {
 
-    Memory<OptixSimulationDataGenericPinhole, RAM> mem;
+    Memory<OptixSimulationDataGenericPinhole, RAM> mem(1);
     setGenericFlags<BundleT>(mem[0]);
 
     auto it = m_generic_programs.find(mem[0]);
@@ -132,7 +132,7 @@ void PinholeSimulatorOptix::simulate(
     // - upload Params: 0.000602865s
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGenericPinhole, VRAM_CUDA> d_mem;
+    Memory<OptixSimulationDataGenericPinhole, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
 
     if(program)
