@@ -280,8 +280,8 @@ struct OnDnModel {
     // maximum and minimum allowed range
     Interval range;
 
-    const Memory<Vector, MemT> orig;
-    const Memory<Vector, MemT> rays;
+    Memory<Vector, MemT> orig;
+    Memory<Vector, MemT> rays;
 
 
     IMAGINE_INLINE_FUNCTION

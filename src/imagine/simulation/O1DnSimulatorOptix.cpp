@@ -27,6 +27,10 @@ O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
     m_programs[1].reset(new O1DnProgramNormals(map));
 
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+
+    Memory<Transform, RAM_CUDA> Tsb(1);
+    Tsb->setIdentity();
+    copy(Tsb, m_Tsb, m_stream);
 }
 
 O1DnSimulatorOptix::~O1DnSimulatorOptix()
