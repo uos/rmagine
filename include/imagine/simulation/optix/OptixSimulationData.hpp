@@ -28,6 +28,7 @@ struct OptixSimulationDataRanges {
 using OptixSimulationDataRangesSphere = OptixSimulationDataRanges<SphericalModel>;
 using OptixSimulationDataRangesPinhole = OptixSimulationDataRanges<PinholeModel>;
 using OptixSimulationDataRangesO1Dn = OptixSimulationDataRanges<O1DnModel<VRAM_CUDA> >;
+using OptixSimulationDataRangesOnDn = OptixSimulationDataRanges<OnDnModel<VRAM_CUDA> >;
 
 template<typename ModelT>
 struct OptixSimulationDataNormals {
@@ -45,6 +46,7 @@ struct OptixSimulationDataNormals {
 using OptixSimulationDataNormalsSphere = OptixSimulationDataNormals<SphericalModel>;
 using OptixSimulationDataNormalsPinhole = OptixSimulationDataNormals<PinholeModel>;
 using OptixSimulationDataNormalsO1Dn = OptixSimulationDataNormals<O1DnModel<VRAM_CUDA> >;
+using OptixSimulationDataNormalsOnDn = OptixSimulationDataNormals<OnDnModel<VRAM_CUDA> >;
 
 
 template<typename ModelT>
@@ -75,6 +77,7 @@ struct OptixSimulationDataGeneric {
 using OptixSimulationDataGenericSphere = OptixSimulationDataGeneric<SphericalModel>;
 using OptixSimulationDataGenericPinhole = OptixSimulationDataGeneric<PinholeModel>;
 using OptixSimulationDataGenericO1Dn = OptixSimulationDataGeneric<O1DnModel<VRAM_CUDA> >;
+using OptixSimulationDataGenericOnDn = OptixSimulationDataGeneric<OnDnModel<VRAM_CUDA> >;
 
 
 } // namespace imagine

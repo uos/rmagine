@@ -171,10 +171,14 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/PinholeProgramRanges.cu
         src/imagine/simulation/optix/PinholeProgramNormals.cu
         src/imagine/simulation/optix/PinholeProgramGeneric.cu
-        ## Generic: O1Dn
+        ## O1Dn
         src/imagine/simulation/optix/O1DnProgramRanges.cu
         src/imagine/simulation/optix/O1DnProgramNormals.cu
         src/imagine/simulation/optix/O1DnProgramGeneric.cu
+        ## OnDn
+        src/imagine/simulation/optix/OnDnProgramRanges.cu
+        src/imagine/simulation/optix/OnDnProgramNormals.cu
+        src/imagine/simulation/optix/OnDnProgramGeneric.cu
     )
 
     cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
@@ -211,6 +215,7 @@ if(OptiX_FOUND)
         src/imagine/simulation/SphereSimulatorOptix.cpp
         src/imagine/simulation/PinholeSimulatorOptix.cpp
         src/imagine/simulation/O1DnSimulatorOptix.cpp
+        src/imagine/simulation/OnDnSimulatorOptix.cpp
         # Simulation Programs
         ## Spherical
         src/imagine/simulation/optix/SphereProgramRanges.cpp
@@ -224,6 +229,10 @@ if(OptiX_FOUND)
         src/imagine/simulation/optix/O1DnProgramRanges.cpp
         src/imagine/simulation/optix/O1DnProgramNormals.cpp
         src/imagine/simulation/optix/O1DnProgramGeneric.cpp
+        ## OnDn
+        src/imagine/simulation/optix/OnDnProgramRanges.cpp
+        src/imagine/simulation/optix/OnDnProgramNormals.cpp
+        src/imagine/simulation/optix/OnDnProgramGeneric.cpp
     )
 
     target_include_directories(imagine_optix PUBLIC
