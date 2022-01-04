@@ -13,12 +13,13 @@
 #include <imagine/simulation/optix/OnDnProgramNormals.hpp>
 #include <imagine/simulation/optix/OnDnProgramGeneric.hpp>
 
+#include <imagine/util/Debug.hpp>
+
 namespace imagine
 {
 
 OnDnSimulatorOptix::OnDnSimulatorOptix(OptixMapPtr map)
 :m_map(map)
-,m_model(1)
 ,m_Tsb(1)
 {
     m_programs.resize(2);
@@ -45,44 +46,55 @@ void OnDnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
 
 void OnDnSimulatorOptix::setModel(const OnDnModel<VRAM_CUDA>& model)
 {
-    Memory<OnDnModel<VRAM_CUDA>, RAM> mem(1);
-    mem[0] = model;
-    setModel(mem);
+    m_width = model.getWidth();
+    m_height = model.getHeight();
+
+    m_model.resize(1);
+    m_model[0] = model;
 }
 
 void OnDnSimulatorOptix::setModel(const OnDnModel<RAM>& model)
 {
-    Memory<OnDnModel<RAM>, RAM> mem(1);
-    mem[0] = model;
-    setModel(mem);
+    OnDnModel<VRAM_CUDA> model_gpu;
+    model_gpu.width = model.width;
+    model_gpu.height = model.height;
+    model_gpu.range = model.range;
+
+    // upload ray data
+    model_gpu.rays = model.rays;
+    model_gpu.orig = model.orig;
+
+    setModel(model_gpu);
 }
 
 void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<VRAM_CUDA>, RAM>& model)
 {
     m_width = model->width;
     m_height = model->height;
-    copy(model, m_model, m_stream);
+    
+    setModel(model[0]);
+
+
+    TODO_TEST_FUNCTION
 }
 
 void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<RAM>, RAM>& model)
 {
-    Memory<OnDnModel<VRAM_CUDA>, RAM> model_tmp(1);
-    // copy fields
-    model_tmp->range = model->range;
-    model_tmp->width = model->width;
-    model_tmp->height = model->height;
-    // upload to gpu
-    model_tmp->rays = model->rays;
-    setModel(model_tmp);
+    // TODO: test
+    TODO_NOT_IMPLEMENTED
 }
 
 void OnDnSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
+    // TODO: how to do this before?
+    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    copy(m_model, model, m_stream);
+
     Memory<OptixSimulationDataRangesOnDn, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
+    mem->model = model.raw();
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
@@ -121,9 +133,13 @@ void OnDnSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<Vector, VRAM_CUDA>& normals) const
 {
+    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    copy(m_model, model, m_stream);
+
+
     Memory<OptixSimulationDataNormalsOnDn, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
+    mem->model = model.raw();
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->normals = normals.raw();

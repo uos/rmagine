@@ -24,15 +24,30 @@ extern "C" __global__ void __raygen__rg()
     const unsigned int loc_id = mem.model->getBufferId(vid, hid);
     const unsigned int glob_id = pid * mem.model->size() + loc_id;
     
-    const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
 
+    // const Transform Tbm = mem.Tbm[pid];
+
+
+    const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
+    
+
+    const Vector ray_orig_s = mem.model->getOrigin(vid, hid);
     const Vector ray_dir_s = mem.model->getRay(vid, hid);
+
+
+    const Vector ray_orig_m = Tsm * ray_orig_s;
     const Vector ray_dir_m = Tsm.R * ray_dir_s;
+
+    // printf("vid %u, hid %u, model: %p, size: %u \n ", vid, hid, mem.model, mem.model->size());
+
+    // printf("vid %u, hid %u, Tbm.R = %fx %fy %fz %fw , Tbm.t = %fx %fy %fz\n", vid, hid, Tbm.R.x, Tbm.R.y, Tbm.R.z, Tbm.R.w, Tbm.t.x, Tbm.t.y, Tbm.t.z);
+
+    // printf("vid %u, hid %u -- orig: %f %f %f, dir: %f %f %f\n", vid, hid, ray_orig_m.x, ray_orig_m.y, ray_orig_m.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
 
     unsigned int p0 = glob_id;
     optixTrace(
             mem.handle,
-            make_float3(Tsm.t.x, Tsm.t.y, Tsm.t.z ),
+            make_float3(ray_orig_m.x, ray_orig_m.y, ray_orig_m.z ),
             make_float3(ray_dir_m.x, ray_dir_m.y, ray_dir_m.z),
             0.0f,               // Min intersection distance
             mem.model->range.max,                   // Max intersection distance

@@ -156,10 +156,13 @@ protected:
     OptixMapPtr m_map;
     cudaStream_t m_stream;
 
+    
+    Memory<Transform, VRAM_CUDA> m_Tsb;
+
     uint32_t m_width;
     uint32_t m_height;
-    Memory<Transform, VRAM_CUDA> m_Tsb;
-    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> m_model;
+
+    Memory<OnDnModel<VRAM_CUDA>, RAM> m_model;
 
 private:
     std::vector<OptixProgramPtr> m_programs;
