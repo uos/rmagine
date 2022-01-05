@@ -1550,4 +1550,4 @@ GENERATE_LEGEND        = YES
 
 DOT_CLEANUP            = YES
 
-EXCLUDE_PATTERNS = src/imagine_tools/* src/imagine_tests/*
+EXCLUDE_PATTERNS = *include/imagine/simulation/optix/* *src/*
