@@ -38,10 +38,7 @@
 #include <optix.h>
 #include <string>
 
-
 #if OPTIX_VERSION < 70300
-
-#pragma message("Using Old Optix none-inline functions")
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,7 +99,6 @@ OptixResult optixUtilComputeStackSizesSimplePathTracer( OptixProgramGroup       
 
 #else
 
-#pragma message("Using New Optix inline functions")
 // from version 70300 on they inlined their functions
 #include <optix_stack_size.h>
 
@@ -117,8 +113,6 @@ namespace imagine {
  * @return std::string 
  */
 std::string loadProgramPtx(const std::string& program_name);
-
-
 
 } // namespace imagine
 
