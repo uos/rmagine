@@ -43,6 +43,10 @@
 
 #pragma message("Using Old Optix none-inline functions")
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Optix fix for not inlining their code
 // - complete code is in header files
 // - can only included once. otherwise crash
@@ -91,6 +95,10 @@ OptixResult optixUtilComputeStackSizesSimplePathTracer( OptixProgramGroup       
                                                         unsigned int*            directCallableStackSizeFromTraversal,
                                                         unsigned int*            directCallableStackSizeFromState,
                                                         unsigned int*            continuationStackSize );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #else
 
