@@ -43,7 +43,7 @@ struct Vector2 {
     /**
      * @brief Multiply quaternion
      * 
-     * @param q2 
+     * @param b 
      * @return Quaternion 
      */
     IMAGINE_INLINE_FUNCTION
@@ -341,9 +341,8 @@ struct Quaternion
     void setIdentity();
 
     /**
-     * @brief Invert a Quaternion
+     * @brief Invert this Quaternion
      * 
-     * @param q 
      * @return Quaternion 
      */
     IMAGINE_INLINE_FUNCTION
@@ -365,9 +364,8 @@ struct Quaternion
     void multInplace(const Quaternion& q2);
 
     /**
-     * @brief Rotate a vector with a quaternion
+     * @brief Rotate a vector with this quaternion
      * 
-     * @param q 
      * @param p 
      * @return Vector 
      */
