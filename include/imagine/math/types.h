@@ -141,6 +141,10 @@ struct Vector2 {
     }
 };
 
+/**
+ * @brief Vector3 type
+ * 
+ */
 struct Vector3 {
     float x;
     float y;
@@ -278,6 +282,10 @@ struct Vector3 {
 using Vector = Vector3;
 using Point = Vector3;
 
+/**
+ * @brief EulerAngles type
+ * 
+ */
 struct EulerAngles
 {
     float roll; // x-axis
@@ -317,6 +325,10 @@ struct EulerAngles
     }
 };
 
+/**
+ * @brief Quaternion type
+ * 
+ */
 struct Quaternion
 {
     // DATA
@@ -419,7 +431,15 @@ struct Quaternion
     }
 };
 
-// 16*4 Byte Transform struct 
+/**
+ * @brief Transform type
+ * 
+ * Consists of rotational part represented as @link imagine::Quaternion Quaternion @endlink 
+ * and a translational part represented as @link imagine::Vector3 Vector3 @endlink  
+ * 
+ * Additionally it contains a timestamp uint32_t
+ * 
+ */
 struct Transform {
     // DATA
     Quaternion R;
@@ -487,9 +507,12 @@ struct Transform {
     }
 };
 
-// TODOs: 
-// - check if Eigen::Matrix3f raw data is same
-// - check if math is correct
+/**
+ * @brief Matrix3x3 class
+ * 
+ * Same order than Eigen default -> Can be reinterpret-casted or mapped.
+ * 
+ */
 struct Matrix3x3 {
     // DATA
     float data[3][3];
@@ -611,6 +634,12 @@ struct Matrix3x3 {
     }
 };
 
+/**
+ * @brief Matrix4x4 type.
+ * 
+ * Same order as Eigen-default -> can be reinterpret-casted or mapped.
+ * 
+ */
 struct Matrix4x4 {
     float data[4][4];
 

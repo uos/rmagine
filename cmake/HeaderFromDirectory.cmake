@@ -14,7 +14,7 @@ MACRO(GenerateHeaderFromDirectory inputdir storedir genfile)
     get_filename_component(foldername ${inputdir} NAME)
     set(headername "${foldername}.h")
 
-    file(GLOB source_list "${inputdir}/*.hpp" "${inputdir}/*.h")
+    file(GLOB source_list "${inputdir}/*.hpp" "${inputdir}/*.h" "${inputdir}/*.cuh")
 
     set(CONTENT "#ifndef IMAGINE_${foldername}_H\n#define IMAGINE_${foldername}_H\n")
 
