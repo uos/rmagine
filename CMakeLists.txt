@@ -26,6 +26,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS On)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_TMP_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
 
 include(GNUInstallDirs)
 
@@ -313,6 +314,17 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/imagineConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/imagineConfigVersion.cmake
               DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/imagine )
 
+# Shortcut Headers
+include(HeaderFromDirectory)
+GenerateHeadersFromDirectories(
+    ${imagine_SOURCE_DIR}/include/imagine 
+    ${CMAKE_TMP_OUTPUT_DIRECTORY} 
+    GEN_SHORTCUT_HEADERS)
+
+message(STATUS "Generated ${GEN_SHORTCUT_HEADERS}")
+install(FILES ${GEN_SHORTCUT_HEADERS} 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/imagine )
+
 # Uninstall
 add_custom_target(uninstall COMMENT "Uninstall installed files")
 add_custom_command(
@@ -342,3 +354,4 @@ add_custom_target( doc ALL
     COMMENT "Generating API documentation with Doxygen" VERBATIM )
 
 endif(BUILD_DOCS)
+
