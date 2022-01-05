@@ -39,7 +39,6 @@
 #include <string>
 
 
-
 #if OPTIX_VERSION < 70300
 
 #pragma message("Using Old Optix none-inline functions")

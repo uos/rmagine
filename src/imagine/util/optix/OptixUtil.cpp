@@ -7,9 +7,12 @@
 #include <fstream>
 #include <sstream>
 
-namespace imagine {
+#if OPTIX_VERSION < 70300
 
 #include "optix_stack_size.h"
+
+#endif // OPTIX_VERSION < 70300
+namespace imagine {
 
 // OptixResult optixUtilAccumulateStackSizes( 
 //         OptixProgramGroup programGroup, OptixStackSizes* stackSizes )
