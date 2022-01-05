@@ -5,9 +5,10 @@ project(imagine
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
-option(BUILD_DOCS "Build documentation" OFF)
+
+option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
-option(BUILD_TOOLS "Build tools" OFF)
+option(BUILD_DOCS "Build documentation" OFF)
 
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
   if (NOT CMAKE_BUILD_TYPE)
@@ -273,7 +274,9 @@ endif(CUDA_FOUND)
 endif(BUILD_TESTS)
 
 #### TOOLS
+if(BUILD_TOOLS)
 add_subdirectory(src/imagine_tools/imagine_benchmark)
+endif(BUILD_TOOLS)
 
 #### INSTALL
 # 1. Headers
@@ -285,9 +288,13 @@ install(TARGETS imagine imagine_cuda imagine_optix)
 # install(TARGETS imagine_cuda COMPONENT cuda)
 # install(TARGETS imagine_optix COMPONENT optix)
 
-# Executables
+if(BUILD_TOOLS)
+# Install Tools
 install(TARGETS imagine_benchmark
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+endif(BUILD_TOOLS)
+
 
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)
