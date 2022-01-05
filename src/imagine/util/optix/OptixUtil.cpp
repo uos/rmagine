@@ -10,9 +10,14 @@
 #if OPTIX_VERSION < 70300
 
 // include header as actual code
+namespace {
 #include "optix_stack_size.h"
+}
 
 #endif // OPTIX_VERSION < 70300
+
+
+
 namespace imagine {
 
 std::string loadProgramPtx(const std::string& program_name)
