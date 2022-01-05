@@ -38,7 +38,18 @@
 #include <optix.h>
 #include <string>
 
-namespace imagine {
+
+
+#if OPTIX_VERSION < 70300
+
+#pragma message("Using Old Optix none-inline functions")
+
+// Optix fix for not inlining their code
+// - complete code is in header files
+// - can only included once. otherwise crash
+// - fix: 
+// -- provide function signatures here
+// -- load header of optix (actual code) into OptixUtil.cpp
 
 OptixResult optixUtilAccumulateStackSizes( 
         OptixProgramGroup programGroup, OptixStackSizes* stackSizes );
@@ -52,7 +63,55 @@ OptixResult optixUtilComputeStackSizes(
         unsigned int*          directCallableStackSizeFromState,
         unsigned int*          continuationStackSize );
 
+OptixResult optixUtilComputeStackSizesDCSplit( const OptixStackSizes* stackSizes,
+                                               unsigned int           dssDCFromTraversal,
+                                               unsigned int           dssDCFromState,
+                                               unsigned int           maxTraceDepth,
+                                               unsigned int           maxCCDepth,
+                                               unsigned int           maxDCDepthFromTraversal,
+                                               unsigned int           maxDCDepthFromState,
+                                               unsigned int*          directCallableStackSizeFromTraversal,
+                                               unsigned int*          directCallableStackSizeFromState,
+                                               unsigned int*          continuationStackSize );
+
+OptixResult optixUtilComputeStackSizesCssCCTree( const OptixStackSizes* stackSizes,
+                                                 unsigned int           cssCCTree,
+                                                 unsigned int           maxTraceDepth,
+                                                 unsigned int           maxDCDepth,
+                                                 unsigned int*          directCallableStackSizeFromTraversal,
+                                                 unsigned int*          directCallableStackSizeFromState,
+                                                 unsigned int*          continuationStackSize );
+
+OptixResult optixUtilComputeStackSizesSimplePathTracer( OptixProgramGroup        programGroupRG,
+                                                        OptixProgramGroup        programGroupMS1,
+                                                        const OptixProgramGroup* programGroupCH1,
+                                                        unsigned int             programGroupCH1Count,
+                                                        OptixProgramGroup        programGroupMS2,
+                                                        const OptixProgramGroup* programGroupCH2,
+                                                        unsigned int             programGroupCH2Count,
+                                                        unsigned int*            directCallableStackSizeFromTraversal,
+                                                        unsigned int*            directCallableStackSizeFromState,
+                                                        unsigned int*            continuationStackSize );
+
+#else
+
+#pragma message("Using New Optix inline functions")
+// from version 70300 on they inlined their functions
+#include <optix_stack_size.h>
+
+#endif // OPTIX_VERSION < 70300
+
+namespace imagine {
+
+/**
+ * @brief Load PTX Program as string
+ * 
+ * @param program_name 
+ * @return std::string 
+ */
 std::string loadProgramPtx(const std::string& program_name);
+
+
 
 } // namespace imagine
 
