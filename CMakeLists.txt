@@ -185,8 +185,6 @@ if(OptiX_FOUND)
         ${OPTIX_KERNEL_FILES}
     )
 
-    message(STATUS "IMAGINE_OPTIX_PTX_FILES: ${IMAGINE_OPTIX_PTX_FILES}")
-
     add_custom_target(imagine_optix_ptx ALL
         DEPENDS ${IMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
         SOURCES ${OPTIX_KERNEL_FILES}
