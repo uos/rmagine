@@ -322,3 +322,23 @@ add_custom_command(
     COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
             install_manifest.txt to be uninstalled!
 )
+
+###############################################################################
+# DOCUMENTATION
+###############################################################################
+
+if(BUILD_DOCS)
+
+find_package( Doxygen REQUIRED)
+
+message(STATUS "Build Documentation with 'make doc'")
+
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY )
+
+add_custom_target( doc ALL 
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating API documentation with Doxygen" VERBATIM )
+
+endif(BUILD_DOCS)
