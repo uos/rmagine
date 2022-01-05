@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2021, University Osnabrück
+/*
+ * Copyright (c) 2021, University Osnabrück. 
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * OptixSimulator.hpp
+/**
+ * @file
+ * 
+ * @brief Contains @link imagine::OnDnSimulatorOptix OnDnSimulatorOptix @endlink
  *
- *  Created on: Jul 17, 2021
- *      Author: Alexander Mock
+ * @date 03.01.2022
+ * @author Alexander Mock
+ * 
+ * @copyright Copyright (c) 2021, University Osnabrück. All rights reserved.
+ * This project is released under the 3-Clause BSD License.
  */
+
 
 #ifndef IMAGINE_ONDN_SIMULATOR_OPTIX_HPP
 #define IMAGINE_ONDN_SIMULATOR_OPTIX_HPP
@@ -56,22 +62,36 @@
 namespace imagine {
 
 /**
- * @brief Sensor data simulation on GPU via Embree
+ * @brief OnDnModel simulation on GPU via Optix
  * 
  * Example:
  * 
  * @code{cpp}
  * 
- * // Import a mesh
- * OptixMeshPtr mesh = importOptixMesh("somemesh.ply");
- * // Construct the simulator
- * OptixSimulator sim(mesh);
+ * #include <imagine/simulation.h>
+ * 
+ * using namespace imagine;
+ * 
+ * // Import a map
+ * OptixMapPtr map = importOptixMap("somemap.ply");
+ * // Construct the simulator, that operates on a specific map
+ * OnDnSimulatorOptix sim(map);
+ * 
+ * size_t Nposes = 100;
  * 
  * // Inputs
- * Memory<Eigen::Affine3d, VRAM_CUDA> T_sensor_to_base; // Static transform between sensor and base frame
- * Memory<LiDARModel, RAM> model; // Lidar model in RAM
- * Memory<Eigen::Affine3d, VRAM_CUDA> T_base_to_map; // Poses in VRAM
- * // fill it
+ * Memory<Transform, RAM> T_sensor_to_base(1); // Static transform between sensor and base frame
+ * OnDnModel<RAM> model; // O1DnModel in RAM
+ * Memory<Transform, RAM> T_base_to_map(Nposes); // Poses in VRAM
+ * // fill data
+ * 
+ * // set model and sensor to base transform
+ * sim.setTsb(T_sensor_to_base);
+ * sim.setModel(model);
+ * 
+ * // Upload poses to gpu
+ * Memory<Transform, VRAM_CUDA> T_base_to_map_gpu;
+ * T_base_to_map_gpu = T_base_to_map;
  * 
  * 
  * // Define your desired simulation results.
@@ -79,18 +99,18 @@ namespace imagine {
  * using ResT = Bundle<Points<VRAM_CUDA>, Normals<VRAM_CUDA> >;
  * 
  * // Simulate
- * ResT results = sim.simulate<ResT>(T_sensor_to_base, model, T_base_to_map);
+ * ResT results = sim.simulate<ResT>(T_base_to_map_gpu);
  * 
  * // Pass results to other cuda code
  * // Or access them via download:
- * Memory<Eigen::Vector3d, RAM> points, normals;
+ * Memory<Vector, RAM> points, normals;
  * points = results.points;
  * normals = results.normals;
  * 
  * // Points are of 1D shape.
  * // First Point of i-th Scan
  * int i=0;
- * points[i * (model->width * model->height) ];
+ * points[i * model->size() ];
  * 
  * @endcode
  * 

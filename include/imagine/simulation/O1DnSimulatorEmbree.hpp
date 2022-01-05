@@ -28,13 +28,13 @@
 /**
  * @file
  * 
- * @brief Contains class O1DnSimulatorEmbree
+ * @brief Contains @link imagine::O1DnSimulatorEmbree O1DnSimulatorEmbree @endlink
  *
  * @date 03.01.2022
  * @author Alexander Mock
  * 
  * @copyright Copyright (c) 2021, University Osnabrück. All rights reserved.
- * This project is released under the GNU Public License.
+ * This project is released under the 3-Clause BSD License.
  * 
  */
 

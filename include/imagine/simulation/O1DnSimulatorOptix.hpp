@@ -28,12 +28,13 @@
 /**
  * @file
  * 
- * @brief Contains class O1DnSimulatorOptix
+ * @brief Contains @link imagine::O1DnSimulatorOptix O1DnSimulatorOptix @endlink
  *
- * @date Jan 03, 2022
+ * @date 03.01.2022
  * @author Alexander Mock
  * 
  * @copyright Copyright (c) 2021, University Osnabrück. All rights reserved.
+ * This project is released under the 3-Clause BSD License.
  */
 
 #ifndef IMAGINE_O1DN_SIMULATOR_OPTIX_HPP
@@ -65,6 +66,10 @@ namespace imagine {
  * Example:
  * 
  * @code{cpp}
+ * 
+ * #include <imagine/simulation.h>
+ * 
+ * using namespace imagine;
  * 
  * // Import a map
  * OptixMapPtr map = importOptixMap("somemap.ply");
