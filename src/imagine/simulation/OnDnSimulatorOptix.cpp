@@ -74,7 +74,6 @@ void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<VRAM_CUDA>, RAM>& model
     
     setModel(model[0]);
 
-
     TODO_TEST_FUNCTION
 }
 
