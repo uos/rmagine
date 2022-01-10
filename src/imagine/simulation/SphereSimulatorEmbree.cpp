@@ -5,6 +5,13 @@
 namespace imagine
 {
 
+SphereSimulatorEmbree::SphereSimulatorEmbree()
+:m_model(1)
+,m_Tsb(1)
+{
+    rtcInitIntersectContext(&m_context);
+}
+
 SphereSimulatorEmbree::SphereSimulatorEmbree(const EmbreeMapPtr map)
 :m_map(map)
 ,m_model(1)
@@ -19,16 +26,31 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
     
 }
 
+void SphereSimulatorEmbree::setMap(const EmbreeMapPtr map)
+{
+    m_map = map;
+}
+
 void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 {
-    // m_Tsb = Tsb;
-    copy(Tsb, m_Tsb);
+    m_Tsb = Tsb;
+}
+
+void SphereSimulatorEmbree::setTsb(const Transform& Tsb)
+{
+    m_Tsb.resize(1);
+    m_Tsb[0] = Tsb;
 }
 
 void SphereSimulatorEmbree::setModel(const Memory<SphericalModel, RAM>& model)
 {
-    // m_model = model;
-    copy(model, m_model);
+    m_model = model;
+}
+
+void SphereSimulatorEmbree::setModel(const SphericalModel& model)
+{
+    m_model.resize(1);
+    m_model[0] = model;
 }
 
 void SphereSimulatorEmbree::simulateRanges(

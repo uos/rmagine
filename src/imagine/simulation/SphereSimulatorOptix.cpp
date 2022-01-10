@@ -38,12 +38,26 @@ void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
-    
-void SphereSimulatorOptix::setModel(const Memory<LiDARModel, RAM>& model)
+
+void SphereSimulatorOptix::setTsb(const Transform& Tsb)
 {
-    m_width = model->theta.size;
-    m_height = model->phi.size;
+    Memory<Transform, RAM> tmp(1);
+    tmp[0] = Tsb;
+    setTsb(tmp);
+}
+    
+void SphereSimulatorOptix::setModel(const Memory<SphericalModel, RAM>& model)
+{
+    m_width = model->getWidth();
+    m_height = model->getHeight();
     m_model = model;
+}
+
+void SphereSimulatorOptix::setModel(const SphericalModel& model)
+{
+    Memory<SphericalModel, RAM> tmp(1);
+    tmp[0] = model;
+    setModel(tmp);
 }
 
 void SphereSimulatorOptix::simulateRanges(

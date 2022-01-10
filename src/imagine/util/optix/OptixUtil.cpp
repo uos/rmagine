@@ -12,10 +12,7 @@
 // include header as actual code
 #include "optix_stack_size.h"
 
-
 #endif // OPTIX_VERSION < 70300
-
-
 
 namespace imagine {
 

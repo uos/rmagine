@@ -102,11 +102,17 @@ namespace imagine
  */
 class SphereSimulatorEmbree {
 public:
-    SphereSimulatorEmbree(const EmbreeMapPtr mesh);
+    SphereSimulatorEmbree();
+    SphereSimulatorEmbree(const EmbreeMapPtr map);
     ~SphereSimulatorEmbree();
 
+    void setMap(const EmbreeMapPtr map);
+
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
+
     void setModel(const Memory<SphericalModel, RAM>& model);
+    void setModel(const SphericalModel& model);
 
     void simulateRanges(
         const Memory<Transform, RAM>& Tbm, 
@@ -131,7 +137,7 @@ public:
     BundleT simulate(const Memory<Transform, RAM>& Tbm);
     
 protected:
-    const EmbreeMapPtr m_map;
+    EmbreeMapPtr m_map;
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;

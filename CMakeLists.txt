@@ -124,6 +124,7 @@ add_library(imagine SHARED
     src/imagine/types/Memory.cpp
     # Util
     src/imagine/util/StopWatch.cpp
+    src/imagine/util/synthetic.cpp
 )
 
 target_link_libraries(imagine
@@ -261,6 +262,7 @@ add_subdirectory(src/imagine_tests/memory)
 add_subdirectory(src/imagine_tests/embree_sim)
 add_subdirectory(src/imagine_tests/basic_math)
 add_subdirectory(src/imagine_tests/generic_model_sim)
+add_subdirectory(src/imagine_tests/synthetic)
 
 if(CUDA_FOUND)
 

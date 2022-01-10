@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2021, University Osnabrück
  * All rights reserved.
  *
@@ -25,11 +25,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * EmbreeMap.hpp
+/**
+ * @file
+ * 
+ * @brief Contains @link imagine::EmbreeMap EmbreeMap @endlink
  *
- *  Created on: Jul 17, 2021
- *      Author: Alexander Mock
+ * @date 03.01.2022
+ * @author Alexander Mock
+ * 
+ * @copyright Copyright (c) 2021, University Osnabrück. All rights reserved.
+ * This project is released under the 3-Clause BSD License.
+ * 
  */
 
 #ifndef IMAGINE_MAP_EMBREE_MAP_HPP

@@ -122,8 +122,10 @@ public:
     ~SphereSimulatorOptix();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
 
     void setModel(const Memory<SphericalModel, RAM>& model);
+    void setModel(const SphericalModel& model);
 
     void simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm, 
