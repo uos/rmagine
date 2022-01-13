@@ -33,17 +33,25 @@ SphericalModel exampleModel()
     return model;
 }
 
-int main(int argc, char** argv)
+void sphereTest()
 {
-    std::cout << "Imagine Test: Synthetic data" << std::endl;
-
-
     aiScene scene = genSphere(50, 50);
 
+    Assimp::Exporter exporter;
+    exporter.Export(&scene, "ply", "sphere.ply");
+}
+
+void cubeTest()
+{
+    aiScene scene = genCube();
 
     Assimp::Exporter exporter;
-    exporter.Export(&scene, "ply", "synthetic.ply");
+    exporter.Export(&scene, "ply", "cube.ply");
+}
 
+void simulationTest()
+{
+    aiScene scene = genSphere(50, 50);
 
     // Do Simulation on synthetic data
 
@@ -67,7 +75,15 @@ int main(int argc, char** argv)
 
     auto ranges = sim.simulateRanges(Tbm);
     std::cout << "Simulated " << ranges.size() << " ranges." << std::endl;
+}
 
+int main(int argc, char** argv)
+{
+    std::cout << "Imagine Test: Synthetic data" << std::endl;
+
+    sphereTest();
+    cubeTest();
+    simulationTest();
 
 
     return 0;

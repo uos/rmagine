@@ -2,221 +2,10 @@
 
 namespace imagine {
 
-void genSphere(
-    std::vector<float>& vertices, 
-    std::vector<unsigned int>& faces,
-    unsigned int num_long,
-    unsigned int num_lat)
+aiScene createAiScene(
+    const std::vector<Vector3>& vertices,
+    const std::vector<Face>& faces)
 {
-    vertices.resize(0);
-    faces.resize(0);
-
-
-
-    float long_inc = M_PI / static_cast<float>(num_long + 1);
-    float lat_inc = (2 * M_PI) / static_cast<float>(num_lat);
-
-    // add first and last point
-
-
-    // add first vertex manually
-    vertices.push_back(sin(0.0) * cos(0.0));
-    vertices.push_back(sin(0.0) * sin(0.0));
-    vertices.push_back(cos(0.0));
-
-    // add first faces manually
-    for(int i=0; i<num_lat; i++)
-    {
-        int id_bl = 0;
-        int id_tl = i;
-        int id_tr = i + 1;
-
-        if(i == num_lat - 1)
-        {
-            id_tr -= num_lat;
-        }
-
-        faces.push_back(id_bl);
-        faces.push_back(id_tl + 1);
-        faces.push_back(id_tr + 1);
-    }
-
-    for(int i=0; i<num_long; i++)
-    {
-        float alpha = long_inc * (i+1);
-
-        for(int j=0; j<num_lat; j++)
-        {
-            float beta = lat_inc * (j+1);
-
-            vertices.push_back(sin(alpha) * cos(beta));
-            vertices.push_back(sin(alpha) * sin(beta));
-            vertices.push_back(cos(alpha));
-
-            if(i > 0)
-            {
-
-                int id_bl = num_lat * (i-1) + j;
-                int id_br = num_lat * (i-1) + j + 1;
-                int id_tl = num_lat * (i)   + j;
-                int id_tr = num_lat * (i)   + j + 1;
-
-                if(j == num_lat - 1)
-                {
-                    id_br -= num_lat;
-                    id_tr -= num_lat;
-                }
-
-                // clockwise
-                
-                // first face
-                faces.push_back(id_br + 1);
-                faces.push_back(id_bl + 1);
-                faces.push_back(id_tl + 1);
-
-                // second face
-                faces.push_back(id_tl + 1);
-                faces.push_back(id_tr + 1);
-                faces.push_back(id_br + 1);
-            }
-        }
-    }
-
-    // add last vertex
-    vertices.push_back(sin(M_PI) * cos(2.0 * M_PI));
-    vertices.push_back(sin(M_PI) * sin(2.0 * M_PI));
-    vertices.push_back(cos(M_PI));
-
-    int num_vertices = vertices.size() / 3;
-    for(int i=num_vertices-1-num_lat; i<num_vertices-1; i++)
-    {
-        int id_bl = i;
-        int id_br = i+1;
-        int id_tl = num_vertices-1;
-
-        if(id_br == id_tl)
-        {
-            id_br -= num_lat;
-        }
-
-        faces.push_back(id_br);
-        faces.push_back(id_bl);
-        faces.push_back(id_tl);
-    }
-}
-
-void genSphere(
-    std::vector<Vector3>& vertices,
-    std::vector<Face>& faces,
-    unsigned int num_long,
-    unsigned int num_lat)
-{
-    vertices.resize(0);
-    faces.resize(0);
-
-    float long_inc = M_PI / static_cast<float>(num_long + 1);
-    float lat_inc = (2 * M_PI) / static_cast<float>(num_lat);
-
-    // add first and last point
-
-    // add first vertex manually
-    vertices.push_back({
-        sin(0.0) * cos(0.0),
-        sin(0.0) * sin(0.0),
-        cos(0.0)
-        });
-
-    // add first faces manually
-    for(unsigned int i=0; i<num_lat; i++)
-    {
-        unsigned int id_bl = 0;
-        unsigned int id_tl = i;
-        unsigned int id_tr = i + 1;
-
-        if(i == num_lat - 1)
-        {
-            id_tr -= num_lat;
-        }
-
-        faces.push_back({id_bl, id_tl + 1, id_tr + 1});
-    }
-
-    for(unsigned int i=0; i<num_long; i++)
-    {
-        float alpha = long_inc * (i+1);
-
-        for(unsigned int j=0; j<num_lat; j++)
-        {
-            float beta = lat_inc * (j+1);
-
-            vertices.push_back({
-                sin(alpha) * cos(beta),
-                sin(alpha) * sin(beta),
-                cos(alpha)
-            });
-
-            if(i > 0)
-            {
-
-                unsigned int id_bl = num_lat * (i-1) + j;
-                unsigned int id_br = num_lat * (i-1) + j + 1;
-                unsigned int id_tl = num_lat * (i)   + j;
-                unsigned int id_tr = num_lat * (i)   + j + 1;
-
-                if(j == num_lat - 1)
-                {
-                    id_br -= num_lat;
-                    id_tr -= num_lat;
-                }
-
-                // clockwise
-                
-                // first face
-                faces.push_back({id_br + 1,id_bl + 1,id_tl + 1});
-
-                // second face
-                faces.push_back({id_tl + 1,id_tr + 1,id_br + 1});
-            }
-        }
-    }
-
-    // add last vertex
-    vertices.push_back({
-        sin(M_PI) * cos(2.0 * M_PI),
-        sin(M_PI) * sin(2.0 * M_PI),
-        cos(M_PI)
-        });
-
-    unsigned int num_vertices = vertices.size();
-    for(unsigned int i=num_vertices-1-num_lat; i<num_vertices-1; i++)
-    {
-        unsigned int id_bl = i;
-        unsigned int id_br = i+1;
-        unsigned int id_tl = num_vertices-1;
-
-        if(id_br == id_tl)
-        {
-            id_br -= num_lat;
-        }
-
-        faces.push_back({id_br,id_bl,id_tl});
-    }
-}
-
-aiScene genSphere(unsigned int num_long, unsigned int num_lat)
-{
-    // x = cx + r * sin(alpha) * cos(beta)
-    // y = cy + r * sin(alpha) * sin(beta)
-    // z = cz + r * cos(alpha)
-
-    // alpha [-pi, pi)
-    // beta [-pi, pi)
-
-    std::vector<Vector3> vertices;
-    std::vector<Face> faces;
-
-    genSphere(vertices, faces, num_long, num_lat);
-
     // construct aiScene
     aiScene scene;
 
@@ -270,6 +59,167 @@ aiScene genSphere(unsigned int num_long, unsigned int num_lat)
     }
 
     return scene;
+}
+
+void genSphere(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int num_long,
+    unsigned int num_lat)
+{
+    float radius = 0.5;
+
+    vertices.resize(0);
+    faces.resize(0);
+
+    float long_inc = M_PI / static_cast<float>(num_long + 1);
+    float lat_inc = (2 * M_PI) / static_cast<float>(num_lat);
+
+    // add first and last point
+
+    // add first vertex manually
+    vertices.push_back({
+        radius * sinf(0.0f) * cosf(0.0f),
+        radius * sinf(0.0f) * sinf(0.0f),
+        radius * cosf(0.0f)
+        });
+
+    // add first faces manually
+    for(unsigned int i=0; i<num_lat; i++)
+    {
+        unsigned int id_bl = 0;
+        unsigned int id_tl = i;
+        unsigned int id_tr = i + 1;
+
+        if(i == num_lat - 1)
+        {
+            id_tr -= num_lat;
+        }
+
+        faces.push_back({id_bl, id_tl + 1, id_tr + 1});
+    }
+
+    for(unsigned int i=0; i<num_long; i++)
+    {
+        float alpha = long_inc * (i+1);
+
+        for(unsigned int j=0; j<num_lat; j++)
+        {
+            float beta = lat_inc * (j+1);
+
+            vertices.push_back({
+                radius * sinf(alpha) * cosf(beta),
+                radius * sinf(alpha) * sinf(beta),
+                radius * cosf(alpha)
+            });
+
+            if(i > 0)
+            {
+
+                unsigned int id_bl = num_lat * (i-1) + j;
+                unsigned int id_br = num_lat * (i-1) + j + 1;
+                unsigned int id_tl = num_lat * (i)   + j;
+                unsigned int id_tr = num_lat * (i)   + j + 1;
+
+                if(j == num_lat - 1)
+                {
+                    id_br -= num_lat;
+                    id_tr -= num_lat;
+                }
+
+                // clockwise
+                
+                // first face
+                faces.push_back({id_br + 1,id_bl + 1,id_tl + 1});
+
+                // second face
+                faces.push_back({id_tl + 1,id_tr + 1,id_br + 1});
+            }
+        }
+    }
+
+    // add last vertex
+    vertices.push_back({
+        radius * sinf(M_PI) * cosf(2.0f * M_PI),
+        radius * sinf(M_PI) * sinf(2.0f * M_PI),
+        radius * cosf(M_PI)
+        });
+
+    unsigned int num_vertices = vertices.size();
+    for(unsigned int i=num_vertices-1-num_lat; i<num_vertices-1; i++)
+    {
+        unsigned int id_bl = i;
+        unsigned int id_br = i+1;
+        unsigned int id_tl = num_vertices-1;
+
+        if(id_br == id_tl)
+        {
+            id_br -= num_lat;
+        }
+
+        faces.push_back({id_br,id_bl,id_tl});
+    }
+}
+
+aiScene genSphere(unsigned int num_long, unsigned int num_lat)
+{
+    // x = cx + r * sin(alpha) * cos(beta)
+    // y = cy + r * sin(alpha) * sin(beta)
+    // z = cz + r * cos(alpha)
+
+    // alpha [-pi, pi)
+    // beta [-pi, pi)
+
+    std::vector<Vector3> vertices;
+    std::vector<Face> faces;
+
+    genSphere(vertices, faces, num_long, num_lat);
+    return createAiScene(vertices, faces);
+}
+
+
+void genCube(std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_triangles_exp)
+{
+    vertices.resize(0);
+    faces.resize(0);
+
+    vertices.push_back({-0.5, -0.5, -0.5});
+    vertices.push_back({-0.5, -0.5,  0.5});
+    vertices.push_back({-0.5,  0.5,  0.5});
+    vertices.push_back({-0.5,  0.5, -0.5});
+
+    faces.push_back({0, 1, 2});
+    faces.push_back({2, 3, 0});
+
+    vertices.push_back({0.5,  0.5, -0.5});
+    vertices.push_back({0.5,  0.5,  0.5});
+    vertices.push_back({0.5, -0.5,  0.5});
+    vertices.push_back({0.5, -0.5, -0.5});
+
+    faces.push_back({0+4, 1+4, 2+4});
+    faces.push_back({2+4, 3+4, 0+4});
+
+
+
+    faces.push_back({0, 7, 1});
+    faces.push_back({1, 7, 6});
+    faces.push_back({1, 6, 5});
+    faces.push_back({5, 2, 1});
+    faces.push_back({2, 5, 4});
+    faces.push_back({3, 2, 4});
+    faces.push_back({3, 4, 7});
+    faces.push_back({3, 7, 0});
+
+}
+
+aiScene genCube(unsigned int side_triangles_exp)
+{
+    std::vector<Vector3> vertices;
+    std::vector<Face> faces;
+    genCube(vertices, faces, side_triangles_exp);
+    return createAiScene(vertices, faces);
 }
 
 } // namespace imagine
