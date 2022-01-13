@@ -117,9 +117,12 @@ namespace imagine {
  */
 class SphereSimulatorOptix {
 public:
+    SphereSimulatorOptix();
     SphereSimulatorOptix(OptixMapPtr map);
 
     ~SphereSimulatorOptix();
+
+    void setMap(const OptixMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);

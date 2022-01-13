@@ -16,22 +16,30 @@
 namespace imagine
 {
 
-SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
-:m_map(map)
-,m_model(1)
+SphereSimulatorOptix::SphereSimulatorOptix()
+:m_model(1)
 ,m_Tsb(1)
 {
-    m_programs.resize(2);
-    
-    m_programs[0].reset(new SphereProgramRanges(map));
-    m_programs[1].reset(new SphereProgramNormals(map));
-
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+}
+
+SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
+:SphereSimulatorOptix()
+{
+    setMap(map);
 }
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
     cudaStreamDestroy(m_stream);
+}
+
+void SphereSimulatorOptix::setMap(const OptixMapPtr map)
+{
+    m_map = map;
+    m_programs.resize(2);
+    m_programs[0].reset(new SphereProgramRanges(map));
+    m_programs[1].reset(new SphereProgramNormals(map));
 }
 
 void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
