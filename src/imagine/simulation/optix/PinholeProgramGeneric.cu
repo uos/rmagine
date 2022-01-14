@@ -34,13 +34,13 @@ extern "C" __global__ void __raygen__rg()
     unsigned int p0, p1, p2, p3, p4, p5, p6, p7;
     
     p0 = glob_id;
-    p1 = float_as_uint(Tsm.R.x);
-    p2 = float_as_uint(Tsm.R.y);
-    p3 = float_as_uint(Tsm.R.z);
-    p4 = float_as_uint(Tsm.R.w);
-    p5 = float_as_uint(Tsm.t.x);
-    p6 = float_as_uint(Tsm.t.y);
-    p7 = float_as_uint(Tsm.t.z);
+    p1 = __float_as_uint(Tsm.R.x);
+    p2 = __float_as_uint(Tsm.R.y);
+    p3 = __float_as_uint(Tsm.R.z);
+    p4 = __float_as_uint(Tsm.R.w);
+    p5 = __float_as_uint(Tsm.t.x);
+    p6 = __float_as_uint(Tsm.t.y);
+    p7 = __float_as_uint(Tsm.t.z);
 
     optixTrace(
             mem.handle,
@@ -95,13 +95,13 @@ void computePoint()
     const unsigned int glob_id = optixGetPayload_0();
 
     Transform Tsm;
-    Tsm.R.x = uint_as_float(optixGetPayload_1());
-    Tsm.R.y = uint_as_float(optixGetPayload_2());
-    Tsm.R.z = uint_as_float(optixGetPayload_3());
-    Tsm.R.w = uint_as_float(optixGetPayload_4());
-    Tsm.t.x = uint_as_float(optixGetPayload_5());
-    Tsm.t.y = uint_as_float(optixGetPayload_6());
-    Tsm.t.z = uint_as_float(optixGetPayload_7());
+    Tsm.R.x = __uint_as_float(optixGetPayload_1());
+    Tsm.R.y = __uint_as_float(optixGetPayload_2());
+    Tsm.R.z = __uint_as_float(optixGetPayload_3());
+    Tsm.R.w = __uint_as_float(optixGetPayload_4());
+    Tsm.t.x = __uint_as_float(optixGetPayload_5());
+    Tsm.t.y = __uint_as_float(optixGetPayload_6());
+    Tsm.t.z = __uint_as_float(optixGetPayload_7());
     const Transform Tms = Tsm.inv();
 
     const float3 pos_m = optixGetWorldRayOrigin();
@@ -135,13 +135,13 @@ void computeNormal()
     // Get Payloads
     const unsigned int glob_id = optixGetPayload_0();
     Transform Tsm;
-    Tsm.R.x = uint_as_float(optixGetPayload_1());
-    Tsm.R.y = uint_as_float(optixGetPayload_2());
-    Tsm.R.z = uint_as_float(optixGetPayload_3());
-    Tsm.R.w = uint_as_float(optixGetPayload_4());
-    Tsm.t.x = uint_as_float(optixGetPayload_5());
-    Tsm.t.y = uint_as_float(optixGetPayload_6());
-    Tsm.t.z = uint_as_float(optixGetPayload_7());
+    Tsm.R.x = __uint_as_float(optixGetPayload_1());
+    Tsm.R.y = __uint_as_float(optixGetPayload_2());
+    Tsm.R.z = __uint_as_float(optixGetPayload_3());
+    Tsm.R.w = __uint_as_float(optixGetPayload_4());
+    Tsm.t.x = __uint_as_float(optixGetPayload_5());
+    Tsm.t.y = __uint_as_float(optixGetPayload_6());
+    Tsm.t.z = __uint_as_float(optixGetPayload_7());
     const Transform Tms = Tsm.inv();
 
     // Get additional info
