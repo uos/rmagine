@@ -20,9 +20,37 @@ Mainly designed for robotic applications:
 
 
 ## Installation
+Download this repository. 
 
+```bash
+user@pc:~/imagine$ mkdir build
+user@pc:~/imagine$ cd build
+user@pc:~/imagine/build$ make
+user@pc:~/imagine/build$ sudo make install
+```
 
-## Usage
+### Uninstall
+
+```bash
+user@pc:~/imagine/build$ sudo make uninstall
+```
+
+### CMake Usage
+
+Add to your CMakeFile:
+
+```cmake
+find_package(imagine REQUIRED)
+include_directories(${imagine_INCLUDE_DIRS})
+
+add_executable(my_imagine_app src/my_imagine_app.cpp)
+target_link_libraries(my_imagine_app
+    ${imagine_LIBRARIES}
+)
+
+```
+
+## Examples
 
 The general computing flow is as follows. 
 
