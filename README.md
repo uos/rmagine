@@ -1,4 +1,4 @@
-# imagine - Fast LiDaR simulation in 3D environments
+# imagine - Fast Depth-Sensor simulation in 3D environments
 
 Library for fast sensor data simulation in large 3D environments.
 
@@ -11,13 +11,17 @@ Mainly designed for robotic applications:
     - Hold data at device of computation
     - Minimal graphical overhead (offscreen-rendering)
 - Runtime critical operations
-- Easy to use 
 
-## Examples
+## Supported Sensor Models
 
 
-## Supported Models
+### Spherical
 
+### Pinhole
+
+### O1Dn
+
+### OnDn
 
 ## Installation
 Download this repository. 
