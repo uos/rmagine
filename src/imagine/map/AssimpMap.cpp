@@ -1,18 +1,17 @@
 #include "imagine/map/AssimpMap.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-
 namespace imagine {
+
+AssimpMap::AssimpMap(const aiScene* scene)
+:scene(scene)
+{
+
+}
 
 AssimpMap::AssimpMap(std::string filename)
 {
     Assimp::Importer importer;
-    scene = importer.ReadFile( filename, 
-        aiProcess_CalcTangentSpace       | 
-        aiProcess_Triangulate            |
-        aiProcess_JoinIdenticalVertices  |
-        aiProcess_SortByPType);
+    scene = importer.ReadFile( filename, 0);
 
     if(!scene)
     {

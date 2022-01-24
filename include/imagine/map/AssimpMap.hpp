@@ -39,17 +39,27 @@
 #include <memory>
 #include <string>
 #include <assimp/scene.h>
+#include <assimp/Importer.hpp>
 #include <imagine/math/types.h>
 
 namespace imagine {
 
 class AssimpMap : public Map {
 public:
+    AssimpMap(const aiScene* scene);
     AssimpMap(std::string filename);
     const aiScene* scene;
 };
 
 using AssimpMapPtr = std::shared_ptr<AssimpMap>;
+
+static AssimpMapPtr importAssimpMap(const std::string& meshfile)
+{
+    AssimpMapPtr res;
+    // aiProcess_GenNormals does not work!
+    res.reset(new AssimpMap(meshfile));
+    return res;
+}
 
 } // namespace imagine
 
