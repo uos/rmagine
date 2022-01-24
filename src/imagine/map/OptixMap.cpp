@@ -69,15 +69,30 @@ OptixMap::~OptixMap()
 
 void OptixMap::initContext(int device)
 {
+    int driver;
+    cudaDriverGetVersion(&driver);
+    int cuda_version;
+    cudaRuntimeGetVersion(&cuda_version);
+
+    std::cout << cuda_version << std::endl;
+
+    std::stringstream driver_version_str, cuda_version_str;
+    driver_version_str << driver / 1000 << "." << (driver % 1000) / 10 << "." << driver % 10;
+    cuda_version_str << cuda_version / 1000 << "." << (cuda_version % 1000) / 10 << "." << cuda_version % 10;
+
+    std::cout << "[OptixMesh] Latest CUDA for driver: " << driver_version_str.str() << ". Current CUDA version: " << cuda_version_str.str() << std::endl;
+
     // Initialize CUDA
     cudaDeviceProp info;
     CUDA_CHECK( cudaGetDeviceProperties(&info, device) );
-    std::cout << "[OptixMesh] Init context on device " << device << " " << info.name << " " << info.luid << std::endl;
 
+    
     cuCtxCreate(&cuda_context, 0, device);
 
     // Check flags
     cuInit(0);
+
+    std::cout << "[OptixMesh] Initialized CUDA context on device " << device << ": " << info.name << " " << info.luid << std::endl;
 
     // Initialize the OptiX API, loading all API entry points
     OPTIX_CHECK( optixInit() );
@@ -88,6 +103,12 @@ void OptixMap::initContext(int device)
     options.logCallbackLevel          = 3;
 
     OPTIX_CHECK( optixDeviceContextCreate( cuda_context, &options, &context ) );
+
+    std::stringstream optix_version_str;
+    optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
+
+    std::cout << "[OptixMesh] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
+
 }
 
 void OptixMap::fillMeshes(const aiScene* ascene)

@@ -150,6 +150,4 @@ Memory<Vector, VRAM_CUDA> SphereSimulatorOptix::simulateNormals(
     return res;
 }
 
-
-
 } // imagine
