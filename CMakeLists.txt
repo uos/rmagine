@@ -7,6 +7,8 @@ include(GNUInstallDirs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
+#set(CMAKE_CXX_STANDARD 17)
+
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
@@ -23,7 +25,6 @@ endif()
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
-
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
