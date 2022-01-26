@@ -3,6 +3,8 @@ project(imagine
     LANGUAGES CXX C
     VERSION 1)
 
+include(GNUInstallDirs)
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
 
@@ -27,8 +29,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_TMP_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
-
-include(GNUInstallDirs)
 
 set(CMAKE_MODULE_PATH
   ${imagine_SOURCE_DIR}/cmake
