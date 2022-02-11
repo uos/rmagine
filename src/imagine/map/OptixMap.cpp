@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <Eigen/Dense>
 
 #include <map>
 
