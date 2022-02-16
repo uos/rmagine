@@ -20,12 +20,14 @@ namespace imagine {
 
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
+
 
 SphereProgramGeneric::SphereProgramGeneric(
     OptixMapPtr map,
     const OptixSimulationDataGenericSphere& flags)
 {
+    std::cout << "Construct SphereProgramGeneric" << std::endl;
+
     const char *kernel =
     #include "kernels/SphereProgramGenericString.h"
     ;
@@ -264,8 +266,8 @@ SphereProgramGeneric::SphereProgramGeneric(
     size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     
-    HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+    // HitGroupSbtRecord hg_sbt;
+    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &m_hg_sbt ) );
 
     Memory<Vector*, RAM> normals_cpu(map->meshes.size());
     for(size_t i=0; i<map->meshes.size(); i++)
@@ -273,22 +275,25 @@ SphereProgramGeneric::SphereProgramGeneric(
         normals_cpu[i] = map->meshes[i].normals.raw();
     }
     
-    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
+    cudaMalloc(reinterpret_cast<void**>(&m_hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
     // gpu array of gpu pointers
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>(hg_sbt.data.normals),
+                reinterpret_cast<void*>(m_hg_sbt.data.normals),
                 reinterpret_cast<void*>(normals_cpu.raw()),
                 map->meshes.size() * sizeof(Vector*),
                 cudaMemcpyHostToDevice
                 ) );
     
-
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
-                &hg_sbt,
+                &m_hg_sbt,
                 hitgroup_record_size,
                 cudaMemcpyHostToDevice
                 ) );
+
+    // std::cout << "Free hg_sbt.data.normals" << std::endl;
+    // cudaFree(hg_sbt.data.normals);
+    // TODO shader binding table to map?
 
     sbt.raygenRecord                = raygen_record;
     sbt.missRecordBase              = miss_record;
@@ -297,6 +302,13 @@ SphereProgramGeneric::SphereProgramGeneric(
     sbt.hitgroupRecordBase          = hitgroup_record;
     sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
     sbt.hitgroupRecordCount         = 1;
+}
+
+
+SphereProgramGeneric::~SphereProgramGeneric()
+{
+    std::cout << "Destruct SphereProgramGeneric" << std::endl;
+    cudaFree(m_hg_sbt.data.normals);
 }
 
 } // namespace imagine

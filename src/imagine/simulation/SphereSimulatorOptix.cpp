@@ -31,7 +31,11 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
+    std::cout << "Destruct SphereSimulatorOptix" << std::endl;
     cudaStreamDestroy(m_stream);
+    
+    m_programs.resize(0);
+    m_generic_programs.clear();
 }
 
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
