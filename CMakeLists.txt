@@ -39,12 +39,7 @@ set(CMAKE_MODULE_PATH
 ################################
 ## REQUIRED DEPS
 
-
-############################
-##    Eigen: Math         ##
-############################
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+find_package(Boost REQUIRED)
 
 ############################
 ## EMBREE: CPU Raycasting ##
@@ -111,6 +106,8 @@ include_directories(
     include
 )
 
+set(IMAGINE_LIBRARIES imagine)
+
 add_library(imagine SHARED
     # Maps
     src/imagine/map/AssimpMap.cpp
@@ -130,8 +127,7 @@ add_library(imagine SHARED
 
 target_link_libraries(imagine
   ${ASSIMP_LIBRARIES}
-  ${embree_LIBRARY}
-  Eigen3::Eigen)
+  ${embree_LIBRARY})
 
 target_compile_features(imagine PRIVATE cxx_std_17)
 
@@ -152,6 +148,8 @@ target_link_libraries(imagine_cuda
 add_dependencies(imagine_cuda
     imagine
 )
+
+list(APPEND IMAGINE_LIBRARIES imagine_cuda)
 
 if(OptiX_FOUND)
     # Optix Kernels
@@ -250,7 +248,8 @@ if(OptiX_FOUND)
         imagine_optix_ptx
         imagine_cuda
     )
-    
+
+    list(APPEND IMAGINE_LIBRARIES imagine_optix)
 
 endif(OptiX_FOUND)
 
@@ -259,9 +258,19 @@ endif(CUDA_FOUND)
 #### TESTS
 if(BUILD_TESTS)
 
+## ADDITIONAL DEPS FOR TESTS
+if(Eigen3_FOUND)
+    include_directories(${EIGEN3_INCLUDE_DIR})
+endif(Eigen3_FOUND)
+
+
 add_subdirectory(src/imagine_tests/memory)
 add_subdirectory(src/imagine_tests/embree_sim)
-add_subdirectory(src/imagine_tests/basic_math)
+
+if(Eigen3_FOUND)
+    add_subdirectory(src/imagine_tests/basic_math)
+endif(Eigen3_FOUND)
+
 add_subdirectory(src/imagine_tests/generic_model_sim)
 add_subdirectory(src/imagine_tests/synthetic)
 
@@ -286,7 +295,9 @@ endif(BUILD_TOOLS)
 # 1. Headers
 install(DIRECTORY include/imagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
-install(TARGETS imagine imagine_cuda imagine_optix)
+install(TARGETS ${IMAGINE_LIBRARIES})
+
+# install(TARGETS imagine imagine_cuda imagine_optix)
 # TODO: Components?
 # install(TARGETS imagine COMPONENT core)
 # install(TARGETS imagine_cuda COMPONENT cuda)
