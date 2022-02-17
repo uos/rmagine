@@ -121,7 +121,7 @@ void OnDnSimulatorOptix::simulate(
 
     // set general data
 
-    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
     mem->Tsb = m_Tsb.raw();

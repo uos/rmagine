@@ -44,7 +44,7 @@ void OnDnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
-void OnDnSimulatorOptix::setModel(const OnDnModel<VRAM_CUDA>& model)
+void OnDnSimulatorOptix::setModel(const OnDnModel_<VRAM_CUDA>& model)
 {
     m_width = model.getWidth();
     m_height = model.getHeight();
@@ -53,9 +53,9 @@ void OnDnSimulatorOptix::setModel(const OnDnModel<VRAM_CUDA>& model)
     m_model[0] = model;
 }
 
-void OnDnSimulatorOptix::setModel(const OnDnModel<RAM>& model)
+void OnDnSimulatorOptix::setModel(const OnDnModel_<RAM>& model)
 {
-    OnDnModel<VRAM_CUDA> model_gpu;
+    OnDnModel_<VRAM_CUDA> model_gpu;
     model_gpu.width = model.width;
     model_gpu.height = model.height;
     model_gpu.range = model.range;
@@ -67,7 +67,7 @@ void OnDnSimulatorOptix::setModel(const OnDnModel<RAM>& model)
     setModel(model_gpu);
 }
 
-void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<VRAM_CUDA>, RAM>& model)
+void OnDnSimulatorOptix::setModel(const Memory<OnDnModel_<VRAM_CUDA>, RAM>& model)
 {
     m_width = model->width;
     m_height = model->height;
@@ -77,7 +77,7 @@ void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<VRAM_CUDA>, RAM>& model
     TODO_TEST_FUNCTION
 }
 
-void OnDnSimulatorOptix::setModel(const Memory<OnDnModel<RAM>, RAM>& model)
+void OnDnSimulatorOptix::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
 {
     // TODO: test
     TODO_NOT_IMPLEMENTED
@@ -88,7 +88,7 @@ void OnDnSimulatorOptix::simulateRanges(
     Memory<float, VRAM_CUDA>& ranges) const
 {
     // TODO: how to do this before?
-    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
     Memory<OptixSimulationDataRangesOnDn, RAM> mem(1);
@@ -132,7 +132,7 @@ void OnDnSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<Vector, VRAM_CUDA>& normals) const
 {
-    Memory<OnDnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
 

@@ -265,7 +265,7 @@ SphereProgramNormals::SphereProgramNormals(OptixMapPtr map)
 
 SphereProgramNormals::~SphereProgramNormals()
 {
-    std::cout << "Destruct SphereProgramNormals" << std::endl;
+    // std::cout << "Destruct SphereProgramNormals" << std::endl;
     cudaFree(m_hg_sbt.data.normals);
 }
 

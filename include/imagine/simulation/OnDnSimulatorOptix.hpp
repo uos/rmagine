@@ -81,7 +81,7 @@ namespace imagine {
  * 
  * // Inputs
  * Memory<Transform, RAM> T_sensor_to_base(1); // Static transform between sensor and base frame
- * OnDnModel<RAM> model; // O1DnModel in RAM
+ * OnDnModel_<RAM> model; // O1DnModel in RAM
  * Memory<Transform, RAM> T_base_to_map(Nposes); // Poses in VRAM
  * // fill data
  * 
@@ -123,10 +123,10 @@ public:
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
 
-    void setModel(const OnDnModel<VRAM_CUDA>& model);
-    void setModel(const OnDnModel<RAM>& model);
-    void setModel(const Memory<OnDnModel<VRAM_CUDA>, RAM>& model);
-    void setModel(const Memory<OnDnModel<RAM>, RAM>& model);
+    void setModel(const OnDnModel_<VRAM_CUDA>& model);
+    void setModel(const OnDnModel_<RAM>& model);
+    void setModel(const Memory<OnDnModel_<VRAM_CUDA>, RAM>& model);
+    void setModel(const Memory<OnDnModel_<RAM>, RAM>& model);
 
     void simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm, 
@@ -182,7 +182,7 @@ protected:
     uint32_t m_width;
     uint32_t m_height;
 
-    Memory<OnDnModel<VRAM_CUDA>, RAM> m_model;
+    Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
 
 private:
     std::vector<OptixProgramPtr> m_programs;

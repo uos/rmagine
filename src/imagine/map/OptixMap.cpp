@@ -62,12 +62,12 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
 
 OptixMap::~OptixMap()
 {
-    std::cout << "Destruct OptixMap" << std::endl;
+    // std::cout << "Destruct OptixMap" << std::endl;
     cudaFree( reinterpret_cast<void*>( as.buffer ) );
     optixDeviceContextDestroy( context );
 
-    std::cout << "Free " << instances.size() << " instances" << std::endl;
-    std::cout << "Free " << meshes.size() << " meshes" << std::endl;
+    // std::cout << "Free " << instances.size() << " instances" << std::endl;
+    // std::cout << "Free " << meshes.size() << " meshes" << std::endl;
 
     if(meshes.size() > 1)
     {

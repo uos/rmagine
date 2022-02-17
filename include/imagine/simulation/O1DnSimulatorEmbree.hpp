@@ -69,7 +69,7 @@ namespace imagine
  * 
  * // Inputs
  * Memory<Transform, RAM> T_sensor_to_base(1); // Static transform between sensor and base frame
- * O1DnModel<RAM> model; // O1DnModel in RAM
+ * O1DnModel_<RAM> model; // O1DnModel in RAM
  * Memory<Transform, RAM> T_base_to_map(Nposes); // Poses in VRAM
  * // fill data
  * 
@@ -104,9 +104,10 @@ public:
     ~O1DnSimulatorEmbree();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
 
-    void setModel(const O1DnModel<RAM>& model);
-    void setModel(const Memory<O1DnModel<RAM>, RAM>& model);
+    void setModel(const Memory<O1DnModel_<RAM>, RAM>& model);
+    void setModel(const O1DnModel_<RAM>& model);
 
     void simulateRanges(
         const Memory<Transform, RAM>& Tbm, 
@@ -135,7 +136,7 @@ protected:
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;
-    Memory<O1DnModel<RAM>, RAM> m_model;
+    Memory<O1DnModel_<RAM>, RAM> m_model;
 };
 
 using O1DnSimulatorEmbreePtr = std::shared_ptr<O1DnSimulatorEmbree>;

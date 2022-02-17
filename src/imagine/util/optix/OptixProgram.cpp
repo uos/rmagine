@@ -9,7 +9,7 @@ namespace imagine {
 
 OptixProgram::~OptixProgram()
 {
-    std::cout << "Destruct OptixProgram" << std::endl;
+    // std::cout << "Destruct OptixProgram" << std::endl;
     cudaFree( reinterpret_cast<void*>( sbt.raygenRecord       ) );
     cudaFree( reinterpret_cast<void*>( sbt.missRecordBase     ) );
     cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) );

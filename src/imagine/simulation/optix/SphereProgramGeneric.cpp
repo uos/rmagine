@@ -307,7 +307,7 @@ SphereProgramGeneric::SphereProgramGeneric(
 
 SphereProgramGeneric::~SphereProgramGeneric()
 {
-    std::cout << "Destruct SphereProgramGeneric" << std::endl;
+    // std::cout << "Destruct SphereProgramGeneric" << std::endl;
     cudaFree(m_hg_sbt.data.normals);
 }
 

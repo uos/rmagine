@@ -44,7 +44,7 @@ void O1DnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
-void O1DnSimulatorOptix::setModel(const O1DnModel<VRAM_CUDA>& model)
+void O1DnSimulatorOptix::setModel(const O1DnModel_<VRAM_CUDA>& model)
 {
     m_width = model.getWidth();
     m_height = model.getHeight();
@@ -53,9 +53,9 @@ void O1DnSimulatorOptix::setModel(const O1DnModel<VRAM_CUDA>& model)
     m_model[0] = model;
 }
 
-void O1DnSimulatorOptix::setModel(const O1DnModel<RAM>& model)
+void O1DnSimulatorOptix::setModel(const O1DnModel_<RAM>& model)
 {
-    O1DnModel<VRAM_CUDA> model_gpu;
+    O1DnModel_<VRAM_CUDA> model_gpu;
     model_gpu.width = model.width;
     model_gpu.height = model.height;
     model_gpu.range = model.range;
@@ -67,7 +67,7 @@ void O1DnSimulatorOptix::setModel(const O1DnModel<RAM>& model)
     setModel(model_gpu);
 }
 
-void O1DnSimulatorOptix::setModel(const Memory<O1DnModel<VRAM_CUDA>, RAM>& model)
+void O1DnSimulatorOptix::setModel(const Memory<O1DnModel_<VRAM_CUDA>, RAM>& model)
 {
     m_width = model->width;
     m_height = model->height;
@@ -77,7 +77,7 @@ void O1DnSimulatorOptix::setModel(const Memory<O1DnModel<VRAM_CUDA>, RAM>& model
     TODO_TEST_FUNCTION
 }
 
-void O1DnSimulatorOptix::setModel(const Memory<O1DnModel<RAM>, RAM>& model)
+void O1DnSimulatorOptix::setModel(const Memory<O1DnModel_<RAM>, RAM>& model)
 {
     TODO_NOT_IMPLEMENTED
 }
@@ -86,7 +86,7 @@ void O1DnSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    Memory<O1DnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
     Memory<OptixSimulationDataRangesO1Dn, RAM> mem(1);
@@ -131,7 +131,7 @@ void O1DnSimulatorOptix::simulateNormals(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<Vector, VRAM_CUDA>& normals) const
 {
-    Memory<O1DnModel<VRAM_CUDA>, VRAM_CUDA> model(1);
+    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
     Memory<OptixSimulationDataNormalsO1Dn, RAM> mem(1);

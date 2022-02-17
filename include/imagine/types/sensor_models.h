@@ -225,7 +225,7 @@ struct CylindricModel {
 };
 
 template<typename MemT>
-struct O1DnModel {
+struct O1DnModel_ {
     uint32_t width;
     uint32_t height;
 
@@ -272,8 +272,10 @@ struct O1DnModel {
     }
 };
 
+using O1DnModel = O1DnModel_<RAM>;
+
 template<typename MemT>
-struct OnDnModel {
+struct OnDnModel_ {
     uint32_t width;
     uint32_t height;
 
@@ -323,6 +325,7 @@ struct OnDnModel {
 
 };
 
+using OnDnModel = OnDnModel_<RAM>;
 
 } // namespace imagine
 

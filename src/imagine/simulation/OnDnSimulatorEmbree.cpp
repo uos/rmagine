@@ -22,12 +22,12 @@ void OnDnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
-void OnDnSimulatorEmbree::setModel(const OnDnModel<RAM>& model)
+void OnDnSimulatorEmbree::setModel(const OnDnModel_<RAM>& model)
 {
     m_model[0] = model;
 }
 
-void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel<RAM>, RAM>& model)
+void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
 {
     m_model->width = model->width;
     m_model->height = model->height;

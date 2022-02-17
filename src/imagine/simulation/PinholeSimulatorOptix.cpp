@@ -39,12 +39,26 @@ void PinholeSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
+
+void PinholeSimulatorOptix::setTsb(const Transform& Tsb)
+{
+    Memory<Transform, RAM> tmp(1);
+    tmp[0] = Tsb;
+    setTsb(tmp);
+}
     
 void PinholeSimulatorOptix::setModel(const Memory<PinholeModel, RAM>& model)
 {
     m_width = model->width;
     m_height = model->height;
     m_model = model;
+}
+
+void PinholeSimulatorOptix::setModel(const PinholeModel& model)
+{
+    Memory<PinholeModel, RAM> tmp(1);
+    tmp[0] = model;
+    setModel(tmp);
 }
 
 void PinholeSimulatorOptix::simulateRanges(

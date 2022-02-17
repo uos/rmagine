@@ -60,7 +60,6 @@
 
 namespace imagine {
 
-
 /**
  * @brief Pinhole simulation on GPU via Optix
  * 
@@ -122,8 +121,10 @@ public:
     ~PinholeSimulatorOptix();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
 
     void setModel(const Memory<PinholeModel, RAM>& model);
+    void setModel(const PinholeModel& model);
 
     void simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm, 

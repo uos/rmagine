@@ -113,7 +113,7 @@ public:
         
     }
 
-    void setMem(const Memory<O1DnModel<RAM>, RAM>& bla)
+    void setMem(const Memory<O1DnModel_<RAM>, RAM>& bla)
     {
         mem = bla;
     }
@@ -124,16 +124,16 @@ public:
     }
     
 private:
-    Memory<O1DnModel<RAM>, RAM> mem;
+    Memory<O1DnModel_<RAM>, RAM> mem;
 
 };
 
 void test_sensor_models()
 {
-    O1DnModel<RAM> model;
+    O1DnModel_<RAM> model;
     model.height = 100;
 
-    Memory<O1DnModel<RAM>, RAM> model_mem(1);
+    Memory<O1DnModel_<RAM>, RAM> model_mem(1);
     model_mem[0] = model;
 
     TestClass bla;

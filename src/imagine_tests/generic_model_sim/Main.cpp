@@ -11,9 +11,9 @@
 
 using namespace imagine;
 
-O1DnModel<RAM> custom_model()
+O1DnModel_<RAM> custom_model()
 {
-    O1DnModel<RAM> model;
+    O1DnModel_<RAM> model;
     
     size_t N = 1000;
 
@@ -41,9 +41,9 @@ O1DnModel<RAM> custom_model()
     return model;
 }
 
-Memory<O1DnModel<RAM>, RAM> custom_model_memory()
+Memory<O1DnModel_<RAM>, RAM> custom_model_memory()
 {
-    Memory<O1DnModel<RAM>, RAM> mymodel(1);
+    Memory<O1DnModel_<RAM>, RAM> mymodel(1);
     mymodel[0] = custom_model();
     return mymodel;
 }
