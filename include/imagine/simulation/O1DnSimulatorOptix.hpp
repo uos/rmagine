@@ -55,9 +55,6 @@
 
 #include <cuda_runtime.h>
 
-#include <unordered_map>
-
-
 namespace imagine {
 
 /**

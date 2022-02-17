@@ -44,6 +44,13 @@ void OnDnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
+void OnDnSimulatorOptix::setTsb(const Transform& Tsb)
+{
+    Memory<Transform, RAM> tmp(1);
+    tmp[0] = Tsb;
+    setTsb(tmp);
+}
+
 void OnDnSimulatorOptix::setModel(const OnDnModel_<VRAM_CUDA>& model)
 {
     m_width = model.getWidth();

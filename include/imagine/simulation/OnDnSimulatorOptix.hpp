@@ -122,6 +122,7 @@ public:
     ~OnDnSimulatorOptix();
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
 
     void setModel(const OnDnModel_<VRAM_CUDA>& model);
     void setModel(const OnDnModel_<RAM>& model);
