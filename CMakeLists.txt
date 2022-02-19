@@ -123,6 +123,8 @@ add_library(imagine SHARED
     # Util
     src/imagine/util/StopWatch.cpp
     src/imagine/util/synthetic.cpp
+    # Noise
+    src/imagine/noise/noise.cpp
 )
 
 target_link_libraries(imagine
@@ -137,6 +139,8 @@ add_library(imagine_cuda SHARED
     src/imagine/types/MemoryCuda.cu
     src/imagine/math/math.cu
     src/imagine/util/cuda/CudaContext.cpp
+    # Noise
+    src/imagine/noise/noise.cu
 )
 
 target_link_libraries(imagine_cuda

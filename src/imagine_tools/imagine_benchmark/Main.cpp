@@ -16,7 +16,6 @@
 #include <imagine/types/MemoryCuda.hpp>
 
 
-
 #endif
 
 #include <iomanip>
