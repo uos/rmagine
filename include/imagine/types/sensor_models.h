@@ -55,6 +55,11 @@ struct DiscreteInterval
     {
         return (value >= min && value <= max());
     }
+
+    static float IncFromMinMaxSize(float min, float max, uint32_t size)
+    {
+        return (max - min) / ( static_cast<float>(size - 1) );
+    }
 };
 
 struct Rectangle {

@@ -14,7 +14,9 @@ GaussianNoise::GaussianNoise(float mean, float stddev)
 template<>
 void GaussianNoise::apply<RAM>(Memory<float, RAM>& ranges) const
 {
-    std::default_random_engine gen;
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    // std::default_random_engine gen;
     std::normal_distribution<float> distr(m_mean, m_stddev);
 
     for(size_t i=0; i<ranges.size(); i++)
