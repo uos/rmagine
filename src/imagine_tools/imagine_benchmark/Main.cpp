@@ -22,19 +22,18 @@
 
 using namespace imagine;
 
-
 Memory<LiDARModel, RAM> velodyne_model()
 {
     Memory<LiDARModel, RAM> model(1);
     model->theta.min = -M_PI;
-    model->theta.max = M_PI; 
-    model->theta.size = 440;
-    model->theta.computeStep();
-    
-    model->phi.min = -0.261799;
-    model->phi.max = 0.261799;
+    model->theta.step = 0.4 * M_PI / 180.0;
+    model->theta.size = 900;
+    model->theta.fillMax();
+
+    model->phi.min = -15.0 * M_PI / 180.0;
+    model->phi.max = 15.0 * M_PI / 180.0;
     model->phi.size = 16;
-    model->phi.computeStep();
+    model->phi.fillStep();
     
     model->range.min = 0.5;
     model->range.max = 130.0;
@@ -99,6 +98,16 @@ int main(int argc, char** argv)
 
         // Get Sensor Model
         Memory<LiDARModel, RAM> model = velodyne_model();
+        std::cout << "theta" << std::endl;
+        std::cout << "  min: " << model->theta.min << std::endl;
+        std::cout << "  max: " << model->theta.max << std::endl;
+        std::cout << "  N: " << model->theta.size << std::endl;
+        std::cout << "  step: " << model->theta.step << std::endl;
+        std::cout << "phi" << std::endl;
+        std::cout << "  min: " << model->phi.min << std::endl;
+        std::cout << "  max: " << model->phi.max << std::endl;
+        std::cout << "  N: " << model->phi.size << std::endl;
+        std::cout << "  step: " << model->phi.step << std::endl;
 
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);

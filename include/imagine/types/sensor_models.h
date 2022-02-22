@@ -36,10 +36,28 @@ struct DiscreteInterval
     uint32_t size;
 
     /**
+    * @brief compute min value given others
+    */
+    IMAGINE_INLINE_FUNCTION
+    void fillMin()
+    {
+        min = max - step * static_cast<float>(size-1);
+    }
+
+    /**
+    * @brief compute max value given others
+    */
+    IMAGINE_INLINE_FUNCTION
+    void fillMax()
+    {
+        max = min + step * static_cast<float>(size-1);
+    }
+
+    /**
     * @brief compute step value from given others
     */
     IMAGINE_INLINE_FUNCTION
-    void computeStep()
+    void fillStep()
     {
         step = (max - min) / ( static_cast<float>(size - 1) );
     }
@@ -54,7 +72,7 @@ struct DiscreteInterval
     bool inside(const float& value) const 
     {
         return (value >= min && value <= max);
-    } 
+    }
 };
 
 struct Rectangle {
