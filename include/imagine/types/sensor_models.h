@@ -30,56 +30,36 @@ struct Interval {
 
 struct DiscreteInterval
 {
+    // minimum
     float min;
-    float max;
-    float step;
+    // increment
+    float inc;
+    // total number of discrete values in this interval
     uint32_t size;
 
-    /**
-    * @brief compute min value given others
-    */
     IMAGINE_INLINE_FUNCTION
-    void fillMin()
+    float max() const
     {
-        min = max - step * static_cast<float>(size-1);
-    }
-
-    /**
-    * @brief compute max value given others
-    */
-    IMAGINE_INLINE_FUNCTION
-    void fillMax()
-    {
-        max = min + step * static_cast<float>(size-1);
-    }
-
-    /**
-    * @brief compute step value from given others
-    */
-    IMAGINE_INLINE_FUNCTION
-    void fillStep()
-    {
-        step = (max - min) / ( static_cast<float>(size - 1) );
+        // return value at last array entry
+        return min + static_cast<float>(size - 1) * inc;
     }
 
     IMAGINE_INLINE_FUNCTION
     float getValue(uint32_t id) const
     {
-        return min + static_cast<float>(id) * step;
+        return min + static_cast<float>(id) * inc;
     }
 
     IMAGINE_INLINE_FUNCTION
     bool inside(const float& value) const 
     {
-        return (value >= min && value <= max);
+        return (value >= min && value <= max());
     }
 };
 
 struct Rectangle {
     Vector2 min;
     Vector2 max;
-
-
 };
 
 struct Box {
