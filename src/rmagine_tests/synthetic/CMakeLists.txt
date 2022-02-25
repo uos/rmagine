@@ -1,0 +1,4 @@
+
+add_executable(rmagine_tests_synthetic Main.cpp)
+target_link_libraries(rmagine_tests_synthetic 
+    rmagine)

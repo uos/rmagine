@@ -1,0 +1,3 @@
+
+add_executable(rmagine_tests_cuda_math Main.cpp)
+target_link_libraries(rmagine_tests_cuda_math rmagine_cuda)

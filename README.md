@@ -1,4 +1,4 @@
-# imagine - Fast Depth-Sensor simulation in 3D environments
+# rmagine - Fast Depth-Sensor simulation in 3D environments
 
 Library for fast sensor data simulation in large 3D environments.
 
@@ -29,16 +29,16 @@ Mainly designed for robotic applications:
 Download this repository. 
 
 ```bash
-user@pc:~/imagine$ mkdir build
-user@pc:~/imagine$ cd build
-user@pc:~/imagine/build$ make
-user@pc:~/imagine/build$ sudo make install
+user@pc:~/rmagine$ mkdir build
+user@pc:~/rmagine$ cd build
+user@pc:~/rmagine/build$ make
+user@pc:~/rmagine/build$ sudo make install
 ```
 
 ### Uninstall
 
 ```bash
-user@pc:~/imagine/build$ sudo make uninstall
+user@pc:~/rmagine/build$ sudo make uninstall
 ```
 
 ### CMake Usage
@@ -46,12 +46,12 @@ user@pc:~/imagine/build$ sudo make uninstall
 Add to your CMakeFile:
 
 ```cmake
-find_package(imagine REQUIRED)
-include_directories(${imagine_INCLUDE_DIRS})
+find_package(rmagine REQUIRED)
+include_directories(${rmagine_INCLUDE_DIRS})
 
-add_executable(my_imagine_app src/my_imagine_app.cpp)
-target_link_libraries(my_imagine_app
-    ${imagine_LIBRARIES}
+add_executable(my_rmagine_app src/my_rmagine_app.cpp)
+target_link_libraries(my_rmagine_app
+    ${rmagine_LIBRARIES}
 )
 
 ```
@@ -60,7 +60,7 @@ target_link_libraries(my_imagine_app
 
 The general computing flow is as follows. 
 
-![imagine_example](dat/doc/imagine.drawio.png)
+![rmagine_example](dat/doc/rmagine.drawio.png)
 
 Tsb is the transform from sensor to base frame. Or spoken: The sensor pose relative to the robot base. The map can be either a pointer to an `EmbreeMap` or `OptixMap`. The Prefix of the `Simulator` is either `Embree` for CPU computation or `Optix` for GPU computation. The suffix of the Simulator is dependend on which sensor model you want to simulate. A few examples:
 
@@ -72,13 +72,13 @@ Tsb is the transform from sensor to base frame. Or spoken: The sensor pose relat
 
 Now we want to construct the following pipeline.
 
-![imagine_example_1](dat/doc/imagine_example_1.drawio.png)
+![rmagine_example_1](dat/doc/rmagine_example_1.drawio.png)
 
 ```cpp
 
-#include <imagine/simulation/SphereSimulatorEmbree.hpp>
+#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
 
-using namespace imagine;
+using namespace rmagine;
 
 SphereSimulatorEmbreePtr construct_simulator(std::string path_to_mesh)
 {
@@ -127,16 +127,16 @@ int main(int argc, char** argv)
 
 Now we want to construct the following pipeline.
 
-![imagine_example_1](dat/doc/imagine_example_2.drawio.png)
+![rmagine_example_1](dat/doc/rmagine_example_2.drawio.png)
 
 The green cells are memory objects on GPU as you see in the following code snippet.
 
 
 ```cpp
 
-#include <imagine/simulation/SphereSimulatorOptix.hpp>
+#include <rmagine/simulation/SphereSimulatorOptix.hpp>
 
-using namespace imagine;
+using namespace rmagine;
 
 SphereSimulatorOptixPtr construct_simulator(std::string path_to_mesh)
 {
@@ -195,15 +195,15 @@ int main(int argc, char** argv)
 
 Now we want to construct the following pipeline.
 
-![imagine_example_1](dat/doc/imagine_example_3.drawio.png)
+![rmagine_example_1](dat/doc/rmagine_example_3.drawio.png)
 
 
 ```cpp
 
-#include <imagine/simulation/SphereSimulatorOptix.hpp>
-#include <imagine/simulation/PinholeSimulatorEmbree.hpp>
+#include <rmagine/simulation/SphereSimulatorOptix.hpp>
+#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
 
-using namespace imagine;
+using namespace rmagine;
 
 int main(int argc, char** argv)
 {

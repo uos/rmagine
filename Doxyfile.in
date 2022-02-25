@@ -25,7 +25,7 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = "Imagine"
+PROJECT_NAME           = "Rmagine"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
@@ -1552,4 +1552,4 @@ GENERATE_LEGEND        = YES
 
 DOT_CLEANUP            = YES
 
-EXCLUDE_PATTERNS = *include/imagine/simulation/optix/* *src/*
+EXCLUDE_PATTERNS = *include/rmagine/simulation/optix/* *src/*
