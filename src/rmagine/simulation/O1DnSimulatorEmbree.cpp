@@ -38,13 +38,13 @@ void O1DnSimulatorEmbree::setModel(const Memory<O1DnModel_<RAM>, RAM>& model)
     m_model->height = model->height;
     m_model->range = model->range;
     m_model->orig = model->orig;
-    m_model->rays = model->rays;
+    m_model->dirs = model->dirs;
 
     // this is shallow copy becauce pointer is copied
     // m_model = model;
-    // copy(model[0].rays, m_model[0].rays);
+    // copy(model[0].dirs, m_model[0].dirs);
     // std::cout << "Set Model" << std::endl;
-    // std::cout << model[0].rays.raw() << " -> " << m_model[0].rays.raw() << std::endl; 
+    // std::cout << model[0].dirs.raw() << " -> " << m_model[0].dirs.raw() << std::endl; 
 }
 
 void O1DnSimulatorEmbree::simulateRanges(
@@ -66,7 +66,7 @@ void O1DnSimulatorEmbree::simulateRanges(
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
 
-                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_s = m_model->getDirection(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
                 const Vector ray_orig_s = m_model->getOrigin(vid, hid);
@@ -128,7 +128,7 @@ void O1DnSimulatorEmbree::simulateHits(
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
 
-                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_s = m_model->getDirection(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
                 const Vector ray_orig_s = m_model->getOrigin(vid, hid);

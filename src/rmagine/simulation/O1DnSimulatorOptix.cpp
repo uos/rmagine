@@ -68,7 +68,7 @@ void O1DnSimulatorOptix::setModel(const O1DnModel_<RAM>& model)
     model_gpu.range = model.range;
 
     // upload ray data
-    model_gpu.rays = model.rays;
+    model_gpu.dirs = model.dirs;
     model_gpu.orig = model.orig;
 
     setModel(model_gpu);

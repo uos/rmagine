@@ -26,7 +26,7 @@ O1DnModel_<RAM> custom_model()
     model.orig.x = 0.0;
     model.orig.y = 0.0;
     model.orig.z = 0.0;
-    model.rays.resize(N);
+    model.dirs.resize(N);
 
     for(size_t i=0; i<N; i++)
     {
@@ -35,7 +35,7 @@ O1DnModel_<RAM> custom_model()
         dir.x = 1.0;
         dir.y = sqrt(pos);
         dir.z = sin(pos);
-        model.rays[i] = dir.normalized();
+        model.dirs[i] = dir.normalized();
     }
 
     return model;
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
             {
                 const unsigned int loc_id = model->getBufferId(vid, hid);
                 Vector orig = model->getOrigin(vid, hid);
-                Vector ray = model->getRay(vid, hid);
+                Vector ray = model->getDirection(vid, hid);
                 
                 // std::cout << "Ray: " << ray.x << " " << ray.y << " " << ray.z << std::endl;
                 float range = ranges[loc_id];

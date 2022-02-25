@@ -114,7 +114,7 @@ struct SphericalModel
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRay(uint32_t phi_id, uint32_t theta_id) const
+    Vector getDirection(uint32_t phi_id, uint32_t theta_id) const
     {
         const float phi_ = getPhi(phi_id);
         const float theta_ = getTheta(theta_id);
@@ -171,7 +171,7 @@ struct PinholeModel {
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRayOptical(uint32_t vid, uint32_t hid) const
+    Vector getDirectionOptical(uint32_t vid, uint32_t hid) const
     {
         // pX = fx * X + cx
         // pY = fy * Y + cy
@@ -184,9 +184,9 @@ struct PinholeModel {
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRay(uint32_t vid, uint32_t hid) const
+    Vector getDirection(uint32_t vid, uint32_t hid) const
     {
-        const Vector dir_optical = getRayOptical(vid, hid);
+        const Vector dir_optical = getDirectionOptical(vid, hid);
         //  z -> x
         // -y -> z
         // -x -> y
@@ -236,7 +236,7 @@ struct O1DnModel_ {
     Interval range;
 
     Vector orig;
-    Memory<Vector, MemT> rays;
+    Memory<Vector, MemT> dirs;
 
     IMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const 
@@ -269,9 +269,9 @@ struct O1DnModel_ {
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRay(uint32_t vid, uint32_t hid) const 
+    Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
-        return rays[getBufferId(vid, hid)];
+        return dirs[getBufferId(vid, hid)];
     }
 };
 
@@ -285,8 +285,8 @@ struct OnDnModel_ {
     // maximum and minimum allowed range
     Interval range;
 
-    Memory<Vector, MemT> orig;
-    Memory<Vector, MemT> rays;
+    Memory<Vector, MemT> origs;
+    Memory<Vector, MemT> dirs;
 
 
     IMAGINE_INLINE_FUNCTION
@@ -317,13 +317,13 @@ struct OnDnModel_ {
     IMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 
     {
-        return orig[getBufferId(vid, hid)];
+        return origs[getBufferId(vid, hid)];
     }
 
     IMAGINE_INLINE_FUNCTION
-    Vector getRay(uint32_t vid, uint32_t hid) const 
+    Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
-        return rays[getBufferId(vid, hid)];
+        return dirs[getBufferId(vid, hid)];
     }
 
 };

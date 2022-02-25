@@ -46,7 +46,7 @@ void PinholeSimulatorEmbree::simulateRanges(
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
 
-                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_s = m_model->getDirection(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
                 RTCRayHit rayhit;
@@ -103,7 +103,7 @@ void PinholeSimulatorEmbree::simulateHits(
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
 
-                const Vector ray_dir_s = m_model->getRay(vid, hid);
+                const Vector ray_dir_s = m_model->getDirection(vid, hid);
                 const Vector ray_dir_m = Tsm_.R * ray_dir_s;
 
                 RTCRayHit rayhit;

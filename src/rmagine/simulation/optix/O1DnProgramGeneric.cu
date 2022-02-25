@@ -29,7 +29,7 @@ extern "C" __global__ void __raygen__rg()
     const Transform Tsm = mem.Tbm[pid] * mem.Tsb[0];
 
     const Vector ray_orig_s = mem.model->getOrigin(vid, hid);
-    const Vector ray_dir_s = mem.model->getRay(vid, hid);
+    const Vector ray_dir_s = mem.model->getDirection(vid, hid);
 
     const Vector ray_orig_m = Tsm * ray_orig_s;
     const Vector ray_dir_m = Tsm.R * ray_dir_s;
