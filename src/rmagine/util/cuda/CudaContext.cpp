@@ -5,16 +5,28 @@ namespace rmagine {
 
 CudaContext::CudaContext(int device_id)
 {
-    std::cout << "[CudaContext] Construct" << std::endl;
+    if(!g_cuda_initialized)
+    {
+        cuInit(0);
+        g_cuda_initialized = true;
+    }
+
+
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
     std::cout << "[CudaContext] Construct context on device " << device_id << " " << info.name << " " << info.luid << std::endl;
 
     cuCtxCreate(&m_context, 0, device_id);
 }
 
+CudaContext::CudaContext(CUcontext ctx)
+:m_context(ctx)
+{
+
+}
+
 CudaContext::~CudaContext()
 {
-    std::cout << "[CudaContext] Destruct" << std::endl;
+    // std::cout << "[CudaContext] Destruct" << std::endl;
 }
 
 int CudaContext::getDeviceId() const
@@ -114,6 +126,11 @@ void CudaContext::synchronize()
     cuCtxSetCurrent(old);
 }
 
+CUcontext CudaContext::ref()
+{
+    return m_context;
+}
+
 std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
 {
     
@@ -124,7 +141,6 @@ std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
     os << "- Device: " << info.name << "\n";
     os << "- SMemSize: " << ctx.getSharedMemBankSize() << "B\n";
     os << "- Active: " << (ctx.isActive()? "true" : "false") << "\n";
-    
 
     return os;
 }

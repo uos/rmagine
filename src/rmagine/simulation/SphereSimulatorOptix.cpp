@@ -41,8 +41,13 @@ SphereSimulatorOptix::~SphereSimulatorOptix()
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
 {
     m_map = map;
+    // none generic version
+    std::cout << "Set Map" << std::endl;
+    
     m_programs.resize(2);
+    std::cout << "- generate sphere program ranges with map" << std::endl;
     m_programs[0].reset(new SphereProgramRanges(map));
+    std::cout << "- generate sphere program normals with map" << std::endl;
     m_programs[1].reset(new SphereProgramNormals(map));
 }
 
@@ -76,6 +81,12 @@ void SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
+    if(!m_map)
+    {
+        // no map set
+        std::cout << "No Map assigned to Simulator!" << std::endl;
+    }
+    
     Memory<OptixSimulationDataRangesSphere, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
@@ -90,6 +101,7 @@ void SphereSimulatorOptix::simulateRanges(
 
     if(program)
     {
+        std::cout << "LAUNCH " << m_width << "x" << m_height << "x" << Tbm.size() << std::endl;
         OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream,
@@ -100,6 +112,7 @@ void SphereSimulatorOptix::simulateRanges(
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
                 ));
+        std::cout << "finished." << std::endl;
     } else {
         throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
     }

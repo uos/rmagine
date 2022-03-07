@@ -55,6 +55,9 @@
 
 #include <unordered_map>
 
+#include <rmagine/util/cuda/CudaContext.hpp>
+#include <rmagine/util/optix/OptixContext.hpp>
+
 namespace rmagine {
 
 struct OptixAccelerationStructure
@@ -101,11 +104,14 @@ public:
 
     ~OptixMap();
 
-    OptixDeviceContext context = nullptr;
-    int m_device;
+    // OptixDeviceContext context = nullptr;
+    // int m_device;
 
     // TODO: make own cuda context class
-    CUcontext cuda_context;
+    // CUcontext cuda_context;
+
+    // CudaContextPtr m_cuda_context;
+    // OptixContextPtr m_optix_context;
 
     Memory<OptixInstance, RAM> instances;
     std::vector<OptixMesh> meshes;

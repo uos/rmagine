@@ -213,6 +213,7 @@ if(OptiX_FOUND)
         src/rmagine/util/optix/OptixFunctionTable.cpp
         src/rmagine/util/optix/OptixProgram.cpp
         src/rmagine/util/optix/OptixUtil.cpp
+        src/rmagine/util/optix/OptixContext.cpp
         # Maps
         src/rmagine/map/OptixMap.cpp
         # Simulation

@@ -32,21 +32,38 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_CUDA_CONTEXT_HPP
-#define IMAGINE_UTIL_CUDA_CONTEXT_HPP
+#ifndef RMAGINE_UTIL_CUDA_CONTEXT_HPP
+#define RMAGINE_UTIL_CUDA_CONTEXT_HPP
 
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include <memory>
 #include <iostream>
+#include <sstream>
+#include <unordered_map>
 
 #include "CudaHelper.hpp"
 
 namespace rmagine {
 
+static void printCudaInfo()
+{
+    int driver;
+    cudaDriverGetVersion(&driver);
+    int cuda_version;
+    cudaRuntimeGetVersion(&cuda_version);
+
+    std::stringstream driver_version_str, cuda_version_str;
+    driver_version_str << driver / 1000 << "." << (driver % 1000) / 10 << "." << driver % 10;
+    cuda_version_str << cuda_version / 1000 << "." << (cuda_version % 1000) / 10 << "." << cuda_version % 10;
+
+    std::cout << "[RMagine] Latest CUDA for driver: " << driver_version_str.str() << ". Current CUDA version: " << cuda_version_str.str() << std::endl;
+}
+
 class CudaContext {
 public:
     CudaContext(int device_id = 0);
+    CudaContext(CUcontext ctx);
     ~CudaContext();
 
     int getDeviceId() const;
@@ -62,6 +79,8 @@ public:
 
     void synchronize();
 
+    CUcontext ref();
+
     friend std::ostream& operator<<(std::ostream& os, const CudaContext& dt);
 
 private:
@@ -70,6 +89,13 @@ private:
 
 using CudaContextPtr = std::shared_ptr<CudaContext>;
 
+
+
+static CudaContextPtr g_cuda_context;
+static bool g_cuda_initialized = false;
+
+// static std::unordered_map<unsigned int, 
+
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_CUDA_CONTEXT_HPP
+#endif // RMAGINE_UTIL_CUDA_CONTEXT_HPP

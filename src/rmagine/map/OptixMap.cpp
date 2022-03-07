@@ -24,7 +24,6 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 namespace rmagine {
 
 OptixMap::OptixMap(const aiScene* ascene, int device)
-:m_device(device)
 {
     initContext(device);
 
@@ -64,7 +63,7 @@ OptixMap::~OptixMap()
 {
     // std::cout << "Destruct OptixMap" << std::endl;
     cudaFree( reinterpret_cast<void*>( as.buffer ) );
-    optixDeviceContextDestroy( context );
+    
 
     // std::cout << "Free " << instances.size() << " instances" << std::endl;
     // std::cout << "Free " << meshes.size() << " meshes" << std::endl;
@@ -80,46 +79,27 @@ OptixMap::~OptixMap()
 
 void OptixMap::initContext(int device)
 {
-    int driver;
-    cudaDriverGetVersion(&driver);
-    int cuda_version;
-    cudaRuntimeGetVersion(&cuda_version);
+    printCudaInfo();
 
-    std::cout << cuda_version << std::endl;
+    if(!g_optix_context)
+    {
+        g_optix_context.reset(new OptixContext(device));
+    }
 
-    std::stringstream driver_version_str, cuda_version_str;
-    driver_version_str << driver / 1000 << "." << (driver % 1000) / 10 << "." << driver % 10;
-    cuda_version_str << cuda_version / 1000 << "." << (cuda_version % 1000) / 10 << "." << cuda_version % 10;
+    // // Initialize the OptiX API, loading all API entry points
+    // OPTIX_CHECK( optixInit() );
 
-    std::cout << "[OptixMesh] Latest CUDA for driver: " << driver_version_str.str() << ". Current CUDA version: " << cuda_version_str.str() << std::endl;
+    // // Specify context options
+    // OptixDeviceContextOptions options = {};
+    // options.logCallbackFunction       = &context_log_cb;
+    // options.logCallbackLevel          = 3;
 
-    // Initialize CUDA
-    cudaDeviceProp info;
-    CUDA_CHECK( cudaGetDeviceProperties(&info, device) );
-
-    
-    cuCtxCreate(&cuda_context, 0, device);
-
-    // Check flags
-    cuInit(0);
-
-    std::cout << "[OptixMesh] Initialized CUDA context on device " << device << ": " << info.name << " " << info.luid << std::endl;
-
-    // Initialize the OptiX API, loading all API entry points
-    OPTIX_CHECK( optixInit() );
-
-    // Specify context options
-    OptixDeviceContextOptions options = {};
-    options.logCallbackFunction       = &context_log_cb;
-    options.logCallbackLevel          = 3;
-
-    OPTIX_CHECK( optixDeviceContextCreate( cuda_context, &options, &context ) );
+    // OPTIX_CHECK( optixDeviceContextCreate( g_cuda_context->ref(), &options, &context ) );
 
     std::stringstream optix_version_str;
     optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
 
     std::cout << "[OptixMesh] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
-
 }
 
 void OptixMap::fillMeshes(const aiScene* ascene)
