@@ -14,16 +14,11 @@ Mainly designed for robotic applications:
 
 ## Supported Sensor Models
 
+Spherical, Pinhole, O1Dn, OnDn
 
-### Spherical
+![rmagine_models_3d](dat/doc/sensor_models_3d.png)
 
-
-
-### Pinhole
-
-### O1Dn
-
-### OnDn
+![rmagine_models_ortho](dat/doc/sensor_models_ortho.png)
 
 ## Installation
 Download this repository. 
