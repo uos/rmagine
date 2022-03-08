@@ -119,17 +119,13 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     const EmbreeMesh& mesh_part = userData->parts->at(geomID);
 
     // Triangle const& t = triangle_mesh->triangles[primID];
-    unsigned int* face_view = &mesh_part.faces[primID *  3];
+    Face face = mesh_part.faces[primID];
 
-    float* v1_view = &mesh_part.vertices[face_view[0] * 3];
-    float* v2_view = &mesh_part.vertices[face_view[1] * 3];
-    float* v3_view = &mesh_part.vertices[face_view[2] * 3];
+    Vertex v0 = mesh_part.vertices[face.v0];
+    Vertex v1 = mesh_part.vertices[face.v1];
+    Vertex v2 = mesh_part.vertices[face.v2];
 
-    Point v1{v1_view[0], v1_view[1], v1_view[2]};
-    Point v2{v2_view[0], v2_view[1], v2_view[2]};
-    Point v3{v3_view[0], v3_view[1], v3_view[2]};
-
-    const Vector p = closestPointTriangle(q, v1, v2, v3);
+    const Vector p = closestPointTriangle(q, v0, v1, v2);
 
     float d = (p - q).l2norm();
 
@@ -235,23 +231,23 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
         mesh.Nvertices = num_vertices;
 
-        mesh.vertices = (float*) rtcSetNewGeometryBuffer(mesh.handle,
+        mesh.vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh.handle,
                                                         RTC_BUFFER_TYPE_VERTEX,
                                                         0,
                                                         RTC_FORMAT_FLOAT3,
-                                                        3*sizeof(float),
+                                                        sizeof(Point),
                                                         num_vertices);
 
         mesh.Nfaces = num_faces;
 
-        mesh.faces = (unsigned*) rtcSetNewGeometryBuffer(mesh.handle,
+        mesh.faces = (Face*) rtcSetNewGeometryBuffer(mesh.handle,
                                                                 RTC_BUFFER_TYPE_INDEX,
                                                                 0,
                                                                 RTC_FORMAT_UINT3,
-                                                                3*sizeof(unsigned),
+                                                                sizeof(Face),
                                                                 num_faces);
 
-        Memory<Vector, RAM> vertices_transformed(num_vertices);
+        // Memory<Vector, RAM> vertices_transformed(num_vertices);
 
         Matrix4x4 T;
         T.setIdentity();
@@ -284,41 +280,40 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             v.z = ai_vertices[i].z;
             
             v = T * v;
+
+            mesh.vertices[i] = v;
             
-            vertices_transformed[i] = v;
         }
 
-        for(unsigned int i=0; i<num_vertices; i++)
-        {
-            mesh.vertices[i*3+0] = vertices_transformed[i].x;
-            mesh.vertices[i*3+1] = vertices_transformed[i].y;
-            mesh.vertices[i*3+2] = vertices_transformed[i].z;
-        }
+        // for(unsigned int i=0; i<num_vertices; i++)
+        // {
+        //     mesh.vertices[i*3+0] = vertices_transformed[i].x;
+        //     mesh.vertices[i*3+1] = vertices_transformed[i].y;
+        //     mesh.vertices[i*3+2] = vertices_transformed[i].z;
+        // }
 
         // mesh.bb = bb;
         for(int i=0; i<num_faces; i++)
         {
-            mesh.faces[i*3+0] = ai_faces[i].mIndices[0];
-            mesh.faces[i*3+1] = ai_faces[i].mIndices[1];
-            mesh.faces[i*3+2] = ai_faces[i].mIndices[2];
+            mesh.faces[i].v0 = ai_faces[i].mIndices[0];
+            mesh.faces[i].v1 = ai_faces[i].mIndices[1];
+            mesh.faces[i].v2 = ai_faces[i].mIndices[2];
         }
 
-        mesh.normals.resize(amesh->mNumFaces * 3);
+        mesh.normals.resize(amesh->mNumFaces);
         for(size_t i=0; i<amesh->mNumFaces; i++)
         {
             unsigned int v0_id = ai_faces[i].mIndices[0];
             unsigned int v1_id = ai_faces[i].mIndices[1];
             unsigned int v2_id = ai_faces[i].mIndices[2];
 
-            const Vector v0 = vertices_transformed[v0_id];
-            const Vector v1 = vertices_transformed[v1_id];
-            const Vector v2 = vertices_transformed[v2_id];
+            const Vector v0 = mesh.vertices[v0_id];
+            const Vector v1 = mesh.vertices[v1_id];
+            const Vector v2 = mesh.vertices[v2_id];
 
             Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
 
-            mesh.normals[i * 3 + 0] = n.x;
-            mesh.normals[i * 3 + 1] = n.y;
-            mesh.normals[i * 3 + 2] = n.z;
+            mesh.normals[i] = n;
         }
 
         meshes.push_back(mesh);

@@ -55,6 +55,8 @@
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/math.h>
+#include <rmagine/types/mesh_types.h>
+
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
@@ -65,13 +67,10 @@ namespace rmagine {
 struct EmbreeMesh {
     RTCGeometry handle;
     unsigned int Nvertices;
-    float* vertices;
+    Vertex* vertices;
     unsigned int Nfaces;
-    unsigned int* faces;
-    Memory<float, RAM> normals;
-    
-    // Box bb;
-    // Matrix4x4 T;
+    Face* faces;
+    Memory<Vector, RAM> normals;
 };
 
 // struct EmbreeInstance {
