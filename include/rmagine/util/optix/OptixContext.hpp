@@ -10,19 +10,27 @@
 namespace rmagine
 {
 
+class OptixContext;
+
+using OptixContextPtr = std::shared_ptr<OptixContext>;
+
+
 class OptixContext {
 public:
-    OptixContext();
-    
-    OptixContext(int device_id);
-
     OptixContext(CudaContextPtr cuda_context);
 
     ~OptixContext();
 
+    static OptixContextPtr create(int device = 0)
+    {
+        CudaContextPtr cuda_ctx(new CudaContext(0));
+        return std::make_shared<OptixContext>(cuda_ctx);
+    }
+
     CudaContextPtr getCudaContext();
 
     OptixDeviceContext ref();
+
 
 private:
     void init(CudaContextPtr cuda_context);
@@ -32,9 +40,8 @@ private:
     OptixDeviceContext m_optix_context = nullptr;
 };
 
-using OptixContextPtr = std::shared_ptr<OptixContext>;
 
-static OptixContextPtr g_optix_context;
+
 static bool g_optix_initialized = false;
 
 } // namespace rmagine

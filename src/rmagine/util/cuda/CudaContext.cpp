@@ -7,10 +7,10 @@ CudaContext::CudaContext(int device_id)
 {
     if(!g_cuda_initialized)
     {
+        std::cout << "[CudaContext] Init Cuda" << std::endl;
         cuInit(0);
         g_cuda_initialized = true;
     }
-
 
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
     std::cout << "[CudaContext] Construct context on device " << device_id << " " << info.name << " " << info.luid << std::endl;
@@ -21,12 +21,13 @@ CudaContext::CudaContext(int device_id)
 CudaContext::CudaContext(CUcontext ctx)
 :m_context(ctx)
 {
-
+    
 }
 
 CudaContext::~CudaContext()
 {
-    // std::cout << "[CudaContext] Destruct" << std::endl;
+    // std::cout << "[CudaContext] ~CudaContext" << std::endl;
+    cuCtxDestroy(m_context);
 }
 
 int CudaContext::getDeviceId() const

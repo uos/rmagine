@@ -20,35 +20,35 @@ SphereSimulatorOptix::SphereSimulatorOptix()
 :m_model(1)
 ,m_Tsb(1)
 {
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+    
 }
 
 SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
 :SphereSimulatorOptix()
 {
     setMap(map);
+    
 }
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
-    // std::cout << "Destruct SphereSimulatorOptix" << std::endl;
-    cudaStreamDestroy(m_stream);
-    
+    // std::cout << "[SphereSimulatorOptix] ~SphereSimulatorOptix" << std::endl;
     m_programs.resize(0);
     m_generic_programs.clear();
+
+    cudaStreamDestroy(m_stream);
 }
 
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
 {
     m_map = map;
     // none generic version
-    std::cout << "Set Map" << std::endl;
-    
     m_programs.resize(2);
-    std::cout << "- generate sphere program ranges with map" << std::endl;
     m_programs[0].reset(new SphereProgramRanges(map));
-    std::cout << "- generate sphere program normals with map" << std::endl;
     m_programs[1].reset(new SphereProgramNormals(map));
+
+    // need to create stream after map was created: cuda device api context is required
+    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
 void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
@@ -85,6 +85,7 @@ void SphereSimulatorOptix::simulateRanges(
     {
         // no map set
         std::cout << "No Map assigned to Simulator!" << std::endl;
+        return;
     }
     
     Memory<OptixSimulationDataRangesSphere, RAM> mem(1);
@@ -101,7 +102,6 @@ void SphereSimulatorOptix::simulateRanges(
 
     if(program)
     {
-        std::cout << "LAUNCH " << m_width << "x" << m_height << "x" << Tbm.size() << std::endl;
         OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream,
@@ -112,7 +112,6 @@ void SphereSimulatorOptix::simulateRanges(
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
                 ));
-        std::cout << "finished." << std::endl;
     } else {
         throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
     }

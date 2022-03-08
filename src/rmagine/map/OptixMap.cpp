@@ -25,8 +25,40 @@ namespace rmagine {
 
 OptixMap::OptixMap(const aiScene* ascene, int device)
 {
-    initContext(device);
+    m_optix_context = OptixContext::create(0);
+    buildStructures(ascene);
+}
 
+OptixMap::OptixMap(
+    const aiScene* ascene, 
+    OptixContextPtr optix_ctx)
+:m_optix_context(optix_ctx)
+{
+    buildStructures(ascene);
+}
+
+OptixMap::~OptixMap()
+{
+    // std::cout << "[OptixMap] ~OptixMap" << std::endl;
+    cudaFree( reinterpret_cast<void*>( as.buffer ) );
+
+    if(meshes.size() > 1)
+    {
+        for(size_t i=0; i<meshes.size(); i++)
+        {
+            cudaFree( reinterpret_cast<void*>( meshes[i].gas.buffer ) );
+        }
+    }
+
+    // need to free all data manually, because the cuda context could be destroyed before
+    meshes.resize(0);
+    instances.resize(0);
+
+    // cuda context could be destroyed
+}
+
+void OptixMap::buildStructures(const aiScene* ascene)
+{
     fillMeshes(ascene);
 
     if(meshes.size() > 1)
@@ -57,49 +89,6 @@ OptixMap::OptixMap(const aiScene* ascene, int device)
     } else {
         buildGAS(meshes[0], as);
     }
-}
-
-OptixMap::~OptixMap()
-{
-    // std::cout << "Destruct OptixMap" << std::endl;
-    cudaFree( reinterpret_cast<void*>( as.buffer ) );
-    
-
-    // std::cout << "Free " << instances.size() << " instances" << std::endl;
-    // std::cout << "Free " << meshes.size() << " meshes" << std::endl;
-
-    if(meshes.size() > 1)
-    {
-        for(size_t i=0; i<meshes.size(); i++)
-        {
-            cudaFree( reinterpret_cast<void*>( meshes[i].gas.buffer ) );
-        }
-    }
-}
-
-void OptixMap::initContext(int device)
-{
-    printCudaInfo();
-
-    if(!g_optix_context)
-    {
-        g_optix_context.reset(new OptixContext(device));
-    }
-
-    // // Initialize the OptiX API, loading all API entry points
-    // OPTIX_CHECK( optixInit() );
-
-    // // Specify context options
-    // OptixDeviceContextOptions options = {};
-    // options.logCallbackFunction       = &context_log_cb;
-    // options.logCallbackLevel          = 3;
-
-    // OPTIX_CHECK( optixDeviceContextCreate( g_cuda_context->ref(), &options, &context ) );
-
-    std::stringstream optix_version_str;
-    optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
-
-    std::cout << "[OptixMesh] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
 }
 
 void OptixMap::fillMeshes(const aiScene* ascene)
@@ -150,7 +139,7 @@ void OptixMap::fillMeshes(const aiScene* ascene)
             const Vector v1{ai_vertices[v1_id].x, ai_vertices[v1_id].y, ai_vertices[v1_id].z};
             const Vector v2{ai_vertices[v2_id].x, ai_vertices[v2_id].y, ai_vertices[v2_id].z};
             
-            Vector n = (v1-v0).normalized().cross((v2 - v0).normalized());
+            Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized());
             n.normalize();
 
             normals_cpu[i] = {
@@ -278,7 +267,7 @@ void OptixMap::buildGAS(
 
     OptixAccelBufferSizes gas_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage(
-                context,
+                m_optix_context->ref(),
                 &accel_options,
                 &triangle_input,
                 1, // Number of build inputs
@@ -297,7 +286,7 @@ void OptixMap::buildGAS(
                 ) );
 
     OPTIX_CHECK( optixAccelBuild(
-                context,
+                m_optix_context->ref(),
                 0,                  // CUDA stream
                 &accel_options,
                 &triangle_input,
@@ -334,7 +323,7 @@ void OptixMap::buildIAS(
 
     OptixAccelBufferSizes ias_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
-        context, 
+        m_optix_context->ref(), 
         &ias_accel_options, 
         &instance_input, 
         1, 
@@ -351,7 +340,7 @@ void OptixMap::buildIAS(
                 ) );
 
     OPTIX_CHECK( optixAccelBuild( 
-        context, 
+        m_optix_context->ref(), 
         0, 
         &ias_accel_options, 
         &instance_input, 

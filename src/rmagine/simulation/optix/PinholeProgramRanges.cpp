@@ -68,7 +68,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     }
 
     OPTIX_CHECK( optixModuleCreateFromPTX(
-                map->context,
+                map->context()->ref(),
                 &module_compile_options,
                 &pipeline_compile_options,
                 ptx.c_str(),
@@ -88,7 +88,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     sizeof_log = sizeof( log );
 
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &raygen_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -103,7 +103,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
     sizeof_log = sizeof( log );
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &miss_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -118,7 +118,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
     sizeof_log = sizeof( log );
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &hitgroup_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -151,7 +151,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
 #endif
     sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
-                map->context,
+                map->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
                 program_groups,

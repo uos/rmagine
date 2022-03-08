@@ -89,12 +89,25 @@ private:
 
 using CudaContextPtr = std::shared_ptr<CudaContext>;
 
-
-
-static CudaContextPtr g_cuda_context;
 static bool g_cuda_initialized = false;
 
-// static std::unordered_map<unsigned int, 
+static CudaContextPtr currentCudaContext()
+{
+    CudaContextPtr res;
+    if(!g_cuda_initialized)
+    {
+        return res;
+    }
+
+    CUcontext ctx;
+    auto err = cuCtxGetCurrent(&ctx);
+    if(err == 0)
+    {
+        res.reset(new CudaContext(ctx));
+    }
+    
+    return res;
+}
 
 } // namespace rmagine
 

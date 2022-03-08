@@ -24,6 +24,9 @@ DataT* VRAM_CUDA::realloc(DataT* mem, size_t Nold, size_t Nnew)
 template<typename DataT>
 void VRAM_CUDA::free(DataT* mem, size_t N)
 {
+    // std::cout << "FREE VRAM_CUDA" << std::endl;
+    // std::cout << "Size: " << N << std::endl;
+    // std::cout << "Type: " << boost::typeindex::type_id<DataT>().pretty_name() << std::endl;
     CUDA_DEBUG( cudaFree(mem) );
 }
 

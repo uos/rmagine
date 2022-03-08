@@ -12,40 +12,6 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 
 namespace rmagine {
 
-OptixContext::OptixContext()
-{
-    if(!g_cuda_initialized)
-    {
-        cuInit(0);
-        g_cuda_initialized = true;
-    }
-
-    if(!g_cuda_context)
-    {
-        g_cuda_context.reset(new CudaContext());
-    }
-
-    m_cuda_context = g_cuda_context;
-    init(g_cuda_context);
-}
-
-OptixContext::OptixContext(int device_id)
-{
-    if(!g_cuda_initialized)
-    {
-        cuInit(0);
-        g_cuda_initialized = true;
-    }
-
-    if(!g_cuda_context)
-    {
-        g_cuda_context.reset(new CudaContext(device_id));
-    }
-
-    m_cuda_context = g_cuda_context;
-    init(g_cuda_context);
-}
-
 OptixContext::OptixContext(CudaContextPtr cuda_context)
 :m_cuda_context(cuda_context)
 {

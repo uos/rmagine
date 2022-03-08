@@ -1,7 +1,5 @@
 #include "Memory.hpp"
 
-// #include <boost/core/typeinfo.hpp>
-
 namespace rmagine
 {
 
@@ -41,15 +39,7 @@ Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::~Memory()
 {
-    // std::cout << "Memory - Destructor " << std::endl;
-
-    // boost::core::typeinfo const & ti = BOOST_CORE_TYPEID(decltype(*this));
-
-    // std::cout << "Destruct " << boost::core::demangled_name( ti ) << std::endl;
-
     MemT::free(m_mem, m_size);
-
-    // std::cout << boost::core::demangled_name( ti ) << " destroyed." << std::endl;
 }
 
 template<typename DataT, typename MemT>
