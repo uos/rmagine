@@ -38,8 +38,8 @@
  * 
  */
 
-#ifndef IMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
-#define IMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
+#ifndef RMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
+#define RMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
 
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/Memory.hpp>
@@ -144,4 +144,4 @@ using OnDnSimulatorEmbreePtr = std::shared_ptr<OnDnSimulatorEmbree>;
 
 #include "OnDnSimulatorEmbree.tcc"
 
-#endif // IMAGINE_SIMULATION_O1DN_SIMULATOR_EMBREE_HPP
+#endif // RMAGINE_SIMULATION_O1DN_SIMULATOR_EMBREE_HPP

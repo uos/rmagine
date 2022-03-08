@@ -1,5 +1,5 @@
-#ifndef IMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP
-#define IMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP
+#ifndef RMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP
+#define RMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP
 
 #include <rmagine/util/optix/OptixData.hpp>
 #include <rmagine/types/sensor_models.h>
@@ -82,4 +82,4 @@ using OptixSimulationDataGenericOnDn = OptixSimulationDataGeneric<OnDnModel_<VRA
 
 } // namespace rmagine
 
-#endif // IMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP
+#endif // RMAGINE_SIMULATION_OPTIX_SIMULATION_DATA_HPP

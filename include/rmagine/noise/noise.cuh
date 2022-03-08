@@ -1,5 +1,5 @@
-#ifndef IMAGINE_NOISE_CUDA_H
-#define IMAGINE_NOISE_CUDA_H
+#ifndef RMAGINE_NOISE_CUDA_H
+#define RMAGINE_NOISE_CUDA_H
 
 #include "noise.h"
 #include <rmagine/types/MemoryCuda.hpp>
@@ -15,4 +15,4 @@ void GaussianNoise::apply<VRAM_CUDA>(Memory<float, VRAM_CUDA>& ranges) const;
 
 } // namespace rmagine 
 
-#endif // IMAGINE_NOISE_CUDA_H
+#endif // RMAGINE_NOISE_CUDA_H

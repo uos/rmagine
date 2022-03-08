@@ -38,8 +38,8 @@
  * 
  */
 
-#ifndef IMAGINE_MAP_EMBREE_MAP_HPP
-#define IMAGINE_MAP_EMBREE_MAP_HPP
+#ifndef RMAGINE_MAP_EMBREE_MAP_HPP
+#define RMAGINE_MAP_EMBREE_MAP_HPP
 
 #include <embree3/rtcore.h>
 
@@ -144,4 +144,4 @@ static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
 
 } // namespace rmagine
 
-#endif // IMAGINE_MAP_EMBREE_MAP_HPP
+#endif // RMAGINE_MAP_EMBREE_MAP_HPP

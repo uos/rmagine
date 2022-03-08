@@ -1,5 +1,5 @@
-#ifndef IMAGINE_TYPES_SENSOR_MODELS_H
-#define IMAGINE_TYPES_SENSOR_MODELS_H
+#ifndef RMAGINE_TYPES_SENSOR_MODELS_H
+#define RMAGINE_TYPES_SENSOR_MODELS_H
 
 #include <rmagine/math/types.h>
 #include <cstdint>
@@ -15,13 +15,13 @@ struct Interval {
     float min;
     float max;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float invalidValue() const
     {
         return max + 1.0;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     bool inside(const float& value) const 
     {
         return (value >= min && value <= max);
@@ -37,20 +37,20 @@ struct DiscreteInterval
     // total number of discrete values in this interval
     uint32_t size;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float max() const
     {
         // return value at last array entry
         return min + static_cast<float>(size - 1) * inc;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float getValue(uint32_t id) const
     {
         return min + static_cast<float>(id) * inc;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     bool inside(const float& value) const 
     {
         return (value >= min && value <= max());
@@ -83,37 +83,37 @@ struct SphericalModel
     // RANGE: range
     Interval range; // range is valid if <= range_max && >= range_min
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const
     {
         return theta.size;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getHeight() const
     {
         return phi.size;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t size() const
     {
         return getWidth() * getHeight();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float getPhi(uint32_t phi_id) const
     {
         return phi.getValue(phi_id);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float getTheta(uint32_t theta_id) const
     {
         return theta.getValue(theta_id);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getDirection(uint32_t phi_id, uint32_t theta_id) const
     {
         const float phi_ = getPhi(phi_id);
@@ -121,13 +121,13 @@ struct SphericalModel
         return {cosf(phi_) * cosf(theta_), cosf(phi_) * sinf(theta_), sinf(phi_)};
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t phi_id, uint32_t theta_id) const 
     {
         return {0.0, 0.0, 0.0};
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getBufferId(uint32_t phi_id, uint32_t theta_id) const 
     {
         return phi_id * theta.size + theta_id;
@@ -152,25 +152,25 @@ struct PinholeModel {
     // Center cx and cy
     float c[2];
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const
     {
         return width;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getHeight() const
     {
         return height;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t size() const
     {
         return getWidth() * getHeight();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getDirectionOptical(uint32_t vid, uint32_t hid) const
     {
         // pX = fx * X + cx
@@ -183,7 +183,7 @@ struct PinholeModel {
         return dir_optical.normalized();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getDirection(uint32_t vid, uint32_t hid) const
     {
         const Vector dir_optical = getDirectionOptical(vid, hid);
@@ -193,13 +193,13 @@ struct PinholeModel {
         return {dir_optical.z, -dir_optical.x, -dir_optical.y};
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t phi_id, uint32_t theta_id) const 
     {
         return {0.0, 0.0, 0.0};
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
     {
         return vid * width + hid;
@@ -238,37 +238,37 @@ struct O1DnModel_ {
     Vector orig;
     Memory<Vector, MemT> dirs;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const 
     {
         return width;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getHeight() const 
     {
         return height;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t size() const 
     {
         return getWidth() * getHeight();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
     {
         return vid * getWidth() + hid;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 
     {
         return orig;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
         return dirs[getBufferId(vid, hid)];
@@ -289,38 +289,38 @@ struct OnDnModel_ {
     Memory<Vector, MemT> dirs;
 
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getWidth() const 
     {
         return width;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getHeight() const 
     {
         return height;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t size() const 
     {
         return getWidth() * getHeight();
     }
 
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
     {
         return vid * getWidth() + hid;
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 
     {
         return origs[getBufferId(vid, hid)];
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
         return dirs[getBufferId(vid, hid)];
@@ -332,4 +332,4 @@ using OnDnModel = OnDnModel_<RAM>;
 
 } // namespace rmagine
 
-#endif // IMAGINE_TYPES_SENSOR_MODELS_H
+#endif // RMAGINE_TYPES_SENSOR_MODELS_H

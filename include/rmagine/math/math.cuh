@@ -1,5 +1,5 @@
-#ifndef IMAGINE_MATH_MATH_CUH
-#define IMAGINE_MATH_MATH_CUH
+#ifndef RMAGINE_MATH_MATH_CUH
+#define RMAGINE_MATH_MATH_CUH
 
 #include <rmagine/math/types.h>
 #include <cuda_runtime.h>
@@ -46,4 +46,4 @@ Memory<Vector, VRAM_CUDA> multNxN(
 
 } // namespace rmagine
 
-#endif // IMAGINE_MATH_MATH_CUH
+#endif // RMAGINE_MATH_MATH_CUH

@@ -1,5 +1,5 @@
-#ifndef IMAGINE_TYPES_BUNDLE_HPP
-#define IMAGINE_TYPES_BUNDLE_HPP
+#ifndef RMAGINE_TYPES_BUNDLE_HPP
+#define RMAGINE_TYPES_BUNDLE_HPP
 
 #include <utility>
 
@@ -95,4 +95,4 @@ public:
 } // namespace rmagine
 
 
-#endif // IMAGINE_TYPES_BUNDLE_HPP
+#endif // RMAGINE_TYPES_BUNDLE_HPP

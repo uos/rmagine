@@ -1,5 +1,5 @@
-#ifndef IMAGINE_NOISE_H
-#define IMAGINE_NOISE_H
+#ifndef RMAGINE_NOISE_H
+#define RMAGINE_NOISE_H
 
 #include <rmagine/types/Memory.hpp>
 
@@ -27,4 +27,4 @@ void GaussianNoise::apply<RAM>(Memory<float, RAM>& ranges) const;
 
 #include "noise.tcc"
 
-#endif // IMAGINE_NOISE_H
+#endif // RMAGINE_NOISE_H

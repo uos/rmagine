@@ -37,8 +37,8 @@
  * This project is released under the 3-Clause BSD License.
  */
 
-#ifndef IMAGINE_O1DN_SIMULATOR_OPTIX_HPP
-#define IMAGINE_O1DN_SIMULATOR_OPTIX_HPP
+#ifndef RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
+#define RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -195,4 +195,4 @@ using O1DnSimulatorOptixPtr = std::shared_ptr<O1DnSimulatorOptix>;
 
 #include "O1DnSimulatorOptix.tcc"
 
-#endif // IMAGINE_O1DN_SIMULATOR_OPTIX_HPP
+#endif // RMAGINE_O1DN_SIMULATOR_OPTIX_HPP

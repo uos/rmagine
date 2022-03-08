@@ -37,8 +37,8 @@
  * This project is released under the 3-Clause BSD License.
  */
 
-#ifndef IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
-#define IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
+#ifndef RMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
+#define RMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -194,4 +194,4 @@ using PinholeSimulatorOptixPtr = std::shared_ptr<PinholeSimulatorOptix>;
 
 #include "PinholeSimulatorOptix.tcc"
 
-#endif // IMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
+#endif // RMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP

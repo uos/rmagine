@@ -106,7 +106,7 @@ include_directories(
     include
 )
 
-set(IMAGINE_LIBRARIES rmagine)
+set(RMAGINE_LIBRARIES rmagine)
 
 add_library(rmagine SHARED
     # Maps
@@ -153,19 +153,19 @@ add_dependencies(rmagine_cuda
     rmagine
 )
 
-list(APPEND IMAGINE_LIBRARIES rmagine_cuda)
+list(APPEND RMAGINE_LIBRARIES rmagine_cuda)
 
 if(OptiX_FOUND)
     # Optix Kernels
-    set(IMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
-    set(IMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
+    set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
+    set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
 
-    set(CUDA_GENERATED_OUTPUT_DIR ${IMAGINE_OPTIX_PTX_DIR})
+    set(CUDA_GENERATED_OUTPUT_DIR ${RMAGINE_OPTIX_PTX_DIR})
     add_definitions( -DWITH_OPTIX )
-    add_definitions( -DIMAGINE_OPTIX_PTX_DIR="${IMAGINE_OPTIX_PTX_DIR}" )
-    add_definitions( -DIMAGINE_OPTIX_PTX_GLOB_DIR="${IMAGINE_OPTIX_PTX_GLOB_DIR}")
+    add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
+    add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
 
-    message(STATUS "Writing Optix Kernels to ${IMAGINE_OPTIX_PTX_DIR}")
+    message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
 
     set(OPTIX_KERNEL_FILES
         # Simulation
@@ -187,12 +187,12 @@ if(OptiX_FOUND)
         src/rmagine/simulation/optix/OnDnProgramGeneric.cu
     )
 
-    cuda_compile_ptx(IMAGINE_OPTIX_PTX_FILES
+    cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
         ${OPTIX_KERNEL_FILES}
     )
 
     add_custom_target(rmagine_optix_ptx ALL
-        DEPENDS ${IMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
+        DEPENDS ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
         SOURCES ${OPTIX_KERNEL_FILES}
         VERBATIM)
 
@@ -201,8 +201,8 @@ if(OptiX_FOUND)
     add_custom_command(
         TARGET rmagine_optix_ptx POST_BUILD
         COMMAND ${CMAKE_COMMAND} 
-            -DIMAGINE_SOURCE_DIR=${rmagine_SOURCE_DIR} 
-            -DIMAGINE_OPTIX_PTX_DIR=${IMAGINE_OPTIX_PTX_DIR} 
+            -DRMAGINE_SOURCE_DIR=${rmagine_SOURCE_DIR} 
+            -DRMAGINE_OPTIX_PTX_DIR=${RMAGINE_OPTIX_PTX_DIR} 
             -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}" 
             -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
     )
@@ -254,7 +254,7 @@ if(OptiX_FOUND)
         rmagine_cuda
     )
 
-    list(APPEND IMAGINE_LIBRARIES rmagine_optix)
+    list(APPEND RMAGINE_LIBRARIES rmagine_optix)
 
 endif(OptiX_FOUND)
 
@@ -300,7 +300,7 @@ endif(BUILD_TOOLS)
 # 1. Headers
 install(DIRECTORY include/rmagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
-install(TARGETS ${IMAGINE_LIBRARIES})
+install(TARGETS ${RMAGINE_LIBRARIES})
 
 # install(TARGETS rmagine rmagine_cuda rmagine_optix)
 # TODO: Components?

@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_MEMORY_CUDA_HPP
-#define IMAGINE_MEMORY_CUDA_HPP
+#ifndef RMAGINE_MEMORY_CUDA_HPP
+#define RMAGINE_MEMORY_CUDA_HPP
 
 #include "Memory.hpp"
 #include <cuda_runtime.h>
@@ -158,4 +158,4 @@ void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to)
 
 #include "MemoryCuda.tcc"
 
-#endif // IMAGINE_MEMORY_CUDA_HPP
+#endif // RMAGINE_MEMORY_CUDA_HPP
