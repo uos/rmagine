@@ -1,5 +1,5 @@
-#ifndef IMAGINE_MATH_TYPES_H
-#define IMAGINE_MATH_TYPES_H
+#ifndef RMAGINE_MATH_TYPES_H
+#define RMAGINE_MATH_TYPES_H
 
 #include <math.h>
 #include <stdint.h>
@@ -28,16 +28,16 @@ struct Vector2 {
     float y;
 
     // FUNCTIONS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 add(const Vector2& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void addInplace(const Vector2& b);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 sub(const Vector2& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector2& b);
 
     /**
@@ -46,95 +46,95 @@ struct Vector2 {
      * @param b 
      * @return Quaternion 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float dot(const Vector2& b) const;
 
     /**
      * @brief product
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float mult(const Vector2& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 mult(const float& s) const;    
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 div(const float& s) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void divInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2norm() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float sum() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float prod() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l1norm() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setZeros();
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 operator+(const Vector2& b) const
     {
         return add(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator+=(const Vector2& b)
     {
         addInplace(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 operator-(const Vector2& b) const
     {
         return sub(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator-=(const Vector2& b)
     {
         subInplace(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float operator*(const Vector2& b) const
     {
         return mult(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 operator*(const float& s) const 
     {
         return mult(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const float& s) 
     {
         multInplace(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector2 operator/(const float& s) const 
     {
         return div(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator/=(const float& s) 
     {
         divInplace(s);
@@ -151,128 +151,128 @@ struct Vector3 {
     float z;
 
     // FUNCTIONS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 add(const Vector3& b) const;
 
     
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void addInplace(const Vector3& b);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 sub(const Vector3& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 negation() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void negate();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector3& b);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float dot(const Vector3& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 cross(const Vector3& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float mult(const Vector3& b) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 mult(const float& s) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 div(const float& s) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void divInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2norm() const; 
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float sum() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float prod() const;
     
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l1norm() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 normalized() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void normalize();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setZeros();
 
 
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator+(const Vector3& b) const
     {
         return add(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator+=(const Vector3& b)
     {
         addInplace(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator-(const Vector3& b) const
     {
         return sub(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator-=(const Vector3& b)
     {
         subInplace(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator-() const
     {
         return negation();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float operator*(const Vector3& b) const
     {
         return mult(b);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator*(const float& s) const 
     {
         return mult(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const float& s) 
     {
         multInplace(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator/(const float& s) const 
     {
         return div(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator/=(const float& s) 
     {
         divInplace(s);
@@ -293,32 +293,32 @@ struct EulerAngles
     float yaw; // z-axis
 
     // Functions
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Quaternion& q);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Matrix3x3& M);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 mult(const Vector3& v) const;
 
     // Operators
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Quaternion& q)
     {
         set(q);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Matrix3x3& M)
     {
         set(M);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator*(const Vector3& v) const 
     {
         return mult(v);
@@ -337,7 +337,7 @@ struct Quaternion
     float z;
     float w;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
     /**
@@ -345,10 +345,10 @@ struct Quaternion
      * 
      * @return Quaternion 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Quaternion inv() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void invInplace();
 
     /**
@@ -357,10 +357,10 @@ struct Quaternion
      * @param q2 
      * @return Quaternion 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Quaternion mult(const Quaternion& q2) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const Quaternion& q2);
 
     /**
@@ -369,60 +369,60 @@ struct Quaternion
      * @param p 
      * @return Vector 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 mult(const Vector3& p) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float l2norm() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void normalize();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Matrix3x3& M);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const EulerAngles& e);
 
     // TODO: Quatenrion from rotation around an axis v by an angle a
-    // IMAGINE_INLINE_FUNCTION
+    // RMAGINE_INLINE_FUNCTION
     // void set(const Vector3& v, float a);
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Quaternion operator~() const 
     {
         return inv();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Quaternion operator*(const Quaternion& q2) const 
     {
         return mult(q2);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator*(const Vector3& p) const
     {
         return mult(p);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const Quaternion& q2) 
     {
         multInplace(q2);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Matrix3x3& M)
     {
         set(M);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const EulerAngles& e)
     {
         set(e);
@@ -445,13 +445,13 @@ struct Transform {
     uint32_t stamp;
 
     // FUNCTIONS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Matrix4x4& M);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Transform inv() const;
 
     /**
@@ -459,7 +459,7 @@ struct Transform {
      * 
      * @param T2 Other transform
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Transform mult(const Transform& T2) const;
 
     /**
@@ -467,38 +467,38 @@ struct Transform {
      * 
      * @param T2 Other transform
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const Transform& T2);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 mult(const Vector3& v) const;
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Matrix4x4& M)
     {
         set(M);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Transform operator~() const
     {
         return inv();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Transform operator*(const Transform& T2) const 
     {
         return mult(T2);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const Transform& T2) 
     {
         multInplace(T2);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector3 operator*(const Vector3& v) const
     {
         return mult(v);
@@ -516,56 +516,56 @@ struct Matrix3x3 {
     float data[3][3];
     
     // ACCESS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float& at(unsigned int i, unsigned int j);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float at(unsigned int i, unsigned int j) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float& operator()(unsigned int i, unsigned int j);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float operator()(unsigned int i, unsigned int j) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float* operator[](const unsigned int i);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     const float* operator[](const unsigned int i) const;
 
     // FUNCTIONS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setZeros();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setOnes();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Quaternion& q);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const EulerAngles& e);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 transpose() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 T() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void transposeInplace();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float trace() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float det() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 inv() const;
 
     /**
@@ -573,59 +573,59 @@ struct Matrix3x3 {
      * 
      * @return Matrix3x3 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 invRigid() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 mult(const float& s) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector mult(const Vector& p) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 mult(const Matrix3x3& M) const;
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 operator*(const float& s) const
     {
         return mult(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const float& s)
     {
         multInplace(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector operator*(const Vector& p) const
     {
         return mult(p);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 operator*(const Matrix3x3& M) const 
     {
         return mult(M);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 operator~() const
     {
         return inv();
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Quaternion& q)
     {
         set(q);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const EulerAngles& e)
     {
         set(e);
@@ -641,68 +641,68 @@ struct Matrix3x3 {
 struct Matrix4x4 {
     float data[4][4];
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float& at(unsigned int i, unsigned int j);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float at(unsigned int i, unsigned int j) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float& operator()(unsigned int i, unsigned int j);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float operator()(unsigned int i, unsigned int j) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float* operator[](const unsigned int i);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     const float* operator[](const unsigned int i) const;
 
     // FUNCTIONS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setZeros();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setOnes();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void set(const Transform& T);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix3x3 rotation() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setRotation(const Matrix3x3& R);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setRotation(const Quaternion& q);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setRotation(const EulerAngles& e);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector translation() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void setTranslation(const Vector& t);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 transpose() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 T() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float trace() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     float det() const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 inv() const ;
 
     /**
@@ -710,53 +710,53 @@ struct Matrix4x4 {
      * 
      * @return Matrix4x4 
      */
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 invRigid();
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 mult(const float& s) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector mult(const Vector& v) const;
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 mult(const Matrix4x4& M) const;
 
     // OPERATORS
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator=(const Transform& T)
     {
         set(T);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 operator*(const float& s) const
     {
         return mult(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     void operator*=(const float& s)
     {
         multInplace(s);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Vector operator*(const Vector& v) const 
     {
         return mult(v);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 operator*(const Matrix4x4& M) const 
     {
         return mult(M);
     }
 
-    IMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 operator~() const 
     {
         return inv();
@@ -773,101 +773,101 @@ struct Matrix4x4 {
 ///// Vector2 ///////
 /////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector2 Vector2::add(const Vector2& b) const
 {
     return {x + b.x, y + b.y};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector2::addInplace(const Vector2& b)
 {
     x += b.x;
     y += b.y;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector2 Vector2::sub(const Vector2& b) const
 {
     return {x - b.x, y - b.y};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector2::subInplace(const Vector2& b)
 {
     x -= b.x;
     y -= b.y;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::dot(const Vector2& b) const 
 {
     return x * b.x + y * b.y; 
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::mult(const Vector2& b) const
 {
     return dot(b);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector2 Vector2::mult(const float& s) const 
 {
     return {x * s, y * s};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector2::multInplace(const float& s) 
 {
     x *= s;
     y *= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector2 Vector2::div(const float& s) const 
 {
     return {x / s, y / s};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector2::divInplace(const float& s) 
 {
     x /= s;
     y /= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::l2normSquared() const
 {
     return x*x + y*y;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::l2norm() const 
 {
     return sqrtf(l2normSquared());
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::sum() const 
 {
     return x + y;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::prod() const 
 {
     return x * y;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector2::l1norm() const 
 {
     return fabs(x) + fabs(y);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector2::setZeros()
 {
     x = 0.0;
@@ -878,13 +878,13 @@ void Vector2::setZeros()
 ///// Vector3 ///////
 /////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::add(const Vector3& b) const
 {
     return {x + b.x, y + b.y, z + b.z};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::addInplace(const Vector3& b)
 {
     x += b.x;
@@ -892,19 +892,19 @@ void Vector3::addInplace(const Vector3& b)
     z += b.z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::sub(const Vector3& b) const
 {
     return {x - b.x, y - b.y, z - b.z};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::negation() const
 {
     return {-x, -y, -z};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::negate() 
 {
     x = -x;
@@ -912,7 +912,7 @@ void Vector3::negate()
     z = -z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::subInplace(const Vector3& b)
 {
     x -= b.x;
@@ -920,13 +920,13 @@ void Vector3::subInplace(const Vector3& b)
     z -= b.z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::dot(const Vector3& b) const 
 {
     return x * b.x + y * b.y + z * b.z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::cross(const Vector3& b) const
 {
     return {
@@ -936,19 +936,19 @@ Vector3 Vector3::cross(const Vector3& b) const
     };
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::mult(const Vector3& b) const
 {
     return dot(b);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::mult(const float& s) const 
 {
     return {x * s, y * s, z * s};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::multInplace(const float& s) 
 {
     x *= s;
@@ -956,13 +956,13 @@ void Vector3::multInplace(const float& s)
     z *= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::div(const float& s) const 
 {
     return {x / s, y / s, z / s};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::divInplace(const float& s) 
 {
     x /= s;
@@ -970,49 +970,49 @@ void Vector3::divInplace(const float& s)
     z /= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::l2normSquared() const
 {
     return x*x + y*y + z*z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::l2norm() const 
 {
     return sqrtf(l2normSquared());
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::sum() const 
 {
     return x + y + z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::prod() const 
 {
     return x * y * z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Vector3::l1norm() const 
 {
     return fabs(x) + fabs(y) + fabs(z);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::normalized() const 
 {
     return div(l2norm());
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::normalize() 
 {
     divInplace(l2norm());
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Vector3::setZeros()
 {
     x = 0.0;
@@ -1025,7 +1025,7 @@ void Vector3::setZeros()
 //// EulerAngles ////
 /////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void EulerAngles::setIdentity()
 {
     roll = 0.0;
@@ -1033,7 +1033,7 @@ void EulerAngles::setIdentity()
     yaw = 0.0;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void EulerAngles::set(const Quaternion& q)
 {
     // TODO: check
@@ -1065,7 +1065,7 @@ void EulerAngles::set(const Quaternion& q)
     yaw = atan2f(siny_cosp, cosy_cosp);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void EulerAngles::set(const Matrix3x3& M)
 {
     // extracted from knowledge of Matrix3x3::set(EulerAngles)
@@ -1098,7 +1098,7 @@ void EulerAngles::set(const Matrix3x3& M)
     yaw = atan2f(siny_cosp, cosy_cosp);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 EulerAngles::mult(const Vector3& v) const
 {
     Quaternion q;
@@ -1110,7 +1110,7 @@ Vector3 EulerAngles::mult(const Vector3& v) const
 //// Quaternion ////
 ////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::setIdentity()
 {
     x = 0.0;
@@ -1119,13 +1119,13 @@ void Quaternion::setIdentity()
     w = 1.0;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Quaternion Quaternion::inv() const 
 {
     return {-x, -y, -z, w};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::invInplace()
 {
     x = -x;
@@ -1133,7 +1133,7 @@ void Quaternion::invInplace()
     z = -z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Quaternion Quaternion::mult(const Quaternion& q2) const 
 {
     return {w*q2.x + x*q2.w + y*q2.z - z*q2.y,
@@ -1142,7 +1142,7 @@ Quaternion Quaternion::mult(const Quaternion& q2) const
             w*q2.w - x*q2.x - y*q2.y - z*q2.z};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::multInplace(const Quaternion& q2) 
 {
     const Quaternion tmp = mult(q2);
@@ -1152,7 +1152,7 @@ void Quaternion::multInplace(const Quaternion& q2)
     w = tmp.w;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Quaternion::mult(const Vector3& p) const
 {
     const Quaternion P{p.x, p.y, p.z, 0.0};
@@ -1160,19 +1160,19 @@ Vector3 Quaternion::mult(const Vector3& p) const
     return {PT.x, PT.y, PT.z};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Quaternion::l2normSquared() const 
 {
     return w * w + x * x + y * y + z * z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Quaternion::l2norm() const 
 {
     return sqrtf(l2normSquared());
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::normalize()
 {
     const float d = l2norm();
@@ -1182,7 +1182,7 @@ void Quaternion::normalize()
     w /= d;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::set(const Matrix3x3& M)
 {
     // https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
@@ -1217,7 +1217,7 @@ void Quaternion::set(const Matrix3x3& M)
     }
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Quaternion::set(const EulerAngles& e)
 {
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -1240,21 +1240,21 @@ void Quaternion::set(const EulerAngles& e)
 //// Transform /////
 ////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Transform::setIdentity()
 {
     R.setIdentity();
     t.setZeros();
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Transform::set(const Matrix4x4& M)
 {
     R = M.rotation();
     t = M.translation();
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Transform Transform::inv() const
 {
     Transform Tinv;
@@ -1263,7 +1263,7 @@ Transform Transform::inv() const
     return Tinv;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Transform Transform::mult(const Transform& T2) const
 {
     // P_ = R1 * (R2 * P + t2) + t1;
@@ -1274,7 +1274,7 @@ Transform Transform::mult(const Transform& T2) const
     return T3;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Transform::multInplace(const Transform& T2)
 {
     // P_ = R1 * (R2 * P + t2) + t1;
@@ -1286,7 +1286,7 @@ void Transform::multInplace(const Transform& T2)
     R = R * T2.R;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector3 Transform::mult(const Vector3& v) const
 {
     return R * v + t;
@@ -1297,43 +1297,43 @@ Vector3 Transform::mult(const Vector3& v) const
 //// Matrix3x3 /////
 ////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float& Matrix3x3::at(unsigned int i, unsigned int j)
 {
     return data[j][i];
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::at(unsigned int i, unsigned int j) const
 {
     return data[j][i];
 }   
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float& Matrix3x3::operator()(unsigned int i, unsigned int j)
 {
     return at(i,j);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::operator()(unsigned int i, unsigned int j) const
 {
     return at(i,j);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float* Matrix3x3::operator[](const unsigned int i) 
 {
     return data[i];
 };
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 const float* Matrix3x3::operator[](const unsigned int i) const 
 {
     return data[i];
 };
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::setIdentity()
 {
     at(0,0) = 1.0f;
@@ -1347,7 +1347,7 @@ void Matrix3x3::setIdentity()
     at(2,2) = 1.0f;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::setZeros()
 {
     at(0,0) = 0.0f;
@@ -1361,7 +1361,7 @@ void Matrix3x3::setZeros()
     at(2,2) = 0.0f;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::setOnes()
 {
     at(0,0) = 1.0f;
@@ -1375,7 +1375,7 @@ void Matrix3x3::setOnes()
     at(2,2) = 1.0f;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::set(const Quaternion& q)
 {
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -1401,7 +1401,7 @@ void Matrix3x3::set(const Quaternion& q)
     // TESTED
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::set(const EulerAngles& e)
 {
     // Wrong?
@@ -1428,7 +1428,7 @@ void Matrix3x3::set(const EulerAngles& e)
     at(2,2) =  cA * cB;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::transpose() const 
 {
     Matrix3x3 ret;
@@ -1448,13 +1448,13 @@ Matrix3x3 Matrix3x3::transpose() const
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::T() const 
 {
     return transpose();
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::transposeInplace()
 {
     // use only one float as additional memory
@@ -1474,13 +1474,13 @@ void Matrix3x3::transposeInplace()
     at(2,1) = swap_mem;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::trace() const
 {
     return at(0, 0) + at(1, 1) + at(2, 2);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::det() const
 {
     return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
@@ -1488,7 +1488,7 @@ float Matrix3x3::det() const
             at(0, 2) * (at(1, 0) * at(2, 1) - at(1, 1) * at(2, 0));
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::inv() const
 {
     Matrix3x3 ret;
@@ -1513,13 +1513,13 @@ Matrix3x3 Matrix3x3::inv() const
     * 
     * @return Matrix3x3 
     */
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::invRigid() const 
 {
     return T();
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::mult(const float& s) const
 {
     Matrix3x3 ret;
@@ -1535,7 +1535,7 @@ Matrix3x3 Matrix3x3::mult(const float& s) const
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::multInplace(const float& s)
 {
     at(0,0) *= s;
@@ -1549,7 +1549,7 @@ void Matrix3x3::multInplace(const float& s)
     at(2,2) *= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector Matrix3x3::mult(const Vector& p) const
 {
     return {
@@ -1559,7 +1559,7 @@ Vector Matrix3x3::mult(const Vector& p) const
     };
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix3x3::mult(const Matrix3x3& M) const
 {
     Matrix3x3 res;
@@ -1578,44 +1578,44 @@ Matrix3x3 Matrix3x3::mult(const Matrix3x3& M) const
 //// Matrix4x4 /////
 ////////////////////
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float& Matrix4x4::at(unsigned int i, unsigned int j)
 {
     return data[j][i];
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::at(unsigned int i, unsigned int j) const
 {
     return data[j][i];
 }   
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float& Matrix4x4::operator()(unsigned int i, unsigned int j)
 {
     return at(i,j);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::operator()(unsigned int i, unsigned int j) const
 {
     return at(i,j);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float* Matrix4x4::operator[](const unsigned int i) 
 {
     return data[i];
 };
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 const float* Matrix4x4::operator[](const unsigned int i) const 
 {
     return data[i];
 };
 
 // FUNCTIONS
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setIdentity()
 {
     at(0,0) = 1.0;
@@ -1636,7 +1636,7 @@ void Matrix4x4::setIdentity()
     at(3,3) = 1.0;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setZeros()
 {
     at(0,0) = 0.0;
@@ -1657,7 +1657,7 @@ void Matrix4x4::setZeros()
     at(3,3) = 0.0;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setOnes()
 {
     at(0,0) = 1.0;
@@ -1678,7 +1678,7 @@ void Matrix4x4::setOnes()
     at(3,3) = 1.0;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::set(const Transform& T)
 {
     setIdentity();
@@ -1686,7 +1686,7 @@ void Matrix4x4::set(const Transform& T)
     setTranslation(T.t);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix4x4::rotation() const
 {
     Matrix3x3 R;
@@ -1702,7 +1702,7 @@ Matrix3x3 Matrix4x4::rotation() const
     return R;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setRotation(const Matrix3x3& R)
 {
     at(0,0) = R(0,0);
@@ -1716,7 +1716,7 @@ void Matrix4x4::setRotation(const Matrix3x3& R)
     at(2,2) = R(2,2);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setRotation(const Quaternion& q)
 {
     Matrix3x3 R;
@@ -1724,7 +1724,7 @@ void Matrix4x4::setRotation(const Quaternion& q)
     setRotation(R);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setRotation(const EulerAngles& e)
 {
     Matrix3x3 R;
@@ -1732,13 +1732,13 @@ void Matrix4x4::setRotation(const EulerAngles& e)
     setRotation(R);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector Matrix4x4::translation() const
 {
     return {at(0,3), at(1,3), at(2,3)};
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::setTranslation(const Vector& t)
 {
     at(0,3) = t.x;
@@ -1746,7 +1746,7 @@ void Matrix4x4::setTranslation(const Vector& t)
     at(2,3) = t.z;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::transpose() const 
 {
     Matrix4x4 ret;
@@ -1774,19 +1774,19 @@ Matrix4x4 Matrix4x4::transpose() const
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::T() const 
 {
     return transpose();
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::trace() const
 {
     return at(0,0) + at(1,1) + at(2,2) + at(3,3);
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::det() const 
 {
     // TODO: check
@@ -1815,7 +1815,7 @@ float Matrix4x4::det() const
             - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::inv() const 
 {
     // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
@@ -1869,7 +1869,7 @@ Matrix4x4 Matrix4x4::inv() const
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::invRigid()
 {
     Matrix4x4 ret;
@@ -1885,7 +1885,7 @@ Matrix4x4 Matrix4x4::invRigid()
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::mult(const float& s) const
 {
     Matrix4x4 ret;
@@ -1913,7 +1913,7 @@ Matrix4x4 Matrix4x4::mult(const float& s) const
     return ret;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 void Matrix4x4::multInplace(const float& s)
 {
     at(0,0) *= s;
@@ -1937,7 +1937,7 @@ void Matrix4x4::multInplace(const float& s)
     at(3,3) *= s;
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Vector Matrix4x4::mult(const Vector& v) const
 {
     return {
@@ -1947,7 +1947,7 @@ Vector Matrix4x4::mult(const Vector& v) const
     };
 }
 
-IMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_FUNCTION
 Matrix4x4 Matrix4x4::mult(const Matrix4x4& M) const 
 {
     Matrix4x4 res;
@@ -1966,4 +1966,4 @@ Matrix4x4 Matrix4x4::mult(const Matrix4x4& M) const
 
 } // namespace rmagine 
 
-#endif // IMAGINE_MATH_TYPES_H
+#endif // RMAGINE_MATH_TYPES_H

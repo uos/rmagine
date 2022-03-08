@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_OPTIX_MAP_HPP
-#define IMAGINE_OPTIX_MAP_HPP
+#ifndef RMAGINE_OPTIX_MAP_HPP
+#define RMAGINE_OPTIX_MAP_HPP
 
 #include <iostream>
 #include <memory>
@@ -181,4 +181,4 @@ static OptixMapPtr importOptixMap(const std::string& meshfile, int device = 0)
 
 } // namespace rmagine
 
-#endif // IMAGINE_OPTIX_MAP_HPP
+#endif // RMAGINE_OPTIX_MAP_HPP

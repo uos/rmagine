@@ -1,5 +1,5 @@
-#ifndef IMAGINE_UTIL_DEBUG_HPP
-#define IMAGINE_UTIL_DEBUG_HPP
+#ifndef RMAGINE_UTIL_DEBUG_HPP
+#define RMAGINE_UTIL_DEBUG_HPP
 
 #include <boost/current_function.hpp>
 #include <iostream>
@@ -13,4 +13,4 @@
 
 
 
-#endif // IMAGINE_UTIL_DEBUG_HPP
+#endif // RMAGINE_UTIL_DEBUG_HPP

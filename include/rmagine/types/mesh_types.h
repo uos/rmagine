@@ -1,5 +1,5 @@
-#ifndef IMAGINE_TYPES_MESH_TYPES_H
-#define IMAGINE_TYPES_MESH_TYPES_H
+#ifndef RMAGINE_TYPES_MESH_TYPES_H
+#define RMAGINE_TYPES_MESH_TYPES_H
 
 #include <rmagine/math/types.h>
 
@@ -16,4 +16,4 @@ struct Face {
 
 } // namespace rmagine
 
-#endif // IMAGINE_TYPES_MESH_TYPES_H
+#endif // RMAGINE_TYPES_MESH_TYPES_H

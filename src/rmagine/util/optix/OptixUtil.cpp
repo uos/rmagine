@@ -21,8 +21,8 @@ std::string loadProgramPtx(const std::string& program_name)
     std::string ptx("");
 
     // TODO: how to do this properly?
-    std::string optix_ptx_dir(IMAGINE_OPTIX_PTX_DIR);
-    std::string optix_ptx_glob_dir(IMAGINE_OPTIX_PTX_GLOB_DIR);
+    std::string optix_ptx_dir(RMAGINE_OPTIX_PTX_DIR);
+    std::string optix_ptx_glob_dir(RMAGINE_OPTIX_PTX_GLOB_DIR);
 
     std::string filename = optix_ptx_dir + "/cuda_compile_ptx_1_generated_" + program_name + ".cu.ptx";
 

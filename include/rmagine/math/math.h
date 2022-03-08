@@ -1,5 +1,5 @@
-#ifndef IMAGINE_MATH_MATH_H
-#define IMAGINE_MATH_MATH_H
+#ifndef RMAGINE_MATH_MATH_H
+#define RMAGINE_MATH_MATH_H
 
 #include <rmagine/math/types.h>
 // self include ?!
@@ -10,7 +10,7 @@
 namespace rmagine
 {
 
-static IMAGINE_INLINE_FUNCTION
+static RMAGINE_INLINE_FUNCTION
 void set_identity(Quaternion& q)
 {
     q.x = 0.0;
@@ -19,7 +19,7 @@ void set_identity(Quaternion& q)
     q.w = 1.0;
 }
 
-static IMAGINE_INLINE_FUNCTION
+static RMAGINE_INLINE_FUNCTION
 void set_identity(Matrix3x3& M)
 {
     M[0][0] = 1.0;
@@ -35,7 +35,7 @@ void set_identity(Matrix3x3& M)
     M[2][2] = 1.0;
 }
 
-static IMAGINE_INLINE_FUNCTION
+static RMAGINE_INLINE_FUNCTION
 void set_identity(Matrix4x4& M)
 {
     M[0][0] = 1.0;
@@ -61,4 +61,4 @@ void set_identity(Matrix4x4& M)
 
 } // namespace image
 
-#endif // IMAGINE_MATH_MATH_H
+#endif // RMAGINE_MATH_MATH_H

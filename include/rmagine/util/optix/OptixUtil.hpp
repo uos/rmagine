@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_OPTIX_UTIL_HPP
-#define IMAGINE_OPTIX_UTIL_HPP
+#ifndef RMAGINE_OPTIX_UTIL_HPP
+#define RMAGINE_OPTIX_UTIL_HPP
 
 #include <optix.h>
 #include <string>
@@ -146,4 +146,4 @@ std::string loadProgramPtx(const std::string& program_name);
 
 } // namespace rmagine
 
-#endif // IMAGINE_OPTIX_UTIL_HPP
+#endif // RMAGINE_OPTIX_UTIL_HPP

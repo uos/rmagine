@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_OPTIX_PROGRAM_HPP
-#define IMAGINE_OPTIX_PROGRAM_HPP
+#ifndef RMAGINE_OPTIX_PROGRAM_HPP
+#define RMAGINE_OPTIX_PROGRAM_HPP
 
 #include <optix.h>
 #include <memory>
@@ -60,4 +60,4 @@ using OptixProgramPtr = std::shared_ptr<OptixProgram>;
 
 } // namespace rmagine
 
-#endif // IMAGINE_OPTIX_PROGRAM_HPP
+#endif // RMAGINE_OPTIX_PROGRAM_HPP

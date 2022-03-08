@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_GENERIC_ALIGN_HPP
-#define IMAGINE_GENERIC_ALIGN_HPP
+#ifndef RMAGINE_GENERIC_ALIGN_HPP
+#define RMAGINE_GENERIC_ALIGN_HPP
 
 #if defined(__CUDACC__) // NVCC
    #define GENERIC_ALIGN(n) __align__(n)
@@ -45,4 +45,4 @@
   #error "Please provide a definition for MY_ALIGN macro for your host compiler!"
 #endif
 
-#endif // IMAGINE_GENERIC_ALIGN_HPP
+#endif // RMAGINE_GENERIC_ALIGN_HPP

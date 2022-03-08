@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_CUDA_DEBUG_HPP
-#define IMAGINE_UTIL_CUDA_DEBUG_HPP
+#ifndef RMAGINE_UTIL_CUDA_DEBUG_HPP
+#define RMAGINE_UTIL_CUDA_DEBUG_HPP
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -48,4 +48,4 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
    }
 }
 
-#endif // IMAGINE_UTIL_CUDA_DEBUG_HPP
+#endif // RMAGINE_UTIL_CUDA_DEBUG_HPP
