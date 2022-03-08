@@ -216,6 +216,7 @@ if(OptiX_FOUND)
         src/rmagine/util/optix/OptixContext.cpp
         # Maps
         src/rmagine/map/OptixMap.cpp
+        src/rmagine/map/OptixMapWorker.cpp
         # Simulation
         src/rmagine/simulation/SphereSimulatorOptix.cpp
         src/rmagine/simulation/PinholeSimulatorOptix.cpp

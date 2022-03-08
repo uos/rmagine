@@ -3,18 +3,28 @@
 namespace rmagine
 {
 
-PinholeSimulatorEmbree::PinholeSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
+PinholeSimulatorEmbree::PinholeSimulatorEmbree()
+:m_model(1)
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 
+PinholeSimulatorEmbree::PinholeSimulatorEmbree(const EmbreeMapPtr map)
+:PinholeSimulatorEmbree()
+{
+    setMap(map);
+}
+
 PinholeSimulatorEmbree::~PinholeSimulatorEmbree()
 {
     
+}
+
+void PinholeSimulatorEmbree::setMap(EmbreeMapPtr map)
+{
+    m_map = map;
 }
 
 void PinholeSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)

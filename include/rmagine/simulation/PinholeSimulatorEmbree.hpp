@@ -103,8 +103,12 @@ namespace rmagine
  */
 class PinholeSimulatorEmbree {
 public:
-    PinholeSimulatorEmbree(const EmbreeMapPtr map);
+
+    PinholeSimulatorEmbree();
+    PinholeSimulatorEmbree(EmbreeMapPtr map);
     ~PinholeSimulatorEmbree();
+
+    void setMap(EmbreeMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setModel(const Memory<PinholeModel, RAM>& model);
@@ -132,7 +136,7 @@ public:
     BundleT simulate(const Memory<Transform, RAM>& Tbm);
 
 protected:
-    const EmbreeMapPtr m_map;
+    EmbreeMapPtr m_map;
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;

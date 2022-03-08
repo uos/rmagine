@@ -100,8 +100,11 @@ namespace rmagine
  */
 class OnDnSimulatorEmbree {
 public:
-    OnDnSimulatorEmbree(const EmbreeMapPtr map);
+    OnDnSimulatorEmbree();
+    OnDnSimulatorEmbree(EmbreeMapPtr map);
     ~OnDnSimulatorEmbree();
+
+    void setMap(EmbreeMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
 
@@ -131,7 +134,7 @@ public:
     BundleT simulate(const Memory<Transform, RAM>& Tbm);
 
 protected:
-    const EmbreeMapPtr m_map;
+    EmbreeMapPtr m_map;
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;

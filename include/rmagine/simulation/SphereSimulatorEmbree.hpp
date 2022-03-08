@@ -103,10 +103,10 @@ namespace rmagine
 class SphereSimulatorEmbree {
 public:
     SphereSimulatorEmbree();
-    SphereSimulatorEmbree(const EmbreeMapPtr map);
+    SphereSimulatorEmbree(EmbreeMapPtr map);
     ~SphereSimulatorEmbree();
 
-    void setMap(const EmbreeMapPtr map);
+    void setMap(EmbreeMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);

@@ -3,18 +3,28 @@
 namespace rmagine
 {
 
-OnDnSimulatorEmbree::OnDnSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
+OnDnSimulatorEmbree::OnDnSimulatorEmbree()
+:m_model(1)
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 
+OnDnSimulatorEmbree::OnDnSimulatorEmbree(EmbreeMapPtr map)
+:OnDnSimulatorEmbree()
+{
+    setMap(map);
+}
+
 OnDnSimulatorEmbree::~OnDnSimulatorEmbree()
 {
     // std::cout << "O1DnSimulatorEmbree - Destructor " << std::endl;
+}
+
+void OnDnSimulatorEmbree::setMap(EmbreeMapPtr map)
+{
+    m_map = map;
 }
 
 void OnDnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)

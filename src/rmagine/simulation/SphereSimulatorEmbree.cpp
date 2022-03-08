@@ -9,16 +9,14 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
 :m_model(1)
 ,m_Tsb(1)
 {
+    m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
 }
 
-SphereSimulatorEmbree::SphereSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
-,m_Tsb(1)
+SphereSimulatorEmbree::SphereSimulatorEmbree(EmbreeMapPtr map)
+:SphereSimulatorEmbree()
 {
-    m_Tsb[0].setIdentity();
-    rtcInitIntersectContext(&m_context);
+    setMap(map);
 }
 
 SphereSimulatorEmbree::~SphereSimulatorEmbree()
@@ -26,7 +24,7 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
     
 }
 
-void SphereSimulatorEmbree::setMap(const EmbreeMapPtr map)
+void SphereSimulatorEmbree::setMap(EmbreeMapPtr map)
 {
     m_map = map;
 }
