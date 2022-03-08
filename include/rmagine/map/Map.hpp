@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_MAP_MAP_HPP
-#define IMAGINE_MAP_MAP_HPP
+#ifndef RMAGINE_MAP_MAP_HPP
+#define RMAGINE_MAP_MAP_HPP
 
 #include <memory>
 
@@ -47,4 +47,4 @@ using MapPtr = std::shared_ptr<Map>;
 
 } // namespace rmagine
 
-#endif // IMAGINE_MAP_MAP_HPP
+#endif // RMAGINE_MAP_MAP_HPP

@@ -37,8 +37,8 @@
  * This project is released under the 3-Clause BSD License.
  */
 
-#ifndef IMAGINE_SIMULATION_RESULTS_HPP
-#define IMAGINE_SIMULATION_RESULTS_HPP
+#ifndef RMAGINE_SIMULATION_RESULTS_HPP
+#define RMAGINE_SIMULATION_RESULTS_HPP
 
 #include <rmagine/types/Bundle.hpp>
 #include <rmagine/types/Memory.hpp>
@@ -157,4 +157,4 @@ void resizeMemoryBundle(BundleT& res,
 
 } // namespace rmagine
 
-#endif // IMAGINE_SIMULATION_RESULTS_HPP
+#endif // RMAGINE_SIMULATION_RESULTS_HPP

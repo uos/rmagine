@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_MEMORY_HPP
-#define IMAGINE_MEMORY_HPP
+#ifndef RMAGINE_MEMORY_HPP
+#define RMAGINE_MEMORY_HPP
 
 #include <type_traits>
 #include <iostream>
@@ -70,59 +70,59 @@ public:
 
     void resize(size_t N);
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     DataT* raw();
     
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     const DataT* raw() const;
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     DataT* operator->()
     {
         return raw();
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     const DataT* operator->() const
     {
         return raw();
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     DataT& at(unsigned long idx)
     {
         return m_mem[idx];
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     const DataT& at(unsigned long idx) const
     {
         return m_mem[idx];
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     DataT& operator[](unsigned long idx)
     {
         return m_mem[idx];
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     const DataT& operator[](unsigned long idx) const
     {
         return m_mem[idx];
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     const DataT& operator*() const {
         return *m_mem;
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     DataT& operator*() {
         return *m_mem;
     }
 
-    IMAGINE_FUNCTION
+    RMAGINE_FUNCTION
     size_t size() const {
         return m_size;
     }
@@ -177,4 +177,4 @@ void copy(const Memory<DataT, RAM>& from, DataT& to)
 
 #include "Memory.tcc"
 
-#endif // IMAGINE_MEMORY_HPP
+#endif // RMAGINE_MEMORY_HPP

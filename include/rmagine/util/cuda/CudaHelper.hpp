@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_CUDA_HELPER_HPP
-#define IMAGINE_UTIL_CUDA_HELPER_HPP
+#ifndef RMAGINE_UTIL_CUDA_HELPER_HPP
+#define RMAGINE_UTIL_CUDA_HELPER_HPP
 
 #include <cuda_runtime.h>
 
@@ -71,4 +71,4 @@ static cudaDeviceProp getDeviceInfo(int device_id)
 
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_CUDA_HELPER_HPP
+#endif // RMAGINE_UTIL_CUDA_HELPER_HPP

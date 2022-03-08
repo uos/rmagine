@@ -16,14 +16,14 @@ MACRO(GenerateHeaderFromDirectory inputdir storedir genfile)
 
     file(GLOB source_list "${inputdir}/*.hpp" "${inputdir}/*.h" "${inputdir}/*.cuh")
 
-    set(CONTENT "#ifndef IMAGINE_${foldername}_H\n#define IMAGINE_${foldername}_H\n")
+    set(CONTENT "#ifndef RMAGINE_${foldername}_H\n#define RMAGINE_${foldername}_H\n")
 
     FOREACH(header_file ${source_list})
         get_filename_component(header_name ${header_file} NAME)
         set(CONTENT "${CONTENT}\n#include \"${foldername}/${header_name}\"")
     ENDFOREACH()
 
-    set(CONTENT "${CONTENT}\n\n#endif // IMAGINE_${foldername}_H")
+    set(CONTENT "${CONTENT}\n\n#endif // RMAGINE_${foldername}_H")
 
     file(WRITE "${storedir}/${headername}" ${CONTENT})
 

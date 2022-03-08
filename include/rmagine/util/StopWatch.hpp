@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_STOPWATCH_HPP
-#define IMAGINE_UTIL_STOPWATCH_HPP
+#ifndef RMAGINE_UTIL_STOPWATCH_HPP
+#define RMAGINE_UTIL_STOPWATCH_HPP
 
 #include <chrono>
 
@@ -55,4 +55,4 @@ private:
 
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_STOPWATCH_HPP
+#endif // RMAGINE_UTIL_STOPWATCH_HPP

@@ -38,8 +38,8 @@
  * 
  */
 
-#ifndef IMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
-#define IMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
+#ifndef RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
+#define RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
 
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/Memory.hpp>
@@ -145,4 +145,4 @@ using PinholeSimulatorEmbreePtr = std::shared_ptr<PinholeSimulatorEmbree>;
 
 #include "PinholeSimulatorEmbree.tcc"
 
-#endif // IMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
+#endif // RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP

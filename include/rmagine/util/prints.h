@@ -1,5 +1,5 @@
-#ifndef IMAGINE_UTIL_PRINTS_H
-#define IMAGINE_UTIL_PRINTS_H
+#ifndef RMAGINE_UTIL_PRINTS_H
+#define RMAGINE_UTIL_PRINTS_H
 
 #include <iostream>
 #include <rmagine/math/types.h>
@@ -23,4 +23,4 @@ std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
     return os;
 }
 
-#endif // IMAGINE_UTIL_PRINTS_H
+#endif // RMAGINE_UTIL_PRINTS_H

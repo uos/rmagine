@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_CUDA_CONTEXT_HPP
-#define IMAGINE_UTIL_CUDA_CONTEXT_HPP
+#ifndef RMAGINE_UTIL_CUDA_CONTEXT_HPP
+#define RMAGINE_UTIL_CUDA_CONTEXT_HPP
 
 #include <cuda_runtime.h>
 #include <cuda.h>
@@ -72,4 +72,4 @@ using CudaContextPtr = std::shared_ptr<CudaContext>;
 
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_CUDA_CONTEXT_HPP
+#endif // RMAGINE_UTIL_CUDA_CONTEXT_HPP

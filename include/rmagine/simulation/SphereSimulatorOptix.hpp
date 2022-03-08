@@ -37,8 +37,8 @@
  * This project is released under the 3-Clause BSD License.
  */
 
-#ifndef IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
-#define IMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
+#ifndef RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
+#define RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -195,4 +195,4 @@ using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;
 
 #include "SphereSimulatorOptix.tcc"
 
-#endif // IMAGINE_OPTIX_SIMULATOR_HPP
+#endif // RMAGINE_OPTIX_SIMULATOR_HPP

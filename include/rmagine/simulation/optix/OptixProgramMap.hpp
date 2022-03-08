@@ -1,5 +1,5 @@
-#ifndef IMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP
-#define IMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP
+#ifndef RMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP
+#define RMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP
 
 #include <unordered_map>
 #include <rmagine/simulation/optix/OptixSimulationData.hpp>
@@ -42,4 +42,4 @@ bool operator==(const OptixSimulationDataGeneric<ModelT> &a, const OptixSimulati
 
 } // namespace rmagine
 
-#endif // IMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP
+#endif // RMAGINE_SIMULATION_OPTIX_PROGRAM_MAP_HPP

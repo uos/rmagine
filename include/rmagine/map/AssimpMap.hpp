@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_MAP_ASSIMP_MAP_HPP
-#define IMAGINE_MAP_ASSIMP_MAP_HPP
+#ifndef RMAGINE_MAP_ASSIMP_MAP_HPP
+#define RMAGINE_MAP_ASSIMP_MAP_HPP
 
 #include "Map.hpp"
 #include <memory>
@@ -63,4 +63,4 @@ static AssimpMapPtr importAssimpMap(const std::string& meshfile)
 
 } // namespace rmagine
 
-#endif // IMAGINE_MAP_ASSIMP_MAP_HPP
+#endif // RMAGINE_MAP_ASSIMP_MAP_HPP

@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
-#define IMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
+#ifndef RMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
+#define RMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
 
 #include <rmagine/util/GenericAlign.hpp>
 
@@ -48,4 +48,4 @@ struct SbtRecord
 
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
+#endif // RMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP

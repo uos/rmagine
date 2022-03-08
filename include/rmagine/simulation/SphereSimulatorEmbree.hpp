@@ -39,8 +39,8 @@
  */
 
 
-#ifndef IMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP
-#define IMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP
+#ifndef RMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP
+#define RMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP
 
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/Memory.hpp>
@@ -150,4 +150,4 @@ using SphereSimulatorEmbreePtr = std::shared_ptr<SphereSimulatorEmbree>;
 
 #include "SphereSimulatorEmbree.tcc"
 
-#endif // IMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP
+#endif // RMAGINE_SIMULATION_SPHERE_SIMULATOR_EMBREE_HPP

@@ -32,8 +32,8 @@
  *      Author: Alexander Mock
  */
 
-#ifndef IMAGINE_OPTIX_DATA_HPP
-#define IMAGINE_OPTIX_DATA_HPP
+#ifndef RMAGINE_OPTIX_DATA_HPP
+#define RMAGINE_OPTIX_DATA_HPP
 
 #include <cuda_runtime.h>
 #include <rmagine/math/types.h>
@@ -66,4 +66,4 @@ struct HitGroupDataNormals {
 
 } // namespace rmagine
 
-#endif // IMAGINE_OPTIX_DATA_HPP
+#endif // RMAGINE_OPTIX_DATA_HPP

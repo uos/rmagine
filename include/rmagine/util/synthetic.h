@@ -1,5 +1,5 @@
-#ifndef IMAGINE_UTIL_SYNTHETIC_H
-#define IMAGINE_UTIL_SYNTHETIC_H
+#ifndef RMAGINE_UTIL_SYNTHETIC_H
+#define RMAGINE_UTIL_SYNTHETIC_H
 
 #include <assimp/scene.h>
 #include <vector>
@@ -51,4 +51,4 @@ aiScene genCube(unsigned int side_triangles_exp=1);
 
 } // namespace rmagine
 
-#endif // IMAGINE_UTIL_SYNTHETIC_H
+#endif // RMAGINE_UTIL_SYNTHETIC_H

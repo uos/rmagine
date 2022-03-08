@@ -38,8 +38,8 @@
  */
 
 
-#ifndef IMAGINE_ONDN_SIMULATOR_OPTIX_HPP
-#define IMAGINE_ONDN_SIMULATOR_OPTIX_HPP
+#ifndef RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
+#define RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
 
 #include <optix.h>
 
@@ -197,4 +197,4 @@ using OnDnSimulatorOptixPtr = std::shared_ptr<OnDnSimulatorOptix>;
 
 #include "OnDnSimulatorOptix.tcc"
 
-#endif // IMAGINE_ONDN_SIMULATOR_OPTIX_HPP
+#endif // RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
