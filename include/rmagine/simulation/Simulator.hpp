@@ -18,7 +18,6 @@ public:
     using Class = NoneType;
     using Ptr = NoneType;
 };
-
 template<typename ModelT, typename CompT>
 using Simulator = typename SimulatorType<ModelT, CompT>::Class; 
 
