@@ -16,23 +16,37 @@
 namespace rmagine
 {
 
-PinholeSimulatorOptix::PinholeSimulatorOptix(OptixMapPtr map)
-:m_map(map)
-,m_model(1)
+PinholeSimulatorOptix::PinholeSimulatorOptix()
+:m_model(1)
 ,m_Tsb(1)
 {
-    m_programs.resize(2);
     
-    // programs[0].reset(new ScanProgramHit(mesh));
-    m_programs[0].reset(new PinholeProgramRanges(map));
-    m_programs[1].reset(new PinholeProgramNormals(map));
+}
 
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+PinholeSimulatorOptix::PinholeSimulatorOptix(OptixMapPtr map)
+:PinholeSimulatorOptix()
+{
+    setMap(map);
 }
 
 PinholeSimulatorOptix::~PinholeSimulatorOptix()
 {
+    m_programs.resize(0);
+    m_generic_programs.clear();
+
     cudaStreamDestroy(m_stream);
+}
+
+void PinholeSimulatorOptix::setMap(const OptixMapPtr map)
+{
+    m_map = map;
+    // none generic version
+    m_programs.resize(2);
+    m_programs[0].reset(new PinholeProgramRanges(map));
+    m_programs[1].reset(new PinholeProgramNormals(map));
+
+    // need to create stream after map was created: cuda device api context is required
+    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
 void PinholeSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)

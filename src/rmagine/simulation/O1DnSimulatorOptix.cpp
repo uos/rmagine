@@ -18,16 +18,16 @@
 namespace rmagine
 {
 
-O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
-:m_map(map)
-,m_Tsb(1)
+O1DnSimulatorOptix::O1DnSimulatorOptix()
+:m_Tsb(1)
 {
-    m_programs.resize(2);
-    
-    m_programs[0].reset(new O1DnProgramRanges(map));
-    m_programs[1].reset(new O1DnProgramNormals(map));
 
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+}
+
+O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
+:O1DnSimulatorOptix()
+{
+    setMap(map);
 
     Memory<Transform, RAM_CUDA> Tsb(1);
     Tsb->setIdentity();
@@ -36,7 +36,19 @@ O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
 
 O1DnSimulatorOptix::~O1DnSimulatorOptix()
 {
+    m_programs.clear();
+    m_generic_programs.clear();
     cudaStreamDestroy(m_stream);
+}
+
+void O1DnSimulatorOptix::setMap(OptixMapPtr map)
+{
+    m_programs.resize(2);
+    
+    m_programs[0].reset(new O1DnProgramRanges(map));
+    m_programs[1].reset(new O1DnProgramNormals(map));
+
+    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
 void O1DnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)

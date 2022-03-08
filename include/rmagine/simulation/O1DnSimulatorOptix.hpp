@@ -113,9 +113,12 @@ namespace rmagine {
  */
 class O1DnSimulatorOptix {
 public:
+    O1DnSimulatorOptix();
     O1DnSimulatorOptix(OptixMapPtr map);
 
     ~O1DnSimulatorOptix();
+
+    void setMap(OptixMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);

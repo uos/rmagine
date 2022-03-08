@@ -70,7 +70,6 @@ struct EmbreeMesh {
     unsigned int* faces;
     Memory<float, RAM> normals;
     
-    
     // Box bb;
     // Matrix4x4 T;
 };

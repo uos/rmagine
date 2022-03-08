@@ -116,9 +116,12 @@ namespace rmagine {
  */
 class PinholeSimulatorOptix {
 public:
+    PinholeSimulatorOptix();
     PinholeSimulatorOptix(OptixMapPtr map);
 
     ~PinholeSimulatorOptix();
+
+    void setMap(const OptixMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);

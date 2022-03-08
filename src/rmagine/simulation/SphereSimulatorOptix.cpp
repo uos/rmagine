@@ -27,7 +27,6 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
 :SphereSimulatorOptix()
 {
     setMap(map);
-    
 }
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
