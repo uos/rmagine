@@ -111,7 +111,11 @@ public:
     void setMap(EmbreeMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
+
     void setModel(const Memory<PinholeModel, RAM>& model);
+    void setModel(const PinholeModel& model);
+
 
     void simulateRanges(
         const Memory<Transform, RAM>& Tbm, 

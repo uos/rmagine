@@ -132,8 +132,6 @@ struct SphericalModel
     {
         return phi_id * theta.size + theta_id;
     }
-
-    
 };
 
 using LiDARModel = SphericalModel;

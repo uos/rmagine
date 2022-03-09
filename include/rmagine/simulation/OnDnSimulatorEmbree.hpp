@@ -107,6 +107,7 @@ public:
     void setMap(EmbreeMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const Transform& Tsb);
 
     void setModel(const OnDnModel_<RAM>& model);
     void setModel(const Memory<OnDnModel_<RAM>, RAM>& model);

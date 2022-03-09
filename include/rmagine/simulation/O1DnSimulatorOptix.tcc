@@ -89,6 +89,11 @@ void setGenericFlags(
 template<typename BundleT>
 void O1DnSimulatorOptix::preBuildProgram()
 {
+    if(!m_map)
+    {
+        throw std::runtime_error("[O1DnSimulatorOptix] preBuildProgram(): No Map available!");
+    }
+
     OptixSimulationDataGenericO1Dn flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
@@ -105,7 +110,11 @@ void O1DnSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
-
+    if(!m_map)
+    {
+        throw std::runtime_error("[O1DnSimulatorOptix] simulate(): No Map available!");
+    }
+    
     Memory<OptixSimulationDataGenericO1Dn, RAM> mem(1);
     setGenericFlags<BundleT>(mem[0]);
 

@@ -43,6 +43,8 @@ O1DnSimulatorOptix::~O1DnSimulatorOptix()
 
 void O1DnSimulatorOptix::setMap(OptixMapPtr map)
 {
+    m_map = map;
+
     m_programs.resize(2);
     
     m_programs[0].reset(new O1DnProgramRanges(map));
@@ -105,6 +107,11 @@ void O1DnSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
+    if(!m_map)
+    {
+        throw std::runtime_error("[O1DnSimulatorOptix] simulateRanges(): No Map available!");
+    }
+
     Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
     copy(m_model, model, m_stream);
 
@@ -114,7 +121,6 @@ void O1DnSimulatorOptix::simulateRanges(
     mem->Tbm = Tbm.raw();
     mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
-
 
     Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);

@@ -32,6 +32,12 @@ void OnDnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
     m_Tsb = Tsb;
 }
 
+void OnDnSimulatorEmbree::setTsb(const Transform& Tsb)
+{
+    m_Tsb.resize(1);
+    m_Tsb[0] = Tsb;
+}
+
 void OnDnSimulatorEmbree::setModel(const OnDnModel_<RAM>& model)
 {
     m_model[0] = model;

@@ -20,9 +20,9 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 
         const unsigned int glob_shift = pid * m_model->size();
 
-        for(unsigned int vid = 0; vid < m_model->phi.size; vid++)
+        for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
-            for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
+            for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
@@ -71,6 +71,7 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
                                 rayhit.hit.Ng_y,
                                 rayhit.hit.Ng_z
                             };
+                            
                         nint.normalize();
                         nint = Tms_.R * nint;
 
