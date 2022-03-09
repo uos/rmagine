@@ -15,21 +15,16 @@ using namespace rmagine;
 SphericalModel exampleModel()
 {
     SphericalModel model;
-
     model.theta.min = -M_PI;
-    model.theta.max = M_PI; 
-    model.theta.size = 440;
-    model.theta.computeStep();
-    
-    model.phi.min = -0.261799;
-    model.phi.max = 0.261799;
+    model.theta.inc = 0.4 * M_PI / 180.0;
+    model.theta.size = 900;
+
+    model.phi.min = -15.0 * M_PI / 180.0;
+    model.phi.inc = 2.0 * M_PI / 180.0;
     model.phi.size = 16;
-    model.phi.computeStep();
-    // automate this somehow?
     
     model.range.min = 0.5;
     model.range.max = 130.0;
-
     return model;
 }
 
