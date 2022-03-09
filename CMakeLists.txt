@@ -44,7 +44,7 @@ find_package(Boost REQUIRED)
 ############################
 ## EMBREE: CPU Raycasting ##
 ############################
-find_package(embree 3 REQUIRED)
+find_package(embree 3)
 if(embree_FOUND)
     # NO INCLUDE?
     if(NOT embree_LIBRARY)
@@ -111,13 +111,7 @@ set(RMAGINE_LIBRARIES rmagine)
 add_library(rmagine SHARED
     # Maps
     src/rmagine/map/AssimpMap.cpp
-    src/rmagine/map/EmbreeMap.cpp
     # Math
-    # Simulators
-    src/rmagine/simulation/SphereSimulatorEmbree.cpp
-    src/rmagine/simulation/PinholeSimulatorEmbree.cpp
-    src/rmagine/simulation/O1DnSimulatorEmbree.cpp
-    src/rmagine/simulation/OnDnSimulatorEmbree.cpp
     # Types
     src/rmagine/types/Memory.cpp
     # Util
@@ -128,10 +122,36 @@ add_library(rmagine SHARED
 )
 
 target_link_libraries(rmagine
-  ${ASSIMP_LIBRARIES}
-  ${embree_LIBRARY})
+  ${ASSIMP_LIBRARIES})
 
 target_compile_features(rmagine PRIVATE cxx_std_17)
+
+### RMAGINE EMBREE LIB
+if(embree_FOUND)
+add_library(rmagine_embree SHARED
+    # Maps
+    src/rmagine/map/EmbreeMap.cpp
+    # Simulators
+    src/rmagine/simulation/SphereSimulatorEmbree.cpp
+    src/rmagine/simulation/PinholeSimulatorEmbree.cpp
+    src/rmagine/simulation/O1DnSimulatorEmbree.cpp
+    src/rmagine/simulation/OnDnSimulatorEmbree.cpp
+)
+
+target_link_libraries(rmagine_embree
+    rmagine
+    ${embree_LIBRARY}
+)
+
+add_dependencies(rmagine_embree
+    rmagine
+)
+
+target_compile_features(rmagine_embree PRIVATE cxx_std_17)
+
+list(APPEND RMAGINE_LIBRARIES rmagine_embree)
+
+endif(embree_FOUND)
 
 if(CUDA_FOUND)
 
@@ -267,7 +287,6 @@ if(BUILD_TESTS)
 if(Eigen3_FOUND)
     include_directories(${EIGEN3_INCLUDE_DIR})
 endif(Eigen3_FOUND)
-
 
 add_subdirectory(src/rmagine_tests/memory)
 add_subdirectory(src/rmagine_tests/embree_sim)
