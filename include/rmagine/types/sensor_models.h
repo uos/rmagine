@@ -51,6 +51,12 @@ struct DiscreteInterval
     }
 
     RMAGINE_INLINE_FUNCTION
+    float operator[](uint32_t id) const 
+    {
+        return getValue(id);
+    }
+
+    RMAGINE_INLINE_FUNCTION
     bool inside(const float& value) const 
     {
         return (value >= min && value <= max());
@@ -227,6 +233,8 @@ struct CylindricModel {
 
 template<typename MemT>
 struct O1DnModel_ {
+    static constexpr char name[] = "O1Dn";
+
     uint32_t width;
     uint32_t height;
 
@@ -277,6 +285,8 @@ using O1DnModel = O1DnModel_<RAM>;
 
 template<typename MemT>
 struct OnDnModel_ {
+    static constexpr char name[] = "OnDn";
+
     uint32_t width;
     uint32_t height;
 
