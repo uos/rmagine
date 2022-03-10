@@ -40,12 +40,12 @@ struct Vector2 {
     RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector2& b);
 
-    /**
-     * @brief Multiply quaternion
-     * 
-     * @param b 
-     * @return Quaternion 
-     */
+    RMAGINE_INLINE_FUNCTION
+    Vector2 negation() const;
+
+    RMAGINE_INLINE_FUNCTION
+    void negate();
+
     RMAGINE_INLINE_FUNCTION
     float dot(const Vector2& b) const;
 
@@ -111,6 +111,12 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
+    Vector2 operator-() const
+    {
+        return negation();
+    }
+
+    RMAGINE_INLINE_FUNCTION
     float operator*(const Vector2& b) const
     {
         return mult(b);
@@ -153,7 +159,6 @@ struct Vector3 {
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector3 add(const Vector3& b) const;
-
     
     RMAGINE_INLINE_FUNCTION
     void addInplace(const Vector3& b);
@@ -214,8 +219,6 @@ struct Vector3 {
 
     RMAGINE_INLINE_FUNCTION
     void setZeros();
-
-
 
     // OPERATORS
     RMAGINE_INLINE_FUNCTION
@@ -797,6 +800,19 @@ void Vector2::subInplace(const Vector2& b)
 {
     x -= b.x;
     y -= b.y;
+}
+
+RMAGINE_INLINE_FUNCTION
+Vector2 Vector2::negation() const
+{
+    return {-x, -y};
+}
+
+RMAGINE_INLINE_FUNCTION
+void Vector2::negate()
+{
+    x = -x;
+    y = -y;
 }
 
 RMAGINE_INLINE_FUNCTION
