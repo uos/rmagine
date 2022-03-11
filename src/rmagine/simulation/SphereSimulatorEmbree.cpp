@@ -26,6 +26,7 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
 
 void SphereSimulatorEmbree::setMap(EmbreeMapPtr map)
 {
+    // std::cout << "[RMagine - SphereSimulatorEmbree] setMap" << std::endl;
     m_map = map;
 }
 
@@ -36,6 +37,7 @@ void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
 
 void SphereSimulatorEmbree::setTsb(const Transform& Tsb)
 {
+    // std::cout << "[RMagine - SphereSimulatorEmbree] setTsb" << std::endl;
     m_Tsb.resize(1);
     m_Tsb[0] = Tsb;
 }

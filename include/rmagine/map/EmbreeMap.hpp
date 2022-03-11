@@ -134,7 +134,7 @@ static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
 
     if(!scene->HasMeshes())
     {
-        std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
+        std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
     }
 
     EmbreeMapPtr map(new EmbreeMap(scene) );

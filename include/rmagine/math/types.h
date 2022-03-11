@@ -93,9 +93,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator+=(const Vector2& b)
+    Vector2& operator+=(const Vector2& b)
     {
         addInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -105,9 +106,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator-=(const Vector2& b)
+    Vector2& operator-=(const Vector2& b)
     {
         subInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -129,9 +131,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s) 
+    Vector2& operator*=(const float& s) 
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -141,9 +144,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator/=(const float& s) 
+    Vector2& operator/=(const float& s) 
     {
         divInplace(s);
+        return *this;
     }
 };
 
@@ -228,9 +232,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator+=(const Vector3& b)
+    Vector3& operator+=(const Vector3& b)
     {
         addInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -240,9 +245,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator-=(const Vector3& b)
+    Vector3& operator-=(const Vector3& b)
     {
         subInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -264,9 +270,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s) 
+    Vector3& operator*=(const float& s) 
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -276,9 +283,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator/=(const float& s) 
+    Vector3 operator/=(const float& s) 
     {
         divInplace(s);
+        return *this;
     }
 };
 
@@ -414,9 +422,10 @@ struct Quaternion
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const Quaternion& q2) 
+    Quaternion& operator*=(const Quaternion& q2) 
     {
         multInplace(q2);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -496,9 +505,10 @@ struct Transform {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const Transform& T2) 
+    Transform& operator*=(const Transform& T2) 
     {
         multInplace(T2);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -599,9 +609,10 @@ struct Matrix3x3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s)
+    Matrix3x3& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -742,9 +753,10 @@ struct Matrix4x4 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s)
+    Matrix4x4& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
