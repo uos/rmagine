@@ -81,14 +81,26 @@ using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;
 
 struct EmbreeInstance 
 {
-    
-    unsigned int id;
     EmbreeMeshPtr mesh;
     Matrix4x4 T;
 
     // embree fields
     RTCGeometry handle;
     unsigned int instID;
+
+    // Make this more comfortable to use
+    // - functions as: setMesh(), or addMesh() ?
+    // - translate rotate scale? 
+
+    /**
+     * @brief Call update after changing the transformation. TODO TEST
+     * 
+     */
+    void commit()
+    {
+        rtcSetGeometryTransform(handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
+        rtcCommitGeometry(handle);
+    }
 };
 
 using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
