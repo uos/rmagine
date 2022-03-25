@@ -65,20 +65,33 @@
 namespace rmagine {
 
 struct EmbreeMesh {
-    RTCGeometry handle;
     unsigned int Nvertices;
     Vertex* vertices;
     unsigned int Nfaces;
     Face* faces;
     Memory<Vector, RAM> normals;
+
+    // embree fields
+    RTCGeometry handle;
+    unsigned int geomID;
+    RTCScene scene;
 };
 
-// struct EmbreeInstance {
-//     RTCGeometry handle;
-//     unsigned int id;
-//     std::vector<EmbreeMesh> meshes;
-//     Matrix4x4 T;
-// };
+using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
+
+struct EmbreeInstance 
+{
+    
+    unsigned int id;
+    EmbreeMeshPtr mesh;
+    Matrix4x4 T;
+
+    // embree fields
+    RTCGeometry handle;
+    unsigned int instID;
+};
+
+using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
 
 struct ClosestPointResult
 {
@@ -110,8 +123,9 @@ public:
     RTCScene scene;
     
     // TODO:
-    // std::vector<EmbreeInstance> instances;
-    std::vector<EmbreeMesh> meshes;
+    
+    std::vector<EmbreeMeshPtr> meshes;
+    std::vector<EmbreeInstancePtr> instances;
 
     RTCPointQueryContext pq_context;
 
