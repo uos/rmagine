@@ -7,6 +7,43 @@
 
 namespace rmagine {
 
+/////////////////
+// EmbreeMesh
+/////////////////
+
+void EmbreeMesh::addInstance(EmbreeInstancePtr instance)
+{
+    m_instances.insert(instance);
+}
+
+bool EmbreeMesh::hasInstance(EmbreeInstancePtr instance) const
+{
+    return m_instances.find(instance) != m_instances.end();
+}
+
+std::unordered_set<EmbreeInstancePtr> EmbreeMesh::instances()
+{
+    return m_instances;
+}
+
+void EmbreeMesh::commit()
+{
+    rtcCommitGeometry(handle);
+}
+
+/////////////////
+// EmbreeInstance
+/////////////////
+void EmbreeInstance::setMesh(EmbreeMeshPtr mesh)
+{
+    m_mesh = mesh;
+}
+
+EmbreeMeshPtr EmbreeInstance::mesh()
+{
+    return m_mesh;
+}
+
 Point closestPointTriangle(
     const Point& p, 
     const Point& a, 
@@ -179,7 +216,6 @@ void convert(const aiMatrix4x4& aT, Matrix4x4& T)
     T(3,3) = aT.d4;
 }
 
-
 EmbreeMap::EmbreeMap(const aiScene* ascene)
 {
     initializeDevice();
@@ -197,10 +233,8 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
         const aiFace* ai_faces = amesh->mFaces;
         int num_faces = amesh->mNumFaces;
 
-
+        
         EmbreeMesh mesh;
-
-
         mesh.scene = rtcNewScene(device);
 
         // RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
@@ -276,11 +310,10 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
                 convert(n->mTransformation, instance.T);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.
-                instance.mesh = meshes[mesh_id];
+                instance.setMesh(meshes[mesh_id]);
 
                 // connect mesh geometry to instance
-                rtcSetGeometryInstancedScene(instance.handle, instance.mesh->scene);
-                // rtcSetGeometryTimeStepCount(instance.handle, 1);
+                rtcSetGeometryInstancedScene(instance.handle, instance.mesh()->scene);
 
                 // attach instance to global scene
                 instance.instID = rtcAttachGeometry(scene, instance.handle);
@@ -299,13 +332,8 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
         }
     }
 
-    // if(instances.size() > 0)
-    // {
-    //     // build instance level support
-    // } else {
-    //     // build without instance level support
+    // what to do with meshes without instance? apply them to upper geometry
 
-    // }
 
     rtcCommitScene(scene);
 

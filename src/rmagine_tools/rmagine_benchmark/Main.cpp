@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     // Total runtime of the Benchmark in seconds
     double benchmark_duration = 10.0;
     // Poses to check per call
-    size_t Nposes = 1024 * 10;
+    size_t Nposes = 10 * 1024;
 
     // minimum 2 arguments
     if(argc < 3)

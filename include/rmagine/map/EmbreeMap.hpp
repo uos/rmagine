@@ -52,11 +52,12 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
+#include <unordered_set>
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/math.h>
 #include <rmagine/types/mesh_types.h>
-
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
@@ -64,7 +65,18 @@
 
 namespace rmagine {
 
-struct EmbreeMesh {
+class EmbreeMesh;
+class EmbreeInstance;
+
+using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
+using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
+
+class EmbreeMesh 
+{
+public:
+
+    // TODO: constructor destructor
+
     unsigned int Nvertices;
     Vertex* vertices;
     unsigned int Nfaces;
@@ -75,18 +87,30 @@ struct EmbreeMesh {
     RTCGeometry handle;
     unsigned int geomID;
     RTCScene scene;
+
+    void addInstance(EmbreeInstancePtr instance);
+    bool hasInstance(EmbreeInstancePtr instance) const;
+    std::unordered_set<EmbreeInstancePtr> instances();
+
+    void commit();
+
+private:
+    // connections
+    std::unordered_set<EmbreeInstancePtr> m_instances;
 };
 
-using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
-
-struct EmbreeInstance 
+class EmbreeInstance 
 {
-    EmbreeMeshPtr mesh;
+public:
     Matrix4x4 T;
 
     // embree fields
     RTCGeometry handle;
     unsigned int instID;
+
+    void setMesh(EmbreeMeshPtr mesh);
+
+    EmbreeMeshPtr mesh();
 
     // Make this more comfortable to use
     // - functions as: setMesh(), or addMesh() ?
@@ -101,9 +125,12 @@ struct EmbreeInstance
         rtcSetGeometryTransform(handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
         rtcCommitGeometry(handle);
     }
+
+private:
+    EmbreeMeshPtr m_mesh;
 };
 
-using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
+
 
 struct ClosestPointResult
 {
