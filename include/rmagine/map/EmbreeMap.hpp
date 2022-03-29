@@ -65,55 +65,64 @@
 
 namespace rmagine {
 
+class EmbreeDevice;
+class EmbreeScene;
 class EmbreeMesh;
 class EmbreeInstance;
 
+using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>;
+using EmbreeScenePtr = std::shared_ptr<EmbreeScene>;
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
 using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
 
-// struct EmbreeMeshPtrHash
-// {
-//     size_t operator()(const EmbreeMeshPtr& mesh)
-//     {
-//         const EmbreeMesh* mesh_ = &(*mesh);
-//         return (size_t)mesh_;
-//     }
-// };
-
-
-// template<typename T>
-// struct hash;
-
-// template<typename T>
-// struct equal_to;
-
-// template<>
-// struct hash<EmbreeInstancePtr>
-// {
-//     size_t operator()(const EmbreeInstancePtr& instance) const
-//     {
-//         const EmbreeInstance* instance_ = &(*instance);
-//         return (size_t)instance_;
-//     }
-// };
-
-// template<>
-// struct equal_to<EmbreeInstancePtr>
-// {
-//     bool operator()(const EmbreeInstancePtr& a, const EmbreeInstancePtr& b) const
-//     {
-//         const EmbreeInstance* a_ = &(*a);
-//         const EmbreeInstance* b_ = &(*b);
-//         return a_ == b_;
-//     }
-// };
 
 using EmbreeInstanceSet = std::unordered_set<EmbreeInstancePtr>;
+
+class EmbreeDevice
+{
+public:
+    EmbreeDevice();
+
+    ~EmbreeDevice();
+
+    RTCDevice handle();
+private:
+    RTCDevice m_device;
+};
+
+class EmbreeScene
+{
+public:
+    EmbreeScene(EmbreeDevicePtr device)
+    {
+        m_scene = rtcNewScene(device->handle());
+    }
+
+    ~EmbreeScene()
+    {
+        rtcReleaseScene(m_scene);
+    }
+
+    RTCScene handle()
+    {
+        return m_scene;
+    }
+
+    void commit()
+    {
+        rtcCommitScene(m_scene);
+    }
+
+private:
+    RTCScene m_scene;
+};
 
 class EmbreeMesh
 {
 public:
     // TODO: constructor destructor
+
+    // EmbreeMesh(RTCDevice device)
 
     unsigned int Nvertices;
     Vertex* vertices;
@@ -124,18 +133,22 @@ public:
     // embree fields
     RTCGeometry handle;
     unsigned int geomID;
-    RTCScene scene;
+
+    void setScene(EmbreeScenePtr scene);
+    EmbreeScenePtr scene();
 
     void addInstance(EmbreeInstancePtr instance);
     bool hasInstance(EmbreeInstancePtr instance) const;
     EmbreeInstanceSet instances();
 
     void commit();
-
 private:
     // connections
     EmbreeInstanceSet m_instances;
+    EmbreeScenePtr m_scene;
 };
+
+
 
 class EmbreeInstance
 {
@@ -143,8 +156,12 @@ public:
     Matrix4x4 T;
 
     // embree fields
+    
     RTCGeometry handle;
     unsigned int instID;
+
+    void setScene(EmbreeScenePtr scene);
+    EmbreeScenePtr scene();
 
     void setMesh(EmbreeMeshPtr mesh);
     EmbreeMeshPtr mesh();
@@ -157,17 +174,14 @@ public:
      * @brief Call update after changing the transformation. TODO TEST
      * 
      */
-    void commit()
-    {
-        rtcSetGeometryTransform(handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
-        rtcCommitGeometry(handle);
-    }
+    void commit();
 
 private:
+    // void attach(RTCScene scene);
+
     EmbreeMeshPtr m_mesh;
+    EmbreeScenePtr m_scene;
 };
-
-
 
 struct ClosestPointResult
 {
@@ -183,7 +197,8 @@ struct ClosestPointResult
     unsigned int geomID;
 };
 
-struct PointQueryUserData {
+struct PointQueryUserData 
+{
     std::vector<EmbreeMesh>* parts;
     ClosestPointResult* result;
 };
@@ -195,9 +210,8 @@ public:
 
     Point closestPoint(const Point& qp);
 
-    RTCDevice device;
-    RTCScene scene;
-    
+    EmbreeDevicePtr device;
+    EmbreeScenePtr scene;
     // TODO:
     
     std::vector<EmbreeMeshPtr> meshes;
@@ -205,8 +219,8 @@ public:
 
     RTCPointQueryContext pq_context;
 
-protected:
-    void initializeDevice();
+// protected:
+//     void initializeDevice();
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
