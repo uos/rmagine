@@ -71,10 +71,48 @@ class EmbreeInstance;
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
 using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
 
-class EmbreeMesh 
+// struct EmbreeMeshPtrHash
+// {
+//     size_t operator()(const EmbreeMeshPtr& mesh)
+//     {
+//         const EmbreeMesh* mesh_ = &(*mesh);
+//         return (size_t)mesh_;
+//     }
+// };
+
+
+// template<typename T>
+// struct hash;
+
+// template<typename T>
+// struct equal_to;
+
+// template<>
+// struct hash<EmbreeInstancePtr>
+// {
+//     size_t operator()(const EmbreeInstancePtr& instance) const
+//     {
+//         const EmbreeInstance* instance_ = &(*instance);
+//         return (size_t)instance_;
+//     }
+// };
+
+// template<>
+// struct equal_to<EmbreeInstancePtr>
+// {
+//     bool operator()(const EmbreeInstancePtr& a, const EmbreeInstancePtr& b) const
+//     {
+//         const EmbreeInstance* a_ = &(*a);
+//         const EmbreeInstance* b_ = &(*b);
+//         return a_ == b_;
+//     }
+// };
+
+using EmbreeInstanceSet = std::unordered_set<EmbreeInstancePtr>;
+
+class EmbreeMesh
 {
 public:
-
     // TODO: constructor destructor
 
     unsigned int Nvertices;
@@ -90,16 +128,16 @@ public:
 
     void addInstance(EmbreeInstancePtr instance);
     bool hasInstance(EmbreeInstancePtr instance) const;
-    std::unordered_set<EmbreeInstancePtr> instances();
+    EmbreeInstanceSet instances();
 
     void commit();
 
 private:
     // connections
-    std::unordered_set<EmbreeInstancePtr> m_instances;
+    EmbreeInstanceSet m_instances;
 };
 
-class EmbreeInstance 
+class EmbreeInstance
 {
 public:
     Matrix4x4 T;
@@ -109,7 +147,6 @@ public:
     unsigned int instID;
 
     void setMesh(EmbreeMeshPtr mesh);
-
     EmbreeMeshPtr mesh();
 
     // Make this more comfortable to use

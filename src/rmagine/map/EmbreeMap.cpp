@@ -21,7 +21,7 @@ bool EmbreeMesh::hasInstance(EmbreeInstancePtr instance) const
     return m_instances.find(instance) != m_instances.end();
 }
 
-std::unordered_set<EmbreeInstancePtr> EmbreeMesh::instances()
+EmbreeInstanceSet EmbreeMesh::instances()
 {
     return m_instances;
 }
@@ -232,7 +232,6 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
         const aiFace* ai_faces = amesh->mFaces;
         int num_faces = amesh->mNumFaces;
-
         
         EmbreeMesh mesh;
         mesh.scene = rtcNewScene(device);
@@ -303,26 +302,31 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             // Leaf
             if(n->mNumMeshes > 0)
             {
-                EmbreeInstance instance;
-                instance.handle = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
+                EmbreeInstancePtr instance(new EmbreeInstance());
+                // std::cout << "EQUAL: " << equal_to<EmbreeInstancePtr>()(instance1, instance2) << std::endl;
+
+                instance->handle = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
                 
                 // convert assimp matrix to internal type
-                convert(n->mTransformation, instance.T);
+                convert(n->mTransformation, instance->T);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.
-                instance.setMesh(meshes[mesh_id]);
+                auto mesh = meshes[mesh_id];
+
+                instance->setMesh(mesh);
+                mesh->addInstance(instance);
 
                 // connect mesh geometry to instance
-                rtcSetGeometryInstancedScene(instance.handle, instance.mesh()->scene);
+                rtcSetGeometryInstancedScene(instance->handle, mesh->scene);
 
                 // attach instance to global scene
-                instance.instID = rtcAttachGeometry(scene, instance.handle);
-                rtcReleaseGeometry(instance.handle);
+                instance->instID = rtcAttachGeometry(scene, instance->handle);
+                rtcReleaseGeometry(instance->handle);
 
-                rtcSetGeometryTransform(instance.handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &instance.T.data[0][0] );
-                rtcCommitGeometry(instance.handle);
+                rtcSetGeometryTransform(instance->handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &instance->T.data[0][0] );
+                rtcCommitGeometry(instance->handle);
 
-                instances.push_back(std::make_shared<EmbreeInstance>(instance) );
+                instances.push_back(instance);
             }
 
         } else {
@@ -334,6 +338,24 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
     // what to do with meshes without instance? apply them to upper geometry
 
+    
+    for(auto mesh : meshes)
+    {
+        if(mesh->instances().size() == 0)
+        {
+            // add mesh to the uppest scene
+            mesh->geomID = rtcAttachGeometry(scene, mesh->handle);
+            rtcReleaseGeometry(mesh->handle);
+        }
+
+        if(mesh->instances().size() == 1)
+        {
+            // delete
+        }
+
+        std::cout << "- " << mesh->instances().size() << std::endl;
+
+    }
 
     rtcCommitScene(scene);
 
