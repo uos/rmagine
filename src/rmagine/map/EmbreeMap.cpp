@@ -42,11 +42,50 @@ RTCDevice EmbreeDevice::handle()
 // EmbreeMesh
 /////////////////
 
+
+EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
+:m_device(device)
+,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+{
+    
+}
+
+EmbreeMesh::EmbreeMesh(
+    EmbreeDevicePtr device, 
+    unsigned int Nvertices, 
+    unsigned int Nfaces)
+:m_device(device)
+,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,Nvertices(Nvertices)
+,Nfaces(Nfaces)
+{
+    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
+                                                RTC_BUFFER_TYPE_VERTEX,
+                                                0,
+                                                RTC_FORMAT_FLOAT3,
+                                                sizeof(Vertex),
+                                                Nvertices));
+
+    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
+                                                    RTC_BUFFER_TYPE_INDEX,
+                                                    0,
+                                                    RTC_FORMAT_UINT3,
+                                                    sizeof(Face),
+                                                    Nfaces));
+}
+
+
 void EmbreeMesh::setScene(EmbreeScenePtr scene)
 {
     m_scene = scene;
     geomID = rtcAttachGeometry(scene->handle(), handle);
     rtcReleaseGeometry(handle);
+}
+
+void EmbreeMesh::setNewScene()
+{
+    EmbreeScenePtr scene(new EmbreeScene(m_device));
+    setScene(scene);
 }
 
 EmbreeScenePtr EmbreeMesh::scene()
@@ -74,13 +113,6 @@ void EmbreeMesh::commit()
     rtcCommitGeometry(handle);
 }
 
-// void EmbreeMesh::attach(RTCScene scene)
-// {
-//     this->scene = scene;
-//     geomID = rtcAttachGeometry(scene->handle(), handle);
-//     rtcReleaseGeometry(handle);
-// }
-
 /////////////////
 // EmbreeInstance
 /////////////////
@@ -91,7 +123,6 @@ void EmbreeInstance::setScene(EmbreeScenePtr scene)
     instID = rtcAttachGeometry(scene->handle(), handle);
     rtcReleaseGeometry(handle);
 }
-
 
 EmbreeScenePtr EmbreeInstance::scene()
 {
@@ -288,13 +319,15 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 {
     // initializeDevice();
     device.reset(new EmbreeDevice);
+    // global scene
     scene.reset(new EmbreeScene(device) );
-    // scene = rtcNewScene(device);
+    
     // rtcSetSceneFlags(scene, RTC_SCENE_FLAG_DYNAMIC);
 
     // new
     for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
     {
+        std::cout << "Load Mesh " << mesh_id << std::endl;
         const aiMesh* amesh = ascene->mMeshes[mesh_id];
 
         const aiVector3D* ai_vertices = amesh->mVertices;
@@ -302,31 +335,13 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
         const aiFace* ai_faces = amesh->mFaces;
         int num_faces = amesh->mNumFaces;
+
+        // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
+        EmbreeMeshPtr mesh(new EmbreeMesh(
+            device, 
+            num_vertices, 
+            num_faces));
         
-
-
-        EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
-        EmbreeMeshPtr mesh(new EmbreeMesh);
-        
-        
-        mesh->handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
-
-        mesh->Nvertices = num_vertices;
-        mesh->vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh->handle,
-                                                        RTC_BUFFER_TYPE_VERTEX,
-                                                        0,
-                                                        RTC_FORMAT_FLOAT3,
-                                                        sizeof(Vertex),
-                                                        num_vertices);
-
-        mesh->Nfaces = num_faces;
-        mesh->faces = (Face*) rtcSetNewGeometryBuffer(mesh->handle,
-                                                    RTC_BUFFER_TYPE_INDEX,
-                                                    0,
-                                                    RTC_FORMAT_UINT3,
-                                                    sizeof(Face),
-                                                    num_faces);
-
         // copy mesh to embree buffers
         for(unsigned int i=0; i<num_vertices; i++)
         {
@@ -355,9 +370,12 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
         }
 
         mesh->commit();
-        mesh->setScene(scene);
 
-        scene->commit();
+
+        // create one scene per
+
+        // old: one scene per mesh. new: figure out if we can detach scene completely
+        
 
         meshes.push_back(mesh);
     }
@@ -371,6 +389,9 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
             // Leaf
             if(n->mNumMeshes > 0)
             {
+
+                std::cout << "Load instance " << instances.size() << std::endl;
+
                 EmbreeInstancePtr instance(new EmbreeInstance());
                 // std::cout << "EQUAL: " << equal_to<EmbreeInstancePtr>()(instance1, instance2) << std::endl;
 
@@ -380,7 +401,13 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
                 convert(n->mTransformation, instance->T);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.
+
+                // get mesh to be instanced
                 auto mesh = meshes[mesh_id];
+                // make one scene per mesh 
+                // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
+                mesh->setNewScene();
+                mesh->scene()->commit();
 
                 // connect mesh geometry to instance and instance to geometry
                 instance->setMesh(mesh);
@@ -403,8 +430,6 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
     }
 
     // what to do with meshes without instance? apply them to upper geometry
-
-    
     for(auto mesh : meshes)
     {
         if(mesh->instances().size() == 0)

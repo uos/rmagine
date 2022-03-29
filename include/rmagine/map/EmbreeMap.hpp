@@ -86,6 +86,7 @@ public:
     ~EmbreeDevice();
 
     RTCDevice handle();
+
 private:
     RTCDevice m_device;
 };
@@ -122,19 +123,29 @@ class EmbreeMesh
 public:
     // TODO: constructor destructor
 
-    // EmbreeMesh(RTCDevice device)
+    EmbreeMesh( EmbreeDevicePtr device);
 
+    EmbreeMesh( EmbreeDevicePtr device, 
+                unsigned int Nvertices, 
+                unsigned int Nfaces);
+
+    // embree constructed buffers
     unsigned int Nvertices;
     Vertex* vertices;
+
     unsigned int Nfaces;
     Face* faces;
+    
+    // more custom attributes
     Memory<Vector, RAM> normals;
 
     // embree fields
     RTCGeometry handle;
     unsigned int geomID;
 
+    
     void setScene(EmbreeScenePtr scene);
+    void setNewScene();
     EmbreeScenePtr scene();
 
     void addInstance(EmbreeInstancePtr instance);
@@ -146,6 +157,7 @@ private:
     // connections
     EmbreeInstanceSet m_instances;
     EmbreeScenePtr m_scene;
+    EmbreeDevicePtr m_device;
 };
 
 
@@ -177,7 +189,6 @@ public:
     void commit();
 
 private:
-    // void attach(RTCScene scene);
 
     EmbreeMeshPtr m_mesh;
     EmbreeScenePtr m_scene;
