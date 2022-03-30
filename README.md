@@ -26,7 +26,6 @@ Query several attributes at intersection.
 
 ![rmagine_attributes](dat/doc/simulation_attributes.png)
 
-
 ## Usage
 
-See Wiki page for further instructions. 
+See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions. 
