@@ -10,7 +10,6 @@ namespace rmagine
 /////////////
 // MultNxN
 ////////
-
 void multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Quaternion, VRAM_CUDA>& B,
@@ -30,6 +29,15 @@ Memory<Vector, VRAM_CUDA> multNxN(
     const Memory<Vector, VRAM_CUDA>& b);
 
 void multNxN(
+    const Memory<Transform, VRAM_CUDA>& T1,
+    const Memory<Transform, VRAM_CUDA>& T2,
+    Memory<Transform, VRAM_CUDA>& Tr);
+
+Memory<Transform, VRAM_CUDA> multNxN(
+    const Memory<Transform, VRAM_CUDA>& T1,
+    const Memory<Transform, VRAM_CUDA>& T2);
+
+void multNxN(
     const Memory<Transform, VRAM_CUDA>& T,
     const Memory<Vector, VRAM_CUDA>& x,
     Memory<Vector, VRAM_CUDA>& c);
@@ -37,6 +45,15 @@ void multNxN(
 Memory<Vector, VRAM_CUDA> multNxN(
     const Memory<Transform, VRAM_CUDA>& T,
     const Memory<Vector, VRAM_CUDA>& x);
+
+void multNxN(
+    const Memory<Matrix3x3, VRAM_CUDA>& M1,
+    const Memory<Matrix3x3, VRAM_CUDA>& M2,
+    Memory<Matrix3x3, VRAM_CUDA>& Mr);
+
+Memory<Matrix3x3, VRAM_CUDA> multNxN(
+    const Memory<Matrix3x3, VRAM_CUDA>& M1,
+    const Memory<Matrix3x3, VRAM_CUDA>& M2);
 
 void multNxN(
     const Memory<Matrix3x3, VRAM_CUDA>& M,
@@ -50,12 +67,59 @@ Memory<Vector, VRAM_CUDA> multNxN(
 /////////////
 // MultNx1
 ////////
-
 void multNx1(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Quaternion, VRAM_CUDA>& b,
     Memory<Quaternion, VRAM_CUDA>& C);
 
+Memory<Quaternion, VRAM_CUDA> multNx1(
+    const Memory<Quaternion, VRAM_CUDA>& A, 
+    const Memory<Quaternion, VRAM_CUDA>& b);
+
+void multNx1(
+    const Memory<Quaternion, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b, 
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> multNx1(
+    const Memory<Quaternion, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b);
+
+void multNx1(
+    const Memory<Transform, VRAM_CUDA>& T1,
+    const Memory<Transform, VRAM_CUDA>& t2,
+    Memory<Transform, VRAM_CUDA>& Tr);
+
+Memory<Transform, VRAM_CUDA> multNx1(
+    const Memory<Transform, VRAM_CUDA>& T1,
+    const Memory<Transform, VRAM_CUDA>& t2);
+
+void multNx1(
+    const Memory<Transform, VRAM_CUDA>& T,
+    const Memory<Vector, VRAM_CUDA>& x,
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> multNx1(
+    const Memory<Transform, VRAM_CUDA>& T,
+    const Memory<Vector, VRAM_CUDA>& x);
+
+void multNx1(
+    const Memory<Matrix3x3, VRAM_CUDA>& M1,
+    const Memory<Matrix3x3, VRAM_CUDA>& m2,
+    Memory<Matrix3x3, VRAM_CUDA>& Mr);
+
+Memory<Matrix3x3, VRAM_CUDA> multNx1(
+    const Memory<Matrix3x3, VRAM_CUDA>& M1,
+    const Memory<Matrix3x3, VRAM_CUDA>& m2);
+
+void multNx1(
+    const Memory<Matrix3x3, VRAM_CUDA>& M,
+    const Memory<Vector, VRAM_CUDA>& x,
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> multNx1(
+    const Memory<Matrix3x3, VRAM_CUDA>& M,
+    const Memory<Vector, VRAM_CUDA>& x);
 
 } // namespace rmagine
 

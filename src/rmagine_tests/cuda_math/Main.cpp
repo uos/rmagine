@@ -40,11 +40,21 @@ int main(int argc, char** argv)
     StopWatch sw;
     double el;
 
+
+    Memory<Vector, RAM_CUDA> v1(1);
+    Memory<Quaternion, RAM_CUDA> Q1(1);
+    Memory<Transform, RAM_CUDA> T1(1);
+    Memory<Matrix3x3, RAM_CUDA> M1(1);
+
+    v1[0].setZeros();
+    Q1[0].setIdentity();
+    T1[0].setIdentity();
+    M1[0].setIdentity();
+
     size_t N = 100000;
     Memory<Vector, RAM_CUDA> v(N);
     Memory<Quaternion, RAM_CUDA> Q(N);
     Memory<Transform, RAM_CUDA> T(N);
-
     Memory<Matrix3x3, RAM_CUDA> M(N);
 
     for(size_t i=0; i<N; i++)
@@ -92,14 +102,20 @@ int main(int argc, char** argv)
     print(M[N-1]);
 
     // Upload
-    Memory<Vector, VRAM_CUDA> d_v;
-    Memory<Quaternion, VRAM_CUDA> d_Q;
-    Memory<Transform, VRAM_CUDA> d_T;
-    Memory<Matrix3x3, VRAM_CUDA> d_M;
+    Memory<Vector, VRAM_CUDA> d_v, d_v1;
+    Memory<Quaternion, VRAM_CUDA> d_Q, d_Q1;
+    Memory<Transform, VRAM_CUDA> d_T, d_T1;
+    Memory<Matrix3x3, VRAM_CUDA> d_M, d_M1;
     d_v = v;
     d_Q = Q;
     d_T = T;
     d_M = M;
+    d_v1 = v1;
+    d_Q1 = Q1;
+    d_T1 = T1;
+    d_M1 = M1;
+
+
 
     std::cout << std::endl;
     std::cout << "Testing returning NxN functions with N = " << N << std::endl;
@@ -161,6 +177,19 @@ int main(int argc, char** argv)
     std::cout << "3. multNxN Matrix3x3 x Vector:" << std::endl; 
     std::cout << "- " << "Runtime: " << el << "s" << std::endl;
     std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+    // other functions
+    
+    std::cout << "Testing multNx1 functions" << std::endl;
+    multNx1(d_Q, d_Q1, d_Q);
+    d_Q = multNx1(d_Q, d_Q1);
+    multNx1(d_Q, d_v1, d_v);
+    d_v = multNx1(d_Q, d_v1);
+    multNx1(d_T, d_v1, d_v);
+    
+
+
+
 
 
     return 0;
