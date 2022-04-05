@@ -5,12 +5,17 @@
 namespace rmagine 
 {
 
-/// QUATERNION
+////////
+// Generic Kernel
+///
+
+template<typename In1T, typename In2T, typename ResT>
 __global__ void multNxN_kernel(
-    const Quaternion* A,
-    const Quaternion* B,
-    Quaternion* C,
-    unsigned int N)
+    const In1T* A,
+    const In2T* B,
+    ResT* C,
+    unsigned int N
+)
 {
     const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
     if(id < N)
@@ -19,6 +24,37 @@ __global__ void multNxN_kernel(
     }
 }
 
+template<typename In1T, typename In2T, typename ResT>
+__global__ void multNx1_kernel(
+    const In1T* A,
+    const In2T* b,
+    ResT* C,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id] = A[id] * b[0];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+__global__ void mult1xN_kernel(
+    const In1T* a,
+    const In2T* B,
+    ResT* C,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id] = a[0] * B[id];
+    }
+}
+
+
+////////////
+// #multNxN
 void multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Quaternion, VRAM_CUDA>& B,
@@ -37,19 +73,6 @@ Memory<Quaternion, VRAM_CUDA> multNxN(
     // mult
     multNxN(A, B, C);
     return C;
-}
-
-__global__ void multNxN_kernel(
-    const Quaternion* A,
-    const Vector* b,
-    Vector* c,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        c[id] = A[id] * b[id];
-    }
 }
 
 void multNxN(
@@ -72,19 +95,6 @@ Memory<Vector, VRAM_CUDA> multNxN(
 }
 
 /// TRANSFORM
-__global__ void multNxN_kernel(
-    const Transform* T1,
-    const Transform* T2,
-    Transform* Tr,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        Tr[id] = T1[id] * T2[id];
-    }
-}
-
 void multNxN(
     const Memory<Transform, VRAM_CUDA>& T1,
     const Memory<Transform, VRAM_CUDA>& T2,
@@ -102,19 +112,6 @@ Memory<Transform, VRAM_CUDA> multNxN(
     Memory<Transform, VRAM_CUDA> Tr(T1.size());
     multNxN(T1,T2,Tr);
     return Tr;
-}
-
-__global__ void multNxN_kernel(
-    const Transform* T,
-    const Vector* x,
-    Vector* c,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        c[id] = T[id] * x[id];
-    }
 }
 
 void multNxN(
@@ -136,19 +133,6 @@ Memory<Vector, VRAM_CUDA> multNxN(
     return c;
 }
 
-__global__ void multNxN_kernel(
-    const Matrix3x3* M1,
-    const Matrix3x3* M2,
-    Matrix3x3* Mr,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        Mr[id] = M1[id] * M2[id];
-    }
-}
-
 void multNxN(
     const Memory<Matrix3x3, VRAM_CUDA>& M1,
     const Memory<Matrix3x3, VRAM_CUDA>& M2,
@@ -166,19 +150,6 @@ Memory<Matrix3x3, VRAM_CUDA> multNxN(
     Memory<Matrix3x3, VRAM_CUDA> Mr(M1.size());
     multNxN(M1,M2,Mr);
     return Mr;
-}
-
-__global__ void multNxN_kernel(
-    const Matrix3x3* M,
-    const Vector* x,
-    Vector* c,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        c[id] = M[id] * x[id];
-    }
 }
 
 void multNxN(
@@ -202,21 +173,8 @@ Memory<Vector, VRAM_CUDA> multNxN(
 
 
 ////////
-// MultNx1
+// #multNx1
 ///
-__global__ void multNx1_kernel(
-    const Quaternion* A,
-    const Quaternion* b,
-    Quaternion* C,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        C[id] = A[id] * b[0];
-    }
-}
-
 void multNx1(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Quaternion, VRAM_CUDA>& b,
@@ -235,19 +193,6 @@ Memory<Quaternion, VRAM_CUDA> multNx1(
     // mult
     multNx1(A, b, C);
     return C;
-}
-
-__global__ void multNx1_kernel(
-    const Quaternion* A,
-    const Vector* b,
-    Vector* C,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        C[id] = A[id] * b[0];
-    }
 }
 
 void multNx1(
@@ -269,19 +214,6 @@ Memory<Vector, VRAM_CUDA> multNx1(
     return C;
 }
 
-__global__ void multNx1_kernel(
-    const Transform* T1,
-    const Transform* t2,
-    Transform* Tr,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        Tr[id] = T1[id] * t2[0];
-    }
-}
-
 void multNx1(
     const Memory<Transform, VRAM_CUDA>& T1,
     const Memory<Transform, VRAM_CUDA>& t2,
@@ -299,19 +231,6 @@ Memory<Transform, VRAM_CUDA> multNx1(
     Memory<Transform, VRAM_CUDA> Tr(T1.size());
     multNx1(T1,t2,Tr);
     return Tr;
-}
-
-__global__ void multNx1_kernel(
-    const Transform* T,
-    const Vector* x,
-    Vector* C,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        C[id] = T[id] * x[0];
-    }
 }
 
 void multNx1(
@@ -333,19 +252,6 @@ Memory<Vector, VRAM_CUDA> multNx1(
     return C;
 }
 
-__global__ void multNx1_kernel(
-    const Matrix3x3* M1,
-    const Matrix3x3* m2,
-    Matrix3x3* Mr,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        Mr[id] = M1[id] * m2[0];
-    }
-}
-
 void multNx1(
     const Memory<Matrix3x3, VRAM_CUDA>& M1,
     const Memory<Matrix3x3, VRAM_CUDA>& m2,
@@ -365,19 +271,6 @@ Memory<Matrix3x3, VRAM_CUDA> multNx1(
     return Mr;
 }
 
-__global__ void multNx1_kernel(
-    const Matrix3x3* M,
-    const Vector* x,
-    Vector* C,
-    unsigned int N)
-{
-    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    if(id < N)
-    {
-        C[id] = M[id] * x[0];
-    }
-}
-
 void multNx1(
     const Memory<Matrix3x3, VRAM_CUDA>& M,
     const Memory<Vector, VRAM_CUDA>& x,
@@ -395,6 +288,123 @@ Memory<Vector, VRAM_CUDA> multNx1(
     Memory<Vector, VRAM_CUDA> c(M.size());
     multNx1(M, x, c);
     return c;
+}
+
+/////////////
+// #mult1xN
+////////
+void mult1xN(
+    const Memory<Quaternion, VRAM_CUDA>& a,
+    const Memory<Quaternion, VRAM_CUDA>& B,
+    Memory<Quaternion, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (B.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(a.raw(), B.raw(), C.raw(), B.size());
+}
+
+Memory<Quaternion, VRAM_CUDA> mult1xN(
+    const Memory<Quaternion, VRAM_CUDA>& a, 
+    const Memory<Quaternion, VRAM_CUDA>& B)
+{
+    Memory<Quaternion, VRAM_CUDA> C(B.size());
+    mult1xN(a, B, C);
+    return C;
+}
+
+void mult1xN(
+    const Memory<Quaternion, VRAM_CUDA>& a,
+    const Memory<Vector, VRAM_CUDA>& B, 
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (B.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(a.raw(), B.raw(), C.raw(), B.size());
+}
+
+Memory<Vector, VRAM_CUDA> mult1xN(
+    const Memory<Quaternion, VRAM_CUDA>& a,
+    const Memory<Vector, VRAM_CUDA>& B)
+{
+    Memory<Vector, VRAM_CUDA> C(B.size());
+    mult1xN(a, B, C);
+    return C;
+}
+
+void mult1xN(
+    const Memory<Transform, VRAM_CUDA>& t1,
+    const Memory<Transform, VRAM_CUDA>& T2,
+    Memory<Transform, VRAM_CUDA>& Tr)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (T2.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(t1.raw(), T2.raw(), Tr.raw(), T2.size());
+}
+
+Memory<Transform, VRAM_CUDA> mult1xN(
+    const Memory<Transform, VRAM_CUDA>& t1,
+    const Memory<Transform, VRAM_CUDA>& T2)
+{
+    Memory<Transform, VRAM_CUDA> Tr(T2.size());
+    mult1xN(t1, T2, Tr);
+    return Tr;
+}
+
+void mult1xN(
+    const Memory<Transform, VRAM_CUDA>& t,
+    const Memory<Vector, VRAM_CUDA>& X,
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (X.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(t.raw(), X.raw(), C.raw(), X.size());
+}
+
+Memory<Vector, VRAM_CUDA> mult1xN(
+    const Memory<Transform, VRAM_CUDA>& t,
+    const Memory<Vector, VRAM_CUDA>& X)
+{
+    Memory<Vector, VRAM_CUDA> C(X.size());
+    mult1xN(t, X, C);
+    return C;
+}
+
+void mult1xN(
+    const Memory<Matrix3x3, VRAM_CUDA>& m1,
+    const Memory<Matrix3x3, VRAM_CUDA>& M2,
+    Memory<Matrix3x3, VRAM_CUDA>& Mr)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (M2.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(m1.raw(), M2.raw(), Mr.raw(), M2.size());
+}
+
+Memory<Matrix3x3, VRAM_CUDA> mult1xN(
+    const Memory<Matrix3x3, VRAM_CUDA>& m1,
+    const Memory<Matrix3x3, VRAM_CUDA>& M2)
+{
+    Memory<Matrix3x3, VRAM_CUDA> Mr(M2.size());
+    mult1xN(m1, M2, Mr);
+    return Mr;
+}
+
+void mult1xN(
+    const Memory<Matrix3x3, VRAM_CUDA>& m,
+    const Memory<Vector, VRAM_CUDA>& X,
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (X.size() + blockSize - 1) / blockSize;
+    mult1xN_kernel<<<gridSize, blockSize>>>(m.raw(), X.raw(), C.raw(), X.size());
+}
+
+Memory<Vector, VRAM_CUDA> mult1xN(
+    const Memory<Matrix3x3, VRAM_CUDA>& m,
+    const Memory<Vector, VRAM_CUDA>& X)
+{
+    Memory<Vector, VRAM_CUDA> C(X.size());
+    mult1xN(m, X, C);
+    return C;
 }
 
 } // namespace rmagine

@@ -33,13 +33,167 @@ void print(Transform T)
     print(T.t);
 }
 
-int main(int argc, char** argv)
+void cpu_math()
 {
-    std::cout << "Rmagine Test: Cuda Math" << std::endl;
-
     StopWatch sw;
     double el;
 
+    Memory<Vector, RAM> v1(1);
+    Memory<Quaternion, RAM> Q1(1);
+    Memory<Transform, RAM> T1(1);
+    Memory<Matrix3x3, RAM> M1(1);
+
+    v1[0].setZeros();
+    Q1[0].setIdentity();
+    T1[0].setIdentity();
+    M1[0].setIdentity();
+
+    size_t N = 100000;
+    Memory<Vector, RAM> v(N);
+    Memory<Quaternion, RAM> Q(N);
+    Memory<Transform, RAM> T(N);
+    Memory<Matrix3x3, RAM> M(N);
+
+    for(size_t i=0; i<N; i++)
+    {
+        v[i].x = 1.0;
+        v[i].y = 2.0;
+        v[i].z = 3.0;
+
+        Q[i].x = 0.0;
+        Q[i].y = 0.0;
+        Q[i].z = 0.0;
+        Q[i].w = 1.0;
+
+        T[i].R = Q[i];
+        T[i].t.x = 1.0;
+        T[i].t.y = 0.0;
+        T[i].t.z = -1.0;
+
+        for(size_t j=0; j<3; j++)
+        {
+            for(size_t k=0; k<3; k++)
+            {
+                if(j == k)
+                {
+                    M[i][j][k] = 1.0;
+                } else {
+                    M[i][j][k] = 0.0;
+                }
+            }
+        }
+    }
+
+    std::cout << "Test Data:" << std::endl;
+
+    std::cout << "- Vector: " << std::endl;
+    print(v[N-1]);
+
+    std::cout << "- Quaternion: " << std::endl;
+    print(Q[N-1]);
+
+    std::cout << "- Transform: " << std::endl;
+    print(T[N-1]);
+
+    std::cout << "- Matrix3x3: " << std::endl;
+    print(M[N-1]);
+
+
+    std::cout << std::endl;
+    std::cout << "Testing returning NxN functions with N = " << N << std::endl;
+
+    // Math and download
+    Memory<Vector, RAM> res(N);
+    // run once without measuring time. Cudas first run seems to be slow
+    
+    sw();
+    res = multNxN(Q, v);
+    el = sw();
+    std::cout << "1. multNxN Quaternion x Vector:" << std::endl; 
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+    sw();
+    res = multNxN(T, v);
+    el = sw();
+    std::cout << "2. multNxN Transform x Vector:" << std::endl;
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+    sw();
+    res = multNxN(M, v);
+    el = sw();
+
+    std::cout << "3. multNxN Matrix3x3 x Vector:" << std::endl;
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Testing none-returning NxN functions with N = " << N << std::endl;
+    sw();
+    multNxN(Q, v, res);
+    el = sw();
+    std::cout << "1. multNxN Quaternion x Vector:" << std::endl; 
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+
+    sw();
+    multNxN(T, v, res);
+    el = sw();
+    std::cout << "2. multNxN Transform x Vector:" << std::endl; 
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+
+    sw();
+    multNxN(M, v, res);
+    el = sw();
+    std::cout << "3. multNxN Matrix3x3 x Vector:" << std::endl; 
+    std::cout << "- " << "Runtime: " << el << "s" << std::endl;
+    std::cout << "- Result: "<< res[N-1].x << " " << res[N-1].y << " " << res[N-1].z << std::endl;
+
+    // other functions
+    
+    std::cout << "Testing multNx1 functions" << std::endl;
+    multNx1(Q, Q1, Q);
+    Q = multNx1(Q, Q1);
+    multNx1(Q, v1, v);
+    v = multNx1(Q, v1);
+    
+    multNx1(T, T1, T);
+    T = multNx1(T, T1);
+    multNx1(T, v1, v);
+    v = multNx1(T, v1);
+    
+    multNx1(M, M1, M);
+    M = multNx1(M, M1);
+    multNx1(M, v1, v);
+    v = multNx1(M, v1);
+
+
+    std::cout << "Testing mult1xN functions" << std::endl;
+    
+    mult1xN(Q1, Q, Q);
+    Q = mult1xN(Q1, Q);
+    mult1xN(Q1, v, v);
+    v = mult1xN(Q1, v);
+
+    mult1xN(T1, T, T);
+    T = mult1xN(T1, T);
+    mult1xN(T1, v, v);
+    v = mult1xN(T1, v);
+    
+    mult1xN(M1, M, M);
+    M = mult1xN(M1, M);
+    mult1xN(M1, v, v);
+    v = mult1xN(M1, v);
+}
+
+void cuda_math()
+{
+    StopWatch sw;
+    double el;
 
     Memory<Vector, RAM_CUDA> v1(1);
     Memory<Quaternion, RAM_CUDA> Q1(1);
@@ -185,12 +339,47 @@ int main(int argc, char** argv)
     d_Q = multNx1(d_Q, d_Q1);
     multNx1(d_Q, d_v1, d_v);
     d_v = multNx1(d_Q, d_v1);
-    multNx1(d_T, d_v1, d_v);
     
+    multNx1(d_T, d_T1, d_T);
+    d_T = multNx1(d_T, d_T1);
+    multNx1(d_T, d_v1, d_v);
+    d_v = multNx1(d_T, d_v1);
+    
+    multNx1(d_M, d_M1, d_M);
+    d_M = multNx1(d_M, d_M1);
+    multNx1(d_M, d_v1, d_v);
+    d_v = multNx1(d_M, d_v1);
+
+
+    std::cout << "Testing mult1xN functions" << std::endl;
+    
+    mult1xN(d_Q1, d_Q, d_Q);
+    d_Q = mult1xN(d_Q1, d_Q);
+    mult1xN(d_Q1, d_v, d_v);
+    d_v = mult1xN(d_Q1, d_v);
+
+    mult1xN(d_T1, d_T, d_T);
+    d_T = mult1xN(d_T1, d_T);
+    mult1xN(d_T1, d_v, d_v);
+    d_v = mult1xN(d_T1, d_v);
+    
+    mult1xN(d_M1, d_M, d_M);
+    d_M = mult1xN(d_M1, d_M);
+    mult1xN(d_M1, d_v, d_v);
+    d_v = mult1xN(d_M1, d_v);
+
+}
 
 
 
+int main(int argc, char** argv)
+{
 
+    std::cout << "Rmagine Test: CPU Math" << std::endl;
+    cpu_math();
+
+    std::cout << "Rmagine Test: Cuda Math" << std::endl;
+    cuda_math();
 
     return 0;
 }

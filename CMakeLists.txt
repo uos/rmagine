@@ -112,6 +112,7 @@ add_library(rmagine SHARED
     # Maps
     src/rmagine/map/AssimpMap.cpp
     # Math
+    src/rmagine/math/math.cpp
     # Types
     src/rmagine/types/Memory.cpp
     # Util
