@@ -375,6 +375,7 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime
+    // if accelerated: how to handle object ids. Geometry ID or instance ID?
     bool instanced = false;
 
     if(instanced)
