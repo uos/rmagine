@@ -3,6 +3,7 @@
 
 #include <rmagine/math/types.h>
 #include <rmagine/types/Memory.hpp>
+#include <vector>
 
 namespace rmagine
 {
@@ -177,6 +178,30 @@ void mult1xN(
 Memory<Vector, RAM> mult1xN(
     const Memory<Matrix3x3, RAM>& m,
     const Memory<Vector, RAM>& X);
+
+//////
+// #mean
+inline Vector mean(const Memory<Vector, RAM>& X);
+
+void mean2(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& m);
+Memory<Vector,RAM> mean2(const Memory<Vector, RAM>& X);
+
+// void mean3(const Memory<Vector, RAM>& X, std::vector<Vector>& m);
+// std::vector<Vector> mean3(const Memory<Vector, RAM>& X);
+
+inline Vector mean(const Memory<Vector, RAM>& X)
+{
+    Vector m_ = {0, 0, 0};
+    float N = static_cast<float>(X.size());
+    for(unsigned int i=0; i<X.size(); i++)
+    {
+        m_ += X[i];
+    }
+    m_ /= N;
+    return m_;
+}
+
+
 
 } // namespace rmagine
 

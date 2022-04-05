@@ -357,4 +357,20 @@ Memory<Vector, RAM> mult1xN(
     return C;
 }
 
+
+////////
+// #mean
+
+void mean2(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& m)
+{
+    m[0] = mean(X);
+}
+
+Memory<Vector, RAM> mean2(const Memory<Vector, RAM>& X)
+{
+    Memory<Vector, RAM> m(1);
+    mean2(X, m);
+    return m;
+}
+
 } // namespace rmagine

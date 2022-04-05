@@ -158,7 +158,10 @@ if(CUDA_FOUND)
 
 add_library(rmagine_cuda SHARED
     src/rmagine/types/MemoryCuda.cu
+    # math
     src/rmagine/math/math.cu
+    src/rmagine/math/SVD_cuda.cpp
+    # util
     src/rmagine/util/cuda/CudaContext.cpp
     # Noise
     src/rmagine/noise/noise.cu
@@ -167,6 +170,8 @@ add_library(rmagine_cuda SHARED
 target_link_libraries(rmagine_cuda
     rmagine
     ${CUDA_LIBRARIES}
+    ${CUDA_cusolver_LIBRARY}
+    ${CUDA_cublas_LIBRARY}
     ${CUDA_CUDA_LIBRARY}
 )
 
@@ -302,6 +307,7 @@ add_subdirectory(src/rmagine_tests/synthetic)
 if(CUDA_FOUND)
 
 add_subdirectory(src/rmagine_tests/cuda_math)
+add_subdirectory(src/rmagine_tests/svd)
 
 if(OptiX_FOUND)
 add_subdirectory(src/rmagine_tests/optix_sim)

@@ -1,0 +1,3 @@
+
+add_executable(rmagine_tests_svd Main.cpp)
+target_link_libraries(rmagine_tests_svd rmagine_cuda)
