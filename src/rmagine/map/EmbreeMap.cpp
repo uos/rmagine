@@ -74,6 +74,74 @@ EmbreeMesh::EmbreeMesh(
                                                     Nfaces));
 }
 
+EmbreeMesh::EmbreeMesh( 
+    EmbreeDevicePtr device,
+    const aiMesh* amesh)
+:m_device(device)
+,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,Nvertices(amesh->mNumVertices)
+,Nfaces(amesh->mNumFaces)
+{
+    const aiVector3D* ai_vertices = amesh->mVertices;
+    int num_vertices = amesh->mNumVertices;
+
+    const aiFace* ai_faces = amesh->mFaces;
+    int num_faces = amesh->mNumFaces;
+
+    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
+                                                RTC_BUFFER_TYPE_VERTEX,
+                                                0,
+                                                RTC_FORMAT_FLOAT3,
+                                                sizeof(Vertex),
+                                                Nvertices));
+
+    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
+                                                    RTC_BUFFER_TYPE_INDEX,
+                                                    0,
+                                                    RTC_FORMAT_UINT3,
+                                                    sizeof(Face),
+                                                    Nfaces));
+
+    // copy mesh to embree buffers
+    for(unsigned int i=0; i<num_vertices; i++)
+    {
+        // mesh.vertices[i] = {ai_vertices[i].x, ai_vertices[i].y, ai_vertices[i].z};
+        vertices[i].x = ai_vertices[i].x;
+        vertices[i].y = ai_vertices[i].y;
+        vertices[i].z = ai_vertices[i].z;
+    }
+
+    for(int i=0; i<num_faces; i++)
+    {
+        // mesh.faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
+        faces[i].v0 = ai_faces[i].mIndices[0];
+        faces[i].v1 = ai_faces[i].mIndices[1];
+        faces[i].v2 = ai_faces[i].mIndices[2];
+    }
+
+    normals.resize(amesh->mNumFaces);
+    for(size_t i=0; i<amesh->mNumFaces; i++)
+    {
+        const Vector v0 = vertices[faces[i].v0];
+        const Vector v1 = vertices[faces[i].v1];
+        const Vector v2 = vertices[faces[i].v2];
+        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+        normals[i] = n;
+    }
+}
+
+void EmbreeMesh::transform(const Matrix4x4& T)
+{
+    for(unsigned int i=0; i<Nvertices; i++)
+    {
+        vertices[i] = T * vertices[i];
+    }
+
+    for(unsigned int i=0; i<normals.size(); i++)
+    {
+        normals[i] = T.rotation() * normals[i];
+    }
+}
 
 void EmbreeMesh::setScene(EmbreeScenePtr scene)
 {
@@ -177,20 +245,6 @@ Point closestPointTriangle(
     float p1 = p_in_t.y;
 
     // Instead of this
-
-    // Eigen::Matrix3f R;
-    // R.col(0) = Eigen::Vector3f(ab.x, ab.y, ab.z);
-    // R.col(1) = Eigen::Vector3f(ac.x, ac.y, ac.z);
-    // R.col(2) = Eigen::Vector3f(n.x, n.y, n.z);
-    
-    // const Eigen::Matrix3f Rinv = R.inverse();
-    // const Eigen::Vector3f p_in_t = Rinv * Eigen::Vector3f(ap.x, ap.y, ap.z);
-
-    // // p0 * ab + p1 * ac + p2 * n == ap
-    // // projection: p0 * ab + p1 * ac
-    // float p0 = p_in_t.x();
-    // float p1 = p_in_t.y();
-
     const bool on_ab_edge = (p0 >= 0.f && p0 <= 1.f);
     const bool on_ac_edge = (p1 >= 0.f && p1 <= 1.f);
 
@@ -236,7 +290,6 @@ Point closestPointTriangle(
 
 bool closestPointFunc(RTCPointQueryFunctionArguments* args)
 {
-    // std::cout << "closestPointFunc called." << std::endl;
     assert(args->userPtr);
     const unsigned int geomID = args->geomID;
     const unsigned int primID = args->primID;
@@ -249,8 +302,6 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
 
     // query position in world space
     Vector q{args->query->x, args->query->y, args->query->z};
-
-    // std::cout << "- Query: " << q.transpose() << std::endl;
     
     /*
     * Get triangle information in global space
@@ -284,8 +335,6 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     return false;
 }
 
-
-
 void print(const aiMatrix4x4& T)
 {
     std::cout << T.a1 << " " << T.a2 << " " << T.a3 << " " << T.a4 << std::endl;
@@ -296,7 +345,6 @@ void print(const aiMatrix4x4& T)
 
 void convert(const aiMatrix4x4& aT, Matrix4x4& T)
 {
-    // TODO: check
     T(0,0) = aT.a1;
     T(0,1) = aT.a2;
     T(0,2) = aT.a3;
@@ -322,125 +370,52 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
     // global scene
     scene.reset(new EmbreeScene(device) );
     
-    // rtcSetSceneFlags(scene, RTC_SCENE_FLAG_DYNAMIC);
+    meshes = loadMeshes(ascene);
+    instances = loadInstances(ascene->mRootNode, meshes);
 
-    // new
-    for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
+    // instancing implemented. can be enabled with this flag
+    // - problem: slower runtime
+    bool instanced = false;
+
+    if(instanced)
     {
-        std::cout << "Load Mesh " << mesh_id << std::endl;
-        const aiMesh* amesh = ascene->mMeshes[mesh_id];
-
-        const aiVector3D* ai_vertices = amesh->mVertices;
-        int num_vertices = amesh->mNumVertices;
-
-        const aiFace* ai_faces = amesh->mFaces;
-        int num_faces = amesh->mNumFaces;
-
-        // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
-        EmbreeMeshPtr mesh(new EmbreeMesh(
-            device, 
-            num_vertices, 
-            num_faces));
-        
-        // copy mesh to embree buffers
-        for(unsigned int i=0; i<num_vertices; i++)
+        std::cout << "Using Embree with Instance Level" << std::endl;
+        for(auto instance : instances)
         {
-            // mesh.vertices[i] = {ai_vertices[i].x, ai_vertices[i].y, ai_vertices[i].z};
-            mesh->vertices[i].x = ai_vertices[i].x;
-            mesh->vertices[i].y = ai_vertices[i].y;
-            mesh->vertices[i].z = ai_vertices[i].z;
+            instance->setScene(scene);
         }
 
-        for(int i=0; i<num_faces; i++)
+        // what to do with meshes without instance? apply them to upper geometry
+        for(auto mesh : meshes)
         {
-            // mesh.faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
-            mesh->faces[i].v0 = ai_faces[i].mIndices[0];
-            mesh->faces[i].v1 = ai_faces[i].mIndices[1];
-            mesh->faces[i].v2 = ai_faces[i].mIndices[2];
-        }        
-
-        mesh->normals.resize(amesh->mNumFaces);
-        for(size_t i=0; i<amesh->mNumFaces; i++)
-        {
-            const Vector v0 = mesh->vertices[mesh->faces[i].v0];
-            const Vector v1 = mesh->vertices[mesh->faces[i].v1];
-            const Vector v2 = mesh->vertices[mesh->faces[i].v2];
-            Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
-            mesh->normals[i] = n;
-        }
-
-        mesh->commit();
-
-
-        // create one scene per
-
-        // old: one scene per mesh. new: figure out if we can detach scene completely
-        
-
-        meshes.push_back(mesh);
-    }
-
-    const aiNode* root_node = ascene->mRootNode;
-    for(unsigned int i=0; i<root_node->mNumChildren; i++)
-    {
-        const aiNode* n = root_node->mChildren[i];
-        if(n->mNumChildren == 0)
-        {
-            // Leaf
-            if(n->mNumMeshes > 0)
+            if(mesh->instances().size() == 0)
             {
-
-                std::cout << "Load instance " << instances.size() << std::endl;
-
-                EmbreeInstancePtr instance(new EmbreeInstance());
-                // std::cout << "EQUAL: " << equal_to<EmbreeInstancePtr>()(instance1, instance2) << std::endl;
-
-                instance->handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
-                
-                // convert assimp matrix to internal type
-                convert(n->mTransformation, instance->T);
-                unsigned int mesh_id = n->mMeshes[0];
-                // instance.
-
-                // get mesh to be instanced
-                auto mesh = meshes[mesh_id];
-                // make one scene per mesh 
-                // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
-                mesh->setNewScene();
-                mesh->scene()->commit();
-
-                // connect mesh geometry to instance and instance to geometry
-                instance->setMesh(mesh);
-                mesh->addInstance(instance);
-
-                // commit
-                instance->commit();
-
-                // attach to scene
-                instance->setScene(scene);
-
-                instances.push_back(instance);
+                // add mesh to the uppest scene
+                mesh->setScene(scene);
             }
 
-        } else {
-            // TODO: handle deeper tree. concatenate transformations
-            std::cout << "Found instance tree in map. Currently not supported." << std::endl;
-            std::cout << "- Children: " << n->mNumChildren << std::endl;
+            if(mesh->instances().size() == 1)
+            {
+                // delete
+            }
         }
-    }
-
-    // what to do with meshes without instance? apply them to upper geometry
-    for(auto mesh : meshes)
-    {
-        if(mesh->instances().size() == 0)
+    } else {
+        std::cout << "Using Embree without Instance Level" << std::endl;
+        // transform each mesh
+        for(auto mesh : meshes)
         {
-            // add mesh to the uppest scene
+            if(mesh->instances().size() == 1)
+            {
+                auto instance = *(mesh->instances().begin());
+                mesh->transform(instance->T);
+                instance->T.setIdentity();
+            } 
+            else if(mesh->instances().size() > 1) 
+            {
+                std::cout << "Mesh has more than one instances. Instanced built is required!" << std::endl;
+            }
+
             mesh->setScene(scene);
-        }
-
-        if(mesh->instances().size() == 1)
-        {
-            // delete
         }
     }
 
@@ -456,6 +431,7 @@ EmbreeMap::~EmbreeMap()
 
 Point EmbreeMap::closestPoint(const Point& qp)
 {
+    std::cout << "TODO: check if closestPoint is working after refactoring" << std::endl;
     RTCPointQuery query;
     query.x = qp.x; 
     query.y = qp.y;
@@ -479,16 +455,69 @@ Point EmbreeMap::closestPoint(const Point& qp)
     return result.p;
 }
 
-// void EmbreeMap::initializeDevice()
-// {
-//     device = rtcNewDevice(NULL);
+std::vector<EmbreeMeshPtr> EmbreeMap::loadMeshes(const aiScene* ascene)
+{
+    std::vector<EmbreeMeshPtr> meshes;
+    for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
+    {
+        const aiMesh* amesh = ascene->mMeshes[mesh_id];
+        EmbreeMeshPtr mesh(new EmbreeMesh(device, amesh));
+        mesh->commit();
+        meshes.push_back(mesh);
+    }
 
-//     if (!device)
-//     {
-//         std::cerr << "error " << rtcGetDeviceError(NULL) << ": cannot create device" << std::endl;
-//     }
+    return meshes;
+}
 
-//     rtcSetDeviceErrorFunction(device, errorFunction, NULL);
-// }
+std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
+    const aiNode* root_node,
+    std::vector<EmbreeMeshPtr>& meshes)
+{
+    std::vector<EmbreeInstancePtr> instances;
+
+    for(unsigned int i=0; i<root_node->mNumChildren; i++)
+    {
+        const aiNode* n = root_node->mChildren[i];
+        if(n->mNumChildren == 0)
+        {
+            // Leaf
+            if(n->mNumMeshes > 0)
+            {
+                EmbreeInstancePtr instance(new EmbreeInstance());
+                instance->handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
+                
+                // convert assimp matrix to internal type
+                convert(n->mTransformation, instance->T);
+                unsigned int mesh_id = n->mMeshes[0];
+                // instance.
+
+                // get mesh to be instanced
+                auto mesh = meshes[mesh_id];
+                // make one scene per mesh 
+                // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
+                mesh->setNewScene();
+                mesh->scene()->commit();
+
+                // connect mesh geometry to instance and instance to geometry
+                instance->setMesh(mesh);
+                mesh->addInstance(instance);
+
+                // commit
+                instance->commit();
+
+                // attach to scene
+                // instance->setScene(scene);
+                instances.push_back(instance);
+            }
+
+        } else {
+            // TODO: handle deeper tree. concatenate transformations
+            std::cout << "Found instance tree in map. Currently not supported." << std::endl;
+            std::cout << "- Children: " << n->mNumChildren << std::endl;
+        }
+    }
+
+    return instances;
+}
 
 } // namespace mamcl

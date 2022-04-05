@@ -14,7 +14,6 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
     m_Tsb[0].setIdentity();
     // m_context.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
     rtcInitIntersectContext(&m_context);
-    
 }
 
 SphereSimulatorEmbree::SphereSimulatorEmbree(EmbreeMapPtr map)

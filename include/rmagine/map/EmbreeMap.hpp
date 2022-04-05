@@ -129,6 +129,9 @@ public:
                 unsigned int Nvertices, 
                 unsigned int Nfaces);
 
+    EmbreeMesh( EmbreeDevicePtr device,
+                const aiMesh* amesh);
+
     // embree constructed buffers
     unsigned int Nvertices;
     Vertex* vertices;
@@ -143,6 +146,7 @@ public:
     RTCGeometry handle;
     unsigned int geomID;
 
+    void transform(const Matrix4x4& T);
     
     void setScene(EmbreeScenePtr scene);
     void setNewScene();
@@ -159,8 +163,6 @@ private:
     EmbreeScenePtr m_scene;
     EmbreeDevicePtr m_device;
 };
-
-
 
 class EmbreeInstance
 {
@@ -230,8 +232,12 @@ public:
 
     RTCPointQueryContext pq_context;
 
-// protected:
-//     void initializeDevice();
+protected:
+    std::vector<EmbreeMeshPtr> loadMeshes(const aiScene* ascene);
+
+    std::vector<EmbreeInstancePtr> loadInstances(
+        const aiNode* root_node,
+        std::vector<EmbreeMeshPtr>& meshes);
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
