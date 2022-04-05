@@ -170,7 +170,6 @@ public:
     Matrix4x4 T;
 
     // embree fields
-    
     RTCGeometry handle;
     unsigned int instID;
 

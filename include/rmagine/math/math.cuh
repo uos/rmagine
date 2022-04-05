@@ -2,11 +2,14 @@
 #define RMAGINE_MATH_MATH_CUH
 
 #include <rmagine/math/types.h>
-#include <cuda_runtime.h>
 #include <rmagine/types/MemoryCuda.hpp>
 
 namespace rmagine 
 {
+
+/////////////
+// MultNxN
+////////
 
 void multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A,
@@ -43,6 +46,16 @@ void multNxN(
 Memory<Vector, VRAM_CUDA> multNxN(
     const Memory<Matrix3x3, VRAM_CUDA>& M,
     const Memory<Vector, VRAM_CUDA>& x);
+
+/////////////
+// MultNx1
+////////
+
+void multNx1(
+    const Memory<Quaternion, VRAM_CUDA>& A,
+    const Memory<Quaternion, VRAM_CUDA>& b,
+    Memory<Quaternion, VRAM_CUDA>& C);
+
 
 } // namespace rmagine
 
