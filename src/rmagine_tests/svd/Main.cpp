@@ -118,6 +118,5 @@ int main(int argc, char** argv)
     // el = sw();
     // std::cout << el << "s" << std::endl;
 
-
     return 0;
 }
