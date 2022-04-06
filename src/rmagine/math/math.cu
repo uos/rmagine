@@ -53,6 +53,66 @@ __global__ void mult1xN_kernel(
 }
 
 
+template<typename In1T, typename In2T, typename ResT>
+__global__ void addNxN_kernel(
+    const In1T* A,
+    const In2T* B,
+    ResT* C,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id] = A[id] + B[id];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+__global__ void subNxN_kernel(
+    const In1T* A,
+    const In2T* B,
+    ResT* C,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id] = A[id] - B[id];
+    }
+}
+
+template<typename T>
+__global__ void transpose_kernel(
+    const T* A,
+    T* B,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        B[id] = A[id].transpose();
+    }
+}
+
+template<typename T>
+__global__ void invert_kernel(
+    const T* A,
+    T* B,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        B[id] = A[id].inv();
+    }
+}
+
+
+
 ////////////
 // #multNxN
 void multNxN(
@@ -406,5 +466,137 @@ Memory<Vector, VRAM_CUDA> mult1xN(
     mult1xN(m, X, C);
     return C;
 }
+
+///////
+// #add
+void addNxN(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& B,
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    addNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+}
+
+Memory<Vector, VRAM_CUDA> addNxN(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& B)
+{
+    Memory<Vector, VRAM_CUDA> C(A.size());
+    addNxN(A, B, C);
+    return C;
+}
+
+////////
+// #sub
+void subNxN(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& B,
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    subNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+}
+
+Memory<Vector, VRAM_CUDA> subNxN(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& B)
+{
+    Memory<Vector, VRAM_CUDA> C(A.size());
+    subNxN(A, B, C);
+    return C;
+}
+
+/////
+// #transpose
+void transpose(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    Memory<Matrix3x3, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    transpose_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+Memory<Matrix3x3, VRAM_CUDA> transpose(
+    const Memory<Matrix3x3, VRAM_CUDA>& A)
+{
+    Memory<Matrix3x3, VRAM_CUDA> B(A.size());
+    transpose(A, B);
+    return B;
+}
+
+void transpose(
+    const Memory<Matrix4x4, VRAM_CUDA>& A,
+    Memory<Matrix4x4, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    transpose_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+Memory<Matrix4x4, VRAM_CUDA> transpose(
+    const Memory<Matrix4x4, VRAM_CUDA>& A)
+{
+    Memory<Matrix4x4, VRAM_CUDA> B(A.size());
+    transpose(A, B);
+    return B;
+}
+
+//////
+// #invert
+void invert(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    Memory<Matrix3x3, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+Memory<Matrix3x3, VRAM_CUDA> invert(
+    const Memory<Matrix3x3, VRAM_CUDA>& A)
+{
+    Memory<Matrix3x3, VRAM_CUDA> B(A.size());
+    invert(A, B);
+    return B;
+}
+
+void invert(
+    const Memory<Matrix4x4, VRAM_CUDA>& A,
+    Memory<Matrix4x4, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+Memory<Matrix4x4, VRAM_CUDA> invert(
+    const Memory<Matrix4x4, VRAM_CUDA>& A)
+{
+    Memory<Matrix4x4, VRAM_CUDA> B(A.size());
+    invert(A, B);
+    return B;
+}
+
+void invert(
+    const Memory<Transform, VRAM_CUDA>& A,
+    Memory<Transform, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+Memory<Transform, VRAM_CUDA> invert(
+    const Memory<Transform, VRAM_CUDA>& A)
+{
+    Memory<Transform, VRAM_CUDA> B(A.size());
+    invert(A, B);
+    return B;
+}
+
 
 } // namespace rmagine
