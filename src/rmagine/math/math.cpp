@@ -42,6 +42,56 @@ void mult1xN_generic(
     }
 }
 
+template<typename In1T, typename In2T, typename ResT>
+void addNxN_generic(
+    const Memory<In1T, RAM>& A,
+    const Memory<In2T, RAM>& B,
+    Memory<ResT, RAM>& C)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        C[i] = A[i] + B[i];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+void subNxN_generic(
+    const Memory<In1T, RAM>& A,
+    const Memory<In2T, RAM>& B,
+    Memory<ResT, RAM>& C)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        C[i] = A[i] + B[i];
+    }
+}
+
+template<typename T>
+void transpose_generic(
+    const Memory<T, RAM>& A,
+    Memory<T, RAM>& B)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        B[i] = A[i].transpose();
+    }
+}
+
+template<typename T>
+void invert_generic(
+    const Memory<T, RAM>& A,
+    Memory<T, RAM>& B)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        B[i] = A[i].inv();
+    }
+}
+
 /////////////
 // #multNxN
 ////////
@@ -358,9 +408,125 @@ Memory<Vector, RAM> mult1xN(
 }
 
 
-////////
-// #mean
+///////
+// #add
+void addNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B,
+    Memory<Vector, RAM>& C)
+{
+    addNxN_generic(A, B, C);
+}
 
+Memory<Vector, RAM> addNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B)
+{
+    Memory<Vector, RAM> C(A.size());
+    addNxN(A, B, C);
+    return C;
+}
+
+////////
+// #sub
+void subNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B,
+    Memory<Vector, RAM>& C)
+{
+    subNxN_generic(A, B, C);
+}
+
+Memory<Vector, RAM> subNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B)
+{
+    Memory<Vector, RAM> C(A.size());
+    subNxN(A, B, C);
+    return C;
+}
+
+/////
+// #transpose
+void transpose(
+    const Memory<Matrix3x3, RAM>& A, 
+    Memory<Matrix3x3, RAM>& B)
+{
+    transpose_generic(A, B);
+}
+
+Memory<Matrix3x3, RAM> transpose(
+    const Memory<Matrix3x3, RAM>& A)
+{
+    Memory<Matrix3x3, RAM> B(A.size());
+    transpose(A, B);
+    return B;
+}
+
+void transpose(
+    const Memory<Matrix4x4, RAM>& A,
+    Memory<Matrix4x4, RAM>& B)
+{
+    transpose_generic(A, B);
+}
+
+Memory<Matrix4x4, RAM> transpose(
+    const Memory<Matrix4x4, RAM>& A)
+{
+    Memory<Matrix4x4, RAM> B(A.size());
+    transpose(A, B);
+    return B;
+}
+
+//////
+// #invert
+void invert(
+    const Memory<Matrix3x3, RAM>& A, 
+    Memory<Matrix3x3, RAM>& B)
+{
+    invert_generic(A, B);
+}
+
+Memory<Matrix3x3, RAM> invert(
+    const Memory<Matrix3x3, RAM>& A)
+{
+    Memory<Matrix3x3, RAM> B(A.size());
+    invert(A, B);
+    return B;
+}
+
+void invert(
+    const Memory<Matrix4x4, RAM>& A,
+    Memory<Matrix4x4, RAM>& B)
+{
+    invert_generic(A, B);
+}
+
+Memory<Matrix4x4, RAM> invert(
+    const Memory<Matrix4x4, RAM>& A)
+{
+    Memory<Matrix4x4, RAM> B(A.size());
+    invert(A, B);
+    return B;
+}
+
+void invert(
+    const Memory<Transform, RAM>& A,
+    Memory<Transform, RAM>& B)
+{
+    invert_generic(A, B);
+}
+
+Memory<Transform, RAM> invert(
+    const Memory<Transform, RAM>& A)
+{
+    Memory<Transform, RAM> B(A.size());
+    invert(A, B);
+    return B;
+}
+
+////////
+// #sum, #mean 
 void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
 {
     Vector s = {0, 0, 0};

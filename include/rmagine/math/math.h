@@ -180,8 +180,84 @@ Memory<Vector, RAM> mult1xN(
     const Memory<Vector, RAM>& X);
 
 //////
-// #mean
+// #add
+void addNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B,
+    Memory<Vector, RAM>& C);
 
+Memory<Vector, RAM> addNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B);
+
+inline Memory<Vector, RAM> operator+(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B)
+{
+    return addNxN(A, B);
+}
+
+//////
+// #sub
+void subNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B,
+    Memory<Vector, RAM>& C);
+
+Memory<Vector, RAM> subNxN(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B);
+
+inline Memory<Vector, RAM> operator-(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& B)
+{
+    return subNxN(A, B);
+}
+
+/////
+// #transpose
+void transpose(
+    const Memory<Matrix3x3, RAM>& A, 
+    Memory<Matrix3x3, RAM>& B);
+
+Memory<Matrix3x3, RAM> transpose(
+    const Memory<Matrix3x3, RAM>& A);
+
+void transpose(
+    const Memory<Matrix4x4, RAM>& A,
+    Memory<Matrix4x4, RAM>& B);
+
+Memory<Matrix4x4, RAM> transpose(
+    const Memory<Matrix4x4, RAM>& A);
+
+//////
+// #invert
+void invert(
+    const Memory<Matrix3x3, RAM>& A, 
+    Memory<Matrix3x3, RAM>& B);
+
+Memory<Matrix3x3, RAM> invert(
+    const Memory<Matrix3x3, RAM>& A);
+
+void invert(
+    const Memory<Matrix4x4, RAM>& A,
+    Memory<Matrix4x4, RAM>& B);
+
+Memory<Matrix4x4, RAM> invert(
+    const Memory<Matrix4x4, RAM>& A);
+
+void invert(
+    const Memory<Transform, RAM>& A,
+    Memory<Transform, RAM>& B);
+
+Memory<Transform, RAM> invert(
+    const Memory<Transform, RAM>& A);
+
+
+
+//////
+// #mean
 void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res);
 Memory<Vector, RAM> sum(const Memory<Vector, RAM>& X);
 
