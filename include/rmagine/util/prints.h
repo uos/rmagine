@@ -33,5 +33,11 @@ std::ostream& operator<<(std::ostream& os, const rmagine::Matrix3x3& M)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
+{
+    os << "E [" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
+    return os; 
+}
+
 
 #endif // RMAGINE_UTIL_PRINTS_H

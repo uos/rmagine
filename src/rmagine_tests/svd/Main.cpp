@@ -92,8 +92,8 @@ Memory<Vector, RAM> createTransformedPoints()
     
     EulerAngles e;
     e.roll = 0.0;
-    e.pitch = 0.0;
-    e.yaw = M_PI / 2.0;
+    e.pitch = 0.5;
+    e.yaw = 0.3;
     T.R.set(e);
 
     Tm[0] = T;
@@ -128,9 +128,9 @@ Eigen::Matrix<float, 3, -1> createPointsEigen()
 Eigen::Matrix<float, 3, -1> createTransformedPointsEigen()
 {
     auto from = createPointsEigen();
-    float roll = 0;
-    float pitch = 0;
-    float yaw = M_PI / 2.0;
+    float roll = 0.1;
+    float pitch = 0.2;
+    float yaw = 0.3;
 
     Eigen::Quaternionf q;
     q = Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitX())
@@ -186,21 +186,22 @@ void rmagine_icp_gpu()
     std::cout << "V:" << std::endl;
     std::cout << V[0] << std::endl;
 
-    transposeInplace(V_d);
-    V = V_d;
-    std::cout << "Vt: " << std::endl;
-    std::cout << V[0] << std::endl;
+    // transposeInplace(V_d);
+    // V = V_d;
+    // std::cout << "Vt: " << std::endl;
+    // std::cout << V[0] << std::endl;
 
 
-    return;
-    transposeInplace(V_d);
+    // return;
+    // transposeInplace(V_d);
 
     Memory<Matrix3x3, RAM> R;
     Memory<Vector, RAM> t;
-    auto R_d = multNxN(U_d, V_d);
+    auto R_d = multNxN(U_d, transpose(V_d));
     R = R_d;
     std::cout << "R: " << R[0] << std::endl;
-    auto t_d = subNxN(to_mean_d, multNxN(R_d, from_mean_d) );
+    
+    auto t_d = subNxN(from_mean_d, multNxN(R_d, to_mean_d));
     t = t_d;
     std::cout << "t: " << t[0] << std::endl;
 
@@ -211,6 +212,9 @@ void rmagine_icp_gpu()
     T = T_d;
 
     std::cout << T[0] << std::endl;
+    EulerAngles e;
+    e.set(T[0].R);
+    std::cout << "Euler: " << e << std::endl;
 
     // auto Rs = multNxN(U_d, transpose(V_d));
 }
