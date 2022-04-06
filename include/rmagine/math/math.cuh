@@ -368,7 +368,6 @@ void pack(
 
 ////////
 // #multNxNTransposed
-
 void multNxNTransposed(
     const Memory<Vector, VRAM_CUDA>& m1,
     const Memory<Vector, VRAM_CUDA>& m2,
@@ -388,6 +387,15 @@ Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
     const Memory<Vector, VRAM_CUDA>& m1,
     const Memory<Vector, VRAM_CUDA>& m2,
     const Memory<bool, VRAM_CUDA>& mask);
+
+//////////
+// #sum
+void sum(
+    const Memory<Vector, VRAM_CUDA>& data,
+    Memory<Vector, VRAM_CUDA>& s);
+
+Memory<Vector, VRAM_CUDA> sum(
+    const Memory<Vector, VRAM_CUDA>& data);
 
 } // namespace rmagine
 

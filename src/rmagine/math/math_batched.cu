@@ -248,7 +248,6 @@ void chunk_sums(
     }
 }
 
-
 template<typename T>
 void chunk_sums_masked(const T* data_d, const bool* mask_d, T* res_d, unsigned int Nchunks, unsigned int chunkSize)
 {

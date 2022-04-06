@@ -125,7 +125,6 @@ __global__ void divNxN_kernel(
     }
 }
 
-
 template<typename ConvT, typename In1T, typename In2T, typename ResT>
 __global__ void divNxN_conv_kernel(
     const In1T* A, 
@@ -196,7 +195,6 @@ __global__ void divNxNIgnoreZeros_conv_kernel(
         }
     }
 }
-
 
 __global__ void divNxNInplace_kernel(
     Vector* A, 
@@ -339,6 +337,60 @@ __global__ void covParts_kernel(
     }
 }
 
+template<unsigned int blockSize, typename T>
+__device__ void warpReduce(volatile T* sdata, unsigned int tid)
+{
+    if(blockSize >= 64) sdata[tid] += sdata[tid + 32];
+    if(blockSize >= 32) sdata[tid] += sdata[tid + 16];
+    if(blockSize >= 16) sdata[tid] += sdata[tid + 8];
+    if(blockSize >=  8) sdata[tid] += sdata[tid + 4];
+    if(blockSize >=  4) sdata[tid] += sdata[tid + 2];
+    if(blockSize >=  2) sdata[tid] += sdata[tid + 1];
+}
+
+
+template<unsigned int blockSize, typename T>
+__global__ void sum_kernel(
+    const T* data,
+    T* res,
+    unsigned int N)
+{
+    __shared__ T sdata[blockSize];
+    
+    const unsigned int tid = threadIdx.x;
+    const unsigned int globId = N * blockIdx.x + threadIdx.x;
+    const unsigned int rows = (N + blockSize - 1) / blockSize;
+
+    sdata[tid] *= 0.0;
+    for(unsigned int i=0; i<rows; i++)
+    {
+        if(tid + blockSize * i < N)
+        {
+            sdata[threadIdx.x] += data[globId + blockSize * i];
+        }
+    }
+    __syncthreads();
+
+    for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid < blockSize / 2 && tid < 32)
+    {
+        warpReduce<blockSize>(sdata, tid);
+    }
+
+    if(tid == 0)
+    {
+        res[blockIdx.x] = sdata[0];
+    }
+}
+
 ////////////
 // #multNxN
 void multNxN(
@@ -456,7 +508,6 @@ Memory<Vector, VRAM_CUDA> multNxN(
     multNxN(M, x, c);
     return c;
 }
-
 
 ////////
 // #multNx1
@@ -1044,6 +1095,24 @@ Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
     Memory<Matrix3x3, VRAM_CUDA> Cs(m1.size());
     multNxNTransposed(m1, m2, mask, Cs);
     return Cs;
+}
+
+//////////
+// #sum
+// TODO: check perfomance of sum_kernel
+void sum(
+    const Memory<Vector, VRAM_CUDA>& data,
+    Memory<Vector, VRAM_CUDA>& s)
+{
+    sum_kernel<1024> <<<1, 1024>>>(data.raw(), s.raw(), data.size() );
+}
+
+Memory<Vector, VRAM_CUDA> sum(
+    const Memory<Vector, VRAM_CUDA>& data)
+{
+    Memory<Vector, VRAM_CUDA> s(1);
+    sum(data, s);
+    return s;
 }
 
 
