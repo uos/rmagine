@@ -77,37 +77,112 @@ Memory<Vector, RAM> createTransformedPoints()
     return mult1xN(Tm, points);
 }
 
+
+template<typename DataT>
+class my_allocator : public std::allocator<DataT>
+{
+public:
+    using size_type = size_t;
+    using pointer = DataT*;
+    using const_pointer = const DataT*;
+
+    my_allocator() throw()
+    : std::allocator<DataT>() 
+    { 
+        // fprintf(stderr, "Hello allocator!\n"); 
+    }
+
+    my_allocator(const my_allocator &a) throw()
+    : std::allocator<DataT>(a) 
+    { 
+
+    }
+
+    template <class U>                    
+    my_allocator(const my_allocator<U> &a) throw()
+    : std::allocator<DataT>(a)
+    {
+
+    }
+
+    ~my_allocator() throw() 
+    {
+
+    }
+
+    pointer allocate(size_type N, const void *hint=0)
+    {
+        DataT* ret = static_cast<DataT*>(malloc(N * sizeof(DataT)));
+
+        if constexpr( !std::is_trivially_constructible<DataT>::value )
+        {
+            for(size_t i=0; i<N; i++)
+            {
+                new (&ret[i]) DataT();
+            }
+        }
+
+        return ret;
+    }
+
+    void deallocate(pointer p, size_type N)
+    {
+        if constexpr( !std::is_trivially_destructible<DataT>::value )
+        {
+            // we need to destruct the elements first
+            // std::cout << "Call buffers desctructors..." << std::endl;
+            for(size_t i=0; i<N; i++)
+            {
+                p[i].~DataT();
+            }
+        }
+
+        if(N > 0)
+        {
+            // std::cout << "Free " << mem << std::endl;
+            free(p);
+        }
+    }
+};
+
+struct MyStruct
+{
+    int a;
+    float b;
+    std::string c;
+};
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: SVD" << std::endl;
 
-    SVD_cuda svd_gpu;
+    // std::vector<int> bla;
 
+
+    std::vector<MyStruct, my_allocator<MyStruct>  > bla(10000);
+
+
+    for(size_t i=0; i<10000;i++)
+    {
+        bla[i].c = "hello";
+    }
+
+    bla.resize(20);
+
+    std::cout << bla.size() << std::endl;
+    std::cout << bla[10].c << std::endl;
+
+    // bla.resize(20);
+
+    SVD_cuda svd_gpu;
     // two point sets: data set and model
 
     auto Pfrom = createPoints();
     auto Pto = createTransformedPoints();
 
-    StopWatch sw;
-    double el;
+    auto from_mean = mean(Pfrom);
+    auto to_mean = mean(Pto);
 
-    sw();
-    for(size_t i=0; i<10000;i++)
-    {
-        auto from_mean = mean(Pfrom);
-        auto to_mean = mean(Pto);
-    }
-    el = sw();
-    std::cout << el << "s" << std::endl;
-
-    sw();
-    for(size_t i=0; i<10000;i++)
-    {
-        auto from_mean = mean2(Pfrom);
-        auto to_mean = mean2(Pto);
-    }
-    el = sw();
-    std::cout << el << "s" << std::endl;
 
     // sw();
     // for(size_t i=0; i<10000;i++)

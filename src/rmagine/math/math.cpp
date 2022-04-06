@@ -361,16 +361,34 @@ Memory<Vector, RAM> mult1xN(
 ////////
 // #mean
 
-void mean2(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& m)
+void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
 {
-    m[0] = mean(X);
+    Vector s = {0, 0, 0};
+    for(unsigned int i=0; i<X.size(); i++)
+    {
+        s += X[i];
+    }
+    res[0] = s;
 }
 
-Memory<Vector, RAM> mean2(const Memory<Vector, RAM>& X)
+Memory<Vector, RAM> sum(const Memory<Vector, RAM>& X)
 {
-    Memory<Vector, RAM> m(1);
-    mean2(X, m);
-    return m;
+    Memory<Vector, RAM> res(1);
+    sum(X, res);
+    return res;
+}
+
+void mean(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
+{
+    sum(X, res);
+    res[0] /= static_cast<float>(X.size());
+}
+
+Memory<Vector, RAM> mean(const Memory<Vector, RAM>& X)
+{
+    Memory<Vector, RAM> res(1);
+    mean(X, res);
+    return res;
 }
 
 } // namespace rmagine
