@@ -223,6 +223,16 @@ inline Memory<Vector, VRAM_CUDA> operator-(
     return subNxN(A, B);
 }
 
+void subNx1(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b,
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> subNx1(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b);
+
+
 /////
 // #transpose
 void transpose(
@@ -239,6 +249,10 @@ void transpose(
 Memory<Matrix4x4, VRAM_CUDA> transpose(
     const Memory<Matrix4x4, VRAM_CUDA>& A);
 
+///////
+// #transposeInplace
+void transposeInplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A);
 
 //////
 // #invert

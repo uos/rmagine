@@ -83,6 +83,22 @@ __global__ void subNxN_kernel(
     }
 }
 
+template<typename In1T, typename In2T, typename ResT>
+__global__ void subNx1_kernel(
+    const In1T* A,
+    const In2T* b,
+    ResT* C,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id] = A[id] - b[0];
+    }
+}
+
+
 template<typename T>
 __global__ void transpose_kernel(
     const T* A,
@@ -96,6 +112,20 @@ __global__ void transpose_kernel(
         B[id] = A[id].transpose();
     }
 }
+
+template<typename T>
+__global__ void transposeInplace_kernel(
+    T* A,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        A[id].transposeInplace();
+    }
+}
+
 
 template<typename T>
 __global__ void invert_kernel(
@@ -787,6 +817,25 @@ Memory<Vector, VRAM_CUDA> subNxN(
     return C;
 }
 
+void subNx1(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b,
+    Memory<Vector, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    subNx1_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
+}
+
+Memory<Vector, VRAM_CUDA> subNx1(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<Vector, VRAM_CUDA>& b)
+{
+    Memory<Vector, VRAM_CUDA> C(A.size());
+    subNx1(A, b, C);
+    return C;
+}
+
 /////
 // #transpose
 void transpose(
@@ -821,6 +870,16 @@ Memory<Matrix4x4, VRAM_CUDA> transpose(
     Memory<Matrix4x4, VRAM_CUDA> B(A.size());
     transpose(A, B);
     return B;
+}
+
+///////
+// #transposeInplace
+void transposeInplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    transposeInplace_kernel<<<gridSize, blockSize>>>(A.raw(), A.size());
 }
 
 //////

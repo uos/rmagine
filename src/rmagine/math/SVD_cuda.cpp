@@ -26,7 +26,7 @@ SVD_cuda::SVD_cuda()
 
     const double tol = 1.e-7;
     const int max_sweeps = 15;
-    const int sort_svd  = 0;   /* don't sort singular values */
+    const int sort_svd  = 1;   /* don't sort singular values */
 
     /* default value of tolerance is machine zero */
     status = cusolverDnXgesvdjSetTolerance(
@@ -46,7 +46,6 @@ SVD_cuda::SVD_cuda()
         sort_svd);
     assert(CUSOLVER_STATUS_SUCCESS == status);
 }
-
 
 SVD_cuda::SVD_cuda(cudaStream_t stream)
 {
@@ -95,7 +94,6 @@ SVD_cuda::~SVD_cuda()
     if (stream      ) cudaStreamDestroy(stream);
     if (gesvdj_params) cusolverDnDestroyGesvdjInfo(gesvdj_params);
 }
-
 
 void SVD_cuda::calcUV(
     const Memory<Matrix3x3, VRAM_CUDA>& As,
