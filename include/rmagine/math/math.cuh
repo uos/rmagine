@@ -3,6 +3,7 @@
 
 #include <rmagine/math/types.h>
 #include <rmagine/types/MemoryCuda.hpp>
+#include <rmagine/math/math_batched.cuh>
 
 namespace rmagine 
 {
@@ -186,7 +187,6 @@ Memory<Vector, VRAM_CUDA> mult1xN(
     const Memory<Matrix3x3, VRAM_CUDA>& m,
     const Memory<Vector, VRAM_CUDA>& X);
 
-
 //////
 // #add
 void addNxN(
@@ -332,6 +332,16 @@ void divNxNInplace(
     Memory<Vector, VRAM_CUDA>& A, 
     const Memory<float, VRAM_CUDA>& B);
 
+void divNxNInplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+////////
+// #divNx1Inplace
+void divNx1Inplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const unsigned int& B);
+
 ////////
 // #convert
 void convert(const Memory<uint8_t, VRAM_CUDA>& from, 
@@ -356,58 +366,28 @@ void pack(
     Memory<Transform, VRAM_CUDA>& T);
 
 
-/////////////////////
-/// #batched math ///
-/////////////////////
+////////
+// #multNxNTransposed
 
-//////////
-// #sumBatched
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    Memory<Vector, VRAM_CUDA>& sums);
+void multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
+    Memory<Matrix3x3, VRAM_CUDA>& Cs);
 
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    size_t batchSize);
+Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2);
 
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
+void multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
     const Memory<bool, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums);
-
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<bool, VRAM_CUDA>& mask,
-    size_t batchSize);
-
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums);
-
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
-    size_t batchSize);
-
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums);
-
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
-    size_t batchSize);
-
-void sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
-    Memory<Matrix3x3, VRAM_CUDA>& sums);
-
-Memory<Matrix3x3, VRAM_CUDA> sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
-    size_t batchSize);
-
+    Memory<Matrix3x3, VRAM_CUDA>& Cs);
+    
+Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
+    const Memory<bool, VRAM_CUDA>& mask);
 
 } // namespace rmagine
 

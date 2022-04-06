@@ -1,4 +1,8 @@
-#include <rmagine/math/math.h>
+#include "rmagine/math/math.h"
+
+#include "rmagine/util/prints.h"
+
+#include <cassert>
 
 namespace rmagine {
 
@@ -29,6 +33,8 @@ void multNx1_generic(
     }
 }
 
+
+
 template<typename In1T, typename In2T, typename ResT>
 void mult1xN_generic(
     const Memory<In1T, RAM>& A,
@@ -36,7 +42,7 @@ void mult1xN_generic(
     Memory<ResT, RAM>& C)
 {
     #pragma omp parallel for
-    for(size_t i=0; i<A.size(); i++)
+    for(size_t i=0; i<B.size(); i++)
     {
         C[i] = A[0] * B[i];
     }
@@ -65,6 +71,32 @@ void subNxN_generic(
     for(size_t i=0; i<A.size(); i++)
     {
         C[i] = A[i] + B[i];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+void subNx1_generic(
+    const Memory<In1T, RAM>& A,
+    const Memory<In2T, RAM>& b,
+    Memory<ResT, RAM>& C)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        C[i] = A[i] - b[0];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+void sub1xN_generic(
+    const Memory<In1T, RAM>& a,
+    const Memory<In2T, RAM>& B,
+    Memory<ResT, RAM>& C)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<B.size(); i++)
+    {
+        C[i] = a[0] - B[i];
     }
 }
 
@@ -434,6 +466,7 @@ void subNxN(
     const Memory<Vector, RAM>& B,
     Memory<Vector, RAM>& C)
 {
+    assert(A.size() == B.size());
     subNxN_generic(A, B, C);
 }
 
@@ -443,6 +476,44 @@ Memory<Vector, RAM> subNxN(
 {
     Memory<Vector, RAM> C(A.size());
     subNxN(A, B, C);
+    return C;
+}
+
+void subNx1(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& b,
+    Memory<Vector, RAM>& C)
+{
+    subNx1_generic(A, b, C);
+}
+
+Memory<Vector, RAM> subNx1(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& b)
+{
+    Memory<Vector, RAM> C(A.size());
+    subNx1(A, b, C);
+    return C;
+}
+
+void sub(
+    const Memory<Vector, RAM>& A,
+    const Vector& b,
+    Memory<Vector, RAM>& C)
+{
+    #pragma omp parralel for
+    for(size_t i=0; i<A.size(); i++)
+    {
+        C[i] = A[i] - b;
+    }
+}
+
+Memory<Vector, RAM> sub(
+    const Memory<Vector, RAM>& A,
+    const Vector& b)
+{
+    Memory<Vector, RAM> C(A.size());
+    sub(A, b, C);
     return C;
 }
 

@@ -1,6 +1,6 @@
 #include "rmagine/math/math.cuh"
-#include <rmagine/math/math.h>
-#include <rmagine/math/types.h>
+#include "rmagine/math/math.h"
+#include "rmagine/math/types.h"
 
 namespace rmagine 
 {
@@ -210,16 +210,27 @@ __global__ void divNxNInplace_kernel(
     }
 }
 
-template<typename T>
-__global__ void copy_kernel(
-    const T* from, 
-    T* to, 
+__global__ void divNxNInplace_kernel(
+    Matrix3x3* A, 
+    const unsigned int* B,
     unsigned int N)
 {
     const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
     if(id < N)
     {
-        to[id] = from[id];
+        A[id] /= static_cast<float>(B[id]);
+    }
+}
+
+__global__ void divNx1Inplace_kernel(
+    Matrix3x3* A,
+    unsigned int b,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        A[id] /= static_cast<float>(b);
     }
 }
 
@@ -280,333 +291,51 @@ __global__ void pack_kernel(
     }
 }
 
-template<unsigned int blockSize, typename T>
-__device__ void warpReduce(volatile T* sdata, unsigned int tid)
+__global__ void covParts_kernel(
+    const Vector* a, 
+    const Vector* b,
+    Matrix3x3* C,
+    unsigned int N)
 {
-    if(blockSize >= 64) sdata[tid] += sdata[tid + 32];
-    if(blockSize >= 32) sdata[tid] += sdata[tid + 16];
-    if(blockSize >= 16) sdata[tid] += sdata[tid + 8];
-    if(blockSize >=  8) sdata[tid] += sdata[tid + 4];
-    if(blockSize >=  4) sdata[tid] += sdata[tid + 2];
-    if(blockSize >=  2) sdata[tid] += sdata[tid + 1];
-}
-
-template<unsigned int blockSize, typename T>
-__global__ void chunk_sums_kernel(
-    const T* data, 
-    unsigned int chunkSize, 
-    T* res)
-{
-    __shared__ T sdata[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
-    const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
-
-    sdata[tid] *= 0.0;
-    for(unsigned int i=0; i<rows; i++)
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
     {
-        if(tid + blockSize * i < chunkSize)
-        {
-            sdata[threadIdx.x] += data[globId + blockSize * i];
-        }
-    }
-    __syncthreads();
-
-    for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
-    {
-        if(tid < s)
-        {
-            sdata[tid] += sdata[tid + s];
-        }
-        __syncthreads();
-    }
-
-    if(tid < blockSize / 2 && tid < 32)
-    {
-        warpReduce<blockSize>(sdata, tid);
-    }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x] = sdata[0];
+        C[id](0,0) = a[id].x * b[id].x;
+        C[id](0,1) = a[id].x * b[id].y;
+        C[id](0,2) = a[id].x * b[id].z;
+        C[id](1,0) = a[id].y * b[id].x;
+        C[id](1,1) = a[id].y * b[id].y;
+        C[id](1,2) = a[id].y * b[id].z;
+        C[id](2,0) = a[id].z * b[id].x;
+        C[id](2,1) = a[id].z * b[id].y;
+        C[id](2,2) = a[id].z * b[id].z;
     }
 }
 
-
-template<unsigned int blockSize, typename T>
-__global__ void chunk_sums_masked_kernel(
-    const T* data,
-    const bool* mask, 
-    unsigned int chunkSize,
-    T* res)
+__global__ void covParts_kernel(
+    const Vector* a, 
+    const Vector* b,
+    const bool* corr,
+    Matrix3x3* C,
+    unsigned int N)
 {
-    __shared__ T sdata[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
-    const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
-
-    sdata[tid] *= 0.0;
-
-    for(unsigned int i=0; i<rows; i++)
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
     {
-        if(tid + blockSize * i < chunkSize)
+        if(corr[id])
         {
-            if(mask[globId + blockSize * i])
-            {
-                sdata[threadIdx.x] += data[globId + blockSize * i];
-            }
+            C[id](0,0) = a[id].x * b[id].x;
+            C[id](0,1) = a[id].x * b[id].y;
+            C[id](0,2) = a[id].x * b[id].z;
+            C[id](1,0) = a[id].y * b[id].x;
+            C[id](1,1) = a[id].y * b[id].y;
+            C[id](1,2) = a[id].y * b[id].z;
+            C[id](2,0) = a[id].z * b[id].x;
+            C[id](2,1) = a[id].z * b[id].y;
+            C[id](2,2) = a[id].z * b[id].z;
+        } else {
+            C[id].setZeros();
         }
-    }
-    __syncthreads();
-
-    for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
-    {
-        if(tid < s)
-        {
-            sdata[tid] += sdata[tid + s];
-        }
-        __syncthreads();
-    }
-
-    if(tid < blockSize / 2 && tid < 32)
-    {
-        warpReduce<blockSize>(sdata, tid);
-    }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x] = sdata[0];
-    }
-}
-
-
-template<unsigned int blockSize, typename T>
-__global__ void chunk_sums_masked_kernel(
-    const T* data,
-    const unsigned int* mask, 
-    unsigned int chunkSize,
-    T* res)
-{
-    __shared__ T sdata[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
-    // old: const unsigned int rows = chunkSize / blockSize;
-    const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
-
-    sdata[tid] *= 0.0;
-
-    for(unsigned int i=0; i<rows; i++)
-    {
-        if(tid + blockSize * i < chunkSize)
-        {
-            if(mask[globId + blockSize * i] > 0)
-            {
-                sdata[threadIdx.x] += data[globId + blockSize * i];
-            }
-        }
-    }
-    __syncthreads();
-    
-    for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
-    {
-        if(tid < s)
-        {
-            sdata[tid] += sdata[tid + s];
-        }
-        __syncthreads();
-    }
-
-    if(tid < blockSize / 2 && tid < 32)
-    {
-        warpReduce<blockSize>(sdata, tid);
-    }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x] = sdata[0];
-    }
-}
-
-template<unsigned int blockSize, typename T>
-__global__ void chunk_sums_masked_kernel(
-    const T* data,
-    const uint8_t* mask, 
-    unsigned int chunkSize,
-    T* res)
-{
-    __shared__ T sdata[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
-    const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
-
-    sdata[tid] *= 0.0;
-
-    for(unsigned int i=0; i<rows; i++)
-    {
-        if(tid + blockSize * i < chunkSize)
-        {
-            if(mask[globId + blockSize * i] > 0)
-            {
-                sdata[threadIdx.x] += data[globId + blockSize * i];
-            }
-        }
-    }
-    __syncthreads();
-
-    for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
-    {
-        if(tid < s)
-        {
-            sdata[tid] += sdata[tid + s];
-        }
-        __syncthreads();
-    }
-
-    if(tid < blockSize / 2 && tid < 32)
-    {
-        warpReduce<blockSize>(sdata, tid);
-    }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x] = sdata[0];
-    }
-}
-
-template<typename T>
-void chunk_sums(
-    const T* data_d, 
-    T* res_d, 
-    unsigned int Nchunks, 
-    unsigned int chunkSize)
-{
-    if(chunkSize >= 1024) {
-        chunk_sums_kernel<1024> <<<Nchunks, 1024>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 512) {
-        chunk_sums_kernel<512> <<<Nchunks, 512>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 256) {
-        chunk_sums_kernel<256> <<<Nchunks, 256>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 128) {
-        chunk_sums_kernel<128> <<<Nchunks, 128>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 64) {
-        chunk_sums_kernel<64> <<<Nchunks, 64>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 32) {
-        chunk_sums_kernel<32> <<<Nchunks, 32>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 16) {
-        chunk_sums_kernel<16> <<<Nchunks, 16>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 8) {
-        chunk_sums_kernel<8> <<<Nchunks, 8>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 4) {
-        chunk_sums_kernel<4> <<<Nchunks, 4>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 2) {
-        chunk_sums_kernel<2> <<<Nchunks, 2>>>(data_d, chunkSize, res_d);
-    } else if(chunkSize >= 1) {
-        // copy
-        constexpr unsigned int blockSize = 64;
-        const unsigned int N = Nchunks * chunkSize;
-        const unsigned int gridSize = (N + blockSize - 1) / blockSize;
-        copy_kernel<<<gridSize, blockSize>>>(data_d, res_d, N);
-    }
-}
-
-
-template<typename T>
-void chunk_sums_masked(const T* data_d, const bool* mask_d, T* res_d, unsigned int Nchunks, unsigned int chunkSize)
-{
-    if(chunkSize >= 1024) {
-        chunk_sums_masked_kernel<1024> <<<Nchunks, 1024>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 512) {
-        chunk_sums_masked_kernel<512> <<<Nchunks, 512>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 256) {
-        chunk_sums_masked_kernel<256> <<<Nchunks, 256>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 128) {
-        chunk_sums_masked_kernel<128> <<<Nchunks, 128>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 64) {
-        chunk_sums_masked_kernel<64> <<<Nchunks, 64>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 32) {
-        chunk_sums_masked_kernel<32> <<<Nchunks, 32>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 16) {
-        chunk_sums_masked_kernel<16> <<<Nchunks, 16>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 8) {
-        chunk_sums_masked_kernel<8> <<<Nchunks, 8>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 4) {
-        chunk_sums_masked_kernel<4> <<<Nchunks, 4>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 2) {
-        chunk_sums_masked_kernel<2> <<<Nchunks, 2>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 1) {
-        std::cout << "WARNING: masked batchedSum with chunkSize 1 called." << std::endl;
-        constexpr unsigned int blockSize = 64;
-        const unsigned int N = Nchunks * chunkSize;
-        const unsigned int gridSize = (N + blockSize - 1) / blockSize;
-        copy_kernel<<<gridSize, blockSize>>>(data_d, res_d, N);
-    }
-}
-
-template<typename T>
-void chunk_sums_masked(const T* data_d, const unsigned int* mask_d, T* res_d, unsigned int Nchunks, unsigned int chunkSize)
-{
-    if(chunkSize >= 1024) {
-        chunk_sums_masked_kernel<1024> <<<Nchunks, 1024>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 512) {
-        chunk_sums_masked_kernel<512> <<<Nchunks, 512>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 256) {
-        chunk_sums_masked_kernel<256> <<<Nchunks, 256>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 128) {
-        chunk_sums_masked_kernel<128> <<<Nchunks, 128>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 64) {
-        chunk_sums_masked_kernel<64> <<<Nchunks, 64>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 32) {
-        chunk_sums_masked_kernel<32> <<<Nchunks, 32>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 16) {
-        chunk_sums_masked_kernel<16> <<<Nchunks, 16>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 8) {
-        chunk_sums_masked_kernel<8> <<<Nchunks, 8>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 4) {
-        chunk_sums_masked_kernel<4> <<<Nchunks, 4>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 2) {
-        chunk_sums_masked_kernel<2> <<<Nchunks, 2>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 1) {
-        std::cout << "WARNING: masked batchedSum with chunkSize 1 called." << std::endl;
-        constexpr unsigned int blockSize = 64;
-        const unsigned int N = Nchunks * chunkSize;
-        const unsigned int gridSize = (N + blockSize - 1) / blockSize;
-        copy_kernel<<<gridSize, blockSize>>>(data_d, res_d, N);
-    }
-}
-
-template<typename T>
-void chunk_sums_masked(const T* data_d, const uint8_t* mask_d, T* res_d, unsigned int Nchunks, unsigned int chunkSize)
-{
-    if(chunkSize >= 1024) {
-        chunk_sums_masked_kernel<1024> <<<Nchunks, 1024>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 512) {
-        chunk_sums_masked_kernel<512> <<<Nchunks, 512>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 256) {
-        chunk_sums_masked_kernel<256> <<<Nchunks, 256>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 128) {
-        chunk_sums_masked_kernel<128> <<<Nchunks, 128>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 64) {
-        chunk_sums_masked_kernel<64> <<<Nchunks, 64>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 32) {
-        chunk_sums_masked_kernel<32> <<<Nchunks, 32>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 16) {
-        chunk_sums_masked_kernel<16> <<<Nchunks, 16>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 8) {
-        chunk_sums_masked_kernel<8> <<<Nchunks, 8>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 4) {
-        chunk_sums_masked_kernel<4> <<<Nchunks, 4>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 2) {
-        chunk_sums_masked_kernel<2> <<<Nchunks, 2>>>(data_d, mask_d, chunkSize, res_d);
-    } else if(chunkSize >= 1) {
-        std::cout << "WARNING: masked batchedSum with chunkSize 1 called." << std::endl;
-        constexpr unsigned int blockSize = 64;
-        const unsigned int N = Nchunks * chunkSize;
-        const unsigned int gridSize = (N + blockSize - 1) / blockSize;
-        copy_kernel<<<gridSize, blockSize>>>(data_d, res_d, N);
     }
 }
 
@@ -1205,6 +934,26 @@ void divNxNInplace(
     divNxNInplace_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
 }
 
+void divNxNInplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    divNxNInplace_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+}
+
+////////
+// #divNx1Inplace
+void divNx1Inplace(
+    Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const unsigned int& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    divNx1Inplace_kernel<<<gridSize, blockSize>>>(A.raw(), B, A.size());
+}
+
 ////////
 // #convert
 void convert(
@@ -1255,108 +1004,47 @@ void pack(
     pack_kernel<<<gridSize, blockSize>>>(R.raw(), t.raw(), T.raw(), R.size());
 }
 
-////////////
-/// #batched math
-////////////
-
-//////////
-// #sumBatched
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    Memory<Vector, VRAM_CUDA>& sums)
+////////
+// #multNxNTransposed
+void multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
+    Memory<Matrix3x3, VRAM_CUDA>& Cs)
 {
-    const size_t Nchunks = sums.size();
-    const size_t batchSize = data.size() / Nchunks;
-    chunk_sums<Vector>(data.raw(), sums.raw(), Nchunks, batchSize);
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (m1.size() + blockSize - 1) / blockSize;
+    covParts_kernel<<<gridSize, blockSize>>>(m1.raw(), m2.raw(), Cs.raw(), m1.size());
 }
 
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    size_t batchSize)
+Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2)
 {
-    const size_t Nchunks = data.size() / batchSize;
-    Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, sums);
-    return sums;
+    Memory<Matrix3x3, VRAM_CUDA> Cs(m1.size());
+    multNxNTransposed(m1, m2, Cs);
+    return Cs;
 }
 
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
+void multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
     const Memory<bool, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
+    Memory<Matrix3x3, VRAM_CUDA>& Cs)
 {
-    const size_t Nchunks = sums.size();
-    const size_t batchSize = data.size() / Nchunks;
-    chunk_sums_masked<Vector>(data.raw(), mask.raw(), sums.raw(), Nchunks, batchSize);
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (m1.size() + blockSize - 1) / blockSize;
+    covParts_kernel<<<gridSize, blockSize>>>(m1.raw(), m2.raw(), mask.raw(), Cs.raw(), m1.size());
+}
+    
+Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
+    const Memory<Vector, VRAM_CUDA>& m1,
+    const Memory<Vector, VRAM_CUDA>& m2,
+    const Memory<bool, VRAM_CUDA>& mask)
+{
+    Memory<Matrix3x3, VRAM_CUDA> Cs(m1.size());
+    multNxNTransposed(m1, m2, mask, Cs);
+    return Cs;
 }
 
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<bool, VRAM_CUDA>& mask,
-    size_t batchSize)
-{
-    size_t Nchunks = data.size() / batchSize;
-    Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
-    return sums;
-}
-
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
-{
-    const size_t Nchunks = sums.size();
-    const size_t batchSize = data.size() / Nchunks;
-    chunk_sums_masked<Vector>(data.raw(), mask.raw(), sums.raw(), Nchunks, batchSize);
-}
-
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
-    size_t batchSize)
-{
-    size_t Nchunks = data.size() / batchSize;
-    Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
-    return sums;
-}
-
-void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
-{
-    const size_t Nchunks = sums.size();
-    const size_t batchSize = data.size() / Nchunks;
-    chunk_sums_masked<Vector>(data.raw(), mask.raw(), sums.raw(), Nchunks, batchSize);
-}
-
-Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
-    size_t batchSize)
-{
-    size_t Nchunks = data.size() / batchSize;
-    Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
-    return sums;
-}
-
-void sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
-    Memory<Matrix3x3, VRAM_CUDA>& sums)
-{
-    const size_t Nchunks = sums.size();
-    const size_t batchSize = data.size() / Nchunks;
-    chunk_sums<Matrix3x3>(data.raw(), sums.raw(), Nchunks, batchSize);
-}
-
-Memory<Matrix3x3, VRAM_CUDA> sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
-    size_t batchSize)
-{
-
-}
 
 } // namespace rmagine

@@ -373,22 +373,72 @@ void cuda_math()
 
 void math_cuda_batched()
 {
-    Memory<Vector, RAM> v(1000);
-    for(size_t i=0; i<v.size(); i++)
-    {
-        float i_f = static_cast<float>(i);
-        v[i] = {i_f, i_f*2, i_f*3}; 
+    { // SCALAR
+        Memory<float, RAM> s(1000);
+
+        for(size_t i=0; i<s.size(); i++)
+        {
+            float i_f = static_cast<float>(i);
+            s[i] = i_f; 
+        }
+
+        Memory<float, VRAM_CUDA> s_d;
+        s_d = s;
+
+        Memory<float, RAM> sums;
+        sums = sumBatched(s_d, 100);
+
+        for(size_t i=0; i<sums.size(); i++)
+        {
+            std::cout << sums[i] << std::endl;
+        }
+
+    }
+    { // VECTOR
+        Memory<Vector, RAM> v(1000);
+
+        for(size_t i=0; i<v.size(); i++)
+        {
+            float i_f = static_cast<float>(i);
+            v[i] = {i_f, i_f*2, i_f*3}; 
+        }
+
+        Memory<Vector, VRAM_CUDA> v_d;
+        v_d = v;
+
+        Memory<Vector, RAM> sums;
+        sums = sumBatched(v_d, 100);
+
+        for(size_t i=0; i<sums.size(); i++)
+        {
+            std::cout << sums[i] << std::endl;
+        }
     }
 
-    Memory<Vector, VRAM_CUDA> v_d;
-    v_d = v;
+    { // MATRIX
+        Memory<Matrix3x3, RAM> M(1000);
 
-    Memory<Vector, RAM> sums;
-    sums = sumBatched(v_d, 100);
+        for(size_t i=0; i<M.size(); i++)
+        {
+            float i_f = static_cast<float>(i);
+            for(size_t j=0; j<3; j++)
+            {
+                M[i](j,0) = i_f;
+                M[i](j,1) = i_f*2;
+                M[i](j,2) = i_f*3; 
+            }
+        }
 
-    for(size_t i=0; i<sums.size(); i++)
-    {
-        std::cout << sums[i] << std::endl;
+        Memory<Matrix3x3, VRAM_CUDA> M_d;
+        M_d = M;
+
+        Memory<Matrix3x3, RAM> sums;
+        sums = sumBatched(M_d, 100);
+
+        for(size_t i=0; i<sums.size(); i++)
+        {
+            print(sums[i]);
+        }
     }
 }
 

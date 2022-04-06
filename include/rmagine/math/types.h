@@ -556,7 +556,13 @@ struct Matrix3x3 {
     float& operator()(unsigned int i, unsigned int j);
 
     RMAGINE_INLINE_FUNCTION
+    volatile float& operator()(unsigned int i, unsigned int j) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     float operator()(unsigned int i, unsigned int j) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float operator()(unsigned int i, unsigned int j) volatile const;
 
     RMAGINE_INLINE_FUNCTION
     float* operator[](const unsigned int i);
@@ -1449,7 +1455,19 @@ float& Matrix3x3::operator()(unsigned int i, unsigned int j)
 }
 
 RMAGINE_INLINE_FUNCTION
+volatile float& Matrix3x3::operator()(unsigned int i, unsigned int j) volatile
+{
+    return at(i,j);
+}
+
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::operator()(unsigned int i, unsigned int j) const
+{
+    return at(i,j);
+}
+
+RMAGINE_INLINE_FUNCTION
+float Matrix3x3::operator()(unsigned int i, unsigned int j) volatile const
 {
     return at(i,j);
 }
@@ -1771,15 +1789,15 @@ void Matrix3x3::addInplace(const Matrix3x3& M)
 RMAGINE_INLINE_FUNCTION
 void Matrix3x3::addInplace(volatile Matrix3x3& M) volatile
 {
-    at(0,0) += M.at(0,0);
-    at(0,1) += M.at(0,1);
-    at(0,2) += M.at(0,2);
-    at(1,0) += M.at(1,0);
-    at(1,1) += M.at(1,1);
-    at(1,2) += M.at(1,2);
-    at(2,0) += M.at(2,0);
-    at(2,1) += M.at(2,1);
-    at(2,2) += M.at(2,2);
+    at(0,0) += M(0,0);
+    at(0,1) += M(0,1);
+    at(0,2) += M(0,2);
+    at(1,0) += M(1,0);
+    at(1,1) += M(1,1);
+    at(1,2) += M(1,2);
+    at(2,0) += M(2,0);
+    at(2,1) += M(2,1);
+    at(2,2) += M(2,2);
 }
 
 ////////////////////

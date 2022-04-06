@@ -23,4 +23,15 @@ std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const rmagine::Matrix3x3& M)
+{
+    os << "M3x3[\n";
+    os << M(0, 0) << " " << M(0, 1) << " " << M(0, 2) << "\n";
+    os << M(1, 0) << " " << M(1, 1) << " " << M(1, 2) << "\n";
+    os << M(2, 0) << " " << M(2, 1) << " " << M(2, 2) << "\n";
+    os << "]";
+    return os;
+}
+
+
 #endif // RMAGINE_UTIL_PRINTS_H

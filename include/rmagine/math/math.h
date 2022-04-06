@@ -215,6 +215,31 @@ inline Memory<Vector, RAM> operator-(
     return subNxN(A, B);
 }
 
+void subNx1(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& b,
+    Memory<Vector, RAM>& C);
+
+Memory<Vector, RAM> subNx1(
+    const Memory<Vector, RAM>& A,
+    const Memory<Vector, RAM>& b);
+
+void sub(
+    const Memory<Vector, RAM>& A,
+    const Vector& b,
+    Memory<Vector, RAM>& C);
+
+Memory<Vector, RAM> sub(
+    const Memory<Vector, RAM>& A,
+    const Vector& b);
+
+inline Memory<Vector, RAM> operator-(
+    const Memory<Vector, RAM>& A,
+    const Vector& b)
+{
+    return sub(A, b);
+}
+
 /////
 // #transpose
 void transpose(
@@ -253,9 +278,6 @@ void invert(
 
 Memory<Transform, RAM> invert(
     const Memory<Transform, RAM>& A);
-
-
-
 
 //////
 // #mean
