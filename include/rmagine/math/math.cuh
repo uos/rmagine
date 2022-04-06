@@ -19,6 +19,13 @@ Memory<Quaternion, VRAM_CUDA> multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A, 
     const Memory<Quaternion, VRAM_CUDA>& B);
 
+inline Memory<Quaternion, VRAM_CUDA> operator*(
+    const Memory<Quaternion, VRAM_CUDA>& A,
+    const Memory<Quaternion, VRAM_CUDA>& B)
+{
+    return multNxN(A, B);
+}
+
 void multNxN(
     const Memory<Quaternion, VRAM_CUDA>& A,
     const Memory<Vector, VRAM_CUDA>& b, 
@@ -63,6 +70,7 @@ void multNxN(
 Memory<Vector, VRAM_CUDA> multNxN(
     const Memory<Matrix3x3, VRAM_CUDA>& M,
     const Memory<Vector, VRAM_CUDA>& x);
+
 
 /////////////
 // #multNx1
@@ -254,6 +262,152 @@ void invert(
 
 Memory<Transform, VRAM_CUDA> invert(
     const Memory<Transform, VRAM_CUDA>& A);
+
+//////
+// #divNxN
+void divNxN(
+    const Memory<Vector, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B,
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> divNxN(
+    const Memory<Vector, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+inline Memory<Vector, VRAM_CUDA> operator/(
+    const Memory<Vector, VRAM_CUDA>& A,
+    const Memory<unsigned int, VRAM_CUDA>& B)
+{
+    return divNxN(A, B);
+}
+
+void divNxN(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B, 
+    Memory<Matrix3x3, VRAM_CUDA>& C);
+
+Memory<Matrix3x3, VRAM_CUDA> divNxN(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+inline Memory<Matrix3x3, VRAM_CUDA> operator/(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B)
+{
+    return divNxN(A, B);
+}
+
+///////
+// #divNxNIgnoreZeros
+void divNxNIgnoreZeros(
+    const Memory<Vector, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B,
+    Memory<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> divNxNIgnoreZeros(
+    const Memory<Vector, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+void divNxNIgnoreZeros(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B,
+    Memory<Matrix3x3, VRAM_CUDA>& C);
+
+Memory<Matrix3x3, VRAM_CUDA> divNxNIgnoreZeros(
+    const Memory<Matrix3x3, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+void divNxNIgnoreZeros(
+    const Memory<float, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B,
+    Memory<float, VRAM_CUDA>& C);
+
+Memory<float, VRAM_CUDA> divNxNIgnoreZeros(
+    const Memory<float, VRAM_CUDA>& A, 
+    const Memory<unsigned int, VRAM_CUDA>& B);
+
+////////
+// #divNxNInplace
+void divNxNInplace(
+    Memory<Vector, VRAM_CUDA>& A, 
+    const Memory<float, VRAM_CUDA>& B);
+
+////////
+// #convert
+void convert(const Memory<uint8_t, VRAM_CUDA>& from, 
+    Memory<float, VRAM_CUDA>& to);
+
+void convert(const Memory<bool, VRAM_CUDA>& from, 
+    Memory<unsigned int, VRAM_CUDA>& to);
+
+void convert(const Memory<unsigned int, VRAM_CUDA>& from, 
+    Memory<bool, VRAM_CUDA>& to);
+
+////////
+// #pack
+void pack(
+    const Memory<Matrix3x3, VRAM_CUDA>& R,
+    const Memory<Vector, VRAM_CUDA>& t,
+    Memory<Transform, VRAM_CUDA>& T);
+
+void pack(
+    const Memory<Quaternion, VRAM_CUDA>& R,
+    const Memory<Vector, VRAM_CUDA>& t,
+    Memory<Transform, VRAM_CUDA>& T);
+
+
+/////////////////////
+/// #batched math ///
+/////////////////////
+
+//////////
+// #sumBatched
+void sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    Memory<Vector, VRAM_CUDA>& sums);
+
+Memory<Vector, VRAM_CUDA> sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    size_t batchSize);
+
+void sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<bool, VRAM_CUDA>& mask,
+    Memory<Vector, VRAM_CUDA>& sums);
+
+Memory<Vector, VRAM_CUDA> sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<bool, VRAM_CUDA>& mask,
+    size_t batchSize);
+
+void sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<unsigned int, VRAM_CUDA>& mask,
+    Memory<Vector, VRAM_CUDA>& sums);
+
+Memory<Vector, VRAM_CUDA> sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<unsigned int, VRAM_CUDA>& mask,
+    size_t batchSize);
+
+void sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<uint8_t, VRAM_CUDA>& mask,
+    Memory<Vector, VRAM_CUDA>& sums);
+
+Memory<Vector, VRAM_CUDA> sumBatched(
+    const Memory<Vector, VRAM_CUDA>& data,
+    const Memory<uint8_t, VRAM_CUDA>& mask,
+    size_t batchSize);
+
+void sumBatched(
+    const Memory<Matrix3x3, VRAM_CUDA>& data,
+    Memory<Matrix3x3, VRAM_CUDA>& sums);
+
+Memory<Matrix3x3, VRAM_CUDA> sumBatched(
+    const Memory<Matrix3x3, VRAM_CUDA>& data,
+    size_t batchSize);
+
 
 } // namespace rmagine
 

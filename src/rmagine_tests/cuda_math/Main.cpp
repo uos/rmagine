@@ -2,6 +2,7 @@
 #include <rmagine/math/math.cuh>
 #include <rmagine/math/math.h>
 #include <rmagine/util/StopWatch.hpp>
+#include <rmagine/util/prints.h>
 
 using namespace rmagine;
 
@@ -243,16 +244,16 @@ void cuda_math()
 
     std::cout << "Test Data:" << std::endl;
 
-    std::cout << "- Vector: " << std::endl;
-    print(v[N-1]);
+    std::cout << "- Vector: " << v[N-1] << std::endl;
 
-    std::cout << "- Quaternion: " << std::endl;
-    print(Q[N-1]);
+    std::cout << "- Quaternion: " << Q[N-1] << std::endl;
+    
 
-    std::cout << "- Transform: " << std::endl;
-    print(T[N-1]);
+    std::cout << "- Transform: " << T[N-1] << std::endl;
+    
 
     std::cout << "- Matrix3x3: " << std::endl;
+    // std::cout << M[N-1] << std::endl;
     print(M[N-1]);
 
     // Upload
@@ -370,7 +371,26 @@ void cuda_math()
 
 }
 
+void math_cuda_batched()
+{
+    Memory<Vector, RAM> v(1000);
+    for(size_t i=0; i<v.size(); i++)
+    {
+        float i_f = static_cast<float>(i);
+        v[i] = {i_f, i_f*2, i_f*3}; 
+    }
 
+    Memory<Vector, VRAM_CUDA> v_d;
+    v_d = v;
+
+    Memory<Vector, RAM> sums;
+    sums = sumBatched(v_d, 100);
+
+    for(size_t i=0; i<sums.size(); i++)
+    {
+        std::cout << sums[i] << std::endl;
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -380,6 +400,9 @@ int main(int argc, char** argv)
 
     std::cout << "Rmagine Test: Cuda Math" << std::endl;
     cuda_math();
+
+    std::cout << "Rmagine Test: Cuda Math Batched" << std::endl;
+    math_cuda_batched();
 
     return 0;
 }
