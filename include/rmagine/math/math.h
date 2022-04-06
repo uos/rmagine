@@ -279,13 +279,23 @@ void invert(
 Memory<Transform, RAM> invert(
     const Memory<Transform, RAM>& A);
 
+///////
+// #sum
+void sum(
+    const Memory<Vector, RAM>& X, 
+    Memory<Vector, RAM>& res);
+
+Memory<Vector, RAM> sum(
+    const Memory<Vector, RAM>& X);
+
 //////
 // #mean
-void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res);
-Memory<Vector, RAM> sum(const Memory<Vector, RAM>& X);
+void mean(
+    const Memory<Vector, RAM>& X,
+    Memory<Vector, RAM>& res);
 
-void mean(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res);
-Memory<Vector,RAM> mean(const Memory<Vector, RAM>& X);
+Memory<Vector,RAM> mean(
+    const Memory<Vector, RAM>& X);
 
 } // namespace rmagine
 

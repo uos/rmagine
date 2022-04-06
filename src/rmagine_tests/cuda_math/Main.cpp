@@ -369,12 +369,51 @@ void cuda_math()
     mult1xN(d_M1, d_v, d_v);
     d_v = mult1xN(d_M1, d_v);
 
+    // mean
+
+    { // VECTOR
+        std::cout << "mean Vector " << std::endl;
+        Memory<Vector, RAM> v(10000000);
+
+        for(size_t i=0; i<v.size(); i++)
+        {
+            float i_f = static_cast<float>(i);
+            v[i] = {i_f, i_f*2, i_f*3};
+        }
+
+        Memory<Vector, VRAM_CUDA> v_d;
+        v_d = v;
+
+        StopWatch sw;
+        double el;
+
+        sw();
+        auto m_d = mean(v_d);
+        el = sw();
+
+
+        Memory<Vector, RAM> m;
+        m = m_d;
+
+        std::cout << "- result: " << m[0] << std::endl;
+        std::cout << "- runtime: " << v.size() << " in " << el << "s" << std::endl;
+    }
 }
 
 void math_cuda_batched()
 {
+    unsigned int batches = 10000;
+    unsigned int batchSize = 1000;
+
+    std::cout << "CUDA Batched functions test. Settings:" << std::endl;
+    std::cout << "- batches: " << batches << std::endl;
+    std::cout << "- batch size: " << batchSize << std::endl;
+
+
     { // SCALAR
-        Memory<float, RAM> s(1000);
+        std::cout << "sumBatched Scalar" << std::endl;
+
+        Memory<float, RAM> s(batches * batchSize);
 
         for(size_t i=0; i<s.size(); i++)
         {
@@ -384,18 +423,25 @@ void math_cuda_batched()
 
         Memory<float, VRAM_CUDA> s_d;
         s_d = s;
+        
+        Memory<float, VRAM_CUDA> sums_d(batches);
+        StopWatch sw;
+        double el;
+        sw();
+        sumBatched(s_d, sums_d);
+        el = sw();
 
         Memory<float, RAM> sums;
-        sums = sumBatched(s_d, 100);
+        sums = sums_d;
 
-        for(size_t i=0; i<sums.size(); i++)
-        {
-            std::cout << sums[i] << std::endl;
-        }
+        std::cout << "- runtime: " << s.size() << " in " << el << "s" << std::endl;
+        std::cout << "- res: " << sums[0] << std::endl;
 
     }
     { // VECTOR
-        Memory<Vector, RAM> v(1000);
+
+        std::cout << "sumBatched Vector" << std::endl;
+        Memory<Vector, RAM> v(batches * batchSize);
 
         for(size_t i=0; i<v.size(); i++)
         {
@@ -406,40 +452,83 @@ void math_cuda_batched()
         Memory<Vector, VRAM_CUDA> v_d;
         v_d = v;
 
-        Memory<Vector, RAM> sums;
-        sums = sumBatched(v_d, 100);
+        Memory<Vector, VRAM_CUDA> sums_d(batches);
 
-        for(size_t i=0; i<sums.size(); i++)
-        {
-            std::cout << sums[i] << std::endl;
-        }
+        StopWatch sw;
+        double el;
+        sw();
+        sumBatched(v_d, sums_d);
+        el = sw();
+
+        Memory<Vector, RAM> sums;
+        sums = sums_d;
+        
+        std::cout << "- runtime: " << v.size() << " in " << el << "s" << std::endl;
+        std::cout << "- res: " << sums[0] << std::endl;
+
     }
 
     { // MATRIX
-        Memory<Matrix3x3, RAM> M(1000);
+        std::cout << "sumBatched Matrix3x3" << std::endl;
 
-        for(size_t i=0; i<M.size(); i++)
+        Memory<Matrix3x3, RAM> M(batches * batchSize);
+
+
+        for(size_t i=0; i<batches; i++)
         {
-            float i_f = static_cast<float>(i);
-            for(size_t j=0; j<3; j++)
+            for(size_t j=0; j<batchSize; j++)
             {
-                M[i](j,0) = i_f;
-                M[i](j,1) = i_f*2;
-                M[i](j,2) = i_f*3; 
+                M[i * batchSize + j].setIdentity();
             }
         }
 
         Memory<Matrix3x3, VRAM_CUDA> M_d;
         M_d = M;
 
+        Memory<Matrix3x3, VRAM_CUDA> sums_d(batches);
+        StopWatch sw;
+        double el;
+        sw();
+        sumBatched(M_d, sums_d);
+        el = sw();
         Memory<Matrix3x3, RAM> sums;
-        sums = sumBatched(M_d, 100);
+        sums = sums_d;
 
-        for(size_t i=0; i<sums.size(); i++)
-        {
-            print(sums[i]);
-        }
+        std::cout << "- runtime: " << M.size() << " in " << el << "s" << std::endl;
+        std::cout << "- res: " << sums[sums.size() - 1] << std::endl;
     }
+
+    // mean
+
+    // { // VECTOR
+    //     Memory<Vector, RAM> v(10000000);
+
+    //     for(size_t i=0; i<v.size(); i++)
+    //     {
+    //         float i_f = static_cast<float>(i);
+    //         v[i] = {i_f, i_f*2, i_f*3}; 
+    //     }
+
+    //     Memory<Vector, VRAM_CUDA> v_d;
+    //     v_d = v;
+
+    //     std::cout << "Mean: " << std::endl;
+    //     StopWatch sw;
+    //     double el;
+
+    //     sw();
+    //     auto m_d = mean(v_d);
+    //     el = sw();
+
+
+    //     Memory<Vector, RAM> m;
+    //     m = m_d;
+
+    //     std::cout << m[0] << std::endl;
+    //     std::cout << "Runtime: " << v.size() << " in " << el << "s" << std::endl;
+    // }
+
+
 }
 
 int main(int argc, char** argv)

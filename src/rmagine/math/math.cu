@@ -220,8 +220,9 @@ __global__ void divNxNInplace_kernel(
     }
 }
 
+template<typename T>
 __global__ void divNx1Inplace_kernel(
-    Matrix3x3* A,
+    T* A,
     unsigned int b,
     unsigned int N)
 {
@@ -1005,6 +1006,16 @@ void divNx1Inplace(
     divNx1Inplace_kernel<<<gridSize, blockSize>>>(A.raw(), B, A.size());
 }
 
+void divNx1Inplace(
+    Memory<Vector, VRAM_CUDA>& A, 
+    const unsigned int& B)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    divNx1Inplace_kernel<<<gridSize, blockSize>>>(A.raw(), B, A.size());
+}
+
+
 ////////
 // #convert
 void convert(
@@ -1113,6 +1124,24 @@ Memory<Vector, VRAM_CUDA> sum(
     Memory<Vector, VRAM_CUDA> s(1);
     sum(data, s);
     return s;
+}
+
+//////////
+// #mean
+void mean(
+    const Memory<Vector, VRAM_CUDA>& X,
+    Memory<Vector, VRAM_CUDA>& res)
+{
+    sum(X, res);
+    divNx1Inplace(res, X.size());
+}
+
+Memory<Vector, VRAM_CUDA> mean(
+    const Memory<Vector, VRAM_CUDA>& X)
+{
+    Memory<Vector, VRAM_CUDA> res(1);
+    mean(X, res);
+    return res;
 }
 
 

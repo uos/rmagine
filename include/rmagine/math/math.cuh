@@ -342,6 +342,10 @@ void divNx1Inplace(
     Memory<Matrix3x3, VRAM_CUDA>& A, 
     const unsigned int& B);
 
+void divNx1Inplace(
+    Memory<Vector, VRAM_CUDA>& A, 
+    const unsigned int& B);
+
 ////////
 // #convert
 void convert(const Memory<uint8_t, VRAM_CUDA>& from, 
@@ -396,6 +400,15 @@ void sum(
 
 Memory<Vector, VRAM_CUDA> sum(
     const Memory<Vector, VRAM_CUDA>& data);
+
+//////////
+// #mean
+void mean(
+    const Memory<Vector, VRAM_CUDA>& X,
+    Memory<Vector, VRAM_CUDA>& res);
+
+Memory<Vector, VRAM_CUDA> mean(
+    const Memory<Vector, VRAM_CUDA>& X);
 
 } // namespace rmagine
 
