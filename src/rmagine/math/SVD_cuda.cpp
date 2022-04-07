@@ -100,6 +100,15 @@ void SVD_cuda::calcUV(
     Memory<Matrix3x3, VRAM_CUDA>& Us,
     Memory<Matrix3x3, VRAM_CUDA>& Vs) const
 {
+    Memory<Vector, VRAM_CUDA> Ss(Us.size());
+    calcUSV(As, Us, Ss, Vs);
+}
+
+void SVD_cuda::calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
+        Memory<Matrix3x3, VRAM_CUDA>& Us,
+        Memory<Vector, VRAM_CUDA>& Ss,
+        Memory<Matrix3x3, VRAM_CUDA>& Vs) const
+{
     cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
     cudaError_t cuda_status = cudaSuccess;
 
@@ -124,7 +133,6 @@ void SVD_cuda::calcUV(
     const int minmn = (m < n)? m : n; /* min(m,n) */
 
     // Create Buffer
-    float *d_S  = NULL; /* minmn-by-batchSizee */
     int* d_info  = NULL; /* batchSize */
     int lwork = 0;       /* size of workspace */
     float *d_work = NULL; /* device workspace for gesvdjBatched */
@@ -135,15 +143,16 @@ void SVD_cuda::calcUV(
     int executed_sweeps = 0;
 
     const float* d_A = reinterpret_cast<const float*>(As.raw());
+    
+    // reinterpret data
     float* d_U = reinterpret_cast<float*>(Us.raw());
+    float* d_S = reinterpret_cast<float*>(Ss.raw());
     float* d_V = reinterpret_cast<float*>(Vs.raw());
     
-    
-    cuda_status = cudaMalloc ((void**)&d_S   , sizeof(float)*minmn*batchSize);
-    assert(cudaSuccess == cuda_status);
+    // cuda_status = cudaMalloc ((void**)&d_S   , sizeof(float)*minmn*batchSize);
+    // assert(cudaSuccess == cuda_status);
     cuda_status = cudaMalloc ((void**)&d_info, sizeof(int   )*batchSize);
     assert(cudaSuccess == cuda_status);
-
 
     /////////////////////
     // SOLVING
@@ -206,11 +215,8 @@ void SVD_cuda::calcUV(
 
     // free(h_S);
 
-    // cuda_status = cudaDeviceSynchronize();
     assert(CUSOLVER_STATUS_SUCCESS == status);
-    // assert(cudaSuccess == cuda_status);
     cudaFree(d_work);
-    cudaFree(d_S);
     cudaFree(d_info);
 }
 

@@ -23,6 +23,11 @@ public:
         Memory<Matrix3x3, VRAM_CUDA>& Vs
     ) const;
 
+    void calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
+        Memory<Matrix3x3, VRAM_CUDA>& Us,
+        Memory<Vector, VRAM_CUDA>& Ss,
+        Memory<Matrix3x3, VRAM_CUDA>& Vs) const;
+
 private:
     // global parameters
     cusolverDnHandle_t cusolverH = NULL;
