@@ -9,13 +9,31 @@
 
 using namespace rmagine;
 
+float roll = 0.0;
+float pitch = -M_PI/2.0;
+float yaw = M_PI/2.0;
+
+Vector trans = {0.0, 0.0, 1.0};
+
 void print(Matrix3x3 M)
 {
     for(size_t i=0; i<3; i++)
     {
         for(size_t j=0; j<3; j++)
         {
-            std::cout << M[i][j] << " ";
+            std::cout << M(i,j) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void print(Eigen::Matrix3f M)
+{
+    for(size_t i=0; i<3; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            std::cout << M(i,j) << " ";
         }
         std::cout << std::endl;
     }
@@ -89,18 +107,20 @@ Memory<Vector, RAM> createTransformedPoints()
     Memory<Transform, RAM> Tm(1);
     Transform T;
     T.setIdentity();
+    T.t = trans;
     
     EulerAngles e;
-    e.roll = 0.0;
-    e.pitch = 0.5;
-    e.yaw = 0.3;
+    e.roll = roll;
+    e.pitch = pitch;
+    e.yaw = yaw;
     T.R.set(e);
 
+    // std::cout << "- rotate with: " << e << std::endl;
+    // std::cout << "- rotate with: " << T.R << std::endl;
+
     Tm[0] = T;
-    std::cout << Tm[0] << std::endl;
     return mult1xN(Tm, points);
 }
-
 
 Eigen::Matrix<float, 3, -1> createPointsEigen()
 {
@@ -128,26 +148,81 @@ Eigen::Matrix<float, 3, -1> createPointsEigen()
 Eigen::Matrix<float, 3, -1> createTransformedPointsEigen()
 {
     auto from = createPointsEigen();
-    float roll = 0.1;
-    float pitch = 0.2;
-    float yaw = 0.3;
 
     Eigen::Quaternionf q;
-    q = Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitX())
-        * Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitY())
-        * Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ());
+
+    { // rmagine and ros version
+        Quaternion q_;
+        EulerAngles e;
+        e.roll = roll;
+        e.pitch = pitch;
+        e.yaw = yaw;
+        q_.set(e);
+        q.x() = q_.x;
+        q.y() = q_.y;
+        q.z() = q_.z;
+        q.w() = q_.w;
+    }
+
+    // rmagine has same results as tf.transformations.quaternion_from_euler
+    // eigen gives different results. why?
+    // { // eigen version
+    // q = Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitX())
+    //     * Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitY())
+    //     * Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitZ());
+    // }
+    // std::cout << "- rotate with: " << q.x() << ", " << q.y() << ", " << q.z() << ", " << q.w() << std::endl;
 
     Eigen::Affine3f T;
     T.setIdentity();
     T.linear() = q.matrix();
+    T.translation() = Eigen::Vector3f(trans.x, trans.y, trans.z);
     return T * from;
+}
+
+float mean_dist_error(
+    const Memory<Vector, RAM>& v1,
+    const Memory<Vector, RAM>& v2)
+{
+    float error = 0.0;
+
+    for(size_t i=0; i<v1.size(); i++)
+    {
+        float distance = (v1[i] - v2[i]).l2norm();
+        error += distance;
+    }
+
+    error /= static_cast<float>(v1.size());
+    return error;
+}
+
+float mean_dist_error(
+    const Eigen::Matrix<float, 3, -1>& v1, 
+    const Eigen::Matrix<float, 3, -1>& v2 )
+{
+    float error = 0.0;
+
+    for(size_t i=0; i<v1.cols(); i++)
+    {
+        float distance = sqrt(
+            (v1(0, i) - v2(0, i)) * (v1(0, i) - v2(0, i))
+            + (v1(1, i) - v2(1, i)) * (v1(1, i) - v2(1, i))
+            + (v1(2, i) - v2(2, i)) * (v1(2, i) - v2(2, i))
+        );
+        error += distance;
+    }
+
+    error /= static_cast<float>(v1.cols());
+    return error;
 }
 
 void rmagine_icp_gpu()
 {
     auto Pfrom = createPoints();
+    std::cout << "- From:" << std::endl;
     print(Pfrom);
     auto Pto = createTransformedPoints();
+    std::cout << "- To:" << std::endl;
     print(Pto);
 
     Memory<Vector, VRAM_CUDA> Pfrom_d;
@@ -163,47 +238,31 @@ void rmagine_icp_gpu()
 
     from_centered_d = subNx1(Pfrom_d, from_mean_d);
     to_centered_d = subNx1(Pto_d, to_mean_d);
-    Memory<Matrix3x3, VRAM_CUDA> covs_d(1);
-    covBatched(from_centered_d, to_centered_d, covs_d);
+    auto C_d = cov(from_centered_d, to_centered_d);
 
-    Memory<Matrix3x3, RAM> covs;
-    covs = covs_d;
+    Memory<Matrix3x3, RAM> C;
+    C = C_d;
 
-    std::cout << "C:" << std::endl;
-    std::cout << covs[0] << std::endl;
+    std::cout << "- C:" << std::endl;
+    // print(C[0]);
+    std::cout << C[0] << std::endl;
+    // return;
+    
 
-    Memory<Matrix3x3, VRAM_CUDA> U_d(covs_d.size()), V_d(covs_d.size());
+    Memory<Matrix3x3, VRAM_CUDA> U_d(C_d.size()), V_d(C_d.size());
 
     SVD_cuda svd_gpu;
-    svd_gpu.calcUV(covs_d, U_d, V_d);
-
-    Memory<Matrix3x3, RAM> U, V;
-    U = U_d;
-    V = V_d;
-
-    std::cout << "U: " << std::endl;
-    std::cout << U[0] << std::endl;
-    std::cout << "V:" << std::endl;
-    std::cout << V[0] << std::endl;
-
-    // transposeInplace(V_d);
-    // V = V_d;
-    // std::cout << "Vt: " << std::endl;
-    // std::cout << V[0] << std::endl;
-
-
-    // return;
-    // transposeInplace(V_d);
+    svd_gpu.calcUV(C_d, U_d, V_d);
 
     Memory<Matrix3x3, RAM> R;
     Memory<Vector, RAM> t;
     auto R_d = multNxN(U_d, transpose(V_d));
     R = R_d;
-    std::cout << "R: " << R[0] << std::endl;
+    // std::cout << "R: " << R[0] << std::endl;
     
-    auto t_d = subNxN(from_mean_d, multNxN(R_d, to_mean_d));
+    auto t_d = subNxN(to_mean_d, multNxN(R_d, from_mean_d));
     t = t_d;
-    std::cout << "t: " << t[0] << std::endl;
+    std::cout << "- res t: " << t[0] << std::endl;
 
     Memory<Transform, VRAM_CUDA> T_d(R_d.size());
     pack(R_d, t_d, T_d);
@@ -211,22 +270,38 @@ void rmagine_icp_gpu()
     Memory<Transform, RAM> T;
     T = T_d;
 
-    std::cout << T[0] << std::endl;
+    std::cout << "- res Q: " << T[0].R << std::endl;
+
+    std::cout << "- res T: " << T[0] << std::endl;
     EulerAngles e;
     e.set(T[0].R);
-    std::cout << "Euler: " << e << std::endl;
-
+    std::cout << "- res euler: " << e << std::endl;
     // auto Rs = multNxN(U_d, transpose(V_d));
+
+
+    auto res_d = mult1xN(T_d, Pfrom_d);
+    Memory<Vector, RAM> res;
+    res = res_d;
+
+    std::cout << "- From transformed:" << std::endl;
+    print(res);
+
+    std::cout << "- ICP error: " << mean_dist_error(res, Pto) << std::endl;
+
+    std::cout << std::endl;
 }
 
 void eigen_icp()
 {
     auto Pfrom = createPointsEigen();
-    std::cout << Pfrom.rows() << "x" << Pfrom.cols() << std::endl;
+    std::cout << "- From: " << std::endl;
+    // std::cout << Pfrom.rows() << "x" << Pfrom.cols() << std::endl;
     std::cout << Pfrom << std::endl;
     auto Pto = createTransformedPointsEigen();
-    std::cout << Pto.rows() << "x" << Pto.cols() << std::endl;
+    // std::cout << Pto.rows() << "x" << Pto.cols() << std::endl;
+    std::cout << "- To: " << std::endl;
     std::cout << Pto << std::endl;
+    
 
     const size_t N = Pto.cols();
     double N_d = Pfrom.cols();
@@ -235,14 +310,22 @@ void eigen_icp()
     const Eigen::Vector3f to_mean = Pto.rowwise().mean();
     const auto from_centered = Pfrom.colwise() - from_mean;
     const auto to_centered = Pto.colwise() - to_mean;
-    const Eigen::Matrix3f C = to_centered * from_centered.transpose() / N_d;
+    const Eigen::Matrix3f C = (to_centered * from_centered.transpose()) / N_d;
 
-    std::cout << "C:" << std::endl;
+    std::cout << "- C:" << std::endl;
     std::cout << C << std::endl;
+    // print(C);
+    // return;
+    
+    
+    // std::cout << C << std::endl;
+    // return;
 
     Eigen::JacobiSVD<Eigen::Matrix3f> svd(C, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Eigen::Matrix3f U = svd.matrixU();
     Eigen::Matrix3f V = svd.matrixV();
+    auto sing = svd.singularValues();
+    std::cout << "Singular values: " << sing.transpose() << std::endl;
 
     // why?
     Eigen::Vector3f S = Eigen::Vector3f::Ones(3);
@@ -254,28 +337,37 @@ void eigen_icp()
 
     Eigen::Matrix4f T = Eigen::Matrix4f::Identity(); 
 
-    std::cout << "U: " << std::endl;
-    std::cout << U << std::endl;
-    std::cout << "V: " << std::endl;
-    std::cout << V << std::endl;
-    std::cout << "Vt: " << std::endl;
-    std::cout << V.transpose() << std::endl;
-
-    return;
-
     // rotational part
-    T.block<3,3>(0,0).noalias() = U * S.asDiagonal() * V.transpose();
+    Eigen::Matrix3f R = U * V.transpose();
+
+    // std::cout << "- R:" << std::endl;
+    // std::cout << R << std::endl;
+    T.block<3,3>(0,0).noalias() = R;
     // translational part
-    T.block<3,1>(0,3).noalias() = to_mean - T.topLeftCorner(3,3) * from_mean;
-    std::cout << "res mat" << std::endl;
-    std::cout << T << std::endl;
+    T.block<3,1>(0,3).noalias() = to_mean - R * from_mean;
+    // std::cout << "- res mat" << std::endl;
+    // std::cout << T << std::endl;
 
     Eigen::Affine3f Tr = Eigen::Affine3f::Identity();
     Tr.matrix() = T;
     Eigen::Quaternionf q;
     q = Tr.rotation();
-    std::cout << "res t: " << Tr.translation().transpose() << std::endl;
-    std::cout << "res Q: " << q.x() << ", " << q.y() << ", " << q.z() << ", " << q.w() << std::endl;
+    
+    
+    Quaternion q_ = {q.x(), q.y(), q.z(), q.w()};
+    EulerAngles e;
+    e.set(q_);
+
+    std::cout << "- res t: " << Tr.translation().transpose() << std::endl;
+    std::cout << "- res Q: " << q.x() << ", " << q.y() << ", " << q.z() << ", " << q.w() << std::endl;
+    std::cout << "- res euler: " << e << std::endl;
+
+    auto res = Tr * Pfrom;
+    std::cout << "- From transformed: " << std::endl;
+    std::cout << res << std::endl;
+    std::cout << "- ICP error: " << mean_dist_error(res, Pto) << std::endl;
+
+    std::cout << std::endl;
 }
 
 int main(int argc, char** argv)

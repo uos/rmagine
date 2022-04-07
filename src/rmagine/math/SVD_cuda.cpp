@@ -24,9 +24,9 @@ SVD_cuda::SVD_cuda()
     status = cusolverDnCreateGesvdjInfo(&gesvdj_params);
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
-    const double tol = 1.e-7;
+    const double tol = 1.e-6;
     const int max_sweeps = 15;
-    const int sort_svd  = 1;   /* don't sort singular values */
+    const int sort_svd  = 0;   /* don't sort singular values */
 
     /* default value of tolerance is machine zero */
     status = cusolverDnXgesvdjSetTolerance(
@@ -65,7 +65,7 @@ SVD_cuda::SVD_cuda(cudaStream_t stream)
     status = cusolverDnCreateGesvdjInfo(&gesvdj_params);
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
-    const double tol = 1.e-7;
+    const double tol = 1.e-6;
     const int max_sweeps = 15;
     const int sort_svd  = 0;   /* don't sort singular values */
 
@@ -194,9 +194,21 @@ void SVD_cuda::calcUV(
         batchSize
     );
 
-    cuda_status = cudaDeviceSynchronize();
+    // cuda_status = cudaDeviceSynchronize();
+
+    // std::cout << "batchSize: " << batchSize << std::endl;
+    // float *h_S = (float*)malloc(batchSize * minmn * sizeof(float));
+    // cudaMemcpy(h_S, d_S, batchSize * minmn * sizeof(float), cudaMemcpyDeviceToHost);
+    // cuda_status = cudaDeviceSynchronize();
+
+    // std::cout << "Singular Values: " << std::endl;
+    // std::cout << h_S[0] << ", " << h_S[1] << ", " << h_S[2] << std::endl;
+
+    // free(h_S);
+
+    // cuda_status = cudaDeviceSynchronize();
     assert(CUSOLVER_STATUS_SUCCESS == status);
-    assert(cudaSuccess == cuda_status);
+    // assert(cudaSuccess == cuda_status);
     cudaFree(d_work);
     cudaFree(d_S);
     cudaFree(d_info);

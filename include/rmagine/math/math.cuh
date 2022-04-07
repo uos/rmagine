@@ -424,6 +424,20 @@ void mean(
 Memory<Vector, VRAM_CUDA> mean(
     const Memory<Vector, VRAM_CUDA>& X);
 
+//////////
+// #cov   C = (v1 * v2.T) / N
+void cov(
+    const Memory<Vector, VRAM_CUDA>& v1,
+    const Memory<Vector, VRAM_CUDA>& v2,
+    Memory<Matrix3x3, VRAM_CUDA>& C
+);
+
+Memory<Matrix3x3, VRAM_CUDA> cov(
+    const Memory<Vector, VRAM_CUDA>& v1,
+    const Memory<Vector, VRAM_CUDA>& v2
+);
+
+
 } // namespace rmagine
 
 #endif // RMAGINE_MATH_MATH_CUH

@@ -531,7 +531,13 @@ struct Transform {
 /**
  * @brief Matrix3x3 class
  * 
- * Same order than Eigen default -> Can be reinterpret-casted or mapped.
+ * Same order than Eigen::Matrix3f default -> Can be reinterpret-casted or mapped.
+ * 
+ * Storage order ()-operator 
+ * (0,0), (1,0), (2,0), (0,1), (1,1), (2,1), ... 
+ * 
+ * Storage order []-operator
+ * [0][0], [0][1], [0][2], [1][0], [1][1], [1][2], ...
  * 
  */
 struct Matrix3x3 {
@@ -721,6 +727,12 @@ struct Matrix3x3 {
  * @brief Matrix4x4 type.
  * 
  * Same order as Eigen-default -> can be reinterpret-casted or mapped.
+ * 
+ * Storage order ()-operator 
+ * (0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), ... 
+ * 
+ * Storage order []-operator
+ * [0][0], [0][1], [0][2], [0][3], [1][0], [1][1], [1][2], ...
  * 
  */
 struct Matrix4x4 {

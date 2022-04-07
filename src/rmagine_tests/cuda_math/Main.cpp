@@ -391,7 +391,6 @@ void cuda_math()
         auto m_d = mean(v_d);
         el = sw();
 
-
         Memory<Vector, RAM> m;
         m = m_d;
 

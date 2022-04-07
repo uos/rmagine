@@ -330,13 +330,13 @@ __global__ void covParts_kernel(
     if(id < N)
     {
         C[id](0,0) = a[id].x * b[id].x;
-        C[id](0,1) = a[id].x * b[id].y;
-        C[id](0,2) = a[id].x * b[id].z;
-        C[id](1,0) = a[id].y * b[id].x;
+        C[id](1,0) = a[id].x * b[id].y;
+        C[id](2,0) = a[id].x * b[id].z;
+        C[id](0,1) = a[id].y * b[id].x;
         C[id](1,1) = a[id].y * b[id].y;
-        C[id](1,2) = a[id].y * b[id].z;
-        C[id](2,0) = a[id].z * b[id].x;
-        C[id](2,1) = a[id].z * b[id].y;
+        C[id](2,1) = a[id].y * b[id].z;
+        C[id](0,2) = a[id].z * b[id].x;
+        C[id](1,2) = a[id].z * b[id].y;
         C[id](2,2) = a[id].z * b[id].z;
     }
 }
@@ -354,13 +354,13 @@ __global__ void covParts_kernel(
         if(corr[id])
         {
             C[id](0,0) = a[id].x * b[id].x;
-            C[id](0,1) = a[id].x * b[id].y;
-            C[id](0,2) = a[id].x * b[id].z;
-            C[id](1,0) = a[id].y * b[id].x;
+            C[id](1,0) = a[id].x * b[id].y;
+            C[id](2,0) = a[id].x * b[id].z;
+            C[id](0,1) = a[id].y * b[id].x;
             C[id](1,1) = a[id].y * b[id].y;
-            C[id](1,2) = a[id].y * b[id].z;
-            C[id](2,0) = a[id].z * b[id].x;
-            C[id](2,1) = a[id].z * b[id].y;
+            C[id](2,1) = a[id].y * b[id].z;
+            C[id](0,2) = a[id].z * b[id].x;
+            C[id](1,2) = a[id].z * b[id].y;
             C[id](2,2) = a[id].z * b[id].z;
         } else {
             C[id].setZeros();
@@ -419,6 +419,59 @@ __global__ void sum_kernel(
     if(tid == 0)
     {
         res[blockIdx.x] = sdata[0];
+    }
+}
+
+template<unsigned int blockSize>
+__global__ void cov_kernel(
+    const Vector* v1,
+    const Vector* v2,
+    Matrix3x3* res,
+    unsigned int N)
+{
+    __shared__ Matrix3x3 sdata[blockSize];
+    
+    const unsigned int tid = threadIdx.x;
+    const unsigned int globId = N * blockIdx.x + threadIdx.x;
+    const unsigned int rows = (N + blockSize - 1) / blockSize;
+
+    sdata[tid].setZeros();
+    for(unsigned int i=0; i<rows; i++)
+    {
+        if(tid + blockSize * i < N)
+        {
+            const Vector& a = v1[globId + blockSize * i];
+            const Vector& b = v2[globId + blockSize * i];
+            sdata[tid](0,0) += a.x * b.x;
+            sdata[tid](1,0) += a.x * b.y;
+            sdata[tid](2,0) += a.x * b.z;
+            sdata[tid](0,1) += a.y * b.x;
+            sdata[tid](1,1) += a.y * b.y;
+            sdata[tid](2,1) += a.y * b.z;
+            sdata[tid](0,2) += a.z * b.x;
+            sdata[tid](1,2) += a.z * b.y;
+            sdata[tid](2,2) += a.z * b.z;
+        }
+    }
+    __syncthreads();
+
+    for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid < blockSize / 2 && tid < 32)
+    {
+        warpReduce<blockSize>(sdata, tid);
+    }
+
+    if(tid == 0)
+    {
+        res[blockIdx.x] = sdata[0] / static_cast<float>(N);
     }
 }
 
@@ -1201,6 +1254,26 @@ Memory<Vector, VRAM_CUDA> mean(
     Memory<Vector, VRAM_CUDA> res(1);
     mean(X, res);
     return res;
+}
+
+//////////
+// #cov
+void cov(
+    const Memory<Vector, VRAM_CUDA>& v1,
+    const Memory<Vector, VRAM_CUDA>& v2,
+    Memory<Matrix3x3, VRAM_CUDA>& C)
+{
+    cov_kernel<1024> <<<1, 1024>>>(v1.raw(), v2.raw(), C.raw(), v1.size() );
+}
+
+Memory<Matrix3x3, VRAM_CUDA> cov(
+    const Memory<Vector, VRAM_CUDA>& v1,
+    const Memory<Vector, VRAM_CUDA>& v2
+)
+{
+    Memory<Matrix3x3, VRAM_CUDA> C(1);
+    cov(v1, v2, C);
+    return C;
 }
 
 
