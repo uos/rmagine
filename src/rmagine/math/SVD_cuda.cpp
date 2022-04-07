@@ -91,6 +91,8 @@ SVD_cuda::SVD_cuda(cudaStream_t stream)
 SVD_cuda::~SVD_cuda()
 {
     if (cusolverH) cusolverDnDestroy(cusolverH);
+    // what if stream comes from external?
+    // make shared pointer of stream
     if (stream      ) cudaStreamDestroy(stream);
     if (gesvdj_params) cusolverDnDestroyGesvdjInfo(gesvdj_params);
 }
