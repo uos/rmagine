@@ -153,6 +153,12 @@ void SVD_cuda::calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
     
     // cuda_status = cudaMalloc ((void**)&d_S   , sizeof(float)*minmn*batchSize);
     // assert(cudaSuccess == cuda_status);
+
+    // possible improvements:
+    // Cache
+    // - parameter for expected maximum number of matrices:
+    //    - prealloc memory for d_work, d_info
+
     cuda_status = cudaMalloc ((void**)&d_info, sizeof(int   )*batchSize);
     assert(cudaSuccess == cuda_status);
 

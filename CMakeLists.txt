@@ -40,6 +40,8 @@ set(CMAKE_MODULE_PATH
 ## REQUIRED DEPS
 
 find_package(Boost REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 
 ############################
 ## EMBREE: CPU Raycasting ##
@@ -113,6 +115,7 @@ add_library(rmagine SHARED
     src/rmagine/map/AssimpMap.cpp
     # Math
     src/rmagine/math/math.cpp
+    src/rmagine/math/SVD.cpp
     # Types
     src/rmagine/types/Memory.cpp
     # Util
@@ -123,7 +126,9 @@ add_library(rmagine SHARED
 )
 
 target_link_libraries(rmagine
-  ${ASSIMP_LIBRARIES})
+  ${ASSIMP_LIBRARIES}
+  Eigen3::Eigen
+)
 
 target_compile_features(rmagine PRIVATE cxx_std_17)
 
@@ -297,6 +302,7 @@ endif(Eigen3_FOUND)
 
 add_subdirectory(src/rmagine_tests/memory)
 add_subdirectory(src/rmagine_tests/embree_sim)
+add_subdirectory(src/rmagine_tests/blas)
 
 if(Eigen3_FOUND)
     add_subdirectory(src/rmagine_tests/basic_math)

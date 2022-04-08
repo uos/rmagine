@@ -5,6 +5,8 @@
 #include <rmagine/math/SVD_cuda.hpp>
 #include <rmagine/util/prints.h>
 
+#include <cblas.h>
+
 #include <Eigen/Dense>
 
 using namespace rmagine;
