@@ -14,8 +14,6 @@
 #if defined WITH_OPTIX
 #include <rmagine/simulation/SphereSimulatorOptix.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
-
-
 #endif
 
 #include <iomanip>
@@ -33,7 +31,7 @@ Memory<LiDARModel, RAM> velodyne_model()
     model->phi.inc = 2.0 * M_PI / 180.0;
     model->phi.size = 16;
     
-    model->range.min = 0.5;
+    model->range.min = 0.1;
     model->range.max = 130.0;
     return model;
 }
