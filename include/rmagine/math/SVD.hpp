@@ -15,6 +15,18 @@ public:
     ~SVD();
 
     void calcUV(
+        const Matrix3x3& A,
+        Matrix3x3& U,
+        Matrix3x3& V
+    ) const;
+
+    void calcUSV(const Matrix3x3& A,
+        Matrix3x3& U,
+        Vector& S,
+        Matrix3x3& V
+    ) const;
+
+    void calcUV(
         const Memory<Matrix3x3, RAM>& As,
         Memory<Matrix3x3, RAM>& Us,
         Memory<Matrix3x3, RAM>& Vs

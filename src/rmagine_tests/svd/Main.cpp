@@ -3,6 +3,7 @@
 #include <rmagine/math/math.h>
 #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/math/SVD_cuda.hpp>
+#include <rmagine/math/SVD.hpp>
 #include <rmagine/util/prints.h>
 
 #include <cblas.h>
@@ -15,7 +16,7 @@ float roll = 0.0;
 float pitch = -M_PI/2.0;
 float yaw = M_PI/2.0;
 
-Vector trans = {0.0, 0.0, 1.0};
+Vector trans = {0.0, 0.0, 0.0};
 
 void print(Matrix3x3 M)
 {
@@ -218,6 +219,53 @@ float mean_dist_error(
     return error;
 }
 
+void rmagine_icp_cpu()
+{
+    auto Pfrom = createPoints();
+    std::cout << "- From:" << std::endl;
+    print(Pfrom);
+    auto Pto = createTransformedPoints();
+    std::cout << "- To:" << std::endl;
+    print(Pto);
+
+    // calculate centroids
+    auto from_mean = mean(Pfrom);
+    auto to_mean = mean(Pto);
+
+    // center points around centroids
+    auto from_centered = subNx1(Pfrom, from_mean);
+    auto to_centered = subNx1(Pto, to_mean);
+    // calc covariance matrix of two centered point sets
+    Memory<Matrix3x3, RAM> C = cov(from_centered, to_centered);
+
+    // Compute singular value decomp
+    Memory<Matrix3x3, RAM> U(1), V(1);
+    SVD svd_cpu;
+    svd_cpu.calcUV(C, U, V);
+
+    auto R = multNxN(U, transpose(V));
+    auto t = subNxN(to_mean, multNxN(R, from_mean));
+    std::cout << "- res t: " << t[0] << std::endl;
+
+    Memory<Transform, RAM> T(R.size());
+    pack(R, t, T);
+
+    std::cout << "- res Q: " << T[0].R << std::endl;
+    std::cout << "- res T: " << T[0] << std::endl;
+    EulerAngles e;
+    e.set(T[0].R);
+    std::cout << "- res euler: " << e << std::endl;
+
+    auto res = mult1xN(T, Pfrom);
+
+    std::cout << "- From transformed:" << std::endl;
+    print(res);
+
+    std::cout << "- ICP error: " << mean_dist_error(res, Pto) << std::endl;
+
+    std::cout << std::endl;
+}
+
 void rmagine_icp_gpu()
 {
     auto Pfrom = createPoints();
@@ -316,18 +364,15 @@ void eigen_icp()
 
     std::cout << "- C:" << std::endl;
     std::cout << C << std::endl;
-    // print(C);
-    // return;
-    
-    
-    // std::cout << C << std::endl;
-    // return;
 
     Eigen::JacobiSVD<Eigen::Matrix3f> svd(C, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Eigen::Matrix3f U = svd.matrixU();
     Eigen::Matrix3f V = svd.matrixV();
-    auto sing = svd.singularValues();
-    std::cout << "Singular values: " << sing.transpose() << std::endl;
+
+    std::cout << "U: " << std::endl;
+    std::cout << U << std::endl;
+    std::cout << "V: " << std::endl;
+    std::cout << V << std::endl;
 
     // why?
     Eigen::Vector3f S = Eigen::Vector3f::Ones(3);
@@ -341,6 +386,9 @@ void eigen_icp()
 
     // rotational part
     Eigen::Matrix3f R = U * V.transpose();
+    std::cout << "R: " << std::endl;
+    std::cout << R << std::endl;
+    return;
 
     // std::cout << "- R:" << std::endl;
     // std::cout << R << std::endl;
@@ -376,13 +424,23 @@ int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: SVD" << std::endl;
     
-    std::cout << "Eigen ICP" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "----- Eigen ICP -----" << std::endl;
+    std::cout << "---------------------" << std::endl;
     eigen_icp();
+    std::cout << std::endl;
 
-    std::cout << "Rmagine ICP" << std::endl;
-    rmagine_icp_gpu();
+    std::cout << "---------------------" << std::endl;
+    std::cout << "-- Rmagine ICP CPU --" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    rmagine_icp_cpu();
+    std::cout << std::endl;
 
-
+    // std::cout << "---------------------" << std::endl;
+    // std::cout << "-- Rmagine ICP GPU --" << std::endl;
+    // std::cout << "---------------------" << std::endl;
+    // rmagine_icp_gpu();
+    // std::cout << std::endl;
 
     return 0;
 }

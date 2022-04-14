@@ -6,6 +6,7 @@
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/math/types.h>
 #include <memory>
+#include <rmagine/util/cuda/CudaStream.hpp>
 
 namespace rmagine {
 

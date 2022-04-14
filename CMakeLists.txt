@@ -169,6 +169,7 @@ add_library(rmagine_cuda SHARED
     src/rmagine/math/SVD_cuda.cpp
     # util
     src/rmagine/util/cuda/CudaContext.cpp
+    src/rmagine/util/cuda/CudaStream.cpp
     # Noise
     src/rmagine/noise/noise.cu
 )
@@ -302,7 +303,6 @@ endif(Eigen3_FOUND)
 
 add_subdirectory(src/rmagine_tests/memory)
 add_subdirectory(src/rmagine_tests/embree_sim)
-add_subdirectory(src/rmagine_tests/blas)
 
 if(Eigen3_FOUND)
     add_subdirectory(src/rmagine_tests/basic_math)

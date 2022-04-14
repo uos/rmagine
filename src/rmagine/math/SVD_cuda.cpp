@@ -2,27 +2,45 @@
 #include "rmagine/types/MemoryCuda.hpp"
 #include <assert.h>
 
-namespace rmagine {
+#include <rmagine/util/StopWatch.hpp>
 
+namespace rmagine {
 
 SVD_cuda::SVD_cuda()
 {
+    // StopWatch sw;
+    // double el;
+
     cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
     cudaError_t cuda_status = cudaSuccess;
 
-    cuda_status = cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking);
-    assert(cudaSuccess == cuda_status);
-
+    // sw();
     /* step 1: create cusolver handle, bind a stream  */
     status = cusolverDnCreate(&cusolverH);
     assert(CUSOLVER_STATUS_SUCCESS == status);
+    // el = sw();
+    // std::cout << "[SVD_cuda] cusolverDnCreate " << el << "s" << std::endl;
 
+    // sw();
+    cuda_status = cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking);
+    assert(cudaSuccess == cuda_status);
+    // el = sw();
+    // std::cout << "[SVD_cuda] cudaStreamCreateWithFlags " << el << "s" << std::endl;
+
+
+    // sw();
     status = cusolverDnSetStream(cusolverH, stream);
     assert(CUSOLVER_STATUS_SUCCESS == status);
+    // el = sw();
+    // std::cout << "[SVD_cuda] cusolverDnSetStream " << el << "s" << std::endl;
 
     /* step 2: configuration of gesvdj */
+
+    // sw();
     status = cusolverDnCreateGesvdjInfo(&gesvdj_params);
     assert(CUSOLVER_STATUS_SUCCESS == status);
+    // el = sw();
+    // std::cout << "[SVD_cuda] cusolverDnCreateGesvdjInfo " << el << "s" << std::endl;
 
     const double tol = 1.e-6;
     const int max_sweeps = 15;

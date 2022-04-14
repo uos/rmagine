@@ -279,6 +279,18 @@ void invert(
 Memory<Transform, RAM> invert(
     const Memory<Transform, RAM>& A);
 
+////////
+// #pack
+void pack(
+    const Memory<Matrix3x3, RAM>& R,
+    const Memory<Vector, RAM>& t,
+    Memory<Transform, RAM>& T);
+
+void pack(
+    const Memory<Quaternion, RAM>& R,
+    const Memory<Vector, RAM>& t,
+    Memory<Transform, RAM>& T);
+
 ///////
 // #sum
 void sum(
@@ -296,6 +308,22 @@ void mean(
 
 Memory<Vector,RAM> mean(
     const Memory<Vector, RAM>& X);
+
+///////
+// #cov   C = (v1 * v2.T) / N
+void cov(
+    const Memory<Vector, RAM>& v1,
+    const Memory<Vector, RAM>& v2,
+    Memory<Matrix3x3, RAM>& C
+);
+
+Memory<Matrix3x3, RAM> cov(
+    const Memory<Vector, RAM>& v1,
+    const Memory<Vector, RAM>& v2
+);
+
+
+
 
 } // namespace rmagine
 

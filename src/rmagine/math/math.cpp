@@ -70,7 +70,7 @@ void subNxN_generic(
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
     {
-        C[i] = A[i] + B[i];
+        C[i] = A[i] - B[i];
     }
 }
 
@@ -597,6 +597,32 @@ Memory<Transform, RAM> invert(
 }
 
 ////////
+// #pack
+void pack(
+    const Memory<Matrix3x3, RAM>& R,
+    const Memory<Vector, RAM>& t,
+    Memory<Transform, RAM>& T)
+{
+    for(unsigned int i=0; i<R.size(); i++)
+    {
+        T[i].R.set(R[i]);
+        T[i].t = t[i];
+    }
+}
+
+void pack(
+    const Memory<Quaternion, RAM>& R,
+    const Memory<Vector, RAM>& t,
+    Memory<Transform, RAM>& T)
+{
+    for(unsigned int i=0; i<R.size(); i++)
+    {
+        T[i].R = R[i];
+        T[i].t = t[i];
+    }
+}
+
+////////
 // #sum, #mean 
 void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
 {
@@ -627,5 +653,43 @@ Memory<Vector, RAM> mean(const Memory<Vector, RAM>& X)
     mean(X, res);
     return res;
 }
+
+///////
+// #cov   C = (v1 * v2.T) / N
+void cov(
+    const Memory<Vector, RAM>& v1,
+    const Memory<Vector, RAM>& v2,
+    Memory<Matrix3x3, RAM>& C)
+{
+    Matrix3x3 S;
+    S.setZeros();
+    
+    for(unsigned int i=0; i<v1.size(); i++)
+    {
+        const Vector& a = v1[i];
+        const Vector& b = v2[i];
+        S(0,0) += a.x * b.x;
+        S(1,0) += a.x * b.y;
+        S(2,0) += a.x * b.z;
+        S(0,1) += a.y * b.x;
+        S(1,1) += a.y * b.y;
+        S(2,1) += a.y * b.z;
+        S(0,2) += a.z * b.x;
+        S(1,2) += a.z * b.y;
+        S(2,2) += a.z * b.z;
+    }
+
+    C[0] = S / static_cast<float>(v1.size());
+}
+
+Memory<Matrix3x3, RAM> cov(
+    const Memory<Vector, RAM>& v1,
+    const Memory<Vector, RAM>& v2)
+{
+    Memory<Matrix3x3, RAM> C(1);
+    cov(v1, v2, C);
+    return C;
+}
+
 
 } // namespace rmagine
