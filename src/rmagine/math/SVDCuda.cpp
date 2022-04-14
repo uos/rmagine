@@ -1,4 +1,4 @@
-#include "rmagine/math/SVD_cuda.hpp"
+#include "rmagine/math/SVDCuda.hpp"
 #include "rmagine/types/MemoryCuda.hpp"
 #include <assert.h>
 
@@ -6,7 +6,7 @@
 
 namespace rmagine {
 
-SVD_cuda::SVD_cuda()
+SVDCuda::SVDCuda()
 {
     // StopWatch sw;
     // double el;
@@ -65,7 +65,7 @@ SVD_cuda::SVD_cuda()
     assert(CUSOLVER_STATUS_SUCCESS == status);
 }
 
-SVD_cuda::SVD_cuda(cudaStream_t stream)
+SVDCuda::SVDCuda(cudaStream_t stream)
 {
     this->stream = stream;
 
@@ -106,7 +106,7 @@ SVD_cuda::SVD_cuda(cudaStream_t stream)
     assert(CUSOLVER_STATUS_SUCCESS == status);
 }
 
-SVD_cuda::~SVD_cuda()
+SVDCuda::~SVDCuda()
 {
     if (cusolverH) cusolverDnDestroy(cusolverH);
     // what if stream comes from external?
@@ -115,7 +115,7 @@ SVD_cuda::~SVD_cuda()
     if (gesvdj_params) cusolverDnDestroyGesvdjInfo(gesvdj_params);
 }
 
-void SVD_cuda::calcUV(
+void SVDCuda::calcUV(
     const Memory<Matrix3x3, VRAM_CUDA>& As,
     Memory<Matrix3x3, VRAM_CUDA>& Us,
     Memory<Matrix3x3, VRAM_CUDA>& Vs) const
@@ -124,7 +124,7 @@ void SVD_cuda::calcUV(
     calcUSV(As, Us, Ss, Vs);
 }
 
-void SVD_cuda::calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
+void SVDCuda::calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
         Memory<Matrix3x3, VRAM_CUDA>& Us,
         Memory<Vector, VRAM_CUDA>& Ss,
         Memory<Matrix3x3, VRAM_CUDA>& Vs) const

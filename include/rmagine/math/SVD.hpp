@@ -11,7 +11,6 @@ class SVD
 {
 public:
     SVD();
-
     ~SVD();
 
     void calcUV(

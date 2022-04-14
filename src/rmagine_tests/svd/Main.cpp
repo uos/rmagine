@@ -2,8 +2,11 @@
 #include <rmagine/math/math.cuh>
 #include <rmagine/math/math.h>
 #include <rmagine/util/StopWatch.hpp>
-#include <rmagine/math/SVD_cuda.hpp>
+
+// SVD for CPU and CUDA
 #include <rmagine/math/SVD.hpp>
+#include <rmagine/math/SVDCuda.hpp>
+
 #include <rmagine/util/prints.h>
 
 #include <cblas.h>
@@ -301,7 +304,7 @@ void rmagine_icp_gpu()
 
     Memory<Matrix3x3, VRAM_CUDA> U_d(C_d.size()), V_d(C_d.size());
 
-    SVD_cuda svd_gpu;
+    SVDCuda svd_gpu;
     svd_gpu.calcUV(C_d, U_d, V_d);
 
     Memory<Matrix3x3, RAM> R;
@@ -436,11 +439,11 @@ int main(int argc, char** argv)
     rmagine_icp_cpu();
     std::cout << std::endl;
 
-    // std::cout << "---------------------" << std::endl;
-    // std::cout << "-- Rmagine ICP GPU --" << std::endl;
-    // std::cout << "---------------------" << std::endl;
-    // rmagine_icp_gpu();
-    // std::cout << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "-- Rmagine ICP GPU --" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    rmagine_icp_gpu();
+    std::cout << std::endl;
 
     return 0;
 }

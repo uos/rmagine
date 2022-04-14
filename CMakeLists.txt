@@ -166,7 +166,7 @@ add_library(rmagine_cuda SHARED
     # math
     src/rmagine/math/math.cu
     src/rmagine/math/math_batched.cu
-    src/rmagine/math/SVD_cuda.cpp
+    src/rmagine/math/SVDCuda.cpp
     # util
     src/rmagine/util/cuda/CudaContext.cpp
     src/rmagine/util/cuda/CudaStream.cpp

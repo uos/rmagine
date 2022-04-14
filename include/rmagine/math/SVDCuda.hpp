@@ -10,13 +10,13 @@
 
 namespace rmagine {
 
-class SVD_cuda 
+class SVDCuda
 {
 public:
-    SVD_cuda();
-    SVD_cuda(cudaStream_t stream);
+    SVDCuda();
+    SVDCuda(cudaStream_t stream);
 
-    ~SVD_cuda();
+    ~SVDCuda();
 
     void calcUV(
         const Memory<Matrix3x3, VRAM_CUDA>& As,
@@ -36,7 +36,7 @@ private:
     gesvdjInfo_t gesvdj_params = NULL;
 };
 
-using SVD_cudaPtr = std::shared_ptr<SVD_cuda>;
+using SVDCudaPtr = std::shared_ptr<SVDCuda>;
 
 } // namespace rmagine
 
