@@ -258,12 +258,10 @@ bool checkMatrix4x4()
     return true;
 }
 
-
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Basic Math" << std::endl;
     // rotationConversionTest();
-
 
     // checkMatrix3x3();
     // checkMatrix4x4();
