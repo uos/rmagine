@@ -21,7 +21,6 @@ namespace rmagine {
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
 typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
-// typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
 O1DnProgramNormals::O1DnProgramNormals(OptixMapPtr map)
 {

@@ -34,18 +34,27 @@ set(rmagine_LIBRARIES rmagine)
 if(@embree_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine_embree)
     set(rmagine_embree_LIBRARY rmagine_embree)
+    set(rmagine_embree_FOUND 1)
+else(@embree_FOUND@)
+    set(rmagine_embree_FOUND 0)
 endif(@embree_FOUND@)
 
 # RMAGINE CUDA LIB
 if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine_cuda)
     set(rmagine_cuda_LIBRARY rmagine_cuda)
+    set(rmagine_cuda_FOUND 1)
+else(@CUDA_FOUND@)
+    set(rmagine_cuda_FOUND 0)
 endif(@CUDA_FOUND@)
 
 # RMAGINE OptiX LIB
 if(@OptiX_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine_optix)
     set(rmagine_optix_LIBRARY rmagine_optix)
+    set(rmagine_optix_FOUND 1)
+else(@OptiX_FOUND@)
+    set(rmagine_optix_FOUND 0)
 endif(@OptiX_FOUND@)
 
 # Use this?
@@ -66,10 +75,9 @@ if(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # Assimp
-find_package(assimp REQUIRED)
-list(APPEND rmagine_INCLUDE_DIRS ${ASSIMP_INCLUDE_DIRS})
-list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
-list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
+list(APPEND rmagine_INCLUDE_DIRS @ASSIMP_INCLUDE_DIRS@)
+list(APPEND rmagine_LIBRARIES @ASSIMP_LIBRARIES@)
+list(APPEND rmagine_ext_LIBRARIES @ASSIMP_LIBRARIES@)
 
 # Embree
 if(@embree_FOUND@)

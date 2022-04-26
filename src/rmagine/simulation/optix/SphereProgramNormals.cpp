@@ -20,8 +20,6 @@ namespace rmagine {
 
 typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
 typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-// typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
-// typedef SbtRecord<HitGroupDataEmpty>   HitGroupSbtRecord;
 
 SphereProgramNormals::SphereProgramNormals(OptixMapPtr map)
 {

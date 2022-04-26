@@ -403,6 +403,25 @@ Memory<float, VRAM_CUDA> sumBatched(
     return sums;
 }
 
+void sumBatched(
+    const Memory<unsigned int, VRAM_CUDA>& data,
+    Memory<unsigned int, VRAM_CUDA>& sums)
+{
+    const size_t Nchunks = sums.size();
+    const size_t batchSize = data.size() / Nchunks;
+    chunk_sums<unsigned int>(data.raw(), sums.raw(), Nchunks, batchSize);
+}
+
+Memory<unsigned int, VRAM_CUDA> sumBatched(
+    const Memory<unsigned int, VRAM_CUDA>& data,
+    size_t batchSize)
+{
+    size_t Nchunks = data.size() / batchSize;
+    Memory<unsigned int, VRAM_CUDA> sums(Nchunks);
+    sumBatched(data, sums);
+    return sums;
+}
+
 //////////
 // #sumBatched masked
 void sumBatched(

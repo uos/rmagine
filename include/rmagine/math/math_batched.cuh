@@ -35,6 +35,14 @@ Memory<float, VRAM_CUDA> sumBatched(
     const Memory<float, VRAM_CUDA>& data,
     size_t batchSize);
 
+void sumBatched(
+    const Memory<unsigned int, VRAM_CUDA>& data,
+    Memory<unsigned int, VRAM_CUDA>& sums);
+
+Memory<unsigned int, VRAM_CUDA> sumBatched(
+    const Memory<unsigned int, VRAM_CUDA>& data,
+    size_t batchSize);
+
 //////////
 // #sumBatched masked
 void sumBatched(

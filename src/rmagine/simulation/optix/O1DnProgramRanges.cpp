@@ -1,10 +1,9 @@
 #include "rmagine/simulation/optix/O1DnProgramRanges.hpp"
 
-#include "rmagine/util/GenericAlign.hpp"
-#include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
-// use own lib instead
+#include "rmagine/util/GenericAlign.hpp"
+#include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/util/optix/OptixUtil.hpp"
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
 #include "rmagine/util/optix/OptixData.hpp"
