@@ -4,26 +4,26 @@
 #include <iostream>
 #include <rmagine/math/types.h>
 
-std::ostream& operator<<(std::ostream& os, const rmagine::Vector& v)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Vector& v)
 {
     os << "v[" << v.x << "," << v.y << "," << v.z << "]";
 
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const rmagine::Quaternion& q)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Quaternion& q)
 {
     os << "q[" << q.x << "," << q.y << "," << q.z << "," << q.w << "]";
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
 {
     os << "T[" << T.t << ", " << T.R << "]";
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const rmagine::Matrix3x3& M)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Matrix3x3& M)
 {
     os << "M3x3[\n";
     os << M(0, 0) << " " << M(0, 1) << " " << M(0, 2) << "\n";
@@ -33,7 +33,7 @@ std::ostream& operator<<(std::ostream& os, const rmagine::Matrix3x3& M)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
 {
     os << "E [" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
     return os; 

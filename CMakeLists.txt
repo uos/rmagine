@@ -9,11 +9,11 @@ include(GNUInstallDirs)
 add_compile_options(-std=c++17)
 #set(CMAKE_CXX_STANDARD 17)
 
-
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
+# DEFAULT RELEASE
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
   if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
