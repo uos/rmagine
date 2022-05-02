@@ -91,13 +91,13 @@ const DataT* Memory<DataT, MemT>::raw() const {
     return m_mem;
 }
 
-template<typename DataT, typename MemT>
-MemoryView<DataT, MemT> Memory<DataT, MemT>::slice(
-    unsigned int idx_start, 
-    unsigned int idx_end)
-{
-    return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
-}
+// template<typename DataT, typename MemT>
+// MemoryView<DataT, MemT> MemoryView<DataT, MemT>::slice(
+//     unsigned int idx_start, 
+//     unsigned int idx_end)
+// {
+//     return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+// }
 
 // // MemoryView
 // template<typename DataT, typename MemT>

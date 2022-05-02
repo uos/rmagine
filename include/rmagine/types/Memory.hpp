@@ -135,14 +135,19 @@ public:
         return m_size;
     }
 
-    RMAGINE_FUNCTION
-    MemoryView<DataT, MemT> slice(unsigned int idx_start, unsigned int idx_end);
+    // RMAGINE_FUNCTION
+    // MemoryView<DataT, MemT> slice(unsigned int idx_start, unsigned int idx_end);
 
 protected:
     DataT* m_mem = nullptr;
     size_t m_size = 0;
-    bool   owner = true;
 };
+
+// template<typename DataT, typename MemT>
+// class Memory : public MemoryView<DataT, MemT>
+// {
+
+// };
 
 // template<typename DataT, typename MemT>
 // class MemoryView : public Memory<DataT, MemT>

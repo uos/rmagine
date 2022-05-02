@@ -167,16 +167,40 @@ public:
         return DataView(m_mem + idx_start, idx_end - idx_start);
     }
 
+    DataView operator()(unsigned int idx_start, unsigned int idx_end)
+    {
+        return slice(idx_start, idx_end);
+    }
+
     size_t size() const
     {
         return m_size;
+    }
+
+    float* raw()
+    {
+        return m_mem;
+    }
+
+    const float* raw() const 
+    {
+        return m_mem;
+    }
+
+    DataView& operator=(const DataView& other)
+    {
+        if(other.size() != m_size)
+        {
+            throw std::runtime_error("Not the same size!");
+        }
+        std::memcpy(m_mem, other.raw(), sizeof(float) * m_size);
+        return *this;
     }
 
 protected:
     float* m_mem;
     size_t m_size;
 };
-
 
 class Data : public DataView
 {
@@ -187,6 +211,17 @@ public:
     :DataView((float*)malloc(N * sizeof(float)), N)
     {
         std::cout << "Data_ construct" << std::endl;
+    }
+
+    Data& operator=(const Data& other)
+    {
+        if(other.size() != m_size)
+        {
+            m_mem = (float*)malloc(other.size() * sizeof(float));
+            m_size = other.size();
+        }
+        std::memcpy(m_mem, other.raw(), sizeof(float) * m_size);
+        return *this;
     }
 
     ~Data()
@@ -203,45 +238,72 @@ protected:
 Data add(const DataView& a, const DataView& b )
 {
     Data c(a.size());
+    #pragma omp parallel for
+    for(size_t i=0; i<a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
     return c;
+}
+
+void add(const DataView& a, const DataView& b, DataView& c)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
+}
+
+void init(DataView& a)
+{
+    for(size_t i=0; i<a.size(); i++)
+    {
+        a[i] = i;
+    }
+}
+
+void print(const DataView& a)
+{
+    for(size_t i=0; i<a.size(); i++)
+    {
+        std::cout << a[i] << " ";
+    }
+    std::cout << std::endl;
 }
 
 void test_view()
 {
-    Data a(1000);
-    Data b(1000);
+    Data a(10);
+    Data b(10);
+    Data c(10);
 
-    auto a_ = a.slice(10, 20);
-    auto b_ = b.slice(10, 20);
+    init(a);
+    init(b);
+    init(c);
 
-    Data c = add(a_, b_);
-    // std::cout << "Test View" << std::endl;
+    // std::cout << "A: ";
+    // print(a);
 
-    // Memory<float, RAM> data(1000);
 
-    // auto view = data.slice(40, 50);
+    c(0, 5) = add(a(0,5) , b(0,5) );
 
-    // for(size_t i=0; i<data.size(); i++)
+    auto c_ = c(5, 10);
+    add(a(0,5), b(0,5), c_);
+    std::cout << "C: ";
+    print(c);
+
+    // problems?
+
+    // potential problem nr 1
+    // this shouldnt work and this does not work
+    // DataView tmp_;
     // {
-    //     data[i] = i;
+    //     Data tmp(100);
+    //     tmp_ = tmp(10, 20);
     // }
 
-    // size_t N = 10;
-    // for(size_t i=0; i<data.size(); i+=N)
-    // {
-    //     auto view = data.slice(i, i+N);
-    //     std::cout << "(" << i << ", " << i+N << "), " << view.size() << std::endl;
-    //     for(size_t j=0; j<N; j++)
-    //     {
-    //         view[j] = i;
-    //     }
-    // }
 
-    // for(size_t i=0; i<data.size(); i++)
-    // {
-    //     std::cout << data[i] << ", ";
-    // }
-    // std::cout << std::endl;
 }
 
 int main(int argc, char** argv)
