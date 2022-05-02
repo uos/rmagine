@@ -39,6 +39,7 @@ Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::~Memory()
 {
+    std::cout << "Destruct Memory" << std::endl;
     MemT::free(m_mem, m_size);
 }
 
@@ -89,6 +90,39 @@ template<typename DataT, typename MemT>
 const DataT* Memory<DataT, MemT>::raw() const {
     return m_mem;
 }
+
+template<typename DataT, typename MemT>
+MemoryView<DataT, MemT> Memory<DataT, MemT>::slice(
+    unsigned int idx_start, 
+    unsigned int idx_end)
+{
+    return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+}
+
+// // MemoryView
+// template<typename DataT, typename MemT>
+// MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
+// {
+//     m_size = N;
+//     m_mem = mem;
+// }
+
+// template<typename DataT, typename MemT>
+// MemoryView<DataT, MemT>::~MemoryView()
+// {
+//     std::cout << "Destruct MemoryView" << std::endl;
+// }
+
+// template<typename DataT, typename MemT>
+// DataT* MemoryView<DataT, MemT>::raw()
+// {
+//     return m_mem;
+// }
+
+// template<typename DataT, typename MemT>
+// const DataT* MemoryView<DataT, MemT>::raw() const {
+//     return m_mem;
+// }
 
 
 //// RAM

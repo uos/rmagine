@@ -142,15 +142,119 @@ void test_sensor_models()
 
 }
 
+
+class DataView {
+public:
+    DataView(float* mem, size_t N)
+    :m_mem(mem)
+    ,m_size(N)
+    {
+        
+    }
+
+    float& operator[](unsigned long idx)
+    {
+        return m_mem[idx];
+    }
+
+    const float& operator[](unsigned long idx) const
+    {
+        return m_mem[idx];
+    }
+
+    DataView slice(unsigned int idx_start, unsigned int idx_end)
+    {
+        return DataView(m_mem + idx_start, idx_end - idx_start);
+    }
+
+    size_t size() const
+    {
+        return m_size;
+    }
+
+protected:
+    float* m_mem;
+    size_t m_size;
+};
+
+
+class Data : public DataView
+{
+public:
+    using Base = DataView;
+
+    Data(size_t N)
+    :DataView((float*)malloc(N * sizeof(float)), N)
+    {
+        std::cout << "Data_ construct" << std::endl;
+    }
+
+    ~Data()
+    {
+        std::cout << "Data destruct" << std::endl;
+        free(m_mem);
+    }
+
+protected:
+    using Base::m_mem;
+    using Base::m_size;
+};
+
+Data add(const DataView& a, const DataView& b )
+{
+    Data c(a.size());
+    return c;
+}
+
+void test_view()
+{
+    Data a(1000);
+    Data b(1000);
+
+    auto a_ = a.slice(10, 20);
+    auto b_ = b.slice(10, 20);
+
+    Data c = add(a_, b_);
+    // std::cout << "Test View" << std::endl;
+
+    // Memory<float, RAM> data(1000);
+
+    // auto view = data.slice(40, 50);
+
+    // for(size_t i=0; i<data.size(); i++)
+    // {
+    //     data[i] = i;
+    // }
+
+    // size_t N = 10;
+    // for(size_t i=0; i<data.size(); i+=N)
+    // {
+    //     auto view = data.slice(i, i+N);
+    //     std::cout << "(" << i << ", " << i+N << "), " << view.size() << std::endl;
+    //     for(size_t j=0; j<N; j++)
+    //     {
+    //         view[j] = i;
+    //     }
+    // }
+
+    // for(size_t i=0; i<data.size(); i++)
+    // {
+    //     std::cout << data[i] << ", ";
+    // }
+    // std::cout << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory" << std::endl;
 
-    test_cpu();
+    // test_cpu();
 
     // test_gpu();
 
-    test_sensor_models();
+    // test_sensor_models();
+
+    test_view();
 
     return 0;
 }

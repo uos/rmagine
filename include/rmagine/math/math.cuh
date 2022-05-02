@@ -425,6 +425,8 @@ Memory<Vector, VRAM_CUDA> mean(
     const Memory<Vector, VRAM_CUDA>& X);
 
 //////////
+// v1: from
+// v2: to
 // #cov   C = (v1 * v2.T) / N
 void cov(
     const Memory<Vector, VRAM_CUDA>& v1,

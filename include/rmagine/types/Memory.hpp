@@ -46,7 +46,15 @@ namespace rmagine {
 
 struct RAM;
 
+
+
+
 template<typename DataT, typename MemT = RAM>
+class MemoryView;
+
+
+
+template<typename DataT, typename MemT>
 class Memory {
 public:
     using DataType = DataT;
@@ -127,10 +135,53 @@ public:
         return m_size;
     }
 
-private:
+    RMAGINE_FUNCTION
+    MemoryView<DataT, MemT> slice(unsigned int idx_start, unsigned int idx_end);
+
+protected:
     DataT* m_mem = nullptr;
     size_t m_size = 0;
+    bool   owner = true;
 };
+
+// template<typename DataT, typename MemT>
+// class MemoryView : public Memory<DataT, MemT>
+// {
+// public:
+//     using Base = Memory<DataT, MemT>;
+
+//     MemoryView(DataT* data, size_t N);
+//     virtual ~MemoryView() override;
+
+//     // RMAGINE_FUNCTION
+//     // size_t size() const {
+//     //     return m_size;
+//     // }
+
+//     // RMAGINE_FUNCTION
+//     // DataT& operator[](unsigned long idx)
+//     // {
+//     //     return m_mem[idx];
+//     // }
+
+//     // RMAGINE_FUNCTION
+//     // const DataT& operator[](unsigned long idx) const
+//     // {
+//     //     return m_mem[idx];
+//     // }
+
+//     // RMAGINE_FUNCTION
+//     // DataT* raw();
+    
+//     // RMAGINE_FUNCTION
+//     // const DataT* raw() const;
+
+// protected:
+//     using Base::m_mem;
+//     using Base::m_size;
+//     // DataT* m_mem;
+//     // size_t m_size;
+// };
 
 // template<typename DataT, typename MemT>
 // Memory<DataT, MemT> wrap(const DataT& data);

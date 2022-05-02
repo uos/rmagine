@@ -441,7 +441,7 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 {
     size_t Nchunks = data.size() / batchSize;
     Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
+    sumBatched(data, mask, sums);
     return sums;
 }
 
@@ -462,7 +462,9 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 {
     size_t Nchunks = data.size() / batchSize;
     Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
+    // std::cout << "RM: sumBatched masked ... data: " << data.size() << ", mask: " << mask.size() << ", batch: " << batchSize << std::endl;
+    sumBatched(data, mask, sums);
+    // std::cout << "RM: sumBatched done." << std::endl;
     return sums;
 }
 
@@ -483,7 +485,7 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 {
     size_t Nchunks = data.size() / batchSize;
     Memory<Vector, VRAM_CUDA> sums(Nchunks);
-    sumBatched(data, mask, batchSize);
+    sumBatched(data, mask, sums);
     return sums;
 }
 
