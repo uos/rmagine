@@ -192,6 +192,11 @@ void test_slicing_small()
         a(0,5) = a(5,10);
         std::cout << "a: ";
         print(a);
+
+        // TODO: check this
+        // Memory<float> d(5);
+        // init(d);
+        // a(0,5) = d;
     }
 
     // Slicing functions
@@ -214,6 +219,7 @@ void test_slicing_small()
         Memory<float> bla;
         bla = a;
     }
+
 }
 
 void test_slicing_large()
