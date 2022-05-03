@@ -166,6 +166,8 @@ public:
 
     void resize(size_t N);
 
+    using Base::operator=;
+
     // Copy for assignment of same MemT
     Memory<DataT, MemT>& operator=(const Memory<DataT, MemT>& o);
     

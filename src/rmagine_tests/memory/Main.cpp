@@ -194,9 +194,17 @@ void test_slicing_small()
         print(a);
 
         // TODO: check this
-        // Memory<float> d(5);
-        // init(d);
-        // a(0,5) = d;
+        Memory<float> d(5);
+        init(d);
+        a(0,5) = d;
+        std::cout << "Assign Memory to Slice" << std::endl;
+        std::cout << "a: ";
+        print(a);
+
+        std::cout << "Assing Slice to Memory" << std::endl;
+        d = a(5,10);
+        std::cout << "d: ";
+        print(d);
     }
 
     // Slicing functions
