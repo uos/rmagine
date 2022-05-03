@@ -9,17 +9,18 @@ MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
 :m_mem(mem)
 ,m_size(N)
 {
-    // std::cout << "[MemoryView] Constructor DataT*, N" << std::endl;
+    
 }
 
 template<typename DataT, typename MemT>
 MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<DataT, MemT>& o)
 {
-    std::cout << "[MemoryView] operator= same MemT" << std::endl;
+    #if !defined(NDEBUG)
     if(o.size() != this->size())
     {
-        this->resize(o.size());
+        throw std::runtime_error("MemoryView MemT assignment of different sizes");
     }
+    #endif // NDEBUG
     copy(o, *this);
     return *this;
 }
@@ -28,10 +29,12 @@ template<typename DataT, typename MemT>
 template<typename MemT2>
 MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<DataT, MemT2>& o)
 {
+    #if !defined(NDEBUG)
     if(o.size() != this->size())
     {
-        this->resize(o.size());
+        throw std::runtime_error("MemoryView MemT2 assignment of different sizes");
     }
+    #endif // NDEBUG
     copy(o, *this);
     return *this;
 }
@@ -50,25 +53,30 @@ const DataT* MemoryView<DataT, MemT>::raw() const {
 
 /// MEMORY
 template<typename DataT, typename MemT>
+Memory<DataT, MemT>::Memory()
+:Base(nullptr, 0)
+{
+    
+}
+
+template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(size_t N)
 :Base(MemT::template alloc<DataT>(N), N)
 {
-    // std::cout << "[Memory] Constructor N" << std::endl;
+    
 }
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(const Memory<DataT, MemT>& o)
 :Memory(o.size())
 {
-    // std::cout << "[Memory] Copy constructor" << std::endl;
     copy(o, *this);
 }
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
-:Base(o.mem, o.size)
+:Base(o.m_mem, o.m_size)
 {
-    // std::cout << "[Memory] Move constructor" << std::endl;
     o.m_size = 0;
     o.m_mem = nullptr;
 }
@@ -94,6 +102,28 @@ void Memory<DataT, MemT>::resize(size_t N)
     m_size = N;
 }
 
+template<typename DataT, typename MemT>
+Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT>& o)
+{
+    if(o.size() != this->size())
+    {
+        this->resize(o.size());
+    }
+    Base::operator=(o);
+    return *this;
+}
+
+template<typename DataT, typename MemT>
+template<typename MemT2>
+Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT2>& o)
+{
+    if(o.size() != this->size())
+    {
+        this->resize(o.size());
+    }
+    Base::operator=(o);
+    return *this;
+}
 
 //// RAM
 template<typename DataT>

@@ -2,306 +2,102 @@
 #include <memory>
 #include <type_traits>
 #include <rmagine/types/Memory.hpp>
-// #include <rmagine/types/MemoryCuda.hpp>
-// #include <rmagine/types/sensor_models.h>
+#include <rmagine/types/MemoryCuda.hpp>
+#include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
 
 
 using namespace rmagine;
 
+void test_cpu()
+{
 
-// struct Foo {
-//     float x;
-// };
+    // flat
+    std::cout << "1D Array" << std::endl;
+    Memory<float, RAM> arr(10000);
 
-// struct Bar {
-//     float x;
+    std::cout << "2D Array" << std::endl;
 
-//     Bar() : x(2.0) {}
-// };
+    Memory<Memory<float, RAM>, RAM> mat(100);
+    mat[0].resize(10);
+    mat[0][0] = 10.0;
 
-// void placement_new_example()
-// {
-//     Bar* a = (Bar*)malloc(sizeof(Bar) * 10);
-
-//     // // call constructor
-//     // a[0];
-//     // placement new
-//     for(size_t i=0; i<10; i++)
-//     {
-//         new (&a[i]) Bar();
-//     }
-
-//     std::cout << a[0].x << std::endl;
-//     std::cout << a[9].x << std::endl;
-
-//     free(a);
-// }
-
-// void realloc_test()
-// {
-//     int* a = (int*)malloc(sizeof(int) * 5);
-//     a[0] = 5;
-//     a = (int*)realloc(a, sizeof(int) * 10 );
-//     std::cout << a[0] << std::endl;
-//     free(a);
-// }
-
-// void free_test()
-// {
-//     int* a = nullptr;
-//     free(a);
-// }
-
-// void test_cpu()
-// {
-
-//     // flat
-//     std::cout << "1D Array" << std::endl;
-//     Memory<float, RAM> arr(10000);
-
-//     std::cout << "2D Array" << std::endl;
-
-//     Memory<Memory<float, RAM>, RAM> mat(100);
-//     mat[0].resize(10);
-//     mat[0][0] = 10.0;
-
-//     std::cout << "3D Array" << std::endl;
-//     Memory<Memory<Memory<float, RAM>, RAM>, RAM> arr3d;
+    std::cout << "3D Array" << std::endl;
+    Memory<Memory<Memory<float, RAM>, RAM>, RAM> arr3d;
 
     
-//     arr3d.resize(10);
-//     arr3d[0].resize(10);
-//     arr3d[0][0].resize(10);
-//     arr3d[0][0][0] = 2.0;
+    arr3d.resize(10);
+    arr3d[0].resize(10);
+    arr3d[0][0].resize(10);
+    arr3d[0][0][0] = 2.0;
 
-//     std::cout << arr3d[0][0][0] << std::endl;
-// }
-
-
-// void test_gpu()
-// {
-//     Memory<float, RAM_CUDA> arr_cpu(10000);
-
-//     for(size_t i=0; i<10000; i++)
-//     {
-//         arr_cpu[i] = i;
-//     }
-
-//     Memory<float, VRAM_CUDA> arr;
-//     arr.resize(5);
-//     arr = arr_cpu;
+    std::cout << arr3d[0][0][0] << std::endl;
+}
 
 
-//     Memory<float, RAM> dest;
-//     dest = arr;
+void test_gpu()
+{
+    Memory<float, RAM_CUDA> arr_cpu(10000);
 
-//     std::cout << dest[8] << std::endl;
+    for(size_t i=0; i<10000; i++)
+    {
+        arr_cpu[i] = i;
+    }
 
-// }
-
-// class TestClass 
-// {
-// public:
-//     TestClass()
-//     :mem(1)
-//     {
-
-//     }
-
-//     ~TestClass()
-//     {
-        
-//     }
-
-//     void setMem(const Memory<O1DnModel_<RAM>, RAM>& bla)
-//     {
-//         mem = bla;
-//     }
-
-//     void printSomething()
-//     {
-//         std::cout << mem->getHeight() << std::endl;
-//     }
-    
-// private:
-//     Memory<O1DnModel_<RAM>, RAM> mem;
-
-// };
-
-// void test_sensor_models()
-// {
-//     O1DnModel_<RAM> model;
-//     model.height = 100;
-
-//     Memory<O1DnModel_<RAM>, RAM> model_mem(1);
-//     model_mem[0] = model;
-
-//     TestClass bla;
-//     bla.setMem(model_mem);
-//     bla.printSomething();
-// }
+    Memory<float, VRAM_CUDA> arr;
+    arr.resize(5);
+    arr = arr_cpu;
 
 
-class DataView {
+    Memory<float, RAM> dest;
+    dest = arr;
+
+    std::cout << dest[8] << std::endl;
+
+}
+
+class TestClass 
+{
 public:
-    DataView(float* mem, size_t N)
-    :m_mem(mem)
-    ,m_size(N)
+    TestClass()
+    :mem(1)
+    {
+
+    }
+
+    ~TestClass()
     {
         
     }
 
-    float& operator[](unsigned long idx)
+    void setMem(const Memory<O1DnModel_<RAM>, RAM>& bla)
     {
-        return m_mem[idx];
+        mem = bla;
     }
 
-    const float& operator[](unsigned long idx) const
+    void printSomething()
     {
-        return m_mem[idx];
+        std::cout << mem->getHeight() << std::endl;
     }
+    
+private:
+    Memory<O1DnModel_<RAM>, RAM> mem;
 
-    DataView slice(unsigned int idx_start, unsigned int idx_end)
-    {
-        return DataView(m_mem + idx_start, idx_end - idx_start);
-    }
-
-    DataView operator()(unsigned int idx_start, unsigned int idx_end)
-    {
-        return slice(idx_start, idx_end);
-    }
-
-    size_t size() const
-    {
-        return m_size;
-    }
-
-    float* raw()
-    {
-        return m_mem;
-    }
-
-    const float* raw() const 
-    {
-        return m_mem;
-    }
-
-    DataView& operator=(const DataView& other)
-    {
-        if(other.size() != m_size)
-        {
-            throw std::runtime_error("Not the same size!");
-        }
-        std::memcpy(m_mem, other.raw(), sizeof(float) * m_size);
-        return *this;
-    }
-
-protected:
-    float* m_mem;
-    size_t m_size;
 };
 
-class Data : public DataView
+void test_sensor_models()
 {
-public:
-    using Base = DataView;
+    O1DnModel_<RAM> model;
+    model.height = 100;
 
-    Data(size_t N)
-    :DataView((float*)malloc(N * sizeof(float)), N)
-    {
-        std::cout << "Data_ construct" << std::endl;
-    }
+    Memory<O1DnModel_<RAM>, RAM> model_mem(1);
+    model_mem[0] = model;
 
-    Data& operator=(const Data& other)
-    {
-        if(other.size() != m_size)
-        {
-            m_mem = (float*)malloc(other.size() * sizeof(float));
-            m_size = other.size();
-        }
-        std::memcpy(m_mem, other.raw(), sizeof(float) * m_size);
-        return *this;
-    }
-
-    ~Data()
-    {
-        std::cout << "Data destruct" << std::endl;
-        free(m_mem);
-    }
-
-protected:
-    using Base::m_mem;
-    using Base::m_size;
-};
-
-Data add(const DataView& a, const DataView& b )
-{
-    Data c(a.size());
-    #pragma omp parallel for
-    for(size_t i=0; i<a.size(); i++)
-    {
-        c[i] = a[i] + b[i];
-    }
-    return c;
+    TestClass bla;
+    bla.setMem(model_mem);
+    bla.printSomething();
 }
 
-void add(const DataView& a, const DataView& b, DataView& c)
-{
-    #pragma omp parallel for
-    for(size_t i=0; i<a.size(); i++)
-    {
-        c[i] = a[i] + b[i];
-    }
-}
-
-void init(DataView& a)
-{
-    for(size_t i=0; i<a.size(); i++)
-    {
-        a[i] = i;
-    }
-}
-
-void print(const DataView& a)
-{
-    for(size_t i=0; i<a.size(); i++)
-    {
-        std::cout << a[i] << " ";
-    }
-    std::cout << std::endl;
-}
-
-void test_view()
-{
-    Data a(10);
-    Data b(10);
-    Data c(10);
-
-    init(a);
-    init(b);
-    init(c);
-
-    // std::cout << "A: ";
-    // print(a);
-
-    c(0, 5) = add(a(0,5) , b(0,5) );
-
-    auto c_ = c(5, 10);
-    add(a(0,5), b(0,5), c_);
-    std::cout << "C: ";
-    print(c);
-
-    // problems?
-
-    // potential problem nr 1
-    // this shouldnt work and this does not work
-    // DataView tmp_;
-    // {
-    //     Data tmp(100);
-    //     tmp_ = tmp(10, 20);
-    // }
-}
 
 void init(MemView<float>& a)
 {
@@ -319,6 +115,28 @@ void print(const MemView<DataT>& a)
         std::cout << a[i] << " ";
     }
     std::cout << std::endl;
+}
+
+template<typename DataT>
+Mem<DataT> add(const MemView<DataT>& a, const MemView<DataT>& b )
+{
+    Mem<DataT> c(a.size());
+    #pragma omp parallel for
+    for(size_t i=0; i<a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
+    return c;
+}
+
+template<typename DataT>
+void add(const MemView<DataT>& a, const MemView<DataT>& b, MemView<DataT>& c)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<a.size(); i++)
+    {
+        c[i] = a[i] + b[i];
+    }
 }
 
 #define yet int blaaaa=0
@@ -343,32 +161,14 @@ void problem_I_cannot_fix(yet)
     }
 }
 
-
-// template<typename DataT>
-// void test_const_slice_2(const MemoryView<DataT>& a)
-// {
-//     std::cout << "Test const slice 2" << std::endl;
-
-//     MemoryView<const DataT> b_ = a.slice(0, 3);
-// }
-
-
-template<typename DataT>
-void test_const_slice(const MemoryView<DataT>& a)
-{
-    std::cout << "Test const slice" << std::endl;
-    const MemoryView<DataT> a_ = a.slice(0,5);
-
-    // test_const_slice_2(a_);
-    // print(a_);
-    // a_[0] = 5.0;
-}
-
 void test_slicing_small()
 {
     std::cout << "Test Constructors" << std::endl;
     Memory<float> a(10);
+    Memory<float> b(10);
+    Memory<float> c(10);
     init(a);
+    init(b);
 
     std::cout << "a: ";
     print(a);
@@ -387,13 +187,33 @@ void test_slicing_small()
         Memory<float> b = a;
     }
 
+    // Slicing copy
+    {
+        a(0,5) = a(5,10);
+        std::cout << "a: ";
+        print(a);
+    }
 
-    // Slicing
+    // Slicing functions
+    {
+        c = add(a, b);
+        std::cout << "c: ";
+        print(c);
+        c(0,2) = add(a(1,3), b(0,2));
+        std::cout << "c: ";
+        print(c);
 
-    auto a_ = a.slice(0, 5);
+        auto c_ = c(0,2);
+        add(a(1,3), b(0,2), c_);
+        std::cout << "c: ";
+        print(c);
+    }
 
-    test_const_slice(a);
-    print(a);
+    // old copy
+    {
+        Memory<float> bla;
+        bla = a;
+    }
 }
 
 void test_slicing_large()
@@ -438,20 +258,39 @@ void test_slicing_large()
         std::cout << "- Sliced: " << el << "s" << std::endl;
         print(data(Nfloats-10, Nfloats));
     }
+}
 
+void test_slicing_gpu()
+{
+    Memory<float, RAM> a_h(10);
+    init(a_h);
+    // upload
+    Memory<float, VRAM_CUDA> a_d;
+    a_d = a_h;
+
+    // slicing operations on gpu buffers
+    a_d(0,5) = a_d(5,10);
+
+    // download
+    a_h = a_d;
+
+    print(a_h);
 }
 
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory" << std::endl;
 
-    // test_cpu();
-    // test_gpu();
-    // test_sensor_models();
-    // test_view();
-    test_slicing_small();
+    test_cpu();
+    test_gpu();
+    test_sensor_models();
+    
 
+
+    test_slicing_small();
     test_slicing_large();
+
+    test_slicing_gpu();
 
 
 

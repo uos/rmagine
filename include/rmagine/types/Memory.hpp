@@ -155,7 +155,7 @@ class Memory : public MemoryView<DataT, MemT> {
 public:
     using Base = MemoryView<DataT, MemT>;
 
-    // Memory();
+    Memory();
     Memory(size_t N);
     // Copy Constructor
     Memory(const Memory<DataT, MemT>& o);
@@ -165,6 +165,13 @@ public:
     ~Memory();
 
     void resize(size_t N);
+
+    // Copy for assignment of same MemT
+    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT>& o);
+    
+    // Copy for assignment of different MemT
+    template<typename MemT2>
+    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT2>& o);
 
 protected:
     using Base::m_mem;

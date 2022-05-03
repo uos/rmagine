@@ -78,20 +78,20 @@ struct RAM_CUDA {
 // Copy Functions
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM>& from, Memory<DataT, VRAM_CUDA>& to)
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
     cuda::memcpyHostToDevice(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to)
+void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
     cuda::memcpyHostToDevice(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }
 
 // TODO: How to get rid of cuda includes here
 template<typename DataT>
-void copy(const Memory<DataT, RAM>& from, Memory<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
     CUDA_DEBUG( cudaMemcpyAsync(
                 to.raw(),
@@ -101,7 +101,7 @@ void copy(const Memory<DataT, RAM>& from, Memory<DataT, VRAM_CUDA>& to, const cu
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
+void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
     CUDA_DEBUG( cudaMemcpyAsync(
                 to.raw(),
@@ -111,7 +111,7 @@ void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to, con
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
     CUDA_DEBUG( cudaMemcpyAsync(
                 to.raw(),
@@ -121,7 +121,7 @@ void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to, co
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to, const cudaStream_t& stream)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, RAM_CUDA>& to, const cudaStream_t& stream)
 {
     CUDA_DEBUG( cudaMemcpyAsync(
                 to.raw(),
@@ -131,25 +131,25 @@ void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to, con
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, RAM>& to)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, RAM>& to)
 {
     cuda::memcpyDeviceToHost(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, RAM_CUDA>& to)
 {
     cuda::memcpyDeviceToHost(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, VRAM_CUDA>& from, Memory<DataT, VRAM_CUDA>& to)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
     cuda::memcpyDeviceToDevice(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM_CUDA>& from, Memory<DataT, RAM_CUDA>& to)
+void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, RAM_CUDA>& to)
 {
     cuda::memcpyHostToHost(to.raw(), from.raw(), sizeof(DataT) * from.size());
 }

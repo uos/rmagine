@@ -9,9 +9,9 @@ namespace rmagine {
 
 template<typename In1T, typename In2T, typename ResT>
 void multNxN_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -22,9 +22,9 @@ void multNxN_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void multNx1_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -37,9 +37,9 @@ void multNx1_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void mult1xN_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<B.size(); i++)
@@ -50,9 +50,9 @@ void mult1xN_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void addNxN_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -63,9 +63,9 @@ void addNxN_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void subNxN_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -76,9 +76,9 @@ void subNxN_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void subNx1_generic(
-    const Memory<In1T, RAM>& A,
-    const Memory<In2T, RAM>& b,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& A,
+    const MemoryView<In2T, RAM>& b,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -89,9 +89,9 @@ void subNx1_generic(
 
 template<typename In1T, typename In2T, typename ResT>
 void sub1xN_generic(
-    const Memory<In1T, RAM>& a,
-    const Memory<In2T, RAM>& B,
-    Memory<ResT, RAM>& C)
+    const MemoryView<In1T, RAM>& a,
+    const MemoryView<In2T, RAM>& B,
+    MemoryView<ResT, RAM>& C)
 {
     #pragma omp parallel for
     for(size_t i=0; i<B.size(); i++)
@@ -102,8 +102,8 @@ void sub1xN_generic(
 
 template<typename T>
 void transpose_generic(
-    const Memory<T, RAM>& A,
-    Memory<T, RAM>& B)
+    const MemoryView<T, RAM>& A,
+    MemoryView<T, RAM>& B)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -114,8 +114,8 @@ void transpose_generic(
 
 template<typename T>
 void invert_generic(
-    const Memory<T, RAM>& A,
-    Memory<T, RAM>& B)
+    const MemoryView<T, RAM>& A,
+    MemoryView<T, RAM>& B)
 {
     #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
@@ -128,16 +128,16 @@ void invert_generic(
 // #multNxN
 ////////
 void multNxN(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Quaternion, RAM>& B,
-    Memory<Quaternion, RAM>& C)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Quaternion, RAM>& B,
+    MemoryView<Quaternion, RAM>& C)
 {
     multNxN_generic(A, B, C);
 }
 
 Memory<Quaternion, RAM> multNxN(
-    const Memory<Quaternion, RAM>& A, 
-    const Memory<Quaternion, RAM>& B)
+    const MemoryView<Quaternion, RAM>& A, 
+    const MemoryView<Quaternion, RAM>& B)
 {
     Memory<Quaternion, RAM> C(A.size());
     multNxN(A, B, C);
@@ -145,16 +145,16 @@ Memory<Quaternion, RAM> multNxN(
 }
 
 void multNxN(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Vector, RAM>& b, 
-    Memory<Vector, RAM>& c)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b, 
+    MemoryView<Vector, RAM>& c)
 {
     multNxN_generic(A, b, c);
 }
 
 Memory<Vector, RAM> multNxN(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Vector, RAM>& b)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b)
 {
     Memory<Vector, RAM> C(A.size());
     multNxN(A, b, C);
@@ -162,16 +162,16 @@ Memory<Vector, RAM> multNxN(
 }
 
 void multNxN(
-    const Memory<Transform, RAM>& T1,
-    const Memory<Transform, RAM>& T2,
-    Memory<Transform, RAM>& Tr)
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& T2,
+    MemoryView<Transform, RAM>& Tr)
 {
     multNxN_generic(T1, T2, Tr);
 }
 
 Memory<Transform, RAM> multNxN(
-    const Memory<Transform, RAM>& T1,
-    const Memory<Transform, RAM>& T2)
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& T2)
 {
     Memory<Transform, RAM> Tr(T1.size());
     multNxN(T1, T2, Tr);
@@ -179,16 +179,16 @@ Memory<Transform, RAM> multNxN(
 }
 
 void multNxN(
-    const Memory<Transform, RAM>& T,
-    const Memory<Vector, RAM>& x,
-    Memory<Vector, RAM>& c)
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& c)
 {
     multNxN_generic(T, x, c);
 }
 
 Memory<Vector, RAM> multNxN(
-    const Memory<Transform, RAM>& T,
-    const Memory<Vector, RAM>& x)
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x)
 {
     Memory<Vector, RAM> C(T.size());
     multNxN(T, x, C);
@@ -196,16 +196,16 @@ Memory<Vector, RAM> multNxN(
 }
 
 void multNxN(
-    const Memory<Matrix3x3, RAM>& M1,
-    const Memory<Matrix3x3, RAM>& M2,
-    Memory<Matrix3x3, RAM>& Mr)
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& M2,
+    MemoryView<Matrix3x3, RAM>& Mr)
 {
     multNxN_generic(M1, M2, Mr);
 }
 
 Memory<Matrix3x3, RAM> multNxN(
-    const Memory<Matrix3x3, RAM>& M1,
-    const Memory<Matrix3x3, RAM>& M2)
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& M2)
 {
     Memory<Matrix3x3, RAM> Mr(M1.size());
     multNxN(M1, M2, Mr);
@@ -213,16 +213,16 @@ Memory<Matrix3x3, RAM> multNxN(
 }
 
 void multNxN(
-    const Memory<Matrix3x3, RAM>& M,
-    const Memory<Vector, RAM>& x,
-    Memory<Vector, RAM>& c)
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& c)
 {
     multNxN_generic(M, x, c);
 }
 
 Memory<Vector, RAM> multNxN(
-    const Memory<Matrix3x3, RAM>& M,
-    const Memory<Vector, RAM>& x)
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x)
 {
     Memory<Vector, RAM> C(M.size());
     multNxN(M, x, C);
@@ -233,16 +233,16 @@ Memory<Vector, RAM> multNxN(
 // #multNx1
 ////////
 void multNx1(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Quaternion, RAM>& b,
-    Memory<Quaternion, RAM>& C)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Quaternion, RAM>& b,
+    MemoryView<Quaternion, RAM>& C)
 {
     multNx1_generic(A, b, C);
 }
 
 Memory<Quaternion, RAM> multNx1(
-    const Memory<Quaternion, RAM>& A, 
-    const Memory<Quaternion, RAM>& b)
+    const MemoryView<Quaternion, RAM>& A, 
+    const MemoryView<Quaternion, RAM>& b)
 {
     Memory<Quaternion, RAM> C(A.size());
     multNx1(A, b, C);
@@ -250,16 +250,16 @@ Memory<Quaternion, RAM> multNx1(
 }
 
 void multNx1(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Vector, RAM>& b, 
-    Memory<Vector, RAM>& C)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b, 
+    MemoryView<Vector, RAM>& C)
 {
     multNx1_generic(A, b, C);
 }
 
 Memory<Vector, RAM> multNx1(
-    const Memory<Quaternion, RAM>& A,
-    const Memory<Vector, RAM>& b)
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b)
 {
     Memory<Vector, RAM> C(A.size());
     multNx1(A, b, C);
@@ -267,16 +267,16 @@ Memory<Vector, RAM> multNx1(
 }
 
 void multNx1(
-    const Memory<Transform, RAM>& T1,
-    const Memory<Transform, RAM>& t2,
-    Memory<Transform, RAM>& Tr)
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& t2,
+    MemoryView<Transform, RAM>& Tr)
 {
     multNx1_generic(T1, t2, Tr);
 }
 
 Memory<Transform, RAM> multNx1(
-    const Memory<Transform, RAM>& T1,
-    const Memory<Transform, RAM>& t2)
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& t2)
 {
     Memory<Transform, RAM> Tr(T1.size());
     multNx1(T1, t2, Tr);
@@ -284,16 +284,16 @@ Memory<Transform, RAM> multNx1(
 }
 
 void multNx1(
-    const Memory<Transform, RAM>& T,
-    const Memory<Vector, RAM>& x,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& C)
 {
     multNx1_generic(T, x, C);
 }
 
 Memory<Vector, RAM> multNx1(
-    const Memory<Transform, RAM>& T,
-    const Memory<Vector, RAM>& x)
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x)
 {
     Memory<Vector, RAM> C(T.size());
     multNx1(T, x, C);
@@ -301,16 +301,16 @@ Memory<Vector, RAM> multNx1(
 }
 
 void multNx1(
-    const Memory<Matrix3x3, RAM>& M1,
-    const Memory<Matrix3x3, RAM>& m2,
-    Memory<Matrix3x3, RAM>& Mr)
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& m2,
+    MemoryView<Matrix3x3, RAM>& Mr)
 {
     multNx1_generic(M1, m2, Mr);
 }
 
 Memory<Matrix3x3, RAM> multNx1(
-    const Memory<Matrix3x3, RAM>& M1,
-    const Memory<Matrix3x3, RAM>& m2)
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& m2)
 {
     Memory<Matrix3x3, RAM> Mr(M1.size());
     multNx1(M1, m2, Mr);
@@ -318,16 +318,16 @@ Memory<Matrix3x3, RAM> multNx1(
 }
 
 void multNx1(
-    const Memory<Matrix3x3, RAM>& M,
-    const Memory<Vector, RAM>& x,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& C)
 {
     multNx1_generic(M, x, C);
 }
 
 Memory<Vector, RAM> multNx1(
-    const Memory<Matrix3x3, RAM>& M,
-    const Memory<Vector, RAM>& x)
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x)
 {
     Memory<Vector, RAM> C(M.size());
     multNx1(M, x, C);
@@ -338,16 +338,16 @@ Memory<Vector, RAM> multNx1(
 // #mult1xN
 ////////
 void mult1xN(
-    const Memory<Quaternion, RAM>& a,
-    const Memory<Quaternion, RAM>& B,
-    Memory<Quaternion, RAM>& C)
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Quaternion, RAM>& B,
+    MemoryView<Quaternion, RAM>& C)
 {
     mult1xN_generic(a, B, C);
 }
 
 Memory<Quaternion, RAM> mult1xN(
-    const Memory<Quaternion, RAM>& a, 
-    const Memory<Quaternion, RAM>& B)
+    const MemoryView<Quaternion, RAM>& a, 
+    const MemoryView<Quaternion, RAM>& B)
 {
     Memory<Quaternion, RAM> C(B.size());
     mult1xN(a, B, C);
@@ -355,16 +355,16 @@ Memory<Quaternion, RAM> mult1xN(
 }
 
 void mult1xN(
-    const Memory<Quaternion, RAM>& a,
-    const Memory<Vector, RAM>& B, 
-    Memory<Vector, RAM>& C)
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Vector, RAM>& B, 
+    MemoryView<Vector, RAM>& C)
 {
     mult1xN_generic(a, B, C);
 }
 
 Memory<Vector, RAM> mult1xN(
-    const Memory<Quaternion, RAM>& a,
-    const Memory<Vector, RAM>& B)
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Vector, RAM>& B)
 {
     Memory<Vector, RAM> C(B.size());
     mult1xN(a, B, C);
@@ -372,16 +372,16 @@ Memory<Vector, RAM> mult1xN(
 }
 
 void mult1xN(
-    const Memory<Transform, RAM>& t1,
-    const Memory<Transform, RAM>& T2,
-    Memory<Transform, RAM>& Tr)
+    const MemoryView<Transform, RAM>& t1,
+    const MemoryView<Transform, RAM>& T2,
+    MemoryView<Transform, RAM>& Tr)
 {
     mult1xN_generic(t1, T2, Tr);
 }
 
 Memory<Transform, RAM> mult1xN(
-    const Memory<Transform, RAM>& t1,
-    const Memory<Transform, RAM>& T2)
+    const MemoryView<Transform, RAM>& t1,
+    const MemoryView<Transform, RAM>& T2)
 {
     Memory<Transform, RAM> Tr(T2.size());
     mult1xN(t1, T2, Tr);
@@ -389,16 +389,16 @@ Memory<Transform, RAM> mult1xN(
 }
 
 void mult1xN(
-    const Memory<Transform, RAM>& t,
-    const Memory<Vector, RAM>& X,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Transform, RAM>& t,
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& C)
 {
     mult1xN_generic(t, X, C);
 }
 
 Memory<Vector, RAM> mult1xN(
-    const Memory<Transform, RAM>& t,
-    const Memory<Vector, RAM>& X)
+    const MemoryView<Transform, RAM>& t,
+    const MemoryView<Vector, RAM>& X)
 {
     Memory<Vector, RAM> C(X.size());
     mult1xN(t, X, C);
@@ -406,16 +406,16 @@ Memory<Vector, RAM> mult1xN(
 }
 
 void mult1xN(
-    const Memory<Matrix3x3, RAM>& m1,
-    const Memory<Matrix3x3, RAM>& M2,
-    Memory<Matrix3x3, RAM>& Mr)
+    const MemoryView<Matrix3x3, RAM>& m1,
+    const MemoryView<Matrix3x3, RAM>& M2,
+    MemoryView<Matrix3x3, RAM>& Mr)
 {
     mult1xN_generic(m1, M2, Mr);
 }
 
 Memory<Matrix3x3, RAM> mult1xN(
-    const Memory<Matrix3x3, RAM>& m1,
-    const Memory<Matrix3x3, RAM>& M2)
+    const MemoryView<Matrix3x3, RAM>& m1,
+    const MemoryView<Matrix3x3, RAM>& M2)
 {
     Memory<Matrix3x3, RAM> Mr(M2.size());
     mult1xN(m1, M2, Mr);
@@ -423,16 +423,16 @@ Memory<Matrix3x3, RAM> mult1xN(
 }
 
 void mult1xN(
-    const Memory<Matrix3x3, RAM>& m,
-    const Memory<Vector, RAM>& X,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Matrix3x3, RAM>& m,
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& C)
 {
     mult1xN_generic(m, X, C);
 }
 
 Memory<Vector, RAM> mult1xN(
-    const Memory<Matrix3x3, RAM>& m,
-    const Memory<Vector, RAM>& X)
+    const MemoryView<Matrix3x3, RAM>& m,
+    const MemoryView<Vector, RAM>& X)
 {
     Memory<Vector, RAM> C(X.size());
     mult1xN(m, X, C);
@@ -443,16 +443,16 @@ Memory<Vector, RAM> mult1xN(
 ///////
 // #add
 void addNxN(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& B,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B,
+    MemoryView<Vector, RAM>& C)
 {
     addNxN_generic(A, B, C);
 }
 
 Memory<Vector, RAM> addNxN(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& B)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B)
 {
     Memory<Vector, RAM> C(A.size());
     addNxN(A, B, C);
@@ -462,17 +462,17 @@ Memory<Vector, RAM> addNxN(
 ////////
 // #sub
 void subNxN(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& B,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B,
+    MemoryView<Vector, RAM>& C)
 {
     assert(A.size() == B.size());
     subNxN_generic(A, B, C);
 }
 
 Memory<Vector, RAM> subNxN(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& B)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B)
 {
     Memory<Vector, RAM> C(A.size());
     subNxN(A, B, C);
@@ -480,16 +480,16 @@ Memory<Vector, RAM> subNxN(
 }
 
 void subNx1(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& b,
-    Memory<Vector, RAM>& C)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& b,
+    MemoryView<Vector, RAM>& C)
 {
     subNx1_generic(A, b, C);
 }
 
 Memory<Vector, RAM> subNx1(
-    const Memory<Vector, RAM>& A,
-    const Memory<Vector, RAM>& b)
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& b)
 {
     Memory<Vector, RAM> C(A.size());
     subNx1(A, b, C);
@@ -497,9 +497,9 @@ Memory<Vector, RAM> subNx1(
 }
 
 void sub(
-    const Memory<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& A,
     const Vector& b,
-    Memory<Vector, RAM>& C)
+    MemoryView<Vector, RAM>& C)
 {
     #pragma omp parralel for
     for(size_t i=0; i<A.size(); i++)
@@ -509,7 +509,7 @@ void sub(
 }
 
 Memory<Vector, RAM> sub(
-    const Memory<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& A,
     const Vector& b)
 {
     Memory<Vector, RAM> C(A.size());
@@ -520,14 +520,14 @@ Memory<Vector, RAM> sub(
 /////
 // #transpose
 void transpose(
-    const Memory<Matrix3x3, RAM>& A, 
-    Memory<Matrix3x3, RAM>& B)
+    const MemoryView<Matrix3x3, RAM>& A, 
+    MemoryView<Matrix3x3, RAM>& B)
 {
     transpose_generic(A, B);
 }
 
 Memory<Matrix3x3, RAM> transpose(
-    const Memory<Matrix3x3, RAM>& A)
+    const MemoryView<Matrix3x3, RAM>& A)
 {
     Memory<Matrix3x3, RAM> B(A.size());
     transpose(A, B);
@@ -535,14 +535,14 @@ Memory<Matrix3x3, RAM> transpose(
 }
 
 void transpose(
-    const Memory<Matrix4x4, RAM>& A,
-    Memory<Matrix4x4, RAM>& B)
+    const MemoryView<Matrix4x4, RAM>& A,
+    MemoryView<Matrix4x4, RAM>& B)
 {
     transpose_generic(A, B);
 }
 
 Memory<Matrix4x4, RAM> transpose(
-    const Memory<Matrix4x4, RAM>& A)
+    const MemoryView<Matrix4x4, RAM>& A)
 {
     Memory<Matrix4x4, RAM> B(A.size());
     transpose(A, B);
@@ -552,14 +552,14 @@ Memory<Matrix4x4, RAM> transpose(
 //////
 // #invert
 void invert(
-    const Memory<Matrix3x3, RAM>& A, 
-    Memory<Matrix3x3, RAM>& B)
+    const MemoryView<Matrix3x3, RAM>& A, 
+    MemoryView<Matrix3x3, RAM>& B)
 {
     invert_generic(A, B);
 }
 
 Memory<Matrix3x3, RAM> invert(
-    const Memory<Matrix3x3, RAM>& A)
+    const MemoryView<Matrix3x3, RAM>& A)
 {
     Memory<Matrix3x3, RAM> B(A.size());
     invert(A, B);
@@ -567,14 +567,14 @@ Memory<Matrix3x3, RAM> invert(
 }
 
 void invert(
-    const Memory<Matrix4x4, RAM>& A,
-    Memory<Matrix4x4, RAM>& B)
+    const MemoryView<Matrix4x4, RAM>& A,
+    MemoryView<Matrix4x4, RAM>& B)
 {
     invert_generic(A, B);
 }
 
 Memory<Matrix4x4, RAM> invert(
-    const Memory<Matrix4x4, RAM>& A)
+    const MemoryView<Matrix4x4, RAM>& A)
 {
     Memory<Matrix4x4, RAM> B(A.size());
     invert(A, B);
@@ -582,14 +582,14 @@ Memory<Matrix4x4, RAM> invert(
 }
 
 void invert(
-    const Memory<Transform, RAM>& A,
-    Memory<Transform, RAM>& B)
+    const MemoryView<Transform, RAM>& A,
+    MemoryView<Transform, RAM>& B)
 {
     invert_generic(A, B);
 }
 
 Memory<Transform, RAM> invert(
-    const Memory<Transform, RAM>& A)
+    const MemoryView<Transform, RAM>& A)
 {
     Memory<Transform, RAM> B(A.size());
     invert(A, B);
@@ -599,9 +599,9 @@ Memory<Transform, RAM> invert(
 ////////
 // #pack
 void pack(
-    const Memory<Matrix3x3, RAM>& R,
-    const Memory<Vector, RAM>& t,
-    Memory<Transform, RAM>& T)
+    const MemoryView<Matrix3x3, RAM>& R,
+    const MemoryView<Vector, RAM>& t,
+    MemoryView<Transform, RAM>& T)
 {
     for(unsigned int i=0; i<R.size(); i++)
     {
@@ -611,9 +611,9 @@ void pack(
 }
 
 void pack(
-    const Memory<Quaternion, RAM>& R,
-    const Memory<Vector, RAM>& t,
-    Memory<Transform, RAM>& T)
+    const MemoryView<Quaternion, RAM>& R,
+    const MemoryView<Vector, RAM>& t,
+    MemoryView<Transform, RAM>& T)
 {
     for(unsigned int i=0; i<R.size(); i++)
     {
@@ -624,7 +624,9 @@ void pack(
 
 ////////
 // #sum, #mean 
-void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
+void sum(
+    const MemoryView<Vector, RAM>& X, 
+    MemoryView<Vector, RAM>& res)
 {
     Vector s = {0, 0, 0};
     for(unsigned int i=0; i<X.size(); i++)
@@ -634,20 +636,24 @@ void sum(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
     res[0] = s;
 }
 
-Memory<Vector, RAM> sum(const Memory<Vector, RAM>& X)
+Memory<Vector, RAM> sum(
+    const MemoryView<Vector, RAM>& X)
 {
     Memory<Vector, RAM> res(1);
     sum(X, res);
     return res;
 }
 
-void mean(const Memory<Vector, RAM>& X, Memory<Vector, RAM>& res)
+void mean(
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& res)
 {
     sum(X, res);
     res[0] /= static_cast<float>(X.size());
 }
 
-Memory<Vector, RAM> mean(const Memory<Vector, RAM>& X)
+Memory<Vector, RAM> mean(
+    const MemoryView<Vector, RAM>& X)
 {
     Memory<Vector, RAM> res(1);
     mean(X, res);
@@ -657,9 +663,9 @@ Memory<Vector, RAM> mean(const Memory<Vector, RAM>& X)
 ///////
 // #cov   C = (v1 * v2.T) / N
 void cov(
-    const Memory<Vector, RAM>& v1,
-    const Memory<Vector, RAM>& v2,
-    Memory<Matrix3x3, RAM>& C)
+    const MemoryView<Vector, RAM>& v1,
+    const MemoryView<Vector, RAM>& v2,
+    MemoryView<Matrix3x3, RAM>& C)
 {
     Matrix3x3 S;
     S.setZeros();
@@ -683,8 +689,8 @@ void cov(
 }
 
 Memory<Matrix3x3, RAM> cov(
-    const Memory<Vector, RAM>& v1,
-    const Memory<Vector, RAM>& v2)
+    const MemoryView<Vector, RAM>& v1,
+    const MemoryView<Vector, RAM>& v2)
 {
     Memory<Matrix3x3, RAM> C(1);
     cov(v1, v2, C);
