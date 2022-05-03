@@ -46,38 +46,24 @@ namespace rmagine {
 
 struct RAM;
 
-
-
-
 template<typename DataT, typename MemT = RAM>
-class MemoryView;
-
-
-
-template<typename DataT, typename MemT>
-class Memory {
+class MemoryView {
 public:
     using DataType = DataT;
     using MemType = MemT;
     
-    Memory();
-    Memory(size_t N);
-    // Copy Constructor
-    Memory(const Memory<DataT, MemT>& o);
-    // Move Constructor
-    Memory(Memory<DataT, MemT>&& o) noexcept;
+    MemoryView() = delete;
 
-    ~Memory();
+    MemoryView(DataT* mem, size_t N);
 
     // Copy for assignment of same MemT
-    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT>& o);
+    MemoryView<DataT, MemT>& operator=(const MemoryView<DataT, MemT>& o);
     
     // Copy for assignment of different MemT
     template<typename MemT2>
-    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT2>& o);
+    MemoryView<DataT, MemT>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    void resize(size_t N);
-
+    // TODO: Check CUDA usage (in kernels)
     RMAGINE_FUNCTION
     DataT* raw();
     
@@ -97,25 +83,25 @@ public:
     }
 
     RMAGINE_FUNCTION
-    DataT& at(unsigned long idx)
+    DataT& at(size_t idx)
     {
         return m_mem[idx];
     }
 
     RMAGINE_FUNCTION
-    const DataT& at(unsigned long idx) const
+    const DataT& at(size_t idx) const
     {
         return m_mem[idx];
     }
 
     RMAGINE_FUNCTION
-    DataT& operator[](unsigned long idx)
+    DataT& operator[](size_t idx)
     {
         return m_mem[idx];
     }
 
     RMAGINE_FUNCTION
-    const DataT& operator[](unsigned long idx) const
+    const DataT& operator[](size_t idx) const
     {
         return m_mem[idx];
     }
@@ -135,61 +121,58 @@ public:
         return m_size;
     }
 
-    // RMAGINE_FUNCTION
-    // MemoryView<DataT, MemT> slice(unsigned int idx_start, unsigned int idx_end);
+    MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end)
+    {
+        return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+    }
+
+    // fuck it: just dont write to it
+    const MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end) const 
+    {
+        return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+    }
+
+    MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end)
+    {
+        return slice(idx_start, idx_end);
+    }
+
+    const MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end) const
+    {
+        return slice(idx_start, idx_end);
+    }
 
 protected:
     DataT* m_mem = nullptr;
     size_t m_size = 0;
 };
 
-// template<typename DataT, typename MemT>
-// class Memory : public MemoryView<DataT, MemT>
-// {
+template<typename DataT, typename MemT = RAM>
+using MemView = MemoryView<DataT, MemT>;
 
-// };
+template<typename DataT, typename MemT = RAM>
+class Memory : public MemoryView<DataT, MemT> {
+public:
+    using Base = MemoryView<DataT, MemT>;
 
-// template<typename DataT, typename MemT>
-// class MemoryView : public Memory<DataT, MemT>
-// {
-// public:
-//     using Base = Memory<DataT, MemT>;
+    // Memory();
+    Memory(size_t N);
+    // Copy Constructor
+    Memory(const Memory<DataT, MemT>& o);
+    // Move Constructor
+    Memory(Memory<DataT, MemT>&& o) noexcept;
 
-//     MemoryView(DataT* data, size_t N);
-//     virtual ~MemoryView() override;
+    ~Memory();
 
-//     // RMAGINE_FUNCTION
-//     // size_t size() const {
-//     //     return m_size;
-//     // }
+    void resize(size_t N);
 
-//     // RMAGINE_FUNCTION
-//     // DataT& operator[](unsigned long idx)
-//     // {
-//     //     return m_mem[idx];
-//     // }
+protected:
+    using Base::m_mem;
+    using Base::m_size;
+};
 
-//     // RMAGINE_FUNCTION
-//     // const DataT& operator[](unsigned long idx) const
-//     // {
-//     //     return m_mem[idx];
-//     // }
-
-//     // RMAGINE_FUNCTION
-//     // DataT* raw();
-    
-//     // RMAGINE_FUNCTION
-//     // const DataT* raw() const;
-
-// protected:
-//     using Base::m_mem;
-//     using Base::m_size;
-//     // DataT* m_mem;
-//     // size_t m_size;
-// };
-
-// template<typename DataT, typename MemT>
-// Memory<DataT, MemT> wrap(const DataT& data);
+template<typename DataT, typename MemT = RAM>
+using Mem = Memory<DataT, MemT>;
 
 // RAM specific
 
@@ -208,28 +191,60 @@ struct RAM {
 
 // Some functions that can be specialized:
 template<typename DataT, typename SMT, typename TMT>
-void copy(const Memory<DataT, SMT>& from, Memory<DataT, TMT>& to);
+void copy(const MemoryView<DataT, SMT>& from, MemoryView<DataT, TMT>& to);
 
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM>& from, Memory<DataT, RAM>& to)
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, RAM>& to)
 {
     std::memcpy(to.raw(), from.raw(), sizeof(DataT) * from.size() );
 }
 
 template<typename DataT>
-void copy(const DataT& from, Memory<DataT, RAM>& to)
+void copy(const DataT& from, MemoryView<DataT, RAM>& to)
 {
     std::memcpy(to.raw(), &from, sizeof(DataT));
 }
 
 template<typename DataT>
-void copy(const Memory<DataT, RAM>& from, DataT& to)
+void copy(const MemoryView<DataT, RAM>& from, DataT& to)
 {
     std::memcpy(&to, from.raw(), sizeof(DataT));
 }
 
 } // namespace rmagine
+
+
+// Edit: const return type required for safety
+//
+// hmm that is difficult. Return a const object is not possible.
+// const MemoryView a;
+// MemoryView b = a.slice(0,2);
+// b[0] = 1;
+// - here we want to return an object that cannot be modified
+// 
+// possible fix: MemoryView<const ...> but than the object itself
+// enable this for none const 
+
+// little complicated here. If DataT is not const -> make return value const
+// template<typename U=DataT> 
+// typename std::enable_if<!std::is_const<U>::value, MemoryView<const DataT, MemT> >::type // Return Value
+// slice(size_t idx_start, size_t idx_end) const 
+// {
+//     std::cout << "Make data const!" << std::endl;
+//     return MemoryView<const DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+// }
+
+// // if DataT is const return same data type
+// template<typename U=DataT> 
+// typename std::enable_if<std::is_const<U>::value, MemoryView<DataT, MemT> >::type // Return value
+// slice(size_t idx_start, size_t idx_end) const 
+// {
+//     std::cout << "Let data const!" << std::endl;
+//     return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
+// }
+
+
 
 #include "Memory.tcc"
 
