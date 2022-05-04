@@ -28,4 +28,7 @@ Query several attributes at intersection.
 
 ## Usage
 
-See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions. 
+See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
+
+## Code
+Is available on Github: [rmagine](https://github.com/uos/rmagine)
