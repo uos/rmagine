@@ -116,31 +116,31 @@ SVDCuda::~SVDCuda()
 }
 
 void SVDCuda::calcUV(
-    const Memory<Matrix3x3, VRAM_CUDA>& As,
-    Memory<Matrix3x3, VRAM_CUDA>& Us,
-    Memory<Matrix3x3, VRAM_CUDA>& Vs) const
+    const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Vs) const
 {
     Memory<Vector, VRAM_CUDA> Ss(Us.size());
     calcUSV(As, Us, Ss, Vs);
 }
 
-void SVDCuda::calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
-        Memory<Matrix3x3, VRAM_CUDA>& Us,
-        Memory<Vector, VRAM_CUDA>& Ss,
-        Memory<Matrix3x3, VRAM_CUDA>& Vs) const
+void SVDCuda::calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+        MemoryView<Vector, VRAM_CUDA>& Ss,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Vs) const
 {
     cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
     cudaError_t cuda_status = cudaSuccess;
 
-    if(Vs.size() != As.size())
-    {
-        Vs.resize(As.size());
-    }
+    // if(Vs.size() != As.size())
+    // {
+    //     throw std::runtime_error("Vs MemoryView is not the correct size");
+    // }
 
-    if(Us.size() != As.size())
-    {
-        Us.resize(As.size());
-    }
+    // if(Us.size() != As.size())
+    // {
+    //     Us.resize(As.size());
+    // }
 
     // height or rows
     const int m = 3; /* 1 <= m <= 32 */

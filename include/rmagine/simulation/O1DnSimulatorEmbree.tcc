@@ -7,7 +7,8 @@ namespace rmagine
 
 
 template<typename BundleT>
-void O1DnSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void O1DnSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -138,7 +139,8 @@ void O1DnSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT O1DnSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT O1DnSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

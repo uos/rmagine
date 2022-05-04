@@ -110,34 +110,34 @@ public:
 
     void setMap(EmbreeMapPtr map);
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setTsb(const MemoryView<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);
 
-    void setModel(const Memory<PinholeModel, RAM>& model);
+    void setModel(const MemoryView<PinholeModel, RAM>& model);
     void setModel(const PinholeModel& model);
 
 
     void simulateRanges(
-        const Memory<Transform, RAM>& Tbm, 
-        Memory<float, RAM>& ranges);
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<float, RAM>& ranges);
 
     Memory<float, RAM> simulateRanges(
-        const Memory<Transform, RAM>& Tbm);
+        const MemoryView<Transform, RAM>& Tbm);
 
     void simulateHits(
-        const Memory<Transform, RAM>& Tbm, 
-        Memory<uint8_t, RAM>& hits);
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<uint8_t, RAM>& hits);
 
     Memory<uint8_t, RAM> simulateHits(
-        const Memory<Transform, RAM>& Tbm);
+        const MemoryView<Transform, RAM>& Tbm);
 
     // Generic Version
     template<typename BundleT>
-    void simulate(const Memory<Transform, RAM>& Tbm,
+    void simulate(const MemoryView<Transform, RAM>& Tbm,
         BundleT& ret);
 
     template<typename BundleT>
-    BundleT simulate(const Memory<Transform, RAM>& Tbm);
+    BundleT simulate(const MemoryView<Transform, RAM>& Tbm);
 
 protected:
     EmbreeMapPtr m_map;

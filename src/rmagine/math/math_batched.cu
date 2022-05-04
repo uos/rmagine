@@ -347,8 +347,8 @@ void chunk_sums_masked(const T* data_d, const uint8_t* mask_d, T* res_d, unsigne
 //////////
 // #sumBatched
 void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    Memory<Vector, VRAM_CUDA>& sums)
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    MemoryView<Vector, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -356,7 +356,7 @@ void sumBatched(
 }
 
 Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
+    const MemoryView<Vector, VRAM_CUDA>& data,
     size_t batchSize)
 {
     const size_t Nchunks = data.size() / batchSize;
@@ -366,8 +366,8 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 }
 
 void sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
-    Memory<Matrix3x3, VRAM_CUDA>& sums)
+    const MemoryView<Matrix3x3, VRAM_CUDA>& data,
+    MemoryView<Matrix3x3, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -375,7 +375,7 @@ void sumBatched(
 }
 
 Memory<Matrix3x3, VRAM_CUDA> sumBatched(
-    const Memory<Matrix3x3, VRAM_CUDA>& data,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& data,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -385,8 +385,8 @@ Memory<Matrix3x3, VRAM_CUDA> sumBatched(
 }
 
 void sumBatched(
-    const Memory<float, VRAM_CUDA>& data,
-    Memory<float, VRAM_CUDA>& sums)
+    const MemoryView<float, VRAM_CUDA>& data,
+    MemoryView<float, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -394,7 +394,7 @@ void sumBatched(
 }
 
 Memory<float, VRAM_CUDA> sumBatched(
-    const Memory<float, VRAM_CUDA>& data,
+    const MemoryView<float, VRAM_CUDA>& data,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -404,8 +404,8 @@ Memory<float, VRAM_CUDA> sumBatched(
 }
 
 void sumBatched(
-    const Memory<unsigned int, VRAM_CUDA>& data,
-    Memory<unsigned int, VRAM_CUDA>& sums)
+    const MemoryView<unsigned int, VRAM_CUDA>& data,
+    MemoryView<unsigned int, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -413,7 +413,7 @@ void sumBatched(
 }
 
 Memory<unsigned int, VRAM_CUDA> sumBatched(
-    const Memory<unsigned int, VRAM_CUDA>& data,
+    const MemoryView<unsigned int, VRAM_CUDA>& data,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -425,9 +425,9 @@ Memory<unsigned int, VRAM_CUDA> sumBatched(
 //////////
 // #sumBatched masked
 void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<bool, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<bool, VRAM_CUDA>& mask,
+    MemoryView<Vector, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -435,8 +435,8 @@ void sumBatched(
 }
 
 Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<bool, VRAM_CUDA>& mask,
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<bool, VRAM_CUDA>& mask,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -446,9 +446,9 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 }
 
 void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<unsigned int, VRAM_CUDA>& mask,
+    MemoryView<Vector, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -456,8 +456,8 @@ void sumBatched(
 }
 
 Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<unsigned int, VRAM_CUDA>& mask,
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<unsigned int, VRAM_CUDA>& mask,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -469,9 +469,9 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 }
 
 void sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
-    Memory<Vector, VRAM_CUDA>& sums)
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<uint8_t, VRAM_CUDA>& mask,
+    MemoryView<Vector, VRAM_CUDA>& sums)
 {
     const size_t Nchunks = sums.size();
     const size_t batchSize = data.size() / Nchunks;
@@ -479,8 +479,8 @@ void sumBatched(
 }
 
 Memory<Vector, VRAM_CUDA> sumBatched(
-    const Memory<Vector, VRAM_CUDA>& data,
-    const Memory<uint8_t, VRAM_CUDA>& mask,
+    const MemoryView<Vector, VRAM_CUDA>& data,
+    const MemoryView<uint8_t, VRAM_CUDA>& mask,
     size_t batchSize)
 {
     size_t Nchunks = data.size() / batchSize;
@@ -492,9 +492,9 @@ Memory<Vector, VRAM_CUDA> sumBatched(
 ////////
 // #covBatched
 void covBatched(
-    const Memory<Vector, VRAM_CUDA>& m1, 
-    const Memory<Vector, VRAM_CUDA>& m2,
-    Memory<Matrix3x3, VRAM_CUDA>& covs)
+    const MemoryView<Vector, VRAM_CUDA>& m1, 
+    const MemoryView<Vector, VRAM_CUDA>& m2,
+    MemoryView<Matrix3x3, VRAM_CUDA>& covs)
 {
     const size_t Nchunks = covs.size();
     const size_t batchSize = m1.size() / Nchunks;
@@ -507,8 +507,8 @@ void covBatched(
 }
 
 Memory<Matrix3x3, VRAM_CUDA> covBatched(
-    const Memory<Vector, VRAM_CUDA>& m1, 
-    const Memory<Vector, VRAM_CUDA>& m2,
+    const MemoryView<Vector, VRAM_CUDA>& m1, 
+    const MemoryView<Vector, VRAM_CUDA>& m2,
     unsigned int batchSize)
 {
     size_t Nchunks = m1.size() / batchSize;
@@ -518,11 +518,11 @@ Memory<Matrix3x3, VRAM_CUDA> covBatched(
 }
 
 void covBatched(
-    const Memory<Vector, VRAM_CUDA>& m1, 
-    const Memory<Vector, VRAM_CUDA>& m2,
-    const Memory<bool, VRAM_CUDA>& corr,
-    const Memory<unsigned int, VRAM_CUDA>& ncorr,
-    Memory<Matrix3x3, VRAM_CUDA>& covs)
+    const MemoryView<Vector, VRAM_CUDA>& m1, 
+    const MemoryView<Vector, VRAM_CUDA>& m2,
+    const MemoryView<bool, VRAM_CUDA>& corr,
+    const MemoryView<unsigned int, VRAM_CUDA>& ncorr,
+    MemoryView<Matrix3x3, VRAM_CUDA>& covs)
 {
     const size_t Nchunks = covs.size();
     const size_t batchSize = m1.size() / Nchunks;
@@ -533,10 +533,10 @@ void covBatched(
 }
 
 Memory<Matrix3x3, VRAM_CUDA> covBatched(
-    const Memory<Vector, VRAM_CUDA>& m1, 
-    const Memory<Vector, VRAM_CUDA>& m2,
-    const Memory<bool, VRAM_CUDA>& corr,
-    const Memory<unsigned int, VRAM_CUDA>& ncorr,
+    const MemoryView<Vector, VRAM_CUDA>& m1, 
+    const MemoryView<Vector, VRAM_CUDA>& m2,
+    const MemoryView<bool, VRAM_CUDA>& corr,
+    const MemoryView<unsigned int, VRAM_CUDA>& ncorr,
     unsigned int batchSize)
 {
     size_t Nchunks = m1.size() / batchSize;

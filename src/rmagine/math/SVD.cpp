@@ -50,9 +50,9 @@ void SVD::calcUSV(const Matrix3x3& A,
 }
 
 void SVD::calcUV(
-    const Memory<Matrix3x3, RAM>& As,
-    Memory<Matrix3x3, RAM>& Us,
-    Memory<Matrix3x3, RAM>& Vs) const
+    const MemoryView<Matrix3x3, RAM>& As,
+    MemoryView<Matrix3x3, RAM>& Us,
+    MemoryView<Matrix3x3, RAM>& Vs) const
 {
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)
@@ -62,10 +62,10 @@ void SVD::calcUV(
     }
 }
 
-void SVD::calcUSV(const Memory<Matrix3x3, RAM>& As,
-        Memory<Matrix3x3, RAM>& Us,
-        Memory<Vector, RAM>& Ss,
-        Memory<Matrix3x3, RAM>& Vs) const
+void SVD::calcUSV(const MemoryView<Matrix3x3, RAM>& As,
+        MemoryView<Matrix3x3, RAM>& Us,
+        MemoryView<Vector, RAM>& Ss,
+        MemoryView<Matrix3x3, RAM>& Vs) const
 {
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)

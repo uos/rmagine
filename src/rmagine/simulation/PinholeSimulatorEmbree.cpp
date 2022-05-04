@@ -27,7 +27,7 @@ void PinholeSimulatorEmbree::setMap(EmbreeMapPtr map)
     m_map = map;
 }
 
-void PinholeSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void PinholeSimulatorEmbree::setTsb(const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
@@ -38,7 +38,7 @@ void PinholeSimulatorEmbree::setTsb(const Transform& Tsb)
     m_Tsb[0] = Tsb;
 }
 
-void PinholeSimulatorEmbree::setModel(const Memory<PinholeModel, RAM>& model)
+void PinholeSimulatorEmbree::setModel(const MemoryView<PinholeModel, RAM>& model)
 {
     m_model = model;
 }
@@ -50,8 +50,8 @@ void PinholeSimulatorEmbree::setModel(const PinholeModel& model)
 }
 
 void PinholeSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -99,7 +99,7 @@ void PinholeSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> PinholeSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
@@ -107,8 +107,8 @@ Memory<float, RAM> PinholeSimulatorEmbree::simulateRanges(
 }
 
 void PinholeSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -156,7 +156,7 @@ void PinholeSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> PinholeSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);

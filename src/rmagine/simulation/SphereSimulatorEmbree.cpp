@@ -27,38 +27,43 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
     
 }
 
-void SphereSimulatorEmbree::setMap(EmbreeMapPtr map)
+void SphereSimulatorEmbree::setMap(
+    EmbreeMapPtr map)
 {
     // std::cout << "[RMagine - SphereSimulatorEmbree] setMap" << std::endl;
     m_map = map;
 }
 
-void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void SphereSimulatorEmbree::setTsb(
+    const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void SphereSimulatorEmbree::setTsb(const Transform& Tsb)
+void SphereSimulatorEmbree::setTsb(
+    const Transform& Tsb)
 {
     // std::cout << "[RMagine - SphereSimulatorEmbree] setTsb" << std::endl;
     m_Tsb.resize(1);
     m_Tsb[0] = Tsb;
 }
 
-void SphereSimulatorEmbree::setModel(const Memory<SphericalModel, RAM>& model)
+void SphereSimulatorEmbree::setModel(
+    const MemoryView<SphericalModel, RAM>& model)
 {
     m_model = model;
 }
 
-void SphereSimulatorEmbree::setModel(const SphericalModel& model)
+void SphereSimulatorEmbree::setModel(
+    const SphericalModel& model)
 {
     m_model.resize(1);
     m_model[0] = model;
 }
 
 void SphereSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -106,7 +111,7 @@ void SphereSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateRanges(Tbm, res);
@@ -114,8 +119,8 @@ Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
 }
 
 void SphereSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -163,7 +168,7 @@ void SphereSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> SphereSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateHits(Tbm, res);

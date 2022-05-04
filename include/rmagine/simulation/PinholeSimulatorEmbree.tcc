@@ -6,7 +6,8 @@ namespace rmagine
 {
 
 template<typename BundleT>
-void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void PinholeSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -134,7 +135,8 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT PinholeSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

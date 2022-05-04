@@ -27,23 +27,27 @@ void OnDnSimulatorEmbree::setMap(EmbreeMapPtr map)
     m_map = map;
 }
 
-void OnDnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void OnDnSimulatorEmbree::setTsb(
+    const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void OnDnSimulatorEmbree::setTsb(const Transform& Tsb)
+void OnDnSimulatorEmbree::setTsb(
+    const Transform& Tsb)
 {
     m_Tsb.resize(1);
     m_Tsb[0] = Tsb;
 }
 
-void OnDnSimulatorEmbree::setModel(const OnDnModel_<RAM>& model)
+void OnDnSimulatorEmbree::setModel(
+    const OnDnModel_<RAM>& model)
 {
     m_model[0] = model;
 }
 
-void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
+void OnDnSimulatorEmbree::setModel(
+    const MemoryView<OnDnModel_<RAM>, RAM>& model)
 {
     m_model->width = model->width;
     m_model->height = model->height;
@@ -59,8 +63,8 @@ void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
 }
 
 void OnDnSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -113,7 +117,7 @@ void OnDnSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
@@ -121,8 +125,8 @@ Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
 }
 
 void OnDnSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -173,7 +177,7 @@ void OnDnSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> OnDnSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);

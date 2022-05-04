@@ -19,15 +19,15 @@ public:
     ~SVDCuda();
 
     void calcUV(
-        const Memory<Matrix3x3, VRAM_CUDA>& As,
-        Memory<Matrix3x3, VRAM_CUDA>& Us,
-        Memory<Matrix3x3, VRAM_CUDA>& Vs
+        const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Vs
     ) const;
 
-    void calcUSV(const Memory<Matrix3x3, VRAM_CUDA>& As,
-        Memory<Matrix3x3, VRAM_CUDA>& Us,
-        Memory<Vector, VRAM_CUDA>& Ss,
-        Memory<Matrix3x3, VRAM_CUDA>& Vs) const;
+    void calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+        MemoryView<Vector, VRAM_CUDA>& Ss,
+        MemoryView<Matrix3x3, VRAM_CUDA>& Vs) const;
 
 private:
     // global parameters

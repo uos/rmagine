@@ -26,15 +26,15 @@ public:
     ) const;
 
     void calcUV(
-        const Memory<Matrix3x3, RAM>& As,
-        Memory<Matrix3x3, RAM>& Us,
-        Memory<Matrix3x3, RAM>& Vs
+        const MemoryView<Matrix3x3, RAM>& As,
+        MemoryView<Matrix3x3, RAM>& Us,
+        MemoryView<Matrix3x3, RAM>& Vs
     ) const;
 
-    void calcUSV(const Memory<Matrix3x3, RAM>& As,
-        Memory<Matrix3x3, RAM>& Us,
-        Memory<Vector, RAM>& Ss,
-        Memory<Matrix3x3, RAM>& Vs) const;
+    void calcUSV(const MemoryView<Matrix3x3, RAM>& As,
+        MemoryView<Matrix3x3, RAM>& Us,
+        MemoryView<Vector, RAM>& Ss,
+        MemoryView<Matrix3x3, RAM>& Vs) const;
 };
 
 using SVDPtr = std::shared_ptr<SVD>;

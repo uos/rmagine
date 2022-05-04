@@ -6,7 +6,8 @@ namespace rmagine
 {
 
 template<typename BundleT>
-void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void SphereSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -135,7 +136,8 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT SphereSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
