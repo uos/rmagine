@@ -1,3 +1,5 @@
+[[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)]
+
 # rmagine - Fast Depth-Sensor simulation in 3D environments
 
 Library for fast sensor data simulation in large 3D environments.
