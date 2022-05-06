@@ -56,6 +56,9 @@ public:
 
     MemoryView(DataT* mem, size_t N);
 
+    // Move Constructor
+    MemoryView(MemoryView<DataT, MemT>&& o) noexcept;
+
     // Copy for assignment of same MemT
     MemoryView<DataT, MemT>& operator=(const MemoryView<DataT, MemT>& o);
     
@@ -159,21 +162,17 @@ public:
     Memory(size_t N);
     // Copy Constructor
     Memory(const Memory<DataT, MemT>& o);
-    // Move Constructor
-    Memory(Memory<DataT, MemT>&& o) noexcept;
 
     ~Memory();
 
     void resize(size_t N);
 
-    using Base::operator=;
-
     // Copy for assignment of same MemT
-    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT>& o);
+    Memory<DataT, MemT>& operator=(const MemoryView<DataT, MemT>& o);
     
     // Copy for assignment of different MemT
     template<typename MemT2>
-    Memory<DataT, MemT>& operator=(const Memory<DataT, MemT2>& o);
+    Memory<DataT, MemT>& operator=(const MemoryView<DataT, MemT2>& o);
 
 protected:
     using Base::m_mem;
@@ -252,8 +251,6 @@ void copy(const MemoryView<DataT, RAM>& from, DataT& to)
 //     std::cout << "Let data const!" << std::endl;
 //     return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
 // }
-
-
 
 #include "Memory.tcc"
 

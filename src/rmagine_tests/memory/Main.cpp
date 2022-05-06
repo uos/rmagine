@@ -148,7 +148,7 @@ void problem_I_cannot_fix(yet)
     bla.reset(new Memory<float>(10));
     {
         std::cout << "Make MemoryView" << std::endl;
-        MemoryView<float> bla_ = *bla;
+        MemoryView<float>& bla_ = *bla;
         // remove original memory but not the view. What to do here?
         bla.reset();
         std::cout << "bla_.size: " << bla_.size() << std::endl;
@@ -177,7 +177,7 @@ void test_slicing_small()
     // copy constructor
     // no op
     {
-        MemoryView<float> a_ = a;
+        MemoryView<float>& a_ = a;
         a_[2] = 5.0;
         std::cout << "a: ";
         print(a);
@@ -291,6 +291,13 @@ void test_slicing_gpu()
     print(a_h);
 }
 
+MemoryView<float> func()
+{
+    // this should not work
+    Memory<float> data(100);
+    return data(0,5);
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory" << std::endl;
@@ -298,15 +305,11 @@ int main(int argc, char** argv)
     test_cpu();
     test_gpu();
     test_sensor_models();
-    
-
 
     test_slicing_small();
     test_slicing_large();
 
     test_slicing_gpu();
-
-
 
     return 0;
 }

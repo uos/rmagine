@@ -13,8 +13,19 @@ MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
 }
 
 template<typename DataT, typename MemT>
+MemoryView<DataT, MemT>::MemoryView(MemoryView<DataT, MemT>&& o) noexcept
+:MemoryView(o.m_mem, o.m_size)
+{
+    std::cout << "[MemoryView] Move" << std::endl;
+    o.m_size = 0;
+    o.m_mem = nullptr;
+}
+
+
+template<typename DataT, typename MemT>
 MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<DataT, MemT>& o)
 {
+    std::cout << "[MemoryView] = MemoryView" << std::endl;
     #if !defined(NDEBUG)
     if(o.size() != this->size())
     {
@@ -70,15 +81,8 @@ template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(const Memory<DataT, MemT>& o)
 :Memory(o.size())
 {
+    std::cout << "[Memory] Copy" << std::endl;
     copy(o, *this);
-}
-
-template<typename DataT, typename MemT>
-Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
-:Base(o.m_mem, o.m_size)
-{
-    o.m_size = 0;
-    o.m_mem = nullptr;
 }
 
 template<typename DataT, typename MemT>
@@ -103,8 +107,10 @@ void Memory<DataT, MemT>::resize(size_t N)
 }
 
 template<typename DataT, typename MemT>
-Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT>& o)
+Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(
+    const MemoryView<DataT, MemT>& o)
 {
+    std::cout << "[Memory] = MemoryView" << std::endl;
     if(o.size() != this->size())
     {
         this->resize(o.size());
@@ -115,7 +121,8 @@ Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT>& o
 
 template<typename DataT, typename MemT>
 template<typename MemT2>
-Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(const Memory<DataT, MemT2>& o)
+Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(
+    const MemoryView<DataT, MemT2>& o)
 {
     if(o.size() != this->size())
     {

@@ -301,6 +301,7 @@ if(Eigen3_FOUND)
 endif(Eigen3_FOUND)
 
 add_subdirectory(src/rmagine_tests/memory)
+add_subdirectory(src/rmagine_tests/memory_slicing)
 add_subdirectory(src/rmagine_tests/embree_sim)
 
 if(Eigen3_FOUND)
