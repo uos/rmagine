@@ -64,21 +64,47 @@ void test_slicing_1()
     a.resize(200);
     fill(a);
 
-    // a_ is an memory view object. memory specif stuff not allowed. only view
-    MemoryView<float>& a_ = a;
+    // // a_ is an memory view object. memory specif stuff not allowed. only view
+    // MemoryView<float>& a_ = a;
+    // std::cout << a_[10] << " == " << a[10] << std::endl;
 
-    std::cout << a_[10] << " == " << a[10] << std::endl;
+    // MemoryView<float> a__ = a(10, 20);
+    
+    // std::cout << a__[5] << " == " << a[15] << std::endl;
 
+    // auto res = make_collection(a__);
+    // std::cout << res.a[0] << " == " << a[10] << std::endl;
+    // if(res.a.size() == a__.size()
+    //     && abs(res.a[0] - a__[0]) < 0.001
+    //     && res.a.raw() != a__.raw())
+    // {
+    //     std::cout << "- Make Collection 1: correct" << std::endl;
+    // } else {
+    //     std::cout << "- Make Collection 1: wrong" << std::endl;
+    // }
 
-    MemoryView<float> a__ = a(10, 20);
-    std::cout << a__[5] << " == " << a[15] << std::endl;
-
-    auto res = make_collection(a__);
-    std::cout << res.a[0] << " == " << a[10] << std::endl;
-
-    // auto res2 = make_collection2(a);
     // std::cout << res.a[20] << " == " << a[20] << std::endl;
 
+    MyCollection res_bla;
+    res_bla.a.operator=(a);
+    
+
+
+    return;
+    MyCollection res2;
+    res2.a = a;
+
+    // auto res2 = make_collection2(a);
+    if(res2.a.size() == a.size()
+        && abs(res2.a[0] - a[0]) < 0.001
+        && res2.a.raw() != a.raw())
+    {
+        std::cout << "- Make Collection 2: correct" << std::endl;
+    } else {
+        std::cout << "- Make Collection 2: wrong" << std::endl;
+    }
+    
+    
     // stuff that should not be allowed
     // TODO: eleminate these problems
     // MemoryView<float> p1 = problem1();
@@ -86,9 +112,6 @@ void test_slicing_1()
 
     // copy memory
     Memory<float> b = a;
-
-    size_t b_size = b.size();
-    size_t a_size = a.size();
 
     if(b.raw() != a.raw() 
         && abs(b[30] - a[30]) < 0.001

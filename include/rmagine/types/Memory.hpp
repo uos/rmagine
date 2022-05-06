@@ -60,11 +60,13 @@ public:
     MemoryView(MemoryView<DataT, MemT>&& o) noexcept;
 
     // Copy for assignment of same MemT
-    MemoryView<DataT, MemT>& operator=(const MemoryView<DataT, MemT>& o);
+    MemoryView<DataT, MemT>& operator=(
+        const MemoryView<DataT, MemT>& o);
     
     // Copy for assignment of different MemT
     template<typename MemT2>
-    MemoryView<DataT, MemT>& operator=(const MemoryView<DataT, MemT2>& o);
+    MemoryView<DataT, MemT>& operator=(
+        const MemoryView<DataT, MemT2>& o);
 
     // TODO: Check CUDA usage (in kernels)
     RMAGINE_FUNCTION
@@ -129,7 +131,7 @@ public:
         return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
     }
 
-    // fuck it: just dont write to it
+    // problem solved: just dont write to it
     const MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end) const 
     {
         return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
@@ -143,6 +145,13 @@ public:
     const MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end) const
     {
         return slice(idx_start, idx_end);
+    }
+
+    virtual MemoryView<DataT, MemT>& test(
+        const MemoryView<DataT, MemT>& o)
+    {
+        std::cout << "MemView: test" << std::endl;
+        return operator=(o);
     }
 
 protected:
@@ -167,12 +176,38 @@ public:
 
     void resize(size_t N);
 
-    // Copy for assignment of same MemT
-    Memory<DataT, MemT>& operator=(const MemoryView<DataT, MemT>& o);
     
+    // Copy for assignment of same MemT
+    Memory<DataT, MemT>& operator=(
+        const MemoryView<DataT, MemT>& o);
+
+    // Why do I need them
+    // if this function is not: 
+    // Memory a(1);
+    // Memory b(10);
+    // a = b; -> would call the operator= of MemView class
+    inline Memory<DataT, MemT>& operator=(const Memory<DataT, MemT>& o)
+    {
+        const MemoryView<DataT, MemT>& c = o;
+        return operator=(c);
+    }
+
     // Copy for assignment of different MemT
     template<typename MemT2>
     Memory<DataT, MemT>& operator=(const MemoryView<DataT, MemT2>& o);
+
+    template<typename MemT2>
+    inline Memory<DataT, MemT>& operator=(const Memory<DataT, MemT2>& o)
+    {
+        const MemoryView<DataT, MemT2>& c = o;
+        return operator=(c);
+    }
+
+    Memory<DataT, MemT>& test(const MemoryView<DataT, MemT>& o)
+    {
+        std::cout << "Memory: test" << std::endl;
+        return operator=(o);
+    }
 
 protected:
     using Base::m_mem;
