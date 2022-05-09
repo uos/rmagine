@@ -56,8 +56,8 @@ public:
 
     MemoryView(DataT* mem, size_t N);
 
-    // Move Constructor
-    MemoryView(MemoryView<DataT, MemT>&& o) noexcept;
+    // // Move Constructor
+    // MemoryView(MemoryView<DataT, MemT>&& o) noexcept;
 
     // Copy for assignment of same MemT
     MemoryView<DataT, MemT>& operator=(
@@ -147,13 +147,6 @@ public:
         return slice(idx_start, idx_end);
     }
 
-    virtual MemoryView<DataT, MemT>& test(
-        const MemoryView<DataT, MemT>& o)
-    {
-        std::cout << "MemView: test" << std::endl;
-        return operator=(o);
-    }
-
 protected:
     DataT* m_mem = nullptr;
     size_t m_size = 0;
@@ -170,13 +163,16 @@ public:
     Memory();
     Memory(size_t N);
     // Copy Constructor
+    Memory(const MemoryView<DataT, MemT>& o);
     Memory(const Memory<DataT, MemT>& o);
+    
+
+    Memory(Memory<DataT, MemT>&& o) noexcept;
 
     ~Memory();
 
     void resize(size_t N);
 
-    
     // Copy for assignment of same MemT
     Memory<DataT, MemT>& operator=(
         const MemoryView<DataT, MemT>& o);
@@ -201,12 +197,6 @@ public:
     {
         const MemoryView<DataT, MemT2>& c = o;
         return operator=(c);
-    }
-
-    Memory<DataT, MemT>& test(const MemoryView<DataT, MemT>& o)
-    {
-        std::cout << "Memory: test" << std::endl;
-        return operator=(o);
     }
 
 protected:

@@ -9,23 +9,13 @@ MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
 :m_mem(mem)
 ,m_size(N)
 {
-    
+    // std::cout << "[MemoryView::MemoryView(DataT*, size_t)]" << std::endl;
 }
-
-template<typename DataT, typename MemT>
-MemoryView<DataT, MemT>::MemoryView(MemoryView<DataT, MemT>&& o) noexcept
-:MemoryView(o.m_mem, o.m_size)
-{
-    std::cout << "[MemoryView] Move" << std::endl;
-    o.m_size = 0;
-    o.m_mem = nullptr;
-}
-
 
 template<typename DataT, typename MemT>
 MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<DataT, MemT>& o)
 {
-    std::cout << "[MemoryView] = MemoryView" << std::endl;
+    // std::cout << "[MemoryView::operator=(MemoryView)]" << std::endl;
     #if !defined(NDEBUG)
     if(o.size() != this->size())
     {
@@ -61,28 +51,44 @@ const DataT* MemoryView<DataT, MemT>::raw() const {
     return m_mem;
 }
 
-
 /// MEMORY
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory()
 :Base(nullptr, 0)
 {
-    
+    // std::cout << "[Memory::Memory()]" << std::endl;
 }
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(size_t N)
 :Base(MemT::template alloc<DataT>(N), N)
 {
-    
+    // std::cout << "[Memory::Memory(size_t)]" << std::endl;
+}
+
+template<typename DataT, typename MemT>
+Memory<DataT, MemT>::Memory(const MemoryView<DataT, MemT>& o)
+:Memory(o.size())
+{
+    copy(o, *this);
 }
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(const Memory<DataT, MemT>& o)
 :Memory(o.size())
 {
-    std::cout << "[Memory] Copy" << std::endl;
+    // std::cout << "[Memory] Copy" << std::endl;
     copy(o, *this);
+}
+
+template<typename DataT, typename MemT>
+Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
+:Base(o.m_mem, o.m_size)
+{
+    // std::cout << "[Memory] Move" << std::endl;
+    // move
+    o.m_mem = nullptr;
+    o.m_size = 0;
 }
 
 template<typename DataT, typename MemT>
@@ -110,7 +116,7 @@ template<typename DataT, typename MemT>
 Memory<DataT, MemT>& Memory<DataT, MemT>::operator=(
     const MemoryView<DataT, MemT>& o)
 {
-    std::cout << "[Memory] = MemoryView" << std::endl;
+    // std::cout << "[Memory::operator=(MemoryView)]" << std::endl;
     if(o.size() != this->size())
     {
         this->resize(o.size());
