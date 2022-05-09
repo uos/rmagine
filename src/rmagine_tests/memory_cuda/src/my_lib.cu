@@ -1,4 +1,4 @@
-#include "my_lib.h"
+#include "my_lib.cuh"
 
 __global__ void add_kernel(
     const float* a, 

@@ -2,7 +2,8 @@
 #include <memory>
 #include <rmagine/types/MemoryCuda.hpp>
 
-#include "my_lib.h"
+#include "my_lib.h" // my_lib
+#include "my_lib.cuh" // my_lib_cuda
 
 using namespace rmagine;
 
@@ -14,8 +15,7 @@ void fill_sequence(MemoryView<float>& a)
     }
 }
 
-
-void my_lib_example()
+void my_lib_cuda_example()
 {
     Memory<float> data(100);
     fill_sequence(data);
@@ -24,7 +24,7 @@ void my_lib_example()
     Memory<float, VRAM_CUDA> data1_d = data;
     Memory<float, VRAM_CUDA> data2_d = data;
 
-    // use own cuda library
+    // use own cuda library: my_lib_cuda
     
     // add version 1
     auto res_d = add(data1_d, data2_d);
@@ -50,11 +50,24 @@ void my_lib_example()
     std::cout << res_h[25] << std::endl;
 }
 
+void my_lib_example()
+{
+    // or use host side library: my_lib
+    Memory<float> a(100), b(100);
+    fill_sequence(a);
+    fill_sequence(b);
+
+    // add version 1. For other version see CUDA library usage
+    auto c = add(a, b);
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory Cuda" << std::endl;
 
+    my_lib_cuda_example();
     my_lib_example();
+    
 
     return 0;
 }
