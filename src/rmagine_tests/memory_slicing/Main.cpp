@@ -7,6 +7,7 @@
 
 using namespace rmagine;
 
+static int chapter_counter = 0;
 
 struct MyCollection
 {
@@ -63,7 +64,8 @@ bool equal(float a, float b)
 
 void test_memory()
 {
-    std::cout << "1. Memory: " << std::endl;
+    chapter_counter++;
+    std::cout << chapter_counter << ". Memory: " << std::endl;
     
     
     {   // default
@@ -148,7 +150,8 @@ void test_memory()
 
 void test_memory_view()
 {
-    std::cout << "2. MemoryView" << std::endl;
+    chapter_counter++;
+    std::cout << chapter_counter << ". MemoryView" << std::endl;
     
     {   // simple casting conversion
         Memory<float> a1(100);
@@ -192,100 +195,96 @@ void test_slicing_1()
 {
     // a is an memory object. memory specific stuff allowed: malloc, free, resize
 
-    std::cout << "Test Slicing" << std::endl;
+    chapter_counter++;
+    std::cout << chapter_counter << ". Test Slicing" << std::endl;
 
+    Memory<float> a(100);
     
+    a.resize(200);
+    fill(a);
+
+    // a_ is an memory view object. memory specif stuff not allowed. only view
+    MemoryView<float> a_ = a;
+    if(equal(a_[2], a[2]) && a_.raw() == a.raw())
+    {
+        std::cout << "- Mem to View correct" << std::endl;
+    } else {
+        std::cout << "- Mem to View wrong" << std::endl;
+    }
     
-    // a.resize(200);
-    // fill(a);
+    MemoryView<float> a__ = a(10, 20);
+    if(equal(a__[5], a[15]) && a__.raw() == (a.raw() + 10) && a__.size() == 10)
+    {
+        std::cout << "- Slice correct" << std::endl;
+    } else {
+        std::cout << "- Slice wrong" << std::endl;
+    }
 
-    // // a_ is an memory view object. memory specif stuff not allowed. only view
-    // MemoryView<float>& a_ = a;
-    // std::cout << a_[10] << " == " << a[10] << std::endl;
+    auto res = make_collection(a__);
+    if(res.a.size() == a__.size()
+        && equal(res.a[2], a__[2])
+        && res.a.raw() != a__.raw())
+    {
+        std::cout << "- Make Collection 1: correct" << std::endl;
+    } else {
+        std::cout << "- Make Collection 1: wrong" << std::endl;
+    }
 
-    // MemoryView<float> a__ = a(10, 20);
+
+    MyCollection res2;
+    res2.a = a;
+
+    // auto res2 = make_collection2(a);
+    if(res2.a.size() == a.size()
+        && equal(res2.a[2], a[2])
+        && res2.a.raw() != a.raw())
+    {
+        std::cout << "- Make Collection 2: correct" << std::endl;
+    } else {
+        std::cout << "- Make Collection 2: wrong" << std::endl;
+    }
     
-    // std::cout << a__[5] << " == " << a[15] << std::endl;
+    Memory<float> b = a(0,5);
+    if(b.raw() != a.raw())
+    {
+        std::cout << "- Mem b = a(x,y) correct" << std::endl;
+    } else {
+        std::cout << "- Mem b = a(x,y) wrong" << std::endl;
+    }
 
-    // auto res = make_collection(a__);
-    // std::cout << res.a[0] << " == " << a[10] << std::endl;
-    // if(res.a.size() == a__.size()
-    //     && abs(res.a[0] - a__[0]) < 0.001
-    //     && res.a.raw() != a__.raw())
-    // {
-    //     std::cout << "- Make Collection 1: correct" << std::endl;
-    // } else {
-    //     std::cout << "- Make Collection 1: wrong" << std::endl;
-    // }
-
-    // std::cout << res.a[20] << " == " << a[20] << std::endl;
-
-    // MyCollection res_bla;
-    // Memory<float>& tmp = res_bla.a;
-    // const MemoryView<float>& tmp2 = a;
-    // tmp.operator=(tmp2);
-    // res_bla.a = a;
-
-    // if(res_bla.a.size() == )
-    
-
-
-    // return;
-
-
-    // MyCollection res2;
-    // res2.a = a;
-
-    // // auto res2 = make_collection2(a);
-    // if(res2.a.size() == a.size()
-    //     && abs(res2.a[0] - a[0]) < 0.001
-    //     && res2.a.raw() != a.raw())
-    // {
-    //     std::cout << "- Make Collection 2: correct" << std::endl;
-    // } else {
-    //     std::cout << "- Make Collection 2: wrong" << std::endl;
-    // }
-    
+    {
+        MemoryView<float> av = a(0,5);
+        if(av.raw() == a.raw())
+        {
+            std::cout << "- MemView b = a(x,y) correct" << std::endl;
+        } else {
+            std::cout << "- MemView b = a(x,y) wrong" << std::endl;
+        }
+    }
     
     // stuff that should not be allowed
     // TODO: eleminate these problems
     // MemoryView<float> p1 = problem1();
     // problem2();
-
-    // copy memory
-    // Memory<float> b = a;
-
-    // if(b.raw() != a.raw() 
-    //     && abs(b[30] - a[30]) < 0.001
-    //     && a.size() == b.size() )
-    // {
-    //     std::cout << "- Copy: Memory -> Memory: correct" << std::endl;
-    // } else {
-    //     std::cout << "- Copy: Memory -> Memory: wrong" << std::endl;
-    //     if(b.raw() == a.raw())
-    //     {
-    //         std::cout << "-- pointer should not be the same after copy!" << std::endl;
-    //     }
-    // }
-    // std::cout << b[30] << " == " << a[30] << std::endl;
-
-    // // move memory: a should be invalid
-    // Memory<float> c = std::move(a);
-    // if(a.raw() == nullptr)
-    // {
-    //     std::cout << "- Move: Memory -> Memory: correct" << std::endl;
-    // } else {
-    //     std::cout << "- Move: Memory -> Memory: wrong" << std::endl;
-    //     if(a.raw() != nullptr)
-    //     {
-    //         std::cout << "-- moved memory should have nullptr" << std::endl;
-    //     }
-        
-    // }
-
-
 }
 
+void test_slicing_2()
+{
+    chapter_counter++;
+    std::cout << chapter_counter << ". Test Slicing User" << std::endl;
+
+    Memory<float> a(100);
+    fill(a);
+
+    // copy memory into a new one
+    Memory<float> b = a(20, 30);
+
+    // shallow manipulate memory
+    a(20,30) = a(30,40);
+
+    
+
+}
 
 int main(int argc, char** argv)
 {
@@ -295,6 +294,7 @@ int main(int argc, char** argv)
     test_memory_view();
 
     test_slicing_1();
+    test_slicing_2();
 
 
     return 0;
