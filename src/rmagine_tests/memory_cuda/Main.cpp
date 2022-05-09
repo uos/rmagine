@@ -59,6 +59,8 @@ void my_lib_example()
 
     // add version 1. For other version see CUDA library usage
     auto c = add(a, b);
+
+    c(30,50) = add(a(50,70), b(0,20));
 }
 
 int main(int argc, char** argv)
