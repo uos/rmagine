@@ -19,7 +19,30 @@ void fill(MemoryView<DataT, MemT>& a)
     }
 }
 
-void test_slicing_2()
+// HEADER .h
+Memory<float, VRAM_CUDA> func_host(
+    const MemoryView<float, VRAM_CUDA>& input);
+
+// CODE: .cu
+
+// kernel: 
+// __global__ void func_kernel(const float* input, size_t Ninput, float* res)
+// { ... }
+
+Memory<float, VRAM_CUDA> func_host(
+    const MemoryView<float, VRAM_CUDA>& input)
+{
+    Memory<float, VRAM_CUDA> res(input.size());
+    // func_kernel<<<100, 1>>>(input.raw(), input.size(), res.raw());
+    return res;
+}
+
+void lib_example()
+{
+
+}
+
+void test_slicing()
 {
     chapter_counter++;
     std::cout << chapter_counter << ". Test Slicing User" << std::endl;
@@ -49,7 +72,7 @@ int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory Slicing" << std::endl;
 
-    test_slicing_2();
+    test_slicing();
 
 
     return 0;
