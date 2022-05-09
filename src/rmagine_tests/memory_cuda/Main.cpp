@@ -15,7 +15,7 @@ void fill_sequence(MemoryView<float>& a)
 }
 
 
-void library_example()
+void my_lib_example()
 {
     Memory<float> data(100);
     fill_sequence(data);
@@ -39,11 +39,19 @@ void library_example()
     // sliced without new memory
     auto res_d_ = res_d(20, 30);
     add(data1_d(0,10), data2_d(10,20), res_d_);
+
+
+    // download back to host
+    Memory<float, RAM> res_h = res_d;
+
+    std::cout << res_h[25] << std::endl;
 }
 
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Tests: Memory Cuda" << std::endl;
+
+    my_lib_example();
 
     return 0;
 }
