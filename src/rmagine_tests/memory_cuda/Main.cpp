@@ -24,7 +24,6 @@ void my_lib_example()
     Memory<float, VRAM_CUDA> data1_d = data;
     Memory<float, VRAM_CUDA> data2_d = data;
 
-
     // use own cuda library
     
     // add version 1
@@ -44,6 +43,10 @@ void my_lib_example()
     // download back to host
     Memory<float, RAM> res_h = res_d;
 
+    std::cout << res_h[25] << std::endl;
+
+    // or download partially
+    res_h(20, 30) = res_d(0, 10);
     std::cout << res_h[25] << std::endl;
 }
 
