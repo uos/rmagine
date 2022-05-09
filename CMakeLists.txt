@@ -313,8 +313,10 @@ add_subdirectory(src/rmagine_tests/synthetic)
 
 if(CUDA_FOUND)
 
+add_subdirectory(src/rmagine_tests/memory_slicing_cuda)
 add_subdirectory(src/rmagine_tests/cuda_math)
 add_subdirectory(src/rmagine_tests/svd)
+
 
 if(OptiX_FOUND)
 add_subdirectory(src/rmagine_tests/optix_sim)

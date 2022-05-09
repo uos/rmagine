@@ -280,7 +280,7 @@ void test_slicing_2()
     Memory<float> b = a(20, 30);
 
     // shallow manipulate memory
-    a(20,30) = a(30,40);
+    a(20, 30) = a(30, 40);
 
     
 

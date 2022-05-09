@@ -82,6 +82,14 @@ Memory<DataT, MemT>::Memory(const Memory<DataT, MemT>& o)
 }
 
 template<typename DataT, typename MemT>
+template<typename MemT2>
+Memory<DataT, MemT>::Memory(const MemoryView<DataT, MemT2>& o)
+:Memory(o.size())
+{
+    copy(o, *this);
+}
+
+template<typename DataT, typename MemT>
 Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
 :Base(o.m_mem, o.m_size)
 {
@@ -90,6 +98,8 @@ Memory<DataT, MemT>::Memory(Memory<DataT, MemT>&& o) noexcept
     o.m_mem = nullptr;
     o.m_size = 0;
 }
+
+
 
 template<typename DataT, typename MemT>
 Memory<DataT, MemT>::~Memory()

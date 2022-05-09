@@ -56,9 +56,6 @@ public:
 
     MemoryView(DataT* mem, size_t N);
 
-    // // Move Constructor
-    // MemoryView(MemoryView<DataT, MemT>&& o) noexcept;
-
     // Copy for assignment of same MemT
     MemoryView<DataT, MemT>& operator=(
         const MemoryView<DataT, MemT>& o);
@@ -165,7 +162,9 @@ public:
     // Copy Constructor
     Memory(const MemoryView<DataT, MemT>& o);
     Memory(const Memory<DataT, MemT>& o);
-    
+
+    template<typename MemT2>
+    Memory(const MemoryView<DataT, MemT2>& o);
 
     Memory(Memory<DataT, MemT>&& o) noexcept;
 
