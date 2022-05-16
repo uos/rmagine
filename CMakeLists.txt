@@ -117,6 +117,7 @@ add_library(rmagine SHARED
     src/rmagine/math/SVD.cpp
     # Types
     src/rmagine/types/Memory.cpp
+    src/rmagine/types/conversions.cpp
     # Util
     src/rmagine/util/StopWatch.cpp
     src/rmagine/util/synthetic.cpp

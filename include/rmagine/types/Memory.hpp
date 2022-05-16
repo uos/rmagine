@@ -199,6 +199,7 @@ public:
     }
 
 protected:
+
     using Base::m_mem;
     using Base::m_size;
 };
