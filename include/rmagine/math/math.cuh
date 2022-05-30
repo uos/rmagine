@@ -64,6 +64,11 @@ Memory<Matrix3x3, VRAM_CUDA> multNxN(
     const MemoryView<Matrix3x3, VRAM_CUDA>& M2);
 
 void multNxN(
+    const MemoryView<Matrix3x3, VRAM_CUDA>& M1,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& M2,
+    MemoryView<Quaternion, VRAM_CUDA>& Qres);
+
+void multNxN(
     const MemoryView<Matrix3x3, VRAM_CUDA>& M,
     const MemoryView<Vector, VRAM_CUDA>& x,
     MemoryView<Vector, VRAM_CUDA>& c);

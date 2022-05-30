@@ -8,7 +8,6 @@ namespace rmagine
 ////////
 // Generic Kernel
 ///
-
 template<typename In1T, typename In2T, typename ResT>
 __global__ void multNxN_kernel(
     const In1T* A,
@@ -21,6 +20,21 @@ __global__ void multNxN_kernel(
     if(id < N)
     {
         C[id] = A[id] * B[id];
+    }
+}
+
+template<typename In1T, typename In2T, typename ResT>
+__global__ void multNxN_conv_kernel(
+    const In1T* A,
+    const In2T* B,
+    ResT* C,
+    unsigned int N
+)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        C[id].set(A[id] * B[id]);
     }
 }
 
@@ -572,6 +586,16 @@ Memory<Matrix3x3, VRAM_CUDA> multNxN(
     Memory<Matrix3x3, VRAM_CUDA> Mr(M1.size());
     multNxN(M1,M2,Mr);
     return Mr;
+}
+
+void multNxN(
+    const MemoryView<Matrix3x3, VRAM_CUDA>& M1,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& M2,
+    MemoryView<Quaternion, VRAM_CUDA>& Qres)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (M1.size() + blockSize - 1) / blockSize;
+    multNxN_conv_kernel<<<gridSize, blockSize>>>(M1.raw(), M2.raw(), Qres.raw(), M1.size());
 }
 
 void multNxN(
