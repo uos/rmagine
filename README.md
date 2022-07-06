@@ -9,7 +9,7 @@ Library for fast sensor data simulation in large 3D environments.
 Mainly designed for robotic applications:
 
 - Perform multiple sensor simulations simultaneously and in realtime
-- Perform computations at specific computing devices (CPU, GPU..)
+- Perform computations at specific computing devices (CPU, GPU, RTX..)
     - Hold data at device of computation
     - Minimal graphical overhead (offscreen-rendering)
 - Runtime critical operations
