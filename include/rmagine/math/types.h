@@ -397,6 +397,9 @@ struct Quaternion
     Vector3 mult(const Vector3& p) const;
 
     RMAGINE_INLINE_FUNCTION
+    float dot(const Quaternion& q) const;
+
+    RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
     RMAGINE_INLINE_FUNCTION
@@ -1316,6 +1319,12 @@ Vector3 Quaternion::mult(const Vector3& p) const
     const Quaternion P{p.x, p.y, p.z, 0.0};
     const Quaternion PT = this->mult(P).mult(inv());
     return {PT.x, PT.y, PT.z};
+}
+
+RMAGINE_INLINE_FUNCTION
+float Quaternion::dot(const Quaternion& q) const
+{
+    return x * q.x + y * q.y + z * q.z + w * q.w;
 }
 
 RMAGINE_INLINE_FUNCTION
