@@ -217,15 +217,18 @@ struct PointQueryUserData
 
 class EmbreeMap : public Map {
 public:
+    EmbreeMap();
     EmbreeMap(const aiScene* ascene);
     ~EmbreeMap();
+
+    unsigned int addMesh(EmbreeMeshPtr mesh);
 
     Point closestPoint(const Point& qp);
 
     EmbreeDevicePtr device;
     EmbreeScenePtr scene;
     // TODO:
-    
+
     std::vector<EmbreeMeshPtr> meshes;
     std::vector<EmbreeInstancePtr> instances;
 

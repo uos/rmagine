@@ -363,6 +363,13 @@ void convert(const aiMatrix4x4& aT, Matrix4x4& T)
     T(3,3) = aT.d4;
 }
 
+EmbreeMap::EmbreeMap()
+{
+    device.reset(new EmbreeDevice);
+    scene.reset(new EmbreeScene(device) );
+
+}
+
 EmbreeMap::EmbreeMap(const aiScene* ascene)
 {
     // initializeDevice();
@@ -422,6 +429,16 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
     scene->commit();
     rtcInitPointQueryContext(&pq_context);
+}
+
+unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)
+{
+    unsigned int id = meshes.size();
+
+    mesh->setScene(scene);
+    meshes.push_back(mesh);
+
+    return id;
 }
 
 EmbreeMap::~EmbreeMap()
