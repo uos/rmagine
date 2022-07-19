@@ -12,8 +12,6 @@
 
 #include <functional>
 
-
-
 namespace rmagine
 {
 
@@ -23,8 +21,12 @@ namespace rmagine
  * N instances belongs to 1 scene
  * M instances of 1 mesh
  * 
+ * N instance belongs to 1 parent scene
+ * 1 instance has one child scene
+ * 
  */
 class EmbreeInstance
+: public std::enable_shared_from_this<EmbreeInstance>
 {
 public:
     EmbreeInstance(EmbreeDevicePtr device);
@@ -32,17 +34,18 @@ public:
 
     Matrix4x4 T;
 
+    void setTransform(const Matrix4x4& T);
+    void setTransform(const Transform& T);
+
     // embree fields
-    RTCGeometry handle;
-    unsigned int instID;
+    RTCGeometry handle() const;
 
-    unsigned int id() const;
-
-    void setScene(EmbreeScenePtr scene);
+    void set(EmbreeScenePtr scene);
     EmbreeScenePtr scene();
 
-    void setMesh(EmbreeMeshPtr mesh);
-    EmbreeMeshPtr mesh();
+
+    // void setMesh(EmbreeMeshPtr mesh);
+    // EmbreeMeshPtr mesh();
 
     // Make this more comfortable to use
     // - functions as: setMesh(), or addMesh() ?
@@ -54,11 +57,18 @@ public:
      */
     void commit();
 
-private:
-    EmbreeMeshPtr m_mesh;
-    
+    void disable();
 
+    void release();
+
+    EmbreeScenePtr parent;
+private:
+    // EmbreeMeshPtr m_mesh;
+    
+    RTCGeometry m_handle;
     EmbreeScenePtr m_scene;
+
+
     EmbreeDevicePtr m_device;
 };
 

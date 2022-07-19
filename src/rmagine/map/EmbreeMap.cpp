@@ -188,8 +188,8 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
 void EmbreeMap::set(const aiScene* ascene)
 {
-    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 
     meshes = loadMeshes(ascene);
     instances = loadInstances(ascene->mRootNode, meshes);
@@ -204,57 +204,28 @@ void EmbreeMap::set(const aiScene* ascene)
         std::cout << "Using Embree with Instance Level" << std::endl;
         for(auto instance : instances)
         {
-            // if(instance->mesh()->instances().size() == 1)
-            // {
-
-            //     std::cout << "Mesh has only one istance" << std::endl;
-            
-            //     auto mesh = instance->mesh();
-            //     mesh->transform(instance->T);
-            //     instance->T.setIdentity();
-            //     mesh->setScene(scene);
-
-            // } else {
-                instance->setScene(scene);
-                instance->commit();
-
-            // }
+            unsigned int inst_id = scene->add(instance);
+            std::cout << "Added instance " << inst_id << std::endl;
         }
 
-        // what to do with meshes without instance? apply them to upper geometry
-        for(auto mesh : meshes)
-        {
-            if(mesh->instances().size() == 0)
-            {
-                // add mesh to the uppest scene
-                mesh->setScene(scene);
-            }
+        scene->optimize();
 
-            if(mesh->instances().size() == 1)
-            {
-                // delete
-            }
-        }
     } else {
         std::cout << "Using Embree without Instance Level" << std::endl;
         // transform each mesh
         for(auto mesh : meshes)
         {
-            if(mesh->instances().size() == 1)
-            {
-                auto instance = *(mesh->instances().begin());
-                mesh->transform(instance->T);
-                instance->T.setIdentity();
-            } 
-            else if(mesh->instances().size() > 1) 
-            {
-                std::cout << "Mesh has more than one instances. Instanced built is required!" << std::endl;
-            }
+            auto instance = *mesh->parent->parents.begin();
+            mesh->setTransform(instance->T);
+            instance->T.setIdentity();
 
-            // scene->add(mesh);
-            mesh->setScene(scene);
+            scene->add(mesh);
         }
     }
+
+    std::cout << "Commit Top Level Scene:" << std::endl;
+    std::cout << "- " << scene->meshes().size() << " meshes" << std::endl;
+    std::cout << "- " << scene->instances().size() << " instances" << std::endl;
 
     scene->commit();
     rtcInitPointQueryContext(&pq_context);
@@ -262,12 +233,7 @@ void EmbreeMap::set(const aiScene* ascene)
 
 unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)
 {
-    unsigned int id = meshes.size();
-
-    mesh->setScene(scene);
-    meshes.push_back(mesh);
-
-    return id;
+    return scene->add(mesh);
 }
 
 EmbreeMap::~EmbreeMap()
@@ -320,6 +286,15 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
     std::vector<EmbreeMeshPtr>& meshes)
 {
     std::vector<EmbreeInstancePtr> instances;
+    std::vector<EmbreeScenePtr> mesh_scenes;
+
+    for(EmbreeMeshPtr mesh : meshes)
+    {
+        EmbreeScenePtr mesh_scene(new EmbreeScene(device));
+        mesh_scene->add(mesh);
+        mesh_scene->commit();
+        mesh_scenes.push_back(mesh_scene);
+    }
 
     for(unsigned int i=0; i<root_node->mNumChildren; i++)
     {
@@ -337,18 +312,8 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 // instance.
 
                 // get mesh to be instanced
-                auto mesh = meshes[mesh_id];
-                // make one scene per mesh 
-                // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
-                if(!mesh->scene())
-                {
-                    mesh->setNewScene();
-                }
-                mesh->scene()->commit();
-
-                // connect mesh geometry to instance and instance to geometry
-                instance->setMesh(mesh);
-                mesh->addInstance(instance);
+                auto mesh_scene = mesh_scenes[mesh_id];
+                instance->set(mesh_scene);
 
                 // commit
                 instance->commit();

@@ -6,6 +6,7 @@
 
 #include <embree3/rtcore.h>
 #include <memory>
+#include <unordered_map>
 
 namespace rmagine
 {
@@ -36,10 +37,14 @@ struct EmbreeSceneSettings
 };
 
 /**
- * @brief 
+ * @brief EmbreeScene
+ * 
+ * - meshes
+ * - instances
  * 
  */
 class EmbreeScene
+: public std::enable_shared_from_this<EmbreeScene>
 {
 public:
     EmbreeScene(EmbreeDevicePtr device, EmbreeSceneSettings settings = {});
@@ -49,24 +54,28 @@ public:
 
     void setFlags(RTCSceneFlags flags);
 
-    void add(EmbreeInstancePtr inst);
-    EmbreeInstanceSet instances() const;
-    void remove(EmbreeInstancePtr inst);
+    unsigned int add(EmbreeInstancePtr inst);
+    std::unordered_map<unsigned int, EmbreeInstancePtr> instances() const;
+    bool hasInstance(unsigned int inst_id) const;
+    EmbreeInstancePtr removeInstance(unsigned int inst_id);
 
 
-    void add(EmbreeMeshPtr mesh);
-    EmbreeInstanceSet meshes() const;
-    void remove(EmbreeMeshPtr mesh);
+    unsigned int add(EmbreeMeshPtr mesh);
+    std::unordered_map<unsigned int, EmbreeMeshPtr> meshes() const;
+    bool hasMesh(unsigned int mesh_id) const;
+    EmbreeMeshPtr removeMesh(unsigned int mesh_id);
 
-    
 
     RTCScene handle();
 
     void commit();
 
+    void optimize();
+
+    EmbreeInstanceSet parents;
 private:
-    EmbreeInstanceSet m_instances;
-    EmbreeMeshSet m_meshes;
+    std::unordered_map<unsigned int, EmbreeInstancePtr > m_instances;
+    std::unordered_map<unsigned int, EmbreeMeshPtr > m_meshes;
 
     RTCScene m_scene;
     EmbreeDevicePtr m_device;

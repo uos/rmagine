@@ -22,6 +22,14 @@ using EmbreeScenePtr = std::shared_ptr<EmbreeScene>;
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
 
 
+
+using EmbreeDeviceWPtr = std::weak_ptr<EmbreeDevice>; 
+using EmbreeMeshWPtr = std::weak_ptr<EmbreeMesh>;
+using EmbreeInstanceWPtr = std::weak_ptr<EmbreeInstance>;
+using EmbreeSceneWPtr = std::weak_ptr<EmbreeScene>;
+using EmbreeMapWPtr = std::weak_ptr<EmbreeMap>;
+
+
 using EmbreeInstanceSet = std::unordered_set<EmbreeInstancePtr>;
 using EmbreeMeshSet = std::unordered_set<EmbreeMeshPtr>;
 

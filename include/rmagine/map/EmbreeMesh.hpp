@@ -28,8 +28,6 @@ namespace rmagine
 class EmbreeMesh
 {
 public:
-    // TODO: constructor destructor
-
     EmbreeMesh( EmbreeDevicePtr device);
 
     EmbreeMesh( EmbreeDevicePtr device, 
@@ -39,9 +37,7 @@ public:
     EmbreeMesh( EmbreeDevicePtr device,
                 const aiMesh* amesh);
 
-    // embree constructed buffers
-    unsigned int Nvertices;
-    Vertex* vertices;
+    Memory<Vector, RAM> vertices;
 
     unsigned int Nfaces;
     Face* faces;
@@ -50,25 +46,33 @@ public:
     Memory<Vector, RAM> normals;
 
     // embree fields
-    RTCGeometry handle;
     unsigned int geomID;
 
-    void transform(const Matrix4x4& T);
-    
-    void setScene(EmbreeScenePtr scene);
-    void setNewScene();
-    EmbreeScenePtr scene();
+    RTCGeometry handle() const;
 
-    void addInstance(EmbreeInstancePtr instance);
-    bool hasInstance(EmbreeInstancePtr instance) const;
-    EmbreeInstanceSet instances();
+    void setTransform(const Matrix4x4& T);
+    void setTransform(const Transform& T);
+
+    Transform transform() const;
 
     void commit();
+    void release();
+
+    EmbreeScenePtr parent;
 private:
 
+    // embree constructed buffers
+    unsigned int Nvertices;
+    Vertex* vertices_transformed;
+
+    Memory<Vector, RAM> normals_transformed;
+
+
+    Transform T;
+
+    RTCGeometry m_handle;
+
     // connections
-    EmbreeInstanceSet m_instances;
-    EmbreeScenePtr m_scene;
     EmbreeDevicePtr m_device;
 };
 

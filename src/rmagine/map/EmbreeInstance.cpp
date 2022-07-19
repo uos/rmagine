@@ -16,24 +16,36 @@ namespace rmagine {
 EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 {
     m_device = device;
-    handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
+    m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
 }
 
 EmbreeInstance::~EmbreeInstance()
 {
-    
+    std::cout << "Destroy Instance" << std::endl;
+    rtcDisableGeometry(m_handle);
+
 }
 
-unsigned int EmbreeInstance::id() const
+void EmbreeInstance::setTransform(const Matrix4x4& T)
 {
-    return instID;
+    this->T = T;
 }
 
-void EmbreeInstance::setScene(EmbreeScenePtr scene)
+void EmbreeInstance::setTransform(const Transform& T)
+{
+    this->T.set(T);
+}
+
+RTCGeometry EmbreeInstance::handle() const
+{
+    return m_handle;
+}
+
+void EmbreeInstance::set(EmbreeScenePtr scene)
 {
     m_scene = scene;
-    instID = rtcAttachGeometry(scene->handle(), handle);
-    rtcReleaseGeometry(handle);
+    rtcSetGeometryInstancedScene(m_handle, m_scene->handle());
+    m_scene->parents.insert(shared_from_this());
 }
 
 EmbreeScenePtr EmbreeInstance::scene()
@@ -41,21 +53,20 @@ EmbreeScenePtr EmbreeInstance::scene()
     return m_scene;
 }
 
-void EmbreeInstance::setMesh(EmbreeMeshPtr mesh)
-{
-    m_mesh = mesh;
-    rtcSetGeometryInstancedScene(handle, mesh->scene()->handle() );
-}
-
-EmbreeMeshPtr EmbreeInstance::mesh()
-{
-    return m_mesh;
-}
-
 void EmbreeInstance::commit()
 {
-    rtcSetGeometryTransform(handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
-    rtcCommitGeometry(handle);
+    rtcSetGeometryTransform(m_handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
+    rtcCommitGeometry(m_handle);
+}
+
+void EmbreeInstance::disable()
+{
+    rtcDisableGeometry(m_handle);
+}
+
+void EmbreeInstance::release()
+{
+    rtcReleaseGeometry(m_handle);
 }
 
 } // namespace rmagine

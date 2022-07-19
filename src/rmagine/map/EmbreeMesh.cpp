@@ -12,7 +12,7 @@ namespace rmagine {
 
 EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
 {
     
 }
@@ -22,18 +22,20 @@ EmbreeMesh::EmbreeMesh(
     unsigned int Nvertices, 
     unsigned int Nfaces)
 :m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
 ,Nvertices(Nvertices)
 ,Nfaces(Nfaces)
-{
-    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
+{   
+    vertices.resize(Nvertices);
+
+    vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
                                                 RTC_BUFFER_TYPE_VERTEX,
                                                 0,
                                                 RTC_FORMAT_FLOAT3,
                                                 sizeof(Vertex),
                                                 Nvertices));
 
-    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
+    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(m_handle,
                                                     RTC_BUFFER_TYPE_INDEX,
                                                     0,
                                                     RTC_FORMAT_UINT3,
@@ -45,7 +47,7 @@ EmbreeMesh::EmbreeMesh(
     EmbreeDevicePtr device,
     const aiMesh* amesh)
 :m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
 ,Nvertices(amesh->mNumVertices)
 ,Nfaces(amesh->mNumFaces)
 {
@@ -55,14 +57,17 @@ EmbreeMesh::EmbreeMesh(
     const aiFace* ai_faces = amesh->mFaces;
     int num_faces = amesh->mNumFaces;
 
-    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
+    
+    vertices.resize(Nvertices);
+
+    vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
                                                 RTC_BUFFER_TYPE_VERTEX,
                                                 0,
                                                 RTC_FORMAT_FLOAT3,
                                                 sizeof(Vertex),
                                                 Nvertices));
 
-    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
+    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(m_handle,
                                                     RTC_BUFFER_TYPE_INDEX,
                                                     0,
                                                     RTC_FORMAT_UINT3,
@@ -87,6 +92,7 @@ EmbreeMesh::EmbreeMesh(
     }
 
     normals.resize(amesh->mNumFaces);
+    normals_transformed.resize(amesh->mNumFaces);
     for(size_t i=0; i<amesh->mNumFaces; i++)
     {
         const Vector v0 = vertices[faces[i].v0];
@@ -95,57 +101,53 @@ EmbreeMesh::EmbreeMesh(
         Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
         normals[i] = n;
     }
+
+    Transform T;
+    T.setIdentity();
+    setTransform(T);
 }
 
-void EmbreeMesh::transform(const Matrix4x4& T)
+void EmbreeMesh::setTransform(const Transform& T)
 {
+    this->T = T;
     for(unsigned int i=0; i<Nvertices; i++)
     {
-        vertices[i] = T * vertices[i];
+        vertices_transformed[i] = T * vertices[i];
     }
 
     for(unsigned int i=0; i<normals.size(); i++)
     {
-        normals[i] = T.rotation() * normals[i];
+        normals_transformed[i] = T.R * normals[i];
     }
+
+    // rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
 }
 
-void EmbreeMesh::setScene(EmbreeScenePtr scene)
+void EmbreeMesh::setTransform(const Matrix4x4& T)
 {
-    m_scene = scene;
-    geomID = rtcAttachGeometry(scene->handle(), handle);
-    rtcReleaseGeometry(handle);
+    Transform T2;
+    T2.set(T);
+    setTransform(T2);
 }
 
-void EmbreeMesh::setNewScene()
+Transform EmbreeMesh::transform() const
 {
-    EmbreeScenePtr scene(new EmbreeScene(m_device));
-    setScene(scene);
+    return T;
 }
 
-EmbreeScenePtr EmbreeMesh::scene()
+RTCGeometry EmbreeMesh::handle() const
 {
-    return m_scene;
-}
-
-void EmbreeMesh::addInstance(EmbreeInstancePtr instance)
-{
-    m_instances.insert(instance);
-}
-
-bool EmbreeMesh::hasInstance(EmbreeInstancePtr instance) const
-{
-    return m_instances.find(instance) != m_instances.end();
-}
-
-EmbreeInstanceSet EmbreeMesh::instances()
-{
-    return m_instances;
+    return m_handle;
 }
 
 void EmbreeMesh::commit()
 {
-    rtcCommitGeometry(handle);
+    rtcCommitGeometry(m_handle);
+}
+
+void EmbreeMesh::release()
+{
+    rtcReleaseGeometry(m_handle);
 }
 
 } // namespace rmagine
