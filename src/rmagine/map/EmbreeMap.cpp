@@ -188,8 +188,8 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
 void EmbreeMap::set(const aiScene* ascene)
 {
-    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 
     meshes = loadMeshes(ascene);
     instances = loadInstances(ascene->mRootNode, meshes);
