@@ -13,6 +13,14 @@ aiScene createAiScene(
     const std::vector<Face>& faces);
 
 
+/**
+ * @brief Generates Sphere with diameter of 1
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param num_long 
+ * @param num_lat 
+ */
 void genSphere(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
@@ -27,7 +35,7 @@ aiScene genSphere(unsigned int num_long = 50, unsigned int num_lat = 50);
  * 
  * Nt: Number of triangles per side
  * a: side_triangles_exp
- * Nt = 2 * 4^a 
+ * Nt = 2 * 4^(a-1) 
  * 
  * if a = 1 -> Nt = 2
  * if a = 2 -> Nt = 8

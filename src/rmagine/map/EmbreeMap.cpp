@@ -363,20 +363,37 @@ void convert(const aiMatrix4x4& aT, Matrix4x4& T)
     T(3,3) = aT.d4;
 }
 
+
+
 EmbreeMap::EmbreeMap()
+:device(new EmbreeDevice)
+,scene(new EmbreeScene(device))
 {
-    device.reset(new EmbreeDevice);
-    scene.reset(new EmbreeScene(device) );
+    
+}
+
+EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
+:device(device)
+,scene(new EmbreeScene(device))
+{
 
 }
 
-EmbreeMap::EmbreeMap(const aiScene* ascene)
+
+EmbreeMap::EmbreeMap(EmbreeDevicePtr device, const aiScene* ascene)
+:EmbreeMap(device)
 {
-    // initializeDevice();
-    device.reset(new EmbreeDevice);
-    // global scene
-    scene.reset(new EmbreeScene(device) );
-    
+    set(ascene);
+}
+
+EmbreeMap::EmbreeMap(const aiScene* ascene)
+:EmbreeMap()
+{
+    set(ascene);
+}
+
+void EmbreeMap::set(const aiScene* ascene)
+{
     meshes = loadMeshes(ascene);
     instances = loadInstances(ascene->mRootNode, meshes);
 
@@ -443,8 +460,7 @@ unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)
 
 EmbreeMap::~EmbreeMap()
 {
-    // rtcReleaseScene(scene);
-    // rtcReleaseDevice(device);
+    
 }
 
 Point EmbreeMap::closestPoint(const Point& qp)

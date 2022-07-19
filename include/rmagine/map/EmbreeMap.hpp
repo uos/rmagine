@@ -219,7 +219,12 @@ class EmbreeMap : public Map {
 public:
     EmbreeMap();
     EmbreeMap(const aiScene* ascene);
+    EmbreeMap(EmbreeDevicePtr device);
+    EmbreeMap(EmbreeDevicePtr device, const aiScene* ascene);
+    
     ~EmbreeMap();
+
+    void set(const aiScene* ascene);
 
     unsigned int addMesh(EmbreeMeshPtr mesh);
 
@@ -262,6 +267,28 @@ static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
 
     EmbreeMapPtr map(new EmbreeMap(scene) );
     return map;
+}
+
+
+static EmbreeMapPtr importEmbreeMap(
+    const std::string& meshfile,
+    EmbreeDevicePtr device)
+{
+    Assimp::Importer importer;
+    // aiProcess_GenNormals does not work!
+    const aiScene* scene = importer.ReadFile( meshfile, 0);
+
+    if(!scene)
+    {
+        std::cerr << importer.GetErrorString() << std::endl;
+    }
+
+    if(!scene->HasMeshes())
+    {
+        std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
+    }
+
+    return std::make_shared<EmbreeMap>(device, scene);
 }
 
 } // namespace rmagine
