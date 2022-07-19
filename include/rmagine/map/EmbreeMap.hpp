@@ -63,137 +63,14 @@
 #include <rmagine/types/sensor_models.h>
 
 
+#include "EmbreeDevice.hpp"
+#include "EmbreeScene.hpp"
+#include "EmbreeMesh.hpp"
+#include "EmbreeInstance.hpp"
+
+
 namespace rmagine {
 
-class EmbreeDevice;
-class EmbreeScene;
-class EmbreeMesh;
-class EmbreeInstance;
-
-using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>;
-using EmbreeScenePtr = std::shared_ptr<EmbreeScene>;
-using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>; 
-using EmbreeInstancePtr = std::shared_ptr<EmbreeInstance>;
-
-
-using EmbreeInstanceSet = std::unordered_set<EmbreeInstancePtr>;
-
-class EmbreeDevice
-{
-public:
-    EmbreeDevice();
-
-    ~EmbreeDevice();
-
-    RTCDevice handle();
-
-private:
-    RTCDevice m_device;
-};
-
-class EmbreeScene
-{
-public:
-    EmbreeScene(EmbreeDevicePtr device)
-    {
-        m_scene = rtcNewScene(device->handle());
-    }
-
-    ~EmbreeScene()
-    {
-        rtcReleaseScene(m_scene);
-    }
-
-    RTCScene handle()
-    {
-        return m_scene;
-    }
-
-    void commit()
-    {
-        rtcCommitScene(m_scene);
-    }
-
-private:
-    RTCScene m_scene;
-};
-
-class EmbreeMesh
-{
-public:
-    // TODO: constructor destructor
-
-    EmbreeMesh( EmbreeDevicePtr device);
-
-    EmbreeMesh( EmbreeDevicePtr device, 
-                unsigned int Nvertices, 
-                unsigned int Nfaces);
-
-    EmbreeMesh( EmbreeDevicePtr device,
-                const aiMesh* amesh);
-
-    // embree constructed buffers
-    unsigned int Nvertices;
-    Vertex* vertices;
-
-    unsigned int Nfaces;
-    Face* faces;
-    
-    // more custom attributes
-    Memory<Vector, RAM> normals;
-
-    // embree fields
-    RTCGeometry handle;
-    unsigned int geomID;
-
-    void transform(const Matrix4x4& T);
-    
-    void setScene(EmbreeScenePtr scene);
-    void setNewScene();
-    EmbreeScenePtr scene();
-
-    void addInstance(EmbreeInstancePtr instance);
-    bool hasInstance(EmbreeInstancePtr instance) const;
-    EmbreeInstanceSet instances();
-
-    void commit();
-private:
-    // connections
-    EmbreeInstanceSet m_instances;
-    EmbreeScenePtr m_scene;
-    EmbreeDevicePtr m_device;
-};
-
-class EmbreeInstance
-{
-public:
-    Matrix4x4 T;
-
-    // embree fields
-    RTCGeometry handle;
-    unsigned int instID;
-
-    void setScene(EmbreeScenePtr scene);
-    EmbreeScenePtr scene();
-
-    void setMesh(EmbreeMeshPtr mesh);
-    EmbreeMeshPtr mesh();
-
-    // Make this more comfortable to use
-    // - functions as: setMesh(), or addMesh() ?
-    // - translate rotate scale? 
-
-    /**
-     * @brief Call update after changing the transformation. TODO TEST
-     * 
-     */
-    void commit();
-
-private:
-
-    EmbreeMeshPtr m_mesh;
-    EmbreeScenePtr m_scene;
-};
 
 struct ClosestPointResult
 {
@@ -253,7 +130,7 @@ static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
 {
     Assimp::Importer importer;
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = importer.ReadFile( meshfile, 0);
+    const aiScene* scene = importer.ReadFile(meshfile, 0);
 
     if(!scene)
     {

@@ -1,218 +1,12 @@
 #include "rmagine/map/EmbreeMap.hpp"
 
+#include <rmagine/map/EmbreeScene.hpp>
 #include <iostream>
 
 #include <map>
 #include <cassert>
 
 namespace rmagine {
-
-void errorFunction(void* userPtr, enum RTCError error, const char* str)
-{
-    printf("error %d: %s\n", error, str);
-}
-
-/////////////////
-// EmbreeDevice
-/////////////////
-EmbreeDevice::EmbreeDevice()
-{
-    m_device = rtcNewDevice(NULL);
-
-    if (!m_device)
-    {
-        std::cerr << "error " << rtcGetDeviceError(NULL) << ": cannot create device" << std::endl;
-    }
-
-    rtcSetDeviceErrorFunction(m_device, errorFunction, NULL);
-}
-
-EmbreeDevice::~EmbreeDevice()
-{
-    rtcReleaseDevice(m_device);
-}
-
-/////////////////
-RTCDevice EmbreeDevice::handle()
-{
-    return m_device;
-}
-
-/////////////////
-// EmbreeMesh
-/////////////////
-
-
-EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
-:m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
-{
-    
-}
-
-EmbreeMesh::EmbreeMesh(
-    EmbreeDevicePtr device, 
-    unsigned int Nvertices, 
-    unsigned int Nfaces)
-:m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
-,Nvertices(Nvertices)
-,Nfaces(Nfaces)
-{
-    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
-                                                RTC_BUFFER_TYPE_VERTEX,
-                                                0,
-                                                RTC_FORMAT_FLOAT3,
-                                                sizeof(Vertex),
-                                                Nvertices));
-
-    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
-                                                    RTC_BUFFER_TYPE_INDEX,
-                                                    0,
-                                                    RTC_FORMAT_UINT3,
-                                                    sizeof(Face),
-                                                    Nfaces));
-}
-
-EmbreeMesh::EmbreeMesh( 
-    EmbreeDevicePtr device,
-    const aiMesh* amesh)
-:m_device(device)
-,handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
-,Nvertices(amesh->mNumVertices)
-,Nfaces(amesh->mNumFaces)
-{
-    const aiVector3D* ai_vertices = amesh->mVertices;
-    int num_vertices = amesh->mNumVertices;
-
-    const aiFace* ai_faces = amesh->mFaces;
-    int num_faces = amesh->mNumFaces;
-
-    vertices = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(handle,
-                                                RTC_BUFFER_TYPE_VERTEX,
-                                                0,
-                                                RTC_FORMAT_FLOAT3,
-                                                sizeof(Vertex),
-                                                Nvertices));
-
-    faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(handle,
-                                                    RTC_BUFFER_TYPE_INDEX,
-                                                    0,
-                                                    RTC_FORMAT_UINT3,
-                                                    sizeof(Face),
-                                                    Nfaces));
-
-    // copy mesh to embree buffers
-    for(unsigned int i=0; i<num_vertices; i++)
-    {
-        // mesh.vertices[i] = {ai_vertices[i].x, ai_vertices[i].y, ai_vertices[i].z};
-        vertices[i].x = ai_vertices[i].x;
-        vertices[i].y = ai_vertices[i].y;
-        vertices[i].z = ai_vertices[i].z;
-    }
-
-    for(int i=0; i<num_faces; i++)
-    {
-        // mesh.faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
-        faces[i].v0 = ai_faces[i].mIndices[0];
-        faces[i].v1 = ai_faces[i].mIndices[1];
-        faces[i].v2 = ai_faces[i].mIndices[2];
-    }
-
-    normals.resize(amesh->mNumFaces);
-    for(size_t i=0; i<amesh->mNumFaces; i++)
-    {
-        const Vector v0 = vertices[faces[i].v0];
-        const Vector v1 = vertices[faces[i].v1];
-        const Vector v2 = vertices[faces[i].v2];
-        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
-        normals[i] = n;
-    }
-}
-
-void EmbreeMesh::transform(const Matrix4x4& T)
-{
-    for(unsigned int i=0; i<Nvertices; i++)
-    {
-        vertices[i] = T * vertices[i];
-    }
-
-    for(unsigned int i=0; i<normals.size(); i++)
-    {
-        normals[i] = T.rotation() * normals[i];
-    }
-}
-
-void EmbreeMesh::setScene(EmbreeScenePtr scene)
-{
-    m_scene = scene;
-    geomID = rtcAttachGeometry(scene->handle(), handle);
-    rtcReleaseGeometry(handle);
-}
-
-void EmbreeMesh::setNewScene()
-{
-    EmbreeScenePtr scene(new EmbreeScene(m_device));
-    setScene(scene);
-}
-
-EmbreeScenePtr EmbreeMesh::scene()
-{
-    return m_scene;
-}
-
-void EmbreeMesh::addInstance(EmbreeInstancePtr instance)
-{
-    m_instances.insert(instance);
-}
-
-bool EmbreeMesh::hasInstance(EmbreeInstancePtr instance) const
-{
-    return m_instances.find(instance) != m_instances.end();
-}
-
-EmbreeInstanceSet EmbreeMesh::instances()
-{
-    return m_instances;
-}
-
-void EmbreeMesh::commit()
-{
-    rtcCommitGeometry(handle);
-}
-
-/////////////////
-// EmbreeInstance
-/////////////////
-
-void EmbreeInstance::setScene(EmbreeScenePtr scene)
-{
-    m_scene = scene;
-    instID = rtcAttachGeometry(scene->handle(), handle);
-    rtcReleaseGeometry(handle);
-}
-
-EmbreeScenePtr EmbreeInstance::scene()
-{
-    return m_scene;
-}
-
-void EmbreeInstance::setMesh(EmbreeMeshPtr mesh)
-{
-    m_mesh = mesh;
-    rtcSetGeometryInstancedScene(handle, mesh->scene()->handle() );
-}
-
-EmbreeMeshPtr EmbreeInstance::mesh()
-{
-    return m_mesh;
-}
-
-void EmbreeInstance::commit()
-{
-    rtcSetGeometryTransform(handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
-    rtcCommitGeometry(handle);
-}
 
 Point closestPointTriangle(
     const Point& p, 
@@ -394,20 +188,37 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
 void EmbreeMap::set(const aiScene* ascene)
 {
+    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+
     meshes = loadMeshes(ascene);
     instances = loadInstances(ascene->mRootNode, meshes);
 
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime
     // if accelerated: how to handle object ids. Geometry ID or instance ID?
-    bool instanced = false;
+    bool instanced = true;
 
     if(instanced)
     {
         std::cout << "Using Embree with Instance Level" << std::endl;
         for(auto instance : instances)
         {
-            instance->setScene(scene);
+            // if(instance->mesh()->instances().size() == 1)
+            // {
+
+            //     std::cout << "Mesh has only one istance" << std::endl;
+            
+            //     auto mesh = instance->mesh();
+            //     mesh->transform(instance->T);
+            //     instance->T.setIdentity();
+            //     mesh->setScene(scene);
+
+            // } else {
+                instance->setScene(scene);
+                instance->commit();
+
+            // }
         }
 
         // what to do with meshes without instance? apply them to upper geometry
@@ -440,6 +251,7 @@ void EmbreeMap::set(const aiScene* ascene)
                 std::cout << "Mesh has more than one instances. Instanced built is required!" << std::endl;
             }
 
+            // scene->add(mesh);
             mesh->setScene(scene);
         }
     }
@@ -517,8 +329,7 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
             // Leaf
             if(n->mNumMeshes > 0)
             {
-                EmbreeInstancePtr instance(new EmbreeInstance());
-                instance->handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
+                EmbreeInstancePtr instance(new EmbreeInstance(device));
                 
                 // convert assimp matrix to internal type
                 convert(n->mTransformation, instance->T);
@@ -529,7 +340,10 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 auto mesh = meshes[mesh_id];
                 // make one scene per mesh 
                 // EmbreeScenePtr mesh_scene(new EmbreeScene(device) );
-                mesh->setNewScene();
+                if(!mesh->scene())
+                {
+                    mesh->setNewScene();
+                }
                 mesh->scene()->commit();
 
                 // connect mesh geometry to instance and instance to geometry
@@ -554,4 +368,4 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
     return instances;
 }
 
-} // namespace mamcl
+} // namespace rmagine

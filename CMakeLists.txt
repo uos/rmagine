@@ -136,7 +136,12 @@ target_compile_features(rmagine PRIVATE cxx_std_17)
 if(embree_FOUND)
 add_library(rmagine_embree SHARED
     # Maps
+    src/rmagine/map/EmbreeDevice.cpp
+    src/rmagine/map/EmbreeMesh.cpp
+    src/rmagine/map/EmbreeScene.cpp
+    src/rmagine/map/EmbreeInstance.cpp
     src/rmagine/map/EmbreeMap.cpp
+    
     # Simulators
     src/rmagine/simulation/SphereSimulatorEmbree.cpp
     src/rmagine/simulation/PinholeSimulatorEmbree.cpp
