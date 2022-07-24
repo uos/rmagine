@@ -14,7 +14,7 @@ EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :m_device(device)
 ,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
 {
-    
+    rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
 }
 
 EmbreeMesh::EmbreeMesh(
@@ -26,6 +26,8 @@ EmbreeMesh::EmbreeMesh(
 ,Nvertices(Nvertices)
 ,Nfaces(Nfaces)
 {   
+    rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
+    
     vertices.resize(Nvertices);
 
     vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
@@ -110,11 +112,14 @@ EmbreeMesh::EmbreeMesh(
 void EmbreeMesh::setTransform(const Transform& T)
 {
     this->T = T;
+
+    #pragma omp parallel for
     for(unsigned int i=0; i<Nvertices; i++)
     {
         vertices_transformed[i] = T * vertices[i];
     }
 
+    #pragma omp parallel for
     for(unsigned int i=0; i<normals.size(); i++)
     {
         normals_transformed[i] = T.R * normals[i];

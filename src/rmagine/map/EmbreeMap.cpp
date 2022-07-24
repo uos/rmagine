@@ -163,16 +163,17 @@ EmbreeMap::EmbreeMap()
 :device(new EmbreeDevice)
 ,scene(new EmbreeScene(device))
 {
-    
+    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 }
 
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 :device(device)
 ,scene(new EmbreeScene(device))
 {
-
+    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 }
-
 
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device, const aiScene* ascene)
 :EmbreeMap(device)
@@ -188,8 +189,8 @@ EmbreeMap::EmbreeMap(const aiScene* ascene)
 
 void EmbreeMap::set(const aiScene* ascene)
 {
-    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 
     meshes = loadMeshes(ascene);
     instances = loadInstances(ascene->mRootNode, meshes);
