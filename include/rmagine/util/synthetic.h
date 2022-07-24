@@ -12,7 +12,6 @@ aiScene createAiScene(
     const std::vector<Vector3>& vertices,
     const std::vector<Face>& faces);
 
-
 /**
  * @brief Generates Sphere with diameter of 1
  * 
@@ -56,6 +55,36 @@ void genCube(
     unsigned int side_triangles_exp=1);
 
 aiScene genCube(unsigned int side_triangles_exp=1);
+
+/**
+ * @brief Generates 1mx1m plane centered in (0,0,0) with normal (0,0,1)
+ * 
+ * Nt: Number of triangles per plane
+ * a: side_triangles_exp
+ * Nt = 2 * 4^(a-1)
+ * 
+ * a = 1 -> Nt = 2
+ * a = 2 -> Nt = 8
+ * a = 3 -> Nt = 32
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param side_triangles_exp 
+ */
+void genPlane(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_triangles_exp=1
+);
+
+aiScene genPlane(unsigned int side_triangles_exp=1);
+
+
+void genCylinder(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_faces = 100);
+
 
 } // namespace rmagine
 
