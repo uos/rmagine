@@ -79,11 +79,19 @@ void genPlane(
 
 aiScene genPlane(unsigned int side_triangles_exp=1);
 
-
+/**
+ * @brief Generates Cylinder of 1m height and 1m diameter (0.5m radius)
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param side_faces number of rectangles used to express the curvature
+ */
 void genCylinder(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
     unsigned int side_faces = 100);
+
+aiScene genCylinder(unsigned int side_faces = 100);
 
 
 } // namespace rmagine

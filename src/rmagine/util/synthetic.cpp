@@ -264,23 +264,29 @@ void genCylinder(
     unsigned int side_faces)
 {
 
-    float increment = 2.0 * M_PI / static_cast<float>(side_faces);
+    // parameters
+    float diameter = 1.0;
+    float height = 1.0;
 
+
+
+    float increment = 2.f * M_PI / static_cast<float>(side_faces);
+    float radius = diameter / 2.f;
 
     // make vertices
     vertices.reserve(side_faces * 2 + 2);
     for(size_t i=0; i<side_faces; i++)
     {
         float angle = static_cast<float>(i) * increment;
-        Vertex v_up = {cos(angle), sin(angle), 0.5};
-        Vertex v_bottom = {cos(angle), sin(angle), -0.5};
+        Vertex v_up = {cos(angle) * radius, sin(angle) * radius, height / 2.f};
+        Vertex v_bottom = {cos(angle) * radius, sin(angle) * radius, - height / 2.f};
         vertices.push_back(v_up);
         vertices.push_back(v_bottom);
     }
 
     // add top and bottom vertices
-    vertices.push_back({0.0, 0.0, 0.5});
-    vertices.push_back({0.0, 0.0, -0.5});
+    vertices.push_back({0.0, 0.0, height / 2.f});
+    vertices.push_back({0.0, 0.0, - height / 2.f});
 
     unsigned int vid_top = vertices.size() - 2;
     unsigned int vid_bottom = vertices.size() - 1; 
@@ -317,10 +323,29 @@ void genCylinder(
             vid_rt %= n_side_triangles;
         }
 
-        faces.push_back({vid_lt, vid_top, vid_rt});
+        faces.push_back({vid_rt, vid_top, vid_lt});
     }
 
+    // bottom
+    for(size_t i=0; i<side_faces; i++)
+    {
+        unsigned int vid_lb = i * 2 + 1;
+        unsigned int vid_rb = i * 2 + 3;
+        if(vid_rb >= n_side_triangles)
+        {
+            vid_rb %= n_side_triangles;
+        }
 
+        faces.push_back({vid_lb, vid_bottom, vid_rb});
+    }
+}
+
+aiScene genCylinder(unsigned int side_faces)
+{
+    std::vector<Vector3> vertices;
+    std::vector<Face> faces;
+    genCylinder(vertices, faces, side_faces);
+    return createAiScene(vertices, faces);
 }
 
 

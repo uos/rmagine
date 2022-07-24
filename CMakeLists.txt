@@ -336,6 +336,7 @@ endif(BUILD_TESTS)
 #### TOOLS
 if(BUILD_TOOLS)
     add_subdirectory(src/rmagine_tools/rmagine_benchmark)
+    add_subdirectory(src/rmagine_tools/rmagine_synthetic)
 endif(BUILD_TOOLS)
 
 #### INSTALL
