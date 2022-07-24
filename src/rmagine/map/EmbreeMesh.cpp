@@ -117,6 +117,13 @@ EmbreeMesh::EmbreeMesh(
     apply();
 }
 
+EmbreeMesh::~EmbreeMesh()
+{   
+    std::cout << "Destroy MESH!" << std::endl;
+    disable();
+    
+}
+
 void EmbreeMesh::setTransform(const Transform& T)
 {
     m_T = T;
@@ -175,9 +182,16 @@ void EmbreeMesh::apply()
     }
 }
 
+void EmbreeMesh::disable()
+{
+    rtcDisableGeometry(m_handle);
+}
+
 void EmbreeMesh::markAsChanged()
 {
     rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
 }
+
+
 
 } // namespace rmagine

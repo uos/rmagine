@@ -37,6 +37,8 @@ public:
     EmbreeMesh( EmbreeDevicePtr device,
                 const aiMesh* amesh);
 
+    ~EmbreeMesh();
+
     Memory<Vector, RAM> vertices;
 
     unsigned int Nfaces;
@@ -60,11 +62,9 @@ public:
 
     void apply();
 
-
     void commit();
     void release();
-
-
+    void disable();
 
     void markAsChanged();
 
