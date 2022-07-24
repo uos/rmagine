@@ -50,13 +50,23 @@ public:
 
     RTCGeometry handle() const;
 
+
+    void setScale(const Vector3& S);
     void setTransform(const Matrix4x4& T);
     void setTransform(const Transform& T);
 
     Transform transform() const;
+    Vector3 scale() const;
+
+    void apply();
+
 
     void commit();
     void release();
+
+
+
+    void markAsChanged();
 
     EmbreeScenePtr parent;
 private:
@@ -68,7 +78,8 @@ private:
     Memory<Vector, RAM> normals_transformed;
 
 
-    Transform T;
+    Transform m_T;
+    Vector3 m_S;
 
     RTCGeometry m_handle;
 

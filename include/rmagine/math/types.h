@@ -190,6 +190,9 @@ struct Vector3 {
 
     RMAGINE_INLINE_FUNCTION
     float mult(const Vector3& b) const;
+    
+    RMAGINE_INLINE_FUNCTION
+    Vector3 mult_ewise(const Vector3& b) const;
 
     RMAGINE_INLINE_FUNCTION
     Vector3 mult(const float& s) const;
@@ -1085,6 +1088,12 @@ RMAGINE_INLINE_FUNCTION
 float Vector3::mult(const Vector3& b) const
 {
     return dot(b);
+}
+
+RMAGINE_INLINE_FUNCTION
+Vector3 Vector3::mult_ewise(const Vector3& b) const
+{
+    return {x * b.x, y * b.y, z * b.z};
 }
 
 RMAGINE_INLINE_FUNCTION

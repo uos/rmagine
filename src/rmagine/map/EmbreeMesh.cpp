@@ -27,7 +27,7 @@ EmbreeMesh::EmbreeMesh(
 ,Nfaces(Nfaces)
 {   
     rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
-    
+
     vertices.resize(Nvertices);
 
     vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
@@ -107,25 +107,19 @@ EmbreeMesh::EmbreeMesh(
     Transform T;
     T.setIdentity();
     setTransform(T);
+
+    Vector3 s;
+    s.x = 1.0;
+    s.y = 1.0;
+    s.z = 1.0;
+    setScale(s);
+
+    apply();
 }
 
 void EmbreeMesh::setTransform(const Transform& T)
 {
-    this->T = T;
-
-    #pragma omp parallel for
-    for(unsigned int i=0; i<Nvertices; i++)
-    {
-        vertices_transformed[i] = T * vertices[i];
-    }
-
-    #pragma omp parallel for
-    for(unsigned int i=0; i<normals.size(); i++)
-    {
-        normals_transformed[i] = T.R * normals[i];
-    }
-
-    // rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
+    m_T = T;
 }
 
 void EmbreeMesh::setTransform(const Matrix4x4& T)
@@ -137,7 +131,17 @@ void EmbreeMesh::setTransform(const Matrix4x4& T)
 
 Transform EmbreeMesh::transform() const
 {
-    return T;
+    return m_T;
+}
+
+void EmbreeMesh::setScale(const Vector3& S)
+{
+    m_S = S;
+}
+
+Vector3 EmbreeMesh::scale() const
+{
+    return m_S;
 }
 
 RTCGeometry EmbreeMesh::handle() const
@@ -153,6 +157,27 @@ void EmbreeMesh::commit()
 void EmbreeMesh::release()
 {
     rtcReleaseGeometry(m_handle);
+}
+
+void EmbreeMesh::apply()
+{
+    #pragma omp parallel for
+    for(unsigned int i=0; i<Nvertices; i++)
+    {
+        vertices_transformed[i] = m_T * (vertices[i].mult_ewise(m_S));
+    }
+
+    #pragma omp parallel for
+    for(unsigned int i=0; i<normals.size(); i++)
+    {
+        auto normal_scaled = normals[i].mult_ewise(m_S);
+        normals_transformed[i] = m_T.R * normal_scaled.normalized();
+    }
+}
+
+void EmbreeMesh::markAsChanged()
+{
+    rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
 }
 
 } // namespace rmagine
