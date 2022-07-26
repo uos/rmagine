@@ -43,10 +43,6 @@ public:
     void set(EmbreeScenePtr scene);
     EmbreeScenePtr scene();
 
-
-    // void setMesh(EmbreeMeshPtr mesh);
-    // EmbreeMeshPtr mesh();
-
     // Make this more comfortable to use
     // - functions as: setMesh(), or addMesh() ?
     // - translate rotate scale? 
@@ -62,12 +58,11 @@ public:
     void release();
 
     EmbreeScenePtr parent;
+    // id only valid if parent is set
+    unsigned int id;
 private:
-    // EmbreeMeshPtr m_mesh;
-    
     RTCGeometry m_handle;
     EmbreeScenePtr m_scene;
-
 
     EmbreeDevicePtr m_device;
 };

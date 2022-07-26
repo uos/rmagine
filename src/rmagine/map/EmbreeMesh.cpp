@@ -119,9 +119,12 @@ EmbreeMesh::EmbreeMesh(
 
 EmbreeMesh::~EmbreeMesh()
 {   
-    std::cout << "Destroy MESH!" << std::endl;
-    disable();
-    
+    std::cout << "Destroy MESH! " << std::endl;
+    if(parent)
+    {
+        std::cout << "Remove mesh " << id << " from scene" << std::endl;
+        disable();
+    }
 }
 
 void EmbreeMesh::setTransform(const Transform& T)

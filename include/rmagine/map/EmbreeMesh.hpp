@@ -47,11 +47,7 @@ public:
     // more custom attributes
     Memory<Vector, RAM> normals;
 
-    // embree fields
-    unsigned int geomID;
-
     RTCGeometry handle() const;
-
 
     void setScale(const Vector3& S);
     void setTransform(const Matrix4x4& T);
@@ -68,7 +64,10 @@ public:
 
     void markAsChanged();
 
+    // embree fields
     EmbreeScenePtr parent;
+    // id only valid if parent is set
+    unsigned int id;
 private:
 
     // embree constructed buffers
@@ -76,7 +75,6 @@ private:
     Vertex* vertices_transformed;
 
     Memory<Vector, RAM> normals_transformed;
-
 
     Transform m_T;
     Vector3 m_S;

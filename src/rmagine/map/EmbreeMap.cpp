@@ -192,8 +192,17 @@ void EmbreeMap::set(const aiScene* ascene)
     // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 
-    meshes = loadMeshes(ascene);
-    instances = loadInstances(ascene->mRootNode, meshes);
+    // meshes = loadMeshes(ascene);
+
+    std::vector<EmbreeMeshPtr> meshes_tmp = loadMeshes(ascene);
+    std::vector<EmbreeInstancePtr> instances = loadInstances(ascene->mRootNode, meshes_tmp);
+
+    for(auto mesh : meshes_tmp)
+    {
+        meshes.insert(mesh);
+    }
+
+
 
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime

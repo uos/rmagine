@@ -111,8 +111,10 @@ public:
     EmbreeScenePtr scene;
     // TODO:
 
-    std::vector<EmbreeMeshPtr> meshes;
-    std::vector<EmbreeInstancePtr> instances;
+    std::unordered_set<EmbreeMeshPtr> meshes;
+
+    // std::vector<EmbreeMeshPtr> meshes;
+    // std::vector<EmbreeInstancePtr> instances;
 
     RTCPointQueryContext pq_context;
 

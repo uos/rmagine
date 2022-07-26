@@ -40,6 +40,7 @@ unsigned int EmbreeScene::add(EmbreeInstancePtr inst)
     unsigned int inst_id = rtcAttachGeometry(m_scene, inst->handle());
     m_instances[inst_id] = inst;
     inst->parent = shared_from_this();
+    inst->id = inst_id;
     inst->release();
     return inst_id;
 }
@@ -72,7 +73,7 @@ unsigned int EmbreeScene::add(EmbreeMeshPtr mesh)
     unsigned int geom_id = rtcAttachGeometry(m_scene, mesh->handle());
     m_meshes[geom_id] = mesh;
     mesh->parent = shared_from_this();
-    mesh->geomID = geom_id;
+    mesh->id = geom_id;
     mesh->release();
     return geom_id;
 }

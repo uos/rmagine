@@ -65,11 +65,14 @@ public:
     bool hasMesh(unsigned int mesh_id) const;
     EmbreeMeshPtr removeMesh(unsigned int mesh_id);
 
-
     RTCScene handle();
 
     void commit();
 
+    /**
+     * @brief 
+     * 
+     */
     void optimize();
 
     EmbreeInstanceSet parents;
