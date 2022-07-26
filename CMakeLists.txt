@@ -345,11 +345,11 @@ install(DIRECTORY include/rmagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
 install(TARGETS ${RMAGINE_LIBRARIES})
 
-install(TARGETS rmagine rmagine_cuda rmagine_optix)
+# install(TARGETS rmagine rmagine_cuda rmagine_optix)
 # TODO: Components?
-install(TARGETS rmagine COMPONENT core)
-install(TARGETS rmagine_cuda COMPONENT cuda)
-install(TARGETS rmagine_optix COMPONENT optix)
+# install(TARGETS rmagine COMPONENT core)
+# install(TARGETS rmagine_cuda COMPONENT cuda)
+# install(TARGETS rmagine_optix COMPONENT optix)
 
 if(BUILD_TOOLS)
 # Install Tools
