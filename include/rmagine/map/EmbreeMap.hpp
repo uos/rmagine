@@ -71,6 +71,7 @@
 
 namespace rmagine {
 
+void convert(const aiMatrix4x4& aT, Matrix4x4& T);
 
 struct ClosestPointResult
 {

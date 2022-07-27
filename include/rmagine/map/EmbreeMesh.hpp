@@ -61,6 +61,7 @@ public:
     void commit();
     void release();
     void disable();
+    void enable();
 
     void markAsChanged();
 

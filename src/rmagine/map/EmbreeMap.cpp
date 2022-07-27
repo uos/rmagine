@@ -157,8 +157,6 @@ void convert(const aiMatrix4x4& aT, Matrix4x4& T)
     T(3,3) = aT.d4;
 }
 
-
-
 EmbreeMap::EmbreeMap()
 :device(new EmbreeDevice)
 ,scene(new EmbreeScene(device))

@@ -190,11 +190,14 @@ void EmbreeMesh::disable()
     rtcDisableGeometry(m_handle);
 }
 
+void EmbreeMesh::enable()
+{
+    rtcEnableGeometry(m_handle);
+}
+
 void EmbreeMesh::markAsChanged()
 {
     rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
 }
-
-
 
 } // namespace rmagine

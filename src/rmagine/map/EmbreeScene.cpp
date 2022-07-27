@@ -97,6 +97,7 @@ EmbreeMeshPtr EmbreeScene::removeMesh(unsigned int mesh_id)
     if(m_meshes.find(mesh_id) != m_meshes.end())
     {
         ret = m_meshes[mesh_id];
+        ret->disable();
         m_meshes.erase(mesh_id);
     }
 
