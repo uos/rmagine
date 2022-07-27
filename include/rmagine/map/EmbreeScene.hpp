@@ -7,6 +7,7 @@
 #include <embree3/rtcore.h>
 #include <memory>
 #include <unordered_map>
+#include <condition_variable>
 
 namespace rmagine
 {

@@ -4,6 +4,8 @@
 
 #include <rmagine/util/StopWatch.hpp>
 
+
+
 namespace rmagine
 {
 
@@ -65,6 +67,8 @@ void SphereSimulatorEmbree::simulateRanges(
     const MemoryView<Transform, RAM>& Tbm,
     MemoryView<float, RAM>& ranges)
 {
+    auto handle = m_map->scene->handle();
+
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
@@ -97,7 +101,7 @@ void SphereSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
+                rtcIntersect1(handle, &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {    

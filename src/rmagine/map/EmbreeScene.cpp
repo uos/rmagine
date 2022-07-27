@@ -23,6 +23,8 @@ EmbreeScene::~EmbreeScene()
     m_instances.clear();
     m_meshes.clear();
     rtcReleaseScene(m_scene);
+
+    // std::cout << "EmbreeScene destroyed" << std::endl;
 }
 
 void EmbreeScene::setQuality(RTCBuildQuality quality)
