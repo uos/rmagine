@@ -15,7 +15,7 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
 {
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
-    std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
+    // std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
 }
 
 SphereSimulatorEmbree::SphereSimulatorEmbree(EmbreeMapPtr map)
@@ -102,7 +102,7 @@ void SphereSimulatorEmbree::simulateRanges(
                 rtcIntersect1(handle, &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-                {    
+                {
                     ranges[glob_id] = rayhit.ray.tfar;
                 } else {
                     ranges[glob_id] = m_model->range.max + 1.0;

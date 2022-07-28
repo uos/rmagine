@@ -16,12 +16,12 @@ EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 :Base(device)
 {
     m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_INSTANCE);
-    std::cout << "[EmbreeInstance::EmbreeInstance()] constructed." << std::endl;
+    // std::cout << "[EmbreeInstance::EmbreeInstance()] constructed." << std::endl;
 }
 
 EmbreeInstance::~EmbreeInstance()
 {
-    std::cout << "[EmbreeInstance::~EmbreeInstance()] destroyed." << std::endl;
+    // std::cout << "[EmbreeInstance::~EmbreeInstance()] destroyed." << std::endl;
 }
 
 void EmbreeInstance::set(EmbreeScenePtr scene)

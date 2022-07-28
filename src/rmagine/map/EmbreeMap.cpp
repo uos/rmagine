@@ -154,81 +154,58 @@ void EmbreeMap::set(const aiScene* ascene)
 {
     EmbreeSceneSettings tmp;
     scene = std::make_shared<EmbreeScene>(tmp, device);
-
-    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
-
-    // meshes = loadMeshes(ascene);
-
     
     std::vector<EmbreeMeshPtr> meshes_tmp = loadMeshes(ascene);
-    std::cout << "Meshes loaded: " <<  meshes_tmp.size() << std::endl;
+    // std::cout << "Meshes loaded: " <<  meshes_tmp.size() << std::endl;
     
     std::vector<EmbreeInstancePtr> instances = loadInstances(ascene->mRootNode, meshes_tmp);
-
-    std::cout << "Instances loaded: " << instances.size() << std::endl;
-
-    // for(auto mesh : meshes_tmp)
-    // {
-    //     meshes.insert(mesh);
-    // }
+    // std::cout << "Instances loaded: " << instances.size() << std::endl;
 
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime
     // if accelerated: how to handle object ids. Geometry ID or instance ID?
-    bool instanced = true;
+    
 
-    // if(instanced)
-    // {
-        std::cout << "Using Embree with Instance Level" << std::endl;
-        for(auto instance : instances)
+    // std::cout << "Using Embree with Instance Level" << std::endl;
+    for(auto instance : instances)
+    {
+        unsigned int inst_id = scene->add(instance);
+        if(!instance->parent.lock())
         {
-            unsigned int inst_id = scene->add(instance);
-            if(!instance->parent.lock())
-            {
-                std::cout << "WARNING Added instance has no parent scene!" << std::endl;
-            }
-            std::cout << "Added instance " << instance->name << " " << inst_id << std::endl;
+            std::cout << "WARNING Added instance has no parent scene!" << std::endl;
         }
+        // std::cout << "Added instance " << instance->name << " " << inst_id << std::endl;
+    }
 
-        for(auto mesh : meshes_tmp)
+    for(auto mesh : meshes_tmp)
+    {
+        if(!mesh->parent.lock())
         {
-            if(!mesh->parent.lock())
-            {
-                std::cout << "Add mesh without parent " << mesh->name << " " << mesh->id << std::endl;
-                std::cout << "- vertices, faces: " << mesh->vertices.size() << ", " << mesh->Nfaces << std::endl;
-                // has not parent push to scene
-                unsigned int mesh_id = scene->add(mesh);
-                std::cout << "Added mesh " << mesh_id << std::endl;
-            }
+            // std::cout << "Add mesh without parent " << mesh->name << " " << mesh->id << std::endl;
+            // std::cout << "- vertices, faces: " << mesh->vertices.size() << ", " << mesh->Nfaces << std::endl;
+            // has not parent push to scene
+            unsigned int mesh_id = scene->add(mesh);
+            // std::cout << "Added mesh " << mesh_id << std::endl;
         }
+    }
 
-        // scene->optimize();
-    // } else {
+    bool is_static = true;
 
-    //     std::cout << "Using Embree without Instance Level" << std::endl;
-    //     // transform each mesh
-    //     for(auto mesh : meshes)
-    //     {
-    //         auto instance = mesh->parent.lock()->parents.begin()->lock();
-
-    //         mesh->setTransform(instance->T);
-            
-    //         instance->T.setIdentity();
-
-    //         scene->add(mesh);
-    //     }
-    // }
-
-    std::cout << "Commit Top Level Scene:" << std::endl;
-    std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
-    std::cout << "- " << scene->count<EmbreeInstance>() << " instances" << std::endl;
+    // optimize
+    if(is_static)
+    {
+        scene->optimize();
+    }
+    
+    // std::cout << "Commit Top Level Scene:" << std::endl;
+    // std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
+    // std::cout << "- " << scene->count<EmbreeInstance>() << " instances" << std::endl;
     scene->commit();
 
-    std::cout << "done. " << std::endl;
+    // std::cout << "done. " << std::endl;
     // rtcInitPointQueryContext(&pq_context);
 
-    std::cout << "EmbreeMap created." << std::endl;
+    // std::cout << "EmbreeMap created." << std::endl;
 }
 
 unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)

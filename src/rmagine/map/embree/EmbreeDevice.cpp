@@ -23,13 +23,13 @@ EmbreeDevice::EmbreeDevice()
     }
 
     rtcSetDeviceErrorFunction(m_device, errorFunction, NULL);
-    std::cout << "[EmbreeDevice::EmbreeDevice()] constructed." << std::endl;
+    // std::cout << "[EmbreeDevice::EmbreeDevice()] constructed." << std::endl;
 }
 
 EmbreeDevice::~EmbreeDevice()
 {
     rtcReleaseDevice(m_device);
-    std::cout << "[EmbreeDevice::~EmbreeDevice()] destroyed." << std::endl;
+    // std::cout << "[EmbreeDevice::~EmbreeDevice()] destroyed." << std::endl;
 }
 
 /////////////////

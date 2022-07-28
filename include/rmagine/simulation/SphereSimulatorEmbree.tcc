@@ -93,7 +93,13 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
+                        if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
+                        {
+                            ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.instID;
+                        } else {
+                            ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
+                        }
+                        
                     }
                 } else {
                     if constexpr(BundleT::template has<Hits<RAM> >())

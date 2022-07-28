@@ -49,13 +49,13 @@ EmbreeGeometry::EmbreeGeometry(EmbreeDevicePtr device)
 ,m_S{1.0,1.0,1.0}
 {
     m_T.setIdentity();
-    std::cout << "[EmbreeGeometry::EmbreeGeometry()] constructed." << std::endl;
+    // std::cout << "[EmbreeGeometry::EmbreeGeometry()] constructed." << std::endl;
 }
 
 EmbreeGeometry::~EmbreeGeometry()
 {
     release();
-    std::cout << "[EmbreeGeometry::~EmbreeGeometry()] destroyed." << std::endl;
+    // std::cout << "[EmbreeGeometry::~EmbreeGeometry()] destroyed." << std::endl;
 }
 
 RTCGeometry EmbreeGeometry::handle() const

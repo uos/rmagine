@@ -10,17 +10,6 @@
 
 namespace rmagine {
 
-// EmbreeScene::EmbreeScene(
-//     EmbreeDevicePtr device)
-// :m_device(device)
-// ,m_scene(rtcNewScene(device->handle()))
-// {
-//     EmbreeSceneSettings settings;
-//     setQuality(settings.quality);
-//     setFlags(settings.flags);
-//     std::cout << "[EmbreeScene::EmbreeScene()] constructed." << std::endl;
-// }
-
 EmbreeScene::EmbreeScene(
     EmbreeSceneSettings settings, 
     EmbreeDevicePtr device)
@@ -33,19 +22,16 @@ EmbreeScene::EmbreeScene(
 
 EmbreeScene::~EmbreeScene()
 {
-    std::cout << "[EmbreeScene::~EmbreeScene()] start destroying." << std::endl;
+    // std::cout << "[EmbreeScene::~EmbreeScene()] start destroying." << std::endl;
 
     for(auto elem : m_geometries)
     {
         rtcDetachGeometry(m_scene, elem.first);
-        // reset self. should be automatically done by weak ptr
-        // elem.second->parent.reset();
     }
 
     m_geometries.clear();
-    std::cout << "[EmbreeScene::~EmbreeScene()] release scene." << std::endl;
     rtcReleaseScene(m_scene);
-    std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
+    // std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
 }
 
 void EmbreeScene::setQuality(RTCBuildQuality quality)
@@ -92,82 +78,6 @@ EmbreeGeometryPtr EmbreeScene::remove(unsigned int geom_id)
     return ret;
 }
 
-// template<typename T>
-// unsigned int EmbreeScene::count() const
-// {
-//     unsigned int ret = 0;
-
-//     for(auto it = m_geometries.begin(); it != m_geometries.end(); )
-//     {
-//         if(std::dynamic_pointer_cast<T>(it->second))
-//         {
-//             ret++;
-//         }
-//     }
-
-//     return ret;
-// }
-
-// std::unordered_map<unsigned int, EmbreeInstancePtr> EmbreeScene::instances() const
-// {
-//     return m_instances;
-// }
-
-// bool EmbreeScene::hasInstance(unsigned int inst_id) const
-// {
-//     return m_instances.find(inst_id) != m_instances.end();
-// }
-
-// EmbreeInstancePtr EmbreeScene::removeInstance(unsigned int inst_id)
-// {
-//     EmbreeInstancePtr ret;
-
-//     if(m_instances.find(inst_id) != m_instances.end())
-//     {
-//         rtcDetachGeometry(m_scene, inst_id);
-//         ret = m_instances[inst_id];
-//         ret->parent.reset();
-//         m_instances.erase(inst_id);
-//     }
-
-//     return ret;
-// }
-
-// unsigned int EmbreeScene::add(EmbreeMeshPtr mesh)
-// {
-//     unsigned int geom_id = rtcAttachGeometry(m_scene, mesh->handle());
-//     m_meshes[geom_id] = mesh;
-//     mesh->parent = weak_from_this();
-//     mesh->id = geom_id;
-//     mesh->release();
-//     return geom_id;
-// }
-
-// std::unordered_map<unsigned int, EmbreeMeshPtr> EmbreeScene::meshes() const
-// {
-//     return m_meshes;
-// }
-
-// bool EmbreeScene::hasMesh(unsigned int mesh_id) const
-// {
-//     return m_meshes.find(mesh_id) != m_meshes.end();
-// }
-
-// EmbreeMeshPtr EmbreeScene::removeMesh(unsigned int mesh_id)
-// {
-//     EmbreeMeshPtr ret;
-
-//     if(m_meshes.find(mesh_id) != m_meshes.end())
-//     {
-//         rtcDetachGeometry(m_scene, mesh_id);
-//         ret = m_meshes[mesh_id];
-//         ret->parent.reset();
-//         m_meshes.erase(mesh_id);
-//     }
-
-//     return ret;
-// }
-
 RTCScene EmbreeScene::handle()
 {
     return m_scene;
@@ -181,8 +91,6 @@ void EmbreeScene::commit()
 void EmbreeScene::optimize()
 {
     std::cout << "[EmbreeScene::optimize()] start optimizing scene.." << std::endl;
-
-
     std::vector<EmbreeInstancePtr> instances_to_optimize;
 
     for(auto it = m_geometries.begin(); it != m_geometries.end(); ++it)
@@ -217,20 +125,10 @@ void EmbreeScene::optimize()
 
         if(mesh)
         {
+            // TODO check if this is correct
+            mesh->setScale(instance->scale().mult_ewise(mesh->scale()));
 
-            // Matrix4x4 T;
-            // T.set(mesh->transform());
-            // Matrix4x4 S;
-            // S.setIdentity();
-            // S(0,0) = mesh->scale().x;
-            // S(1,1) = mesh->scale().y;
-            // S(2,2) = mesh->scale().z;
-
-            // total transform: first scale than isometry
-            // T = T * S;
-
-            // TODO: elemeninate Matrix4x4
-            mesh->setTransform(instance->transform());
+            mesh->setTransform(instance->transform() * mesh->transform());
             mesh->apply();
             mesh->commit();
 
@@ -241,7 +139,6 @@ void EmbreeScene::optimize()
     }
 
     std::cout << "[EmbreeScene::optimize()] finished optimizing scene.." << std::endl;
-    // commit();
 }
 
 } // namespace rmagine

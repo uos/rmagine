@@ -16,9 +16,8 @@ EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :Base(device)
 {
     m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
-    
     rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
-    std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
+    // std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
 }
 
 EmbreeMesh::EmbreeMesh( 
@@ -40,7 +39,7 @@ EmbreeMesh::EmbreeMesh(
 
 EmbreeMesh::~EmbreeMesh()
 {
-    std::cout << "[EmbreeMesh::~EmbreeMesh()] destroyed." << std::endl;
+    // std::cout << "[EmbreeMesh::~EmbreeMesh()] destroyed." << std::endl;
 }
 
 void EmbreeMesh::init(
