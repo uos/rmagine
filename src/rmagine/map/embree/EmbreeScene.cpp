@@ -10,6 +10,16 @@
 
 namespace rmagine {
 
+// EmbreeScene::EmbreeScene(
+//     EmbreeDevicePtr device)
+// :m_device(device)
+// ,m_scene(rtcNewScene(device->handle()))
+// {
+//     EmbreeSceneSettings settings;
+//     setQuality(settings.quality);
+//     setFlags(settings.flags);
+//     std::cout << "[EmbreeScene::EmbreeScene()] constructed." << std::endl;
+// }
 
 EmbreeScene::EmbreeScene(
     EmbreeSceneSettings settings, 
@@ -19,7 +29,6 @@ EmbreeScene::EmbreeScene(
 {
     setQuality(settings.quality);
     setFlags(settings.flags);
-    std::cout << "[EmbreeScene::EmbreeScene()] constructed." << std::endl;
 }
 
 EmbreeScene::~EmbreeScene()
@@ -221,7 +230,7 @@ void EmbreeScene::optimize()
             // T = T * S;
 
             // TODO: elemeninate Matrix4x4
-            mesh->setTransform(instance->T);
+            mesh->setTransform(instance->transform());
             mesh->apply();
             mesh->commit();
 

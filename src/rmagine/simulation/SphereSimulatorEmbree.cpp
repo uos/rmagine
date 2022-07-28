@@ -14,8 +14,8 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
-    // m_context.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
     rtcInitIntersectContext(&m_context);
+    std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
 }
 
 SphereSimulatorEmbree::SphereSimulatorEmbree(EmbreeMapPtr map)
@@ -44,7 +44,6 @@ void SphereSimulatorEmbree::setTsb(
 void SphereSimulatorEmbree::setTsb(
     const Transform& Tsb)
 {
-    // std::cout << "[RMagine - SphereSimulatorEmbree] setTsb" << std::endl;
     m_Tsb.resize(1);
     m_Tsb[0] = Tsb;
 }

@@ -9,6 +9,7 @@
 #include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
 
 #include <rmagine/types/Memory.hpp>
+#include <rmagine/map/embree/embree_shapes.h>
 
 // GPU
 #if defined WITH_OPTIX
@@ -34,6 +35,46 @@ Memory<LiDARModel, RAM> velodyne_model()
     model->range.min = 0.1;
     model->range.max = 130.0;
     return model;
+}
+
+
+void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
+{
+    RTCIntersectContext context;
+    rtcInitIntersectContext(&context);
+    // std::cout << "[printRaycast()] called." << std::endl;
+    // std::cout << "- instance stack size: " << context.instStackSize << std::endl;
+
+    RTCRayHit rayhit;
+    rayhit.ray.org_x = orig.x;
+    rayhit.ray.org_y = orig.y;
+    rayhit.ray.org_z = orig.z;
+    rayhit.ray.dir_x = dir.x;
+    rayhit.ray.dir_y = dir.y;
+    rayhit.ray.dir_z = dir.z;
+    rayhit.ray.tnear = 0;
+    rayhit.ray.tfar = INFINITY;
+    rayhit.ray.mask = 0;
+    rayhit.ray.flags = 0;
+    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+    rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+
+    rtcIntersect1(scene->handle(), &context, &rayhit);
+
+    std::cout << "Raycast:" << std::endl;
+
+    std::cout << "- range: " << rayhit.ray.tfar << std::endl;
+
+    if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+    {
+        
+        std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
+    }
+
+    if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
+    {
+        std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
+    }
 }
 
 int main(int argc, char** argv)
@@ -108,8 +149,48 @@ int main(int argc, char** argv)
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
 
+        // // cpu_mesh->scene.reset();
+
+        // // cpu_mesh->scene = std::make_shared<EmbreeScene>();
+
+        // auto scene = std::make_shared<EmbreeScene>();
+
+        // auto sphere = std::make_shared<EmbreeSphere>(1.0);
+        // sphere->commit();
+
+        // auto sphere_scene = std::make_shared<EmbreeScene>();
+        // sphere_scene->add(sphere);
+        // sphere_scene->commit();
+
+        // auto sphere_inst = std::make_shared<EmbreeInstance>();
+        // sphere_inst->set(sphere_scene);
+        // Transform T;
+        // T.setIdentity();
+        // sphere_inst->setTransform(T);
+        // sphere_inst->setScale({5.0, 5.0, 5.0});
+        // sphere_inst->apply();
+        // sphere_inst->commit();
+
+        // scene->add(sphere_inst);
+        
+        // scene->commit();
+        // // cpu_mesh->scene = scene;
+
+        // std::cout << "Raycast.." << std::endl;
+        // printRaycast(scene, {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+        
+        // // EmbreeMapPtr cpu_mesh;
+        // std::cout << "Default constructor" << std::endl;
+        // EmbreeMapPtr cpu_mesh = std::make_shared<EmbreeMap>();
+        // cpu_mesh->scene = scene;
+
+        // return 0;
+
+        
         // return 0;
         // std::cout << "Mesh loaded to CPU." << std::endl;
+        // SphereSimulatorEmbreePtr cpu_sim;
         SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
         // std::cout << "Initialized CPU simulator." << std::endl;
 
@@ -150,10 +231,6 @@ int main(int argc, char** argv)
         std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
 
         // clean up
-        cpu_sim.reset();
-        std::cout << "sim resetted." << std::endl;
-        cpu_mesh.reset();
-        std::cout << "map resetted" << std::endl;
 
     } else if(device == "gpu") {
         #if defined WITH_OPTIX

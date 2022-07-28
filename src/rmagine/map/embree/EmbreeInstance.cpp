@@ -9,7 +9,8 @@
 #include <rmagine/map/EmbreeScene.hpp>
 
 
-namespace rmagine {
+namespace rmagine 
+{
 
 EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 :Base(device)
@@ -21,16 +22,6 @@ EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 EmbreeInstance::~EmbreeInstance()
 {
     std::cout << "[EmbreeInstance::~EmbreeInstance()] destroyed." << std::endl;
-}
-
-void EmbreeInstance::setTransform(const Matrix4x4& T)
-{
-    this->T = T;
-}
-
-void EmbreeInstance::setTransform(const Transform& T)
-{
-    this->T.set(T);
 }
 
 void EmbreeInstance::set(EmbreeScenePtr scene)
@@ -48,7 +39,18 @@ EmbreeScenePtr EmbreeInstance::scene()
 
 void EmbreeInstance::apply()
 {
-    rtcSetGeometryTransform(m_handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &T.data[0][0]);
+    Matrix4x4 M;
+    M.set(m_T);
+
+    Matrix4x4 Ms;
+    Ms.setIdentity();
+    Ms(0,0) = m_S.x;
+    Ms(1,1) = m_S.y;
+    Ms(2,2) = m_S.z;
+
+    M = M * Ms;
+
+    rtcSetGeometryTransform(m_handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &M.data[0][0]);
 }
 
 } // namespace rmagine

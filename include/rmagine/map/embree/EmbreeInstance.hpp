@@ -37,11 +37,6 @@ public:
     EmbreeInstance(EmbreeDevicePtr device = embree_default_device() );
     virtual ~EmbreeInstance();
 
-    Matrix4x4 T;
-
-    void setTransform(const Matrix4x4& T);
-    void setTransform(const Transform& T);
-
     void set(EmbreeScenePtr scene);
     EmbreeScenePtr scene();
 
@@ -56,6 +51,7 @@ public:
     void apply();
 
 private:
+
     // scene that is instanced by this object
     EmbreeScenePtr m_scene;
 };

@@ -14,10 +14,9 @@ namespace rmagine {
 
 EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :Base(device)
-,m_S{1.0, 1.0, 1.0}
 {
     m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
-    m_T.setIdentity();
+    
     rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
     std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
 }
@@ -120,33 +119,6 @@ void EmbreeMesh::init(
     computeFaceNormals();
 
     apply();
-}
-
-void EmbreeMesh::setTransform(const Transform& T)
-{
-    m_T = T;
-}
-
-void EmbreeMesh::setTransform(const Matrix4x4& T)
-{
-    Transform T2;
-    T2.set(T);
-    setTransform(T2);
-}
-
-Transform EmbreeMesh::transform() const
-{
-    return m_T;
-}
-
-void EmbreeMesh::setScale(const Vector3& S)
-{
-    m_S = S;
-}
-
-Vector3 EmbreeMesh::scale() const
-{
-    return m_S;
 }
 
 void EmbreeMesh::computeFaceNormals()

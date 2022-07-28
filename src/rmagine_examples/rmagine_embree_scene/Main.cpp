@@ -290,17 +290,15 @@ void scene_7()
         Transform T;
         T.setIdentity();
         T.t.y = t;
-        Matrix4x4 M;
-        M.set(T);
 
-        // todo test scaling
-        Matrix4x4 S;
-        S.setIdentity();
-        S(0,0) = 0.01 * static_cast<float>(i + 1);
-        S(1,1) = 0.01 * static_cast<float>(i + 1);
-        S(2,2) = 0.01 * static_cast<float>(i + 1);
+        Vector3 scale = {
+            0.01f * static_cast<float>(i + 1),
+            0.01f * static_cast<float>(i + 1),
+            0.01f * static_cast<float>(i + 1)
+        };
 
-        sphere_inst->setTransform(M * S);
+        sphere_inst->setTransform(T);
+        sphere_inst->setScale(scale);
         sphere_inst->apply();
         sphere_inst->commit();
 
@@ -334,12 +332,11 @@ int main(int argc, char** argv)
     // std::cout << "SCENE EXAMPLE 5" << std::endl;
     // scene_5();
 
-    std::cout << "SCENE EXAMPLE 6" << std::endl;
-    scene_6();
+    // std::cout << "SCENE EXAMPLE 6" << std::endl;
+    // scene_6();
 
-    // std::cout << "SCENE EXAMPLE 7" << std::endl;
-    // scene_7();
-
+    std::cout << "SCENE EXAMPLE 7" << std::endl;
+    scene_7();
 
     return 0;
 }

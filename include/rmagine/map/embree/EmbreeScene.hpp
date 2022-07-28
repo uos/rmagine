@@ -46,6 +46,9 @@ class EmbreeScene
 : public std::enable_shared_from_this<EmbreeScene>
 {
 public:
+    // EmbreeScene(
+    //     EmbreeDevicePtr device = embree_default_device());
+
     EmbreeScene(
         EmbreeSceneSettings settings = {}, 
         EmbreeDevicePtr device = embree_default_device());

@@ -43,7 +43,6 @@
 
 #include <embree3/rtcore.h>
 
-#include "Map.hpp"
 #include "AssimpMap.hpp"
 
 #include <assimp/Importer.hpp>
@@ -92,12 +91,10 @@ struct PointQueryUserData
     ClosestPointResult* result;
 };
 
-class EmbreeMap : public Map {
+class EmbreeMap {
 public:
-    EmbreeMap();
-    EmbreeMap(const aiScene* ascene);
-    EmbreeMap(EmbreeDevicePtr device);
-    EmbreeMap(EmbreeDevicePtr device, const aiScene* ascene);
+    EmbreeMap(EmbreeDevicePtr device = embree_default_device());
+    EmbreeMap(const aiScene* ascene, EmbreeDevicePtr device = embree_default_device());
     
     ~EmbreeMap();
 
@@ -167,7 +164,7 @@ static EmbreeMapPtr importEmbreeMap(
         std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
     }
 
-    return std::make_shared<EmbreeMap>(device, scene);
+    return std::make_shared<EmbreeMap>(scene, device);
 }
 
 } // namespace rmagine

@@ -55,15 +55,6 @@ public:
     Memory<Vector, RAM> vertex_normals;
     Memory<Vector, RAM> face_normals;
 
-    // PUBLIC FUNCTIONS
-    // RTCGeometry handle() const;
-
-    void setTransform(const Matrix4x4& T);
-    void setTransform(const Transform& T);
-    Transform transform() const;
-
-    void setScale(const Vector3& S);
-    Vector3 scale() const;
 
     /**
      * @brief Apply new Transform and Scale to buffers
@@ -81,9 +72,6 @@ private:
 
     Memory<Vector, RAM> face_normals_transformed;
     Memory<Vector, RAM> vertex_normals_transformed;
-
-    Transform m_T;
-    Vector3 m_S;
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;

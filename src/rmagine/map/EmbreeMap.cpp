@@ -137,36 +137,24 @@ void print(const aiMatrix4x4& T)
     std::cout << T.d1 << " " << T.d2 << " " << T.d3 << " " << T.d4 << std::endl;
 }
 
-EmbreeMap::EmbreeMap()
-:device(new EmbreeDevice)
-,scene(new EmbreeScene({},device))
-{
-    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
-}
-
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 :device(device)
-,scene(new EmbreeScene({},device))
 {
-    scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
+    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 }
 
-EmbreeMap::EmbreeMap(EmbreeDevicePtr device, const aiScene* ascene)
+EmbreeMap::EmbreeMap(const aiScene* ascene, EmbreeDevicePtr device)
 :EmbreeMap(device)
-{
-    set(ascene);
-}
-
-EmbreeMap::EmbreeMap(const aiScene* ascene)
-:EmbreeMap()
 {
     set(ascene);
 }
 
 void EmbreeMap::set(const aiScene* ascene)
 {
+    EmbreeSceneSettings tmp;
+    scene = std::make_shared<EmbreeScene>(tmp, device);
+
     // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 
@@ -190,8 +178,8 @@ void EmbreeMap::set(const aiScene* ascene)
     // if accelerated: how to handle object ids. Geometry ID or instance ID?
     bool instanced = true;
 
-    if(instanced)
-    {
+    // if(instanced)
+    // {
         std::cout << "Using Embree with Instance Level" << std::endl;
         for(auto instance : instances)
         {
@@ -215,21 +203,22 @@ void EmbreeMap::set(const aiScene* ascene)
             }
         }
 
-        scene->optimize();
-    } else {
+        // scene->optimize();
+    // } else {
 
-        std::cout << "Using Embree without Instance Level" << std::endl;
-        // transform each mesh
-        for(auto mesh : meshes)
-        {
-            auto instance = mesh->parent.lock()->parents.begin()->lock();
+    //     std::cout << "Using Embree without Instance Level" << std::endl;
+    //     // transform each mesh
+    //     for(auto mesh : meshes)
+    //     {
+    //         auto instance = mesh->parent.lock()->parents.begin()->lock();
 
-            mesh->setTransform(instance->T);
-            instance->T.setIdentity();
+    //         mesh->setTransform(instance->T);
+            
+    //         instance->T.setIdentity();
 
-            scene->add(mesh);
-        }
-    }
+    //         scene->add(mesh);
+    //     }
+    // }
 
     std::cout << "Commit Top Level Scene:" << std::endl;
     std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
@@ -237,7 +226,7 @@ void EmbreeMap::set(const aiScene* ascene)
     scene->commit();
 
     std::cout << "done. " << std::endl;
-    rtcInitPointQueryContext(&pq_context);
+    // rtcInitPointQueryContext(&pq_context);
 
     std::cout << "EmbreeMap created." << std::endl;
 }
@@ -293,6 +282,7 @@ std::vector<EmbreeMeshPtr> EmbreeMap::loadMeshes(const aiScene* ascene)
     return meshes;
 }
 
+
 std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
     const aiNode* root_node,
     std::vector<EmbreeMeshPtr>& meshes)
@@ -320,7 +310,14 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 
                 // convert assimp matrix to internal type
                 instance->name = n->mName.C_Str();
-                instance->T = convert(n->mTransformation);
+
+                Matrix4x4 M = convert(n->mTransformation);
+                Transform T;
+                Vector3 scale;
+                decompose(M, T, scale);
+
+                instance->setTransform(T);
+                instance->setScale(scale);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.
 
