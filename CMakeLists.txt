@@ -143,6 +143,7 @@ add_library(rmagine_embree SHARED
     src/rmagine/map/embree/EmbreeMesh.cpp
     src/rmagine/map/embree/EmbreeScene.cpp
     src/rmagine/map/embree/EmbreeInstance.cpp
+    src/rmagine/map/embree/EmbreePoints.cpp
     
     src/rmagine/map/embree/embree_shapes.cpp
 

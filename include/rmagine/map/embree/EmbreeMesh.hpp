@@ -73,21 +73,7 @@ public:
 
     void computeFaceNormals();
 
-    // void commit();
-    // void release();
-    // void disable();
-    // void enable();
-
     void markAsChanged();
-
-    // embree fields
-    // weak ptr to parent. Mesh has no right to let scene stay alive
-    // EmbreeSceneWPtr parent;
-    // id only valid if parent is set
-    // unsigned int id;
-
-    // std::string name;
-
 private:
     // embree constructed buffers
     unsigned int Nvertices;
@@ -98,11 +84,6 @@ private:
 
     Transform m_T;
     Vector3 m_S;
-
-    // RTCGeometry m_handle;
-
-    // connections
-    // EmbreeDevicePtr m_device;
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;
