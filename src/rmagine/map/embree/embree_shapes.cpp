@@ -1,4 +1,4 @@
-#include "rmagine/map/embree_shapes.h"
+#include "rmagine/map/embree/embree_shapes.h"
 #include <rmagine/util/synthetic.h>
 
 namespace rmagine

@@ -1,4 +1,4 @@
-#include "rmagine/map/EmbreeDevice.hpp"
+#include "rmagine/map/embree/EmbreeDevice.hpp"
 
 #include <iostream>
 #include <cassert>

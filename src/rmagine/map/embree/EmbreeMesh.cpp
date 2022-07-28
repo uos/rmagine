@@ -1,4 +1,4 @@
-#include "rmagine/map/EmbreeMesh.hpp"
+#include "rmagine/map/embree/EmbreeMesh.hpp"
 
 #include <iostream>
 
@@ -40,12 +40,7 @@ EmbreeMesh::EmbreeMesh(
 }
 
 EmbreeMesh::~EmbreeMesh()
-{   
-    // if(parent.lock())
-    // {
-        // std::cout << "Remove mesh " << id << " from scene" << std::endl;
-        // disable();
-    // }
+{
     std::cout << "[EmbreeMesh::~EmbreeMesh()] destroyed." << std::endl;
 }
 

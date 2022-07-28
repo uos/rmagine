@@ -1,4 +1,4 @@
-#include "rmagine/map/EmbreeInstance.hpp"
+#include "rmagine/map/embree/EmbreeInstance.hpp"
 
 #include <iostream>
 
@@ -20,7 +20,6 @@ EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 
 EmbreeInstance::~EmbreeInstance()
 {
-    rtcDisableGeometry(m_handle);
     std::cout << "[EmbreeInstance::~EmbreeInstance()] destroyed." << std::endl;
 }
 

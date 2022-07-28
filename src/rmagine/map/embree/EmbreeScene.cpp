@@ -1,7 +1,7 @@
-#include "rmagine/map/EmbreeScene.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
 
-#include <rmagine/map/EmbreeInstance.hpp>
-#include <rmagine/map/EmbreeMesh.hpp>
+#include <rmagine/map/embree/EmbreeInstance.hpp>
+#include <rmagine/map/embree/EmbreeMesh.hpp>
 
 #include <iostream>
 
@@ -25,8 +25,15 @@ EmbreeScene::EmbreeScene(
 EmbreeScene::~EmbreeScene()
 {
     std::cout << "[EmbreeScene::~EmbreeScene()] start destroying." << std::endl;
-    m_geometries.clear();
 
+    for(auto elem : m_geometries)
+    {
+        rtcDetachGeometry(m_scene, elem.first);
+        // reset self. should be automatically done by weak ptr
+        // elem.second->parent.reset();
+    }
+
+    m_geometries.clear();
     std::cout << "[EmbreeScene::~EmbreeScene()] release scene." << std::endl;
     rtcReleaseScene(m_scene);
     std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
@@ -48,7 +55,6 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
     m_geometries[geom_id] = geom;
     geom->parent = weak_from_this();
     geom->id = geom_id;
-    geom->release();
     return geom_id;
 }
 
@@ -165,66 +171,68 @@ void EmbreeScene::commit()
 
 void EmbreeScene::optimize()
 {
-    std::unordered_map<unsigned int, unsigned int> inst_mesh_map;
+    std::cout << "[EmbreeScene::optimize()] start optimizing scene.." << std::endl;
 
-    for(auto elem : m_geometries)
+
+    std::vector<EmbreeInstancePtr> instances_to_optimize;
+
+    for(auto it = m_geometries.begin(); it != m_geometries.end(); ++it)
     {
-        unsigned int geom_id = elem.first;
-        EmbreeInstancePtr inst = std::dynamic_pointer_cast<EmbreeInstance>(elem.second);
+        EmbreeInstancePtr instance = std::dynamic_pointer_cast<EmbreeInstance>(it->second);
 
-        if(inst)
-        {   
-            if(inst->scene()->parents.size() == 1 && inst->scene()->geometries().size() == 1)
+        if(instance)
+        {
+            if(instance->scene()->parents.size() == 1 && instance->scene()->geometries().size() == 1)
             {
-                // only one mesh for instance! instread of instance use transformed mesh
-
                 EmbreeMeshPtr mesh = std::dynamic_pointer_cast<EmbreeMesh>(
-                    inst->scene()->geometries().begin()->second);
-
+                    instance->scene()->geometries().begin()->second);
                 if(mesh)
                 {
-                     // Matrix4x4 T;
-                    // T.set(mesh->transform());
-                    // Matrix4x4 S;
-                    // S.setIdentity();
-                    // S(0,0) = mesh->scale().x;
-                    // S(1,1) = mesh->scale().y;
-                    // S(2,2) = mesh->scale().z;
-
-                    // total transform: first scale than isometry
-                    // T = T * S;
-
-                    // shit: elemeninate Matrix4x4
-                    mesh->setTransform(inst->T);
-                    mesh->apply();
-                    mesh->commit();
-
-                    inst->T.setIdentity();
-                    add(mesh);
-                    std::cout << elem.first <<  " Can be optimized!" << std::endl;
+                    instances_to_optimize.push_back(instance);
                 }
             }
         }
     }
 
-    for(auto it = m_geometries.begin(); it != m_geometries.end(); )
+    // remove all
+    for(auto instance : instances_to_optimize)
     {
-        EmbreeInstancePtr inst = std::dynamic_pointer_cast<EmbreeInstance>(it->second);
-
-        if(inst)
+        remove(instance->id);
+        if(instance->parent.lock())
         {
-            if(inst->scene()->parents.size() == 1 && inst->scene()->geometries().size() == 1)
-            {
-                inst->disable();
-                it = m_geometries.erase(it);
-            } else {
-                ++it;
-            }
+            std::cout << "WARNING " << instance->id << " was not removed correctly" << std::endl;
         }
-        
+
+        EmbreeMeshPtr mesh = std::dynamic_pointer_cast<EmbreeMesh>(
+            instance->scene()->geometries().begin()->second);
+
+        if(mesh)
+        {
+
+            // Matrix4x4 T;
+            // T.set(mesh->transform());
+            // Matrix4x4 S;
+            // S.setIdentity();
+            // S(0,0) = mesh->scale().x;
+            // S(1,1) = mesh->scale().y;
+            // S(2,2) = mesh->scale().z;
+
+            // total transform: first scale than isometry
+            // T = T * S;
+
+            // TODO: elemeninate Matrix4x4
+            mesh->setTransform(instance->T);
+            mesh->apply();
+            mesh->commit();
+
+            // instance->T.setIdentity();
+            unsigned int geom_id = add(mesh);
+            std::cout << "- instance " << instance->id << " optimized to mesh " << geom_id << std::endl;
+        }
     }
 
-    commit();
+    std::cout << "[EmbreeScene::optimize()] finished optimizing scene.." << std::endl;
+    // commit();
 }
 
 } // namespace rmagine

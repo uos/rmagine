@@ -1,5 +1,5 @@
 
-#include "rmagine/map/EmbreeGeometry.hpp"
+#include "rmagine/map/embree/EmbreeGeometry.hpp"
 #include <iostream>
 
 namespace rmagine

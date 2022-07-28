@@ -172,13 +172,18 @@ void EmbreeMap::set(const aiScene* ascene)
 
     // meshes = loadMeshes(ascene);
 
+    
     std::vector<EmbreeMeshPtr> meshes_tmp = loadMeshes(ascene);
+    std::cout << "Meshes loaded: " <<  meshes_tmp.size() << std::endl;
+    
     std::vector<EmbreeInstancePtr> instances = loadInstances(ascene->mRootNode, meshes_tmp);
 
-    for(auto mesh : meshes_tmp)
-    {
-        meshes.insert(mesh);
-    }
+    std::cout << "Instances loaded: " << instances.size() << std::endl;
+
+    // for(auto mesh : meshes_tmp)
+    // {
+    //     meshes.insert(mesh);
+    // }
 
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime
@@ -195,10 +200,22 @@ void EmbreeMap::set(const aiScene* ascene)
             {
                 std::cout << "WARNING Added instance has no parent scene!" << std::endl;
             }
-            std::cout << "Added instance " << inst_id << std::endl;
+            std::cout << "Added instance " << instance->name << " " << inst_id << std::endl;
         }
 
-        // scene->optimize();
+        for(auto mesh : meshes_tmp)
+        {
+            if(!mesh->parent.lock())
+            {
+                std::cout << "Add mesh without parent " << mesh->name << " " << mesh->id << std::endl;
+                std::cout << "- vertices, faces: " << mesh->vertices.size() << ", " << mesh->Nfaces << std::endl;
+                // has not parent push to scene
+                unsigned int mesh_id = scene->add(mesh);
+                std::cout << "Added mesh " << mesh_id << std::endl;
+            }
+        }
+
+        scene->optimize();
     } else {
 
         std::cout << "Using Embree without Instance Level" << std::endl;
@@ -217,9 +234,12 @@ void EmbreeMap::set(const aiScene* ascene)
     std::cout << "Commit Top Level Scene:" << std::endl;
     std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
     std::cout << "- " << scene->count<EmbreeInstance>() << " instances" << std::endl;
-
     scene->commit();
+
+    std::cout << "done. " << std::endl;
     rtcInitPointQueryContext(&pq_context);
+
+    std::cout << "EmbreeMap created." << std::endl;
 }
 
 unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)
@@ -265,6 +285,7 @@ std::vector<EmbreeMeshPtr> EmbreeMap::loadMeshes(const aiScene* ascene)
     {
         const aiMesh* amesh = ascene->mMeshes[mesh_id];
         EmbreeMeshPtr mesh(new EmbreeMesh(amesh, device));
+        mesh->name = amesh->mName.C_Str();
         mesh->commit();
         meshes.push_back(mesh);
     }
@@ -298,6 +319,7 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 EmbreeInstancePtr instance(new EmbreeInstance(device));
                 
                 // convert assimp matrix to internal type
+                instance->name = n->mName.C_Str();
                 instance->T = convert(n->mTransformation);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.

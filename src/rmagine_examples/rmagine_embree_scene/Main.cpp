@@ -8,7 +8,7 @@
 
 #include <rmagine/map/EmbreeMap.hpp>
 
-#include <rmagine/map/embree_shapes.h>
+#include <rmagine/map/embree/embree_shapes.h>
 #include <rmagine/util/prints.h>
 
 using namespace rmagine;

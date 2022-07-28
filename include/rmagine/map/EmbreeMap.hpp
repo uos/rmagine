@@ -63,10 +63,10 @@
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/math/assimp_conversions.h>
 
-#include "EmbreeDevice.hpp"
-#include "EmbreeScene.hpp"
-#include "EmbreeMesh.hpp"
-#include "EmbreeInstance.hpp"
+#include "embree/EmbreeDevice.hpp"
+#include "embree/EmbreeScene.hpp"
+#include "embree/EmbreeMesh.hpp"
+#include "embree/EmbreeInstance.hpp"
 
 
 namespace rmagine 
