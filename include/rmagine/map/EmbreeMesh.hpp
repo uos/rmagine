@@ -12,6 +12,7 @@
 #include <memory>
 #include <embree3/rtcore.h>
 #include "EmbreeDevice.hpp"
+#include "EmbreeGeometry.hpp"
 
 namespace rmagine
 {
@@ -26,8 +27,10 @@ namespace rmagine
  * 
  */
 class EmbreeMesh
+: public EmbreeGeometry
 {
 public:
+    using Base = EmbreeGeometry;
     EmbreeMesh( EmbreeDevicePtr device = embree_default_device());
 
     EmbreeMesh( unsigned int Nvertices, 
@@ -37,7 +40,7 @@ public:
     EmbreeMesh( const aiMesh* amesh,
                 EmbreeDevicePtr device = embree_default_device());
 
-    ~EmbreeMesh();
+    virtual ~EmbreeMesh();
 
     void init(unsigned int Nvertices, unsigned int Nfaces);
     void init(const aiMesh* amesh);
@@ -53,7 +56,7 @@ public:
     Memory<Vector, RAM> face_normals;
 
     // PUBLIC FUNCTIONS
-    RTCGeometry handle() const;
+    // RTCGeometry handle() const;
 
     void setTransform(const Matrix4x4& T);
     void setTransform(const Transform& T);
@@ -70,20 +73,20 @@ public:
 
     void computeFaceNormals();
 
-    void commit();
-    void release();
-    void disable();
-    void enable();
+    // void commit();
+    // void release();
+    // void disable();
+    // void enable();
 
     void markAsChanged();
 
     // embree fields
     // weak ptr to parent. Mesh has no right to let scene stay alive
-    EmbreeSceneWPtr parent;
+    // EmbreeSceneWPtr parent;
     // id only valid if parent is set
-    unsigned int id;
+    // unsigned int id;
 
-    std::string name;
+    // std::string name;
 
 private:
     // embree constructed buffers
@@ -96,10 +99,10 @@ private:
     Transform m_T;
     Vector3 m_S;
 
-    RTCGeometry m_handle;
+    // RTCGeometry m_handle;
 
     // connections
-    EmbreeDevicePtr m_device;
+    // EmbreeDevicePtr m_device;
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;

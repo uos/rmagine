@@ -37,6 +37,7 @@ EmbreeCube::EmbreeCube(
     std::vector<Face> _faces;
 
     genCube(_vertices, _faces, side_triangles_exp);
+    init(_vertices.size(), _faces.size());
 
     std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
     std::copy(_faces.begin(), _faces.end(), faces);
@@ -55,6 +56,7 @@ EmbreePlane::EmbreePlane(
     std::vector<Face> _faces;
 
     genPlane(_vertices, _faces, side_triangles_exp);
+    init(_vertices.size(), _faces.size());
 
     std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
     std::copy(_faces.begin(), _faces.end(), faces);

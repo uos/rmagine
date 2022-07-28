@@ -13,10 +13,10 @@
 namespace rmagine {
 
 EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
-:m_device(device)
-,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+:Base(device)
 ,m_S{1.0, 1.0, 1.0}
 {
+    m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
     m_T.setIdentity();
     rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
     std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
@@ -41,11 +41,11 @@ EmbreeMesh::EmbreeMesh(
 
 EmbreeMesh::~EmbreeMesh()
 {   
-    if(parent.lock())
-    {
-        std::cout << "Remove mesh " << id << " from scene" << std::endl;
-        disable();
-    }
+    // if(parent.lock())
+    // {
+        // std::cout << "Remove mesh " << id << " from scene" << std::endl;
+        // disable();
+    // }
     std::cout << "[EmbreeMesh::~EmbreeMesh()] destroyed." << std::endl;
 }
 
@@ -127,11 +127,6 @@ void EmbreeMesh::init(
     apply();
 }
 
-RTCGeometry EmbreeMesh::handle() const
-{
-    return m_handle;
-}
-
 void EmbreeMesh::setTransform(const Transform& T)
 {
     m_T = T;
@@ -173,16 +168,6 @@ void EmbreeMesh::computeFaceNormals()
     }
 }
 
-void EmbreeMesh::commit()
-{
-    rtcCommitGeometry(m_handle);
-}
-
-void EmbreeMesh::release()
-{
-    rtcReleaseGeometry(m_handle);
-}
-
 void EmbreeMesh::apply()
 {
     for(unsigned int i=0; i<Nvertices; i++)
@@ -201,16 +186,6 @@ void EmbreeMesh::apply()
         auto vertex_normal_scaled = vertex_normals[i].mult_ewise(m_S);
         vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
     }
-}
-
-void EmbreeMesh::disable()
-{
-    rtcDisableGeometry(m_handle);
-}
-
-void EmbreeMesh::enable()
-{
-    rtcEnableGeometry(m_handle);
 }
 
 void EmbreeMesh::markAsChanged()

@@ -215,8 +215,8 @@ void EmbreeMap::set(const aiScene* ascene)
     }
 
     std::cout << "Commit Top Level Scene:" << std::endl;
-    std::cout << "- " << scene->meshes().size() << " meshes" << std::endl;
-    std::cout << "- " << scene->instances().size() << " instances" << std::endl;
+    std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
+    std::cout << "- " << scene->count<EmbreeInstance>() << " instances" << std::endl;
 
     scene->commit();
     rtcInitPointQueryContext(&pq_context);

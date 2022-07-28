@@ -56,16 +56,25 @@ public:
 
     void setFlags(RTCSceneFlags flags);
 
-    unsigned int add(EmbreeInstancePtr inst);
-    std::unordered_map<unsigned int, EmbreeInstancePtr> instances() const;
-    bool hasInstance(unsigned int inst_id) const;
-    EmbreeInstancePtr removeInstance(unsigned int inst_id);
+    unsigned int add(EmbreeGeometryPtr geom);
+    std::unordered_map<unsigned int, EmbreeGeometryPtr> geometries() const;
+    bool has(unsigned int geom_id) const;
+    EmbreeGeometryPtr remove(unsigned int geom_id);
 
 
-    unsigned int add(EmbreeMeshPtr mesh);
-    std::unordered_map<unsigned int, EmbreeMeshPtr> meshes() const;
-    bool hasMesh(unsigned int mesh_id) const;
-    EmbreeMeshPtr removeMesh(unsigned int mesh_id);
+    template<typename T>
+    unsigned int count() const;
+
+    // unsigned int add(EmbreeInstancePtr inst);
+    // std::unordered_map<unsigned int, EmbreeInstancePtr> instances() const;
+    // bool hasInstance(unsigned int inst_id) const;
+    // EmbreeInstancePtr removeInstance(unsigned int inst_id);
+
+
+    // // unsigned int add(EmbreeMeshPtr mesh);
+    // std::unordered_map<unsigned int, EmbreeMeshPtr> meshes() const;
+    // bool hasMesh(unsigned int mesh_id) const;
+    // EmbreeMeshPtr removeMesh(unsigned int mesh_id);
 
     RTCScene handle();
 
@@ -79,16 +88,31 @@ public:
 
     // Scene has no right to let parents stay alive
     EmbreeInstanceWSet parents;
-
 private:
 
     std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
-    std::unordered_map<unsigned int, EmbreeInstancePtr > m_instances;
-    std::unordered_map<unsigned int, EmbreeMeshPtr > m_meshes;
 
     RTCScene m_scene;
     EmbreeDevicePtr m_device;
 };
+
+
+template<typename T>
+unsigned int EmbreeScene::count() const
+{
+    unsigned int ret = 0;
+
+    for(auto it = m_geometries.begin(); it != m_geometries.end(); ++it)
+    {
+        if(std::dynamic_pointer_cast<T>(it->second))
+        {
+            ret++;
+        }
+    }
+
+    return ret;
+}
+
 
 } // namespace rmagine
 

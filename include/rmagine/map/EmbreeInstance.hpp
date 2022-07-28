@@ -54,6 +54,7 @@ public:
      * 
      */
     void apply();
+
 private:
     // scene that is instanced by this object
     EmbreeScenePtr m_scene;

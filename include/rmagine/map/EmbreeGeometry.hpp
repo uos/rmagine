@@ -33,6 +33,7 @@ public:
 
     EmbreeSceneWPtr parent;
     unsigned int id;
+    std::string name;
 
 protected:
     EmbreeDevicePtr m_device;
