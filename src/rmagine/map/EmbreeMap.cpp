@@ -137,29 +137,9 @@ void print(const aiMatrix4x4& T)
     std::cout << T.d1 << " " << T.d2 << " " << T.d3 << " " << T.d4 << std::endl;
 }
 
-void convert(const aiMatrix4x4& aT, Matrix4x4& T)
-{
-    T(0,0) = aT.a1;
-    T(0,1) = aT.a2;
-    T(0,2) = aT.a3;
-    T(0,3) = aT.a4;
-    T(1,0) = aT.b1;
-    T(1,1) = aT.b2;
-    T(1,2) = aT.b3;
-    T(1,3) = aT.b4;
-    T(2,0) = aT.c1;
-    T(2,1) = aT.c2;
-    T(2,2) = aT.c3;
-    T(2,3) = aT.c4;
-    T(3,0) = aT.d1;
-    T(3,1) = aT.d2;
-    T(3,2) = aT.d3;
-    T(3,3) = aT.d4;
-}
-
 EmbreeMap::EmbreeMap()
 :device(new EmbreeDevice)
-,scene(new EmbreeScene(device))
+,scene(new EmbreeScene({},device))
 {
     scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
@@ -167,7 +147,7 @@ EmbreeMap::EmbreeMap()
 
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 :device(device)
-,scene(new EmbreeScene(device))
+,scene(new EmbreeScene({},device))
 {
     scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
@@ -200,8 +180,6 @@ void EmbreeMap::set(const aiScene* ascene)
         meshes.insert(mesh);
     }
 
-
-
     // instancing implemented. can be enabled with this flag
     // - problem: slower runtime
     // if accelerated: how to handle object ids. Geometry ID or instance ID?
@@ -213,17 +191,22 @@ void EmbreeMap::set(const aiScene* ascene)
         for(auto instance : instances)
         {
             unsigned int inst_id = scene->add(instance);
+            if(!instance->parent.lock())
+            {
+                std::cout << "WARNING Added instance has no parent scene!" << std::endl;
+            }
             std::cout << "Added instance " << inst_id << std::endl;
         }
 
-        scene->optimize();
-
+        // scene->optimize();
     } else {
+
         std::cout << "Using Embree without Instance Level" << std::endl;
         // transform each mesh
         for(auto mesh : meshes)
         {
-            auto instance = *mesh->parent->parents.begin();
+            auto instance = mesh->parent.lock()->parents.begin()->lock();
+
             mesh->setTransform(instance->T);
             instance->T.setIdentity();
 
@@ -281,7 +264,7 @@ std::vector<EmbreeMeshPtr> EmbreeMap::loadMeshes(const aiScene* ascene)
     for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
     {
         const aiMesh* amesh = ascene->mMeshes[mesh_id];
-        EmbreeMeshPtr mesh(new EmbreeMesh(device, amesh));
+        EmbreeMeshPtr mesh(new EmbreeMesh(amesh, device));
         mesh->commit();
         meshes.push_back(mesh);
     }
@@ -298,7 +281,7 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
 
     for(EmbreeMeshPtr mesh : meshes)
     {
-        EmbreeScenePtr mesh_scene(new EmbreeScene(device));
+        EmbreeScenePtr mesh_scene(new EmbreeScene({},device));
         mesh_scene->add(mesh);
         mesh_scene->commit();
         mesh_scenes.push_back(mesh_scene);
@@ -315,7 +298,7 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 EmbreeInstancePtr instance(new EmbreeInstance(device));
                 
                 // convert assimp matrix to internal type
-                convert(n->mTransformation, instance->T);
+                instance->T = convert(n->mTransformation);
                 unsigned int mesh_id = n->mMeshes[0];
                 // instance.
 
@@ -324,6 +307,7 @@ std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
                 instance->set(mesh_scene);
 
                 // commit
+                instance->apply();
                 instance->commit();
 
                 // attach to scene

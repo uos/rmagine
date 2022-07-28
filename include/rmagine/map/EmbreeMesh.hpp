@@ -11,7 +11,7 @@
 
 #include <memory>
 #include <embree3/rtcore.h>
-
+#include "EmbreeDevice.hpp"
 
 namespace rmagine
 {
@@ -28,35 +28,47 @@ namespace rmagine
 class EmbreeMesh
 {
 public:
-    EmbreeMesh( EmbreeDevicePtr device);
+    EmbreeMesh( EmbreeDevicePtr device = embree_default_device());
 
-    EmbreeMesh( EmbreeDevicePtr device, 
-                unsigned int Nvertices, 
-                unsigned int Nfaces);
+    EmbreeMesh( unsigned int Nvertices, 
+                unsigned int Nfaces,
+                EmbreeDevicePtr device = embree_default_device());
 
-    EmbreeMesh( EmbreeDevicePtr device,
-                const aiMesh* amesh);
+    EmbreeMesh( const aiMesh* amesh,
+                EmbreeDevicePtr device = embree_default_device());
 
     ~EmbreeMesh();
 
+    void init(unsigned int Nvertices, unsigned int Nfaces);
+    void init(const aiMesh* amesh);
+
+    // PUBLIC ATTRIBUTES
     Memory<Vector, RAM> vertices;
 
     unsigned int Nfaces;
     Face* faces;
     
-    // more custom attributes
-    Memory<Vector, RAM> normals;
+    // vertex and face normals
+    Memory<Vector, RAM> vertex_normals;
+    Memory<Vector, RAM> face_normals;
 
+    // PUBLIC FUNCTIONS
     RTCGeometry handle() const;
 
-    void setScale(const Vector3& S);
     void setTransform(const Matrix4x4& T);
     void setTransform(const Transform& T);
-
     Transform transform() const;
+
+    void setScale(const Vector3& S);
     Vector3 scale() const;
 
+    /**
+     * @brief Apply new Transform and Scale to buffers
+     * 
+     */
     void apply();
+
+    void computeFaceNormals();
 
     void commit();
     void release();
@@ -66,16 +78,20 @@ public:
     void markAsChanged();
 
     // embree fields
-    EmbreeScenePtr parent;
+    // weak ptr to parent. Mesh has no right to let scene stay alive
+    EmbreeSceneWPtr parent;
     // id only valid if parent is set
     unsigned int id;
-private:
 
+    std::string name;
+
+private:
     // embree constructed buffers
     unsigned int Nvertices;
     Vertex* vertices_transformed;
 
-    Memory<Vector, RAM> normals_transformed;
+    Memory<Vector, RAM> face_normals_transformed;
+    Memory<Vector, RAM> vertex_normals_transformed;
 
     Transform m_T;
     Vector3 m_S;

@@ -8,25 +8,53 @@
 #include <rmagine/map/EmbreeDevice.hpp>
 #include <rmagine/map/EmbreeScene.hpp>
 
+#include <rmagine/math/assimp_conversions.h>
+
 namespace rmagine {
 
 EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :m_device(device)
 ,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
+,m_S{1.0, 1.0, 1.0}
 {
+    m_T.setIdentity();
     rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
+    std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
 }
 
-EmbreeMesh::EmbreeMesh(
-    EmbreeDevicePtr device, 
+EmbreeMesh::EmbreeMesh( 
+    unsigned int Nvertices, 
+    unsigned int Nfaces,
+    EmbreeDevicePtr device)
+:EmbreeMesh(device)
+{
+    init(Nvertices, Nfaces);
+}
+
+EmbreeMesh::EmbreeMesh( 
+    const aiMesh* amesh,
+    EmbreeDevicePtr device)
+:EmbreeMesh(device)
+{
+    init(amesh);
+}
+
+EmbreeMesh::~EmbreeMesh()
+{   
+    if(parent.lock())
+    {
+        std::cout << "Remove mesh " << id << " from scene" << std::endl;
+        disable();
+    }
+    std::cout << "[EmbreeMesh::~EmbreeMesh()] destroyed." << std::endl;
+}
+
+void EmbreeMesh::init(
     unsigned int Nvertices, 
     unsigned int Nfaces)
-:m_device(device)
-,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
-,Nvertices(Nvertices)
-,Nfaces(Nfaces)
-{   
-    rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
+{
+    this->Nvertices = Nvertices;
+    this->Nfaces = Nfaces;
 
     vertices.resize(Nvertices);
 
@@ -45,21 +73,18 @@ EmbreeMesh::EmbreeMesh(
                                                     Nfaces));
 }
 
-EmbreeMesh::EmbreeMesh( 
-    EmbreeDevicePtr device,
+void EmbreeMesh::init(
     const aiMesh* amesh)
-:m_device(device)
-,m_handle(rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE))
-,Nvertices(amesh->mNumVertices)
-,Nfaces(amesh->mNumFaces)
 {
+    Nvertices = amesh->mNumVertices;
+    Nfaces = amesh->mNumFaces;
+
     const aiVector3D* ai_vertices = amesh->mVertices;
     int num_vertices = amesh->mNumVertices;
 
     const aiFace* ai_faces = amesh->mFaces;
     int num_faces = amesh->mNumFaces;
 
-    
     vertices.resize(Nvertices);
 
     vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
@@ -79,52 +104,32 @@ EmbreeMesh::EmbreeMesh(
     // copy mesh to embree buffers
     for(unsigned int i=0; i<num_vertices; i++)
     {
-        // mesh.vertices[i] = {ai_vertices[i].x, ai_vertices[i].y, ai_vertices[i].z};
-        vertices[i].x = ai_vertices[i].x;
-        vertices[i].y = ai_vertices[i].y;
-        vertices[i].z = ai_vertices[i].z;
+        vertices[i] = convert(ai_vertices[i]);
     }
 
     for(int i=0; i<num_faces; i++)
     {
-        // mesh.faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
-        faces[i].v0 = ai_faces[i].mIndices[0];
-        faces[i].v1 = ai_faces[i].mIndices[1];
-        faces[i].v2 = ai_faces[i].mIndices[2];
+        faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
     }
 
-    normals.resize(amesh->mNumFaces);
-    normals_transformed.resize(amesh->mNumFaces);
-    for(size_t i=0; i<amesh->mNumFaces; i++)
+    if(amesh->HasNormals())
     {
-        const Vector v0 = vertices[faces[i].v0];
-        const Vector v1 = vertices[faces[i].v1];
-        const Vector v2 = vertices[faces[i].v2];
-        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
-        normals[i] = n;
+        vertex_normals.resize(Nvertices);
+        vertex_normals_transformed.resize(Nvertices);
+        for(size_t i=0; i<Nvertices; i++)
+        {
+            vertex_normals[i] = convert(amesh->mNormals[i]);
+        }
     }
 
-    Transform T;
-    T.setIdentity();
-    setTransform(T);
-
-    Vector3 s;
-    s.x = 1.0;
-    s.y = 1.0;
-    s.z = 1.0;
-    setScale(s);
+    computeFaceNormals();
 
     apply();
 }
 
-EmbreeMesh::~EmbreeMesh()
-{   
-    std::cout << "Destroy MESH! " << std::endl;
-    if(parent)
-    {
-        std::cout << "Remove mesh " << id << " from scene" << std::endl;
-        disable();
-    }
+RTCGeometry EmbreeMesh::handle() const
+{
+    return m_handle;
 }
 
 void EmbreeMesh::setTransform(const Transform& T)
@@ -154,9 +159,18 @@ Vector3 EmbreeMesh::scale() const
     return m_S;
 }
 
-RTCGeometry EmbreeMesh::handle() const
+void EmbreeMesh::computeFaceNormals()
 {
-    return m_handle;
+    face_normals.resize(Nfaces);
+    face_normals_transformed.resize(Nfaces);
+    for(size_t i=0; i<Nfaces; i++)
+    {
+        const Vector v0 = vertices[faces[i].v0];
+        const Vector v1 = vertices[faces[i].v1];
+        const Vector v2 = vertices[faces[i].v2];
+        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+        face_normals[i] = n;
+    }
 }
 
 void EmbreeMesh::commit()
@@ -171,17 +185,21 @@ void EmbreeMesh::release()
 
 void EmbreeMesh::apply()
 {
-    #pragma omp parallel for
     for(unsigned int i=0; i<Nvertices; i++)
     {
         vertices_transformed[i] = m_T * (vertices[i].mult_ewise(m_S));
     }
 
-    #pragma omp parallel for
-    for(unsigned int i=0; i<normals.size(); i++)
+    for(unsigned int i=0; i<face_normals.size(); i++)
     {
-        auto normal_scaled = normals[i].mult_ewise(m_S);
-        normals_transformed[i] = m_T.R * normal_scaled.normalized();
+        auto face_normal_scaled = face_normals[i].mult_ewise(m_S);
+        face_normals_transformed[i] = m_T.R * face_normal_scaled.normalized();
+    }
+
+    for(unsigned int i=0; i<vertex_normals.size(); i++)
+    {
+        auto vertex_normal_scaled = vertex_normals[i].mult_ewise(m_S);
+        vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
     }
 }
 

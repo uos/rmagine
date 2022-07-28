@@ -32,7 +32,6 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
 void SphereSimulatorEmbree::setMap(
     EmbreeMapPtr map)
 {
-    // std::cout << "[RMagine - SphereSimulatorEmbree] setMap" << std::endl;
     m_map = map;
 }
 

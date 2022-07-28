@@ -12,6 +12,9 @@
 
 #include <functional>
 
+#include "EmbreeDevice.hpp"
+#include "EmbreeGeometry.hpp"
+
 namespace rmagine
 {
 
@@ -26,19 +29,18 @@ namespace rmagine
  * 
  */
 class EmbreeInstance
-: public std::enable_shared_from_this<EmbreeInstance>
+: public EmbreeGeometry
 {
 public:
-    EmbreeInstance(EmbreeDevicePtr device);
-    ~EmbreeInstance();
+    using Base = EmbreeGeometry;
+
+    EmbreeInstance(EmbreeDevicePtr device = embree_default_device() );
+    virtual ~EmbreeInstance();
 
     Matrix4x4 T;
 
     void setTransform(const Matrix4x4& T);
     void setTransform(const Transform& T);
-
-    // embree fields
-    RTCGeometry handle() const;
 
     void set(EmbreeScenePtr scene);
     EmbreeScenePtr scene();
@@ -48,27 +50,14 @@ public:
     // - translate rotate scale? 
 
     /**
-     * @brief Call update after changing the transformation. TODO TEST
+     * @brief Apply transformation. Need to commit afterwards
      * 
      */
-    void commit();
-
-    void disable();
-
-    void release();
-
-    EmbreeScenePtr parent;
-    // id only valid if parent is set
-    unsigned int id;
+    void apply();
 private:
-    RTCGeometry m_handle;
+    // scene that is instanced by this object
     EmbreeScenePtr m_scene;
-
-    EmbreeDevicePtr m_device;
 };
-
-
-
 
 } // namespace rmagine
 

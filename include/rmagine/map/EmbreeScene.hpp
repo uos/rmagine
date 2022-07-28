@@ -11,8 +11,6 @@
 
 namespace rmagine
 {
-
-
 struct EmbreeSceneSettings
 {
     /**
@@ -48,7 +46,10 @@ class EmbreeScene
 : public std::enable_shared_from_this<EmbreeScene>
 {
 public:
-    EmbreeScene(EmbreeDevicePtr device, EmbreeSceneSettings settings = {});
+    EmbreeScene(
+        EmbreeSceneSettings settings = {}, 
+        EmbreeDevicePtr device = embree_default_device());
+        
     ~EmbreeScene();
 
     void setQuality(RTCBuildQuality quality);
@@ -76,8 +77,12 @@ public:
      */
     void optimize();
 
-    EmbreeInstanceSet parents;
+    // Scene has no right to let parents stay alive
+    EmbreeInstanceWSet parents;
+
 private:
+
+    std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
     std::unordered_map<unsigned int, EmbreeInstancePtr > m_instances;
     std::unordered_map<unsigned int, EmbreeMeshPtr > m_meshes;
 

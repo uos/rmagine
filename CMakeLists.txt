@@ -11,6 +11,7 @@ add_compile_options(-std=c++17)
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
 # DEFAULT RELEASE
@@ -137,10 +138,12 @@ if(embree_FOUND)
 add_library(rmagine_embree SHARED
     # Maps
     src/rmagine/map/EmbreeDevice.cpp
+    src/rmagine/map/EmbreeGeometry.cpp
     src/rmagine/map/EmbreeMesh.cpp
     src/rmagine/map/EmbreeScene.cpp
     src/rmagine/map/EmbreeInstance.cpp
     src/rmagine/map/EmbreeMap.cpp
+    src/rmagine/map/embree_shapes.cpp
     
     # Simulators
     src/rmagine/simulation/SphereSimulatorEmbree.cpp
@@ -337,7 +340,16 @@ endif(BUILD_TESTS)
 if(BUILD_TOOLS)
     add_subdirectory(src/rmagine_tools/rmagine_benchmark)
     add_subdirectory(src/rmagine_tools/rmagine_synthetic)
+    add_subdirectory(src/rmagine_tools/rmagine_map_info)
 endif(BUILD_TOOLS)
+
+if(BUILD_EXAMPLES)
+    if(embree_FOUND)
+        add_subdirectory(src/rmagine_examples/rmagine_embree_scene)
+    endif(embree_FOUND)
+
+endif(BUILD_EXAMPLES)
+
 
 #### INSTALL
 # 1. Headers
@@ -357,6 +369,8 @@ install(TARGETS rmagine_benchmark
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif(BUILD_TOOLS)
+
+
 
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)

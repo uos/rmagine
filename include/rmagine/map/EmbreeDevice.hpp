@@ -23,6 +23,12 @@ private:
 
 using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>;
 
+// static EmbreeDevicePtr embree_default_device(new EmbreeDevice);
+
+EmbreeDevicePtr embree_default_device();
+
+void embree_default_device_reset();
+
 } // namespace rmagine
 
 #endif // RMAGINE_MAP_EMBREE_DEVICE_HPP

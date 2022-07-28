@@ -107,6 +107,8 @@ int main(int argc, char** argv)
 
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
+
+        // return 0;
         // std::cout << "Mesh loaded to CPU." << std::endl;
         SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
         // std::cout << "Initialized CPU simulator." << std::endl;
@@ -146,6 +148,12 @@ int main(int argc, char** argv)
         }
         std::cout << std::endl;
         std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
+
+        // clean up
+        cpu_sim.reset();
+        std::cout << "sim resetted." << std::endl;
+        cpu_mesh.reset();
+        std::cout << "map resetted" << std::endl;
 
     } else if(device == "gpu") {
         #if defined WITH_OPTIX

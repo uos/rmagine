@@ -1,10 +1,14 @@
 #ifndef RMAGINE_MATH_TYPES_H
 #define RMAGINE_MATH_TYPES_H
 
+// this should not include own math.h - is this correct?
 #include <math.h>
+#include <float.h>
 #include <stdint.h>
 
 #include <rmagine/types/SharedFunctions.hpp>
+
+
 
 namespace rmagine
 {
@@ -17,6 +21,7 @@ struct Quaternion;
 struct Transform;
 struct Matrix3x3;
 struct Matrix4x4;
+struct AABB;
 
 /**
  * @brief Vector2 class with functions
@@ -43,7 +48,7 @@ struct Vector2 {
     RMAGINE_INLINE_FUNCTION
     Vector2 negation() const;
 
-    RMAGINE_INLINE_FUNCTION
+    RMAGINE_INLINE_FUNCTION  
     void negate();
 
     RMAGINE_INLINE_FUNCTION
@@ -212,6 +217,11 @@ struct Vector3 {
     RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
+    /**
+     * @brief sqrt(x*x + y*y + z*z)
+     * 
+     * @return norm
+     */
     RMAGINE_INLINE_FUNCTION
     float l2norm() const; 
 
@@ -889,7 +899,26 @@ struct Matrix4x4 {
         return inv();
     }
 };
+struct AABB
+{
+    Vector3 min;
+    Vector3 max;
 
+    RMAGINE_INLINE_FUNCTION
+    float volume() const;
+
+    RMAGINE_INLINE_FUNCTION
+    Vector3 size() const;
+
+    RMAGINE_INLINE_FUNCTION
+    void init();
+
+    RMAGINE_INLINE_FUNCTION
+    void expand(const Vector3& p);
+
+    RMAGINE_INLINE_FUNCTION
+    void expand(const AABB& o);
+};
 
 //////////////////////////////
 ///// INLINE IMPLEMENTATIONS
@@ -2341,6 +2370,62 @@ void set_identity(Matrix4x4& M)
     M[3][1] = 0.0;
     M[3][2] = 0.0;
     M[3][3] = 1.0;
+}
+
+
+RMAGINE_INLINE_FUNCTION
+Vector3 AABB::size() const
+{
+    return max - min;
+}
+
+RMAGINE_INLINE_FUNCTION
+float AABB::volume() const
+{
+    const Vector3 _size = size();
+    float _volume = _size.l2norm();
+
+    if(_size.x < 0.f || _size.y < 0.f || _size.z < 0.f)
+    {
+        // compute volume and add minus to signalize wrong
+        _volume = -_volume;
+    }
+
+    return _volume;
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::init()
+{
+    min.x = FLT_MAX;
+    min.y = FLT_MAX;
+    min.z = FLT_MAX;
+    max.x = -FLT_MAX;
+    max.y = -FLT_MAX;
+    max.z = -FLT_MAX;
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::expand(const Vector3& p)
+{
+    min.x = fminf(min.x, p.x);
+    min.y = fminf(min.y, p.y);
+    min.z = fminf(min.z, p.z);
+    max.x = fmaxf(max.x, p.x);
+    max.y = fmaxf(max.y, p.y);
+    max.z = fmaxf(max.z, p.z);
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::expand(const AABB& o)
+{
+    // assuming AABBs to be initialized
+    min.x = fminf(min.x, o.min.x);
+    min.y = fminf(min.y, o.min.y);
+    min.z = fminf(min.z, o.min.z);
+    max.x = fmaxf(max.x, o.max.x);
+    max.y = fmaxf(max.y, o.max.y);
+    max.z = fmaxf(max.z, o.max.z);
 }
 
 } // namespace rmagine 

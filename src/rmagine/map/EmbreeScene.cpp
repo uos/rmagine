@@ -11,20 +11,28 @@
 namespace rmagine {
 
 
-EmbreeScene::EmbreeScene(EmbreeDevicePtr device, EmbreeSceneSettings settings)
+EmbreeScene::EmbreeScene(
+    EmbreeSceneSettings settings, 
+    EmbreeDevicePtr device)
+:m_device(device)
+,m_scene(rtcNewScene(device->handle()))
 {
-    m_scene = rtcNewScene(device->handle());
     setQuality(settings.quality);
     setFlags(settings.flags);
+    std::cout << "[EmbreeScene::EmbreeScene()] constructed." << std::endl;
 }
 
 EmbreeScene::~EmbreeScene()
 {
+    std::cout << "[EmbreeScene::~EmbreeScene()] start destroying." << std::endl;
     m_instances.clear();
     m_meshes.clear();
-    rtcReleaseScene(m_scene);
 
-    // std::cout << "EmbreeScene destroyed" << std::endl;
+    std::cout << "[EmbreeScene::~EmbreeScene()] release scene." << std::endl;
+    // m_scene->
+    // RTCSceneTy bla;
+    rtcReleaseScene(m_scene);
+    std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
 }
 
 void EmbreeScene::setQuality(RTCBuildQuality quality)
@@ -41,7 +49,7 @@ unsigned int EmbreeScene::add(EmbreeInstancePtr inst)
 {
     unsigned int inst_id = rtcAttachGeometry(m_scene, inst->handle());
     m_instances[inst_id] = inst;
-    inst->parent = shared_from_this();
+    inst->parent = weak_from_this();
     inst->id = inst_id;
     inst->release();
     return inst_id;
@@ -63,7 +71,9 @@ EmbreeInstancePtr EmbreeScene::removeInstance(unsigned int inst_id)
 
     if(m_instances.find(inst_id) != m_instances.end())
     {
+        rtcDetachGeometry(m_scene, inst_id);
         ret = m_instances[inst_id];
+        ret->parent.reset();
         m_instances.erase(inst_id);
     }
 
@@ -74,7 +84,7 @@ unsigned int EmbreeScene::add(EmbreeMeshPtr mesh)
 {
     unsigned int geom_id = rtcAttachGeometry(m_scene, mesh->handle());
     m_meshes[geom_id] = mesh;
-    mesh->parent = shared_from_this();
+    mesh->parent = weak_from_this();
     mesh->id = geom_id;
     mesh->release();
     return geom_id;
@@ -96,8 +106,9 @@ EmbreeMeshPtr EmbreeScene::removeMesh(unsigned int mesh_id)
 
     if(m_meshes.find(mesh_id) != m_meshes.end())
     {
+        rtcDetachGeometry(m_scene, mesh_id);
         ret = m_meshes[mesh_id];
-        ret->disable();
+        ret->parent.reset();
         m_meshes.erase(mesh_id);
     }
 
