@@ -140,6 +140,9 @@ void print(const aiMatrix4x4& T)
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 :device(device)
 {
+    EmbreeSceneSettings tmp;
+    scene = std::make_shared<EmbreeScene>(tmp, device);
+    
     // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 }
@@ -152,8 +155,7 @@ EmbreeMap::EmbreeMap(const aiScene* ascene, EmbreeDevicePtr device)
 
 void EmbreeMap::set(const aiScene* ascene)
 {
-    EmbreeSceneSettings tmp;
-    scene = std::make_shared<EmbreeScene>(tmp, device);
+    
     
     std::vector<EmbreeMeshPtr> meshes_tmp = loadMeshes(ascene);
     // std::cout << "Meshes loaded: " <<  meshes_tmp.size() << std::endl;
