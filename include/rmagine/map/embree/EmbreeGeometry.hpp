@@ -7,13 +7,12 @@
 
 #include "EmbreeDevice.hpp"
 #include "embree_types.h"
+
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.h>
 
 namespace rmagine
 {
-
-
 
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>

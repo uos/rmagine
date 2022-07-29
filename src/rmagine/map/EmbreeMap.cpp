@@ -1,6 +1,9 @@
 #include "rmagine/map/EmbreeMap.hpp"
 
-#include <rmagine/map/EmbreeScene.hpp>
+// other internal deps
+#include "rmagine/map/embree/EmbreeDevice.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
+
 #include <iostream>
 
 #include <map>

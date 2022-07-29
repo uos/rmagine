@@ -5,7 +5,6 @@ namespace rmagine
 {
 
 EmbreeSphere::EmbreeSphere(
-    float radius, 
     unsigned int num_long, 
     unsigned int num_lat,
     EmbreeDevicePtr device)
@@ -19,9 +18,6 @@ EmbreeSphere::EmbreeSphere(
 
     std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
     std::copy(_faces.begin(), _faces.end(), faces);
-
-    float diameter = radius * 2.0;
-    setScale({diameter, diameter, diameter});
 
     computeFaceNormals();
 

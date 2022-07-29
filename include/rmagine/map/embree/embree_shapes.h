@@ -18,7 +18,6 @@ class EmbreeSphere : public EmbreeMesh
     using Base = EmbreeMesh;
 public:
     EmbreeSphere(
-        float radius, 
         unsigned int num_long = 50, 
         unsigned int num_lat = 50,
         EmbreeDevicePtr device = embree_default_device()

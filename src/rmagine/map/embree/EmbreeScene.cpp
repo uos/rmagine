@@ -97,6 +97,17 @@ RTCScene EmbreeScene::handle()
 void EmbreeScene::commit()
 {
     rtcCommitScene(m_scene);
+    m_committed_once = true;
+}
+
+bool EmbreeScene::committed_once() const
+{
+    return m_committed_once;
+}
+
+bool EmbreeScene::is_top_level() const
+{
+    return parents.empty();
 }
 
 void EmbreeScene::optimize()

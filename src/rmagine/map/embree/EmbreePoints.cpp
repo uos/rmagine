@@ -1,12 +1,15 @@
 #include "rmagine/map/embree/EmbreePoints.hpp"
 
+// other internal deps
+#include "rmagine/map/embree/EmbreeDevice.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
+
 #include <iostream>
 
 #include <map>
 #include <cassert>
 
-#include <rmagine/map/EmbreeDevice.hpp>
-#include <rmagine/map/EmbreeScene.hpp>
+
 
 #include <rmagine/math/assimp_conversions.h>
 

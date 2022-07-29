@@ -1,5 +1,7 @@
 
 #include "rmagine/map/embree/EmbreeGeometry.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
+
 #include <iostream>
 #include <Eigen/Dense>
 

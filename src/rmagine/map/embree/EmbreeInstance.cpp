@@ -1,13 +1,13 @@
 #include "rmagine/map/embree/EmbreeInstance.hpp"
 
+// other internal deps
+#include "rmagine/map/embree/EmbreeDevice.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
+
 #include <iostream>
 
 #include <map>
 #include <cassert>
-
-#include <rmagine/map/EmbreeMesh.hpp>
-#include <rmagine/map/EmbreeScene.hpp>
-
 
 namespace rmagine 
 {

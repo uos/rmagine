@@ -10,6 +10,7 @@
 
 #include <rmagine/map/embree/embree_shapes.h>
 #include <rmagine/util/prints.h>
+#include <rmagine/util/StopWatch.hpp>
 
 using namespace rmagine;
 
@@ -408,7 +409,6 @@ void scene_8()
     T.t.x += 0.5;
     cube->setTransform(T);
     cube->apply();
-    cube->markAsChanged();
     cube->commit();
 
     scene->commit();
@@ -426,9 +426,169 @@ void scene_8()
     scene->commit();
 
     printRaycast(scene, {-5.0, 0.0, 5.0}, {0.0, 0.0, -1.0});
+}
+
+EmbreeScenePtr make_scene()
+{
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+    scene->setQuality(RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTC_SCENE_FLAG_DYNAMIC);
+
+    { 
+        // gen sphere mesh
+        EmbreeSpherePtr sphere = std::make_shared<EmbreeSphere>(1.0);
+        sphere->name = "Sphere Mesh";
+        sphere->commit();
+
+        // make sphere scene
+        EmbreeScenePtr sphere_scene = std::make_shared<EmbreeScene>();
+        sphere_scene->add(sphere);
+        sphere_scene->commit();
+
+        // make N sphere instances
+        int Ninstances = 100;
+        for(int i=0; i < Ninstances; i++)
+        {
+            EmbreeInstancePtr sphere_inst = std::make_shared<EmbreeInstance>();
+            sphere_inst->set(sphere_scene);
+
+            Transform T;
+            T.setIdentity();
+            T.t.y = static_cast<float>(i - Ninstances / 2);
+
+            Vector3 scale = {
+                0.01f * static_cast<float>(i + 1),
+                0.01f * static_cast<float>(i + 1),
+                0.01f * static_cast<float>(i + 1)
+            };
+            
+            std::stringstream ss;
+            ss << "Sphere Instance " << i;
+            sphere_inst->name = ss.str();
+            sphere_inst->setTransform(T);
+            sphere_inst->setScale(scale);
+            sphere_inst->apply();
+            sphere_inst->commit();
+
+            scene->add(sphere_inst);
+        }
+    }
+
+    { // NOT INSTANCES SPHERE
+        int Ninstances = 100;
+        for(int i=0; i<Ninstances; i++)
+        {
+            EmbreeSpherePtr sphere = std::make_shared<EmbreeSphere>();
+            std::stringstream ss;
+            ss << "Sphere Mesh " << i;
+            sphere->name = ss.str();
+
+            Transform T;
+            T.setIdentity();
+            T.t.x = -10.0;
+            T.t.y = static_cast<float>(i - (Ninstances / 2) );
+
+            Vector3 scale = {
+                0.01f * static_cast<float>(i + 1),
+                0.01f * static_cast<float>(i + 1),
+                0.01f * static_cast<float>(i + 1)
+            };
+
+            sphere->setTransform(T);
+            sphere->setScale(scale);
+            sphere->apply();
+            sphere->commit();
+
+            scene->add(sphere);
+        }
+        
+    }
+
+    { // CUBE MESH
+        EmbreeCubePtr cube = std::make_shared<EmbreeCube>();
+        cube->name = "Cube";
+
+        Transform T;
+        T.setIdentity();
+        T.t.x += 10.0;
+        T.t.z += 0.5;
+        cube->setTransform(T);
+        cube->apply();
+        cube->commit();
+
+        scene->add(cube);
+    }
+
+    return scene;
+}
+
+void scene_9()
+{
+    StopWatch sw;
+    double el;
 
 
-} 
+    EmbreeScenePtr scene = make_scene();
+
+    // test scene update runtimes
+
+    // 1. no change update
+
+    sw();
+    scene->commit();
+    el = sw();
+    std::cout << "No changes update in " << el << "s" << std::endl;
+
+    // should hit "Sphere Standalone" here
+    // printRaycast(scene, {5.0, 10.0, 0.5}, {1.0, 0.0, 0.0});
+
+    
+    // 2. instances update
+    {
+        
+        sw();
+        for(size_t i=0; i<100; i++)
+        {
+            EmbreeInstancePtr inst = scene->get_as<EmbreeInstance>(i);
+            auto T = inst->transform();
+            T.t.x -= 5.0;
+            inst->setTransform(T);
+            inst->apply();
+            inst->commit();
+        }
+        double prep_el = sw();
+
+        sw();
+        scene->commit();
+        el = sw();
+        std::cout << "Move " << 100 << " instances and update scene in " << prep_el + el << "s (" << prep_el << " + " << el << ")" << std::endl;
+
+        printRaycast(scene, {-5.0, 49.0, 0.0}, {1.0, 0.0, 0.0});
+    }
+
+    // 3. mesh update
+    {
+        sw();
+        for(size_t i=100; i<200; i++)
+        {
+            EmbreeMeshPtr sphere = scene->get_as<EmbreeMesh>(i);
+            auto T = sphere->transform();
+            T.t.x -= 5.0;
+            sphere->setTransform(T);
+            sphere->apply();
+            sphere->commit();
+        }
+
+        double prep_el = sw();
+
+        sw();
+        scene->commit();
+        el = sw();
+        std::cout << "Move " << 100 << " meshes and update scene in " << prep_el + el << "s (" << prep_el << " + " << el << ")" << std::endl;
+
+        printRaycast(scene, {-15.0, 49.0, 0.0}, {1.0, 0.0, 0.0});
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -455,8 +615,11 @@ int main(int argc, char** argv)
     // std::cout << "SCENE EXAMPLE 7" << std::endl;
     // scene_7();
 
-    std::cout << "SCENE EXAMPLE 8" << std::endl;
-    scene_8();
+    // std::cout << "SCENE EXAMPLE 8" << std::endl;
+    // scene_8();
+
+    std::cout << "SCENE EXAMPLE 9" << std::endl;
+    scene_9();
 
     return 0;
 }

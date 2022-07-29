@@ -1,12 +1,15 @@
 #include "rmagine/map/embree/EmbreeMesh.hpp"
 
+// other internal deps
+#include "rmagine/map/embree/EmbreeDevice.hpp"
+#include "rmagine/map/embree/EmbreeScene.hpp"
+
 #include <iostream>
 
 #include <map>
 #include <cassert>
 
-#include <rmagine/map/EmbreeDevice.hpp>
-#include <rmagine/map/EmbreeScene.hpp>
+
 
 #include <rmagine/math/assimp_conversions.h>
 
@@ -16,8 +19,6 @@ EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :Base(device)
 {
     m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
-    rtcSetGeometryBuildQuality(m_handle, RTC_BUILD_QUALITY_REFIT);
-    // std::cout << "[EmbreeMesh::EmbreeMesh()] constructed." << std::endl;
 }
 
 EmbreeMesh::EmbreeMesh( 
@@ -152,11 +153,23 @@ void EmbreeMesh::apply()
         auto vertex_normal_scaled = vertex_normals[i].mult_ewise(m_S);
         vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
     }
+
+    // parent.lock()->co
+    EmbreeScenePtr bla;
+
+    if(EmbreeScenePtr parent_ptr = parent.lock())
+    {
+        if(parent_ptr->committed_once())
+        {
+            rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
+        }
+    }
 }
 
-void EmbreeMesh::markAsChanged()
-{
-    rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
-}
+// void EmbreeMesh::markAsChanged()
+// {
+//     // "this function needs to be called only when doing buffer modifications after the first rtcCommitScene"
+//     rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
+// }
 
 } // namespace rmagine

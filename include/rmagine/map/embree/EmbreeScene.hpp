@@ -24,7 +24,7 @@ struct EmbreeSceneSettings
     RTCBuildQuality quality = RTCBuildQuality::RTC_BUILD_QUALITY_MEDIUM;
     
     /**
-     * @brief flags
+     * @brief flags can be combined by FLAGA | FLAGB ...
      * 
      * - RTC_SCENE_FLAG_NONE (default)
      * - RTC_SCENE_FLAG_DYNAMIC
@@ -46,9 +46,6 @@ class EmbreeScene
 : public std::enable_shared_from_this<EmbreeScene>
 {
 public:
-    // EmbreeScene(
-    //     EmbreeDevicePtr device = embree_default_device());
-
     EmbreeScene(
         EmbreeSceneSettings settings = {}, 
         EmbreeDevicePtr device = embree_default_device());
@@ -71,10 +68,21 @@ public:
     template<typename T>
     unsigned int count() const;
 
-
     RTCScene handle();
 
     void commit();
+
+    /**
+     * @brief check if scene was committed at least one time.
+     * important for functions as rtcUpdateGeometryBuffer:
+     * "this function needs to be called only when doing buffer modifications after the first rtcCommitScene"
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool committed_once() const;
+
+    bool is_top_level() const;
 
     /**
      * @brief 
@@ -87,6 +95,8 @@ public:
 private:
 
     std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
+
+    bool m_committed_once = false;
 
     RTCScene m_scene;
     EmbreeDevicePtr m_device;

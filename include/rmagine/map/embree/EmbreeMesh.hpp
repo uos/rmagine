@@ -56,15 +56,13 @@ public:
     Memory<Vector, RAM> face_normals;
 
 
+    void computeFaceNormals();
+
     /**
      * @brief Apply new Transform and Scale to buffers
      * 
      */
     void apply();
-
-    void computeFaceNormals();
-
-    void markAsChanged();
 private:
     // embree constructed buffers
     unsigned int Nvertices;

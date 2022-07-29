@@ -405,15 +405,21 @@ message(STATUS "Generated ${GEN_SHORTCUT_HEADERS}")
 install(FILES ${GEN_SHORTCUT_HEADERS} 
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine )
 
+
+
 # Uninstall
-add_custom_target(uninstall COMMENT "Uninstall installed files")
-add_custom_command(
-    TARGET uninstall
-    POST_BUILD
-    COMMENT "Uninstall files with install_manifest.txt"
-    COMMAND xargs rm -vf < install_manifest.txt || echo Nothing in
-            install_manifest.txt to be uninstalled!
-)
+# https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/rmagineUninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
+    COMMENT "Uninstall rmagine libraries and all header files")
+endif()
+
 
 ###############################################################################
 # DOCUMENTATION
