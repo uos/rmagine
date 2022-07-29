@@ -19,6 +19,25 @@ Matrix4x4 compose(const Transform& T, const Vector3& scale)
     return M * S;
 }
 
+Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
+{
+    Matrix4x4 M;
+    M.set(T);
+
+    Matrix4x4 S_;
+    S_.setZeros();
+    for(size_t i=0; i<3; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            S_(i,j) = S(i,j);
+        }
+    }
+    S_(3,3) = 1.0;
+
+    return M * S_;
+}
+
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
 {
     Eigen::Matrix4f Meig;
