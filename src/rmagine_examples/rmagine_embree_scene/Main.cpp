@@ -702,19 +702,85 @@ struct MyCompare {
     }
 };
 
-using MyWSet = std::set<MyStructWPtr, MyCompare>;
+
+namespace std {
+
+template <>
+struct hash<MyStructWPtr> 
+{
+    size_t operator()(const MyStructWPtr& elem) const 
+    {
+        if(auto sh = elem.lock())
+        {
+            return hash<MyStructPtr>()(sh);
+        } else {
+            return 0;
+        }
+    }
+};
+
+template <>
+struct equal_to<MyStructWPtr> 
+{
+    bool operator()(const MyStructWPtr& lhs, const MyStructWPtr& rhs) const 
+    {
+        auto lptr = lhs.lock();
+        auto rptr = rhs.lock();
+        return lptr == rptr;
+    }
+};
 
 
+}  // namespace std
+
+// bool operator==(const Record &other) const {
+//     return id == other.id; // no problem accessing other.id
+// }
+
+// struct MyHash 
+// {
+//     size_t operator()(const MyStructWPtr& elem) const 
+//     {
+//         if(auto sh = elem.lock())
+//         {
+//             return std::hash<MyStructPtr>()(sh);
+//         } else {
+//             return 0;
+//         }
+//     }
+
+// };
+
+// using MyWSet = std::set<MyStructWPtr, MyCompare>;
+
+using MyWSet = std::unordered_set<MyStructWPtr>;
 
 struct Data 
 {
     MyWSet parents;
+
+    void cleanParents()
+    {
+        for(auto it = parents.begin(); it != parents.end();)
+        {
+            if(it->lock())
+            {
+                ++it;
+            } else {
+                it = parents.erase(it);
+            }
+        }
+    }
 };
 
 using DataPtr = std::shared_ptr<Data>;
 
 struct MyStruct : public std::enable_shared_from_this<MyStruct>
 {
+    ~MyStruct()
+    {
+        child->cleanParents();
+    }
 
     void removeChild()
     {
@@ -751,6 +817,24 @@ void test()
     p1->removeChild();
 
     std::cout << bla->parents.size() << std::endl;
+
+    p1->setChild(bla);
+
+    // this does cannot influence childs set of parents. 
+    // even not in destructor (not directly)
+    // complete cleanup in desctructor works
+    p1.reset();
+    std::cout << bla->parents.size() << std::endl;
+
+    // need to clean after
+    bla->cleanParents();
+    
+    std::cout << bla->parents.size() << std::endl;
+    
+
+    
+
+
 }
 
 int main(int argc, char** argv)
