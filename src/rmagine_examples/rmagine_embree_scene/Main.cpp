@@ -631,7 +631,8 @@ void scene_11()
     
     printRaycast(scene2, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
 
-    scene->integrate(scene2);
+    scene->add(cylinder);
+    // scene->integrate(scene2);
     scene->commit();
 
     
@@ -651,15 +652,120 @@ void scene_11()
         std::cout << std::endl;
     }
 
-    
+
     printRaycast(scene, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
     printRaycast(scene2, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
+
+
+
+
+    // remove cylinder from scene1
+
+    scene->remove(cylinder);
+    scene->commit();
+
+    std::cout << "Cylinder removed from scene 1" << std::endl;
+
+    std::cout << "ID -> SCENE" << std::endl;
+    ids = cylinder->ids();
+    for(auto elem : ids)
+    {
+        std::cout << "- " << elem.first;
+        if(elem.second.lock() == scene)
+        {
+            std::cout << " -> scene 1";
+        } else if(elem.second.lock() == scene2) {
+            std::cout << " -> scene 2";
+        }
+        std::cout << std::endl;
+    }
+}
+
+struct MyStruct;
+using MyStructPtr = std::shared_ptr<MyStruct>;
+using MyStructWPtr = std::weak_ptr<MyStruct>;
+
+
+
+
+struct MyCompare {
+    bool operator() (
+        const MyStructWPtr &lhs, 
+        const MyStructWPtr &rhs) const 
+    {
+        auto lptr = lhs.lock(), rptr = rhs.lock();
+        if (!rptr) return false; // nothing after expired pointer 
+        if (!lptr) return true;  // every not expired after expired pointer
+        // why?
+        return lptr != rptr;
+        // return lptr == rptr;
+    }
+};
+
+using MyWSet = std::set<MyStructWPtr, MyCompare>;
+
+
+
+struct Data 
+{
+    MyWSet parents;
+};
+
+using DataPtr = std::shared_ptr<Data>;
+
+struct MyStruct : public std::enable_shared_from_this<MyStruct>
+{
+
+    void removeChild()
+    {
+        if(child)
+        {
+            std::cout << "removed " 
+            << child->parents.erase(weak_from_this())
+            << std::endl;
+        }
+    }
+
+    void setChild(DataPtr data)
+    {
+        child = data;
+        data->parents.insert(weak_from_this());
+    }
+
+    DataPtr child;
+};
+
+
+void test()
+{
+    DataPtr bla = std::make_shared<Data>();
+
+    MyStructPtr p1 = std::make_shared<MyStruct>();
+    p1->setChild(bla);
+
+    MyStructPtr p2 = std::make_shared<MyStruct>();
+    p2->setChild(bla);
+
+    std::cout << bla->parents.size() << std::endl;
+
+    p1->removeChild();
+
+    std::cout << bla->parents.size() << std::endl;
 }
 
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Embree Scene Building" << std::endl;
     
+
+    
+
+    // test();
+    // return 0;
+
+
+
+
     int example = 1;
 
     if(argc > 1)

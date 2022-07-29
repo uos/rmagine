@@ -60,6 +60,11 @@ Vector3 EmbreeGeometry::scale() const
     return m_S;
 }
 
+Matrix4x4 EmbreeGeometry::matrix() const
+{
+    return compose(m_T, m_S);
+}
+
 void EmbreeGeometry::disable()
 {
     rtcDisableGeometry(m_handle);
@@ -80,19 +85,31 @@ void EmbreeGeometry::commit()
     rtcCommitGeometry(m_handle);
 }
 
+void EmbreeGeometry::cleanup_parents()
+{
+    for(auto it = parents.begin(); it != parents.end();)
+    {
+        if(it->lock())
+        {
+            ++it;
+        } else {
+            it = parents.erase(it);
+        }
+    }
+}
+
 std::unordered_map<unsigned int, EmbreeSceneWPtr> EmbreeGeometry::ids()
 {
     std::unordered_map<unsigned int, EmbreeSceneWPtr> ret;
 
-    for(auto it = parents.begin(); it != parents.end();)
+    cleanup_parents();
+
+    for(auto it = parents.begin(); it != parents.end(); ++it)
     {
         if(auto parent = it->lock())
         {
             // parent exists
             ret[parent->get(shared_from_this())] = parent;
-            ++it;
-        } else {
-            it = parents.erase(it);
         }
     }
 

@@ -36,9 +36,16 @@ public:
      */
     void setTransform(const Matrix4x4& T);
     void setTransformAndScale(const Matrix4x4& T);
-    
+
     void setScale(const Vector3& S);
     Vector3 scale() const;
+
+    /**
+     * @brief Obtain composed matrix
+     * 
+     * @return Matrix4x4 
+     */
+    Matrix4x4 matrix() const;
 
     /**
      * @brief Apply all transformation changes to data if required
@@ -54,6 +61,8 @@ public:
 
     virtual void commit();
 
+
+    void cleanup_parents();
     std::unordered_map<unsigned int, EmbreeSceneWPtr> ids();
 
     // actually multiple scenes are supported as parents

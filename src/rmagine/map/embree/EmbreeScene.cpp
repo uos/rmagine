@@ -52,7 +52,17 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
     m_geometries[geom_id] = geom;
     m_ids[geom] = geom_id;
     // TODO: geometry can be attached to multiple scenes!
+    size_t nparents_before = geom->parents.size();
+    // std::cout << "parents before: " << geom->parents.size() << std::endl;
     geom->parents.insert(weak_from_this());
+    // std::cout << "parents after: " << geom->parents.size() << std::endl;
+    size_t nparents_after = geom->parents.size();
+
+
+    if(nparents_after == nparents_before)
+    {
+        std::cout << "WARNING geometry seems to be already added before. same number of parents as before: " << nparents_after << std::endl; 
+    }
     geom->parent = weak_from_this();
     geom->id = geom_id;
     return geom_id;
@@ -88,7 +98,59 @@ bool EmbreeScene::remove(EmbreeGeometryPtr geom)
         unsigned int geom_id = *geom_id_opt;
         rtcDetachGeometry(m_scene, geom_id);
         // TODO: geometry can be attached to multiple scenes!
-        geom->parents.erase(weak_from_this());
+        auto self_shared = shared_from_this();
+        size_t nelements = geom->parents.erase(self_shared);
+        if(nelements == 0)
+        {
+            std::cout << "WARNING could not remove self from childs parents" << std::endl;
+
+            // auto it = geom->parents.find(self_shared);
+            // if(it != geom->parents.end())
+            // {
+            //     std::cout << "- FOUND self" << std::endl;
+            // } else {
+            //     std::cout << "- self not found" << std::endl;
+            // }
+        
+            // std::cout << "try to find self in parents: " << this << std::endl;
+            
+            // EmbreeSceneWSet tmp_set;
+
+            // for(auto elem : geom->parents)
+            // {
+            //     EmbreeSceneWPtr sweak = elem;
+            //     tmp_set.insert(sweak);
+
+            //     if(auto sshared = sweak.lock())
+            //     {
+            //         std::cout << "- " << &(*sshared) 
+            //         << ", shared: " << (sshared == self_shared)
+            //         // << ", weak: " << (sweak == weak_from_this()) 
+            //         << std::endl;
+
+            //         if(sshared == self_shared)
+            //         {
+            //             bool comp = lex_compare<EmbreeScene>().debug(sshared, self_shared);
+            //             std::cout << "- debug comp: " << !comp << std::endl;
+
+            //             auto it2 = tmp_set.find(self_shared);
+            //             std::cout << "- debug comp 2: " << tmp_set.count(sshared) << std::endl;
+            //         }
+            //     }
+            // }
+
+            // // why can i find myself in a copy?
+            // std::cout << "try to find self in tmp: " 
+            //     << (tmp_set.find(self_shared) != tmp_set.end()) << std::endl;
+            
+            // // make another copy
+            // EmbreeSceneWSet geom_parents = geom->parents;
+            // std::cout << "try to find self in copy: " 
+            //     << (geom_parents.find(self_shared) != geom_parents.end()) << std::endl;
+        }
+        
+        
+        // std::cout << "EMBREE SCENE removed self from child: " << nelements << std::endl;
         geom->parent.reset();
         m_geometries.erase(geom_id);
         m_ids.erase(geom);

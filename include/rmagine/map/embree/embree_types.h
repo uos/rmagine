@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <set>
 #include <functional>
+#include <iostream>
 
 namespace rmagine 
 {
@@ -40,10 +41,20 @@ template<typename T>
 struct lex_compare {
     bool operator() (const std::weak_ptr<T> &lhs, const std::weak_ptr<T> &rhs) const 
     {
-        auto lptr = lhs.lock(), rptr = rhs.lock();
-        if (!rptr) return false; // nothing after expired pointer 
-        if (!lptr) return true;  // every not expired after expired pointer
-        return lptr != rptr;
+        auto rptr = rhs.lock();
+        if (!rptr) 
+        {
+            return false; // nothing after expired pointer 
+        }
+
+        auto lptr = lhs.lock();
+        if (!lptr) 
+        {
+            return true;  // every not expired after expired pointer
+        }
+
+        // why?
+        return lptr < rptr;
     }
 };
 
