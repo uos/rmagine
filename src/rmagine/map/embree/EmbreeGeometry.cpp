@@ -80,6 +80,25 @@ void EmbreeGeometry::commit()
     rtcCommitGeometry(m_handle);
 }
 
+std::unordered_map<unsigned int, EmbreeSceneWPtr> EmbreeGeometry::ids()
+{
+    std::unordered_map<unsigned int, EmbreeSceneWPtr> ret;
+
+    for(auto it = parents.begin(); it != parents.end();)
+    {
+        if(auto parent = it->lock())
+        {
+            // parent exists
+            ret[parent->get(shared_from_this())] = parent;
+            ++it;
+        } else {
+            it = parents.erase(it);
+        }
+    }
+
+    return ret;
+}
+
 
 
 } // namespace rmagine

@@ -590,36 +590,100 @@ void scene_9()
     }
 }
 
+void scene_10()
+{
+    EmbreeScenePtr scene = make_scene();
+    EmbreeScenePtr scene2 = make_scene();
+
+    scene->commit();
+
+    EmbreeGeometryPtr inst99 = scene2->get(99);
+    auto T = inst99->transform();
+    T.t.x += 5.0;
+    inst99->setTransform(T);
+    inst99->apply();
+    inst99->commit();
+
+    scene2->commit();
+
+    printRaycast(scene, {-5.0, 49.0, 0.0}, {1.0, 0.0, 0.0});
+
+    printRaycast(scene2, {-5.0, 49.0, 0.0}, {1.0, 0.0, 0.0});
+}
+
+void scene_11()
+{
+    EmbreeScenePtr scene = make_scene();
+    EmbreeScenePtr scene2 = std::make_shared<EmbreeScene>();
+
+
+    EmbreeCylinderPtr cylinder = std::make_shared<EmbreeCylinder>();
+    
+    Transform T;
+    T.setIdentity();
+    T.t.z = 50.0;
+    cylinder->setTransform(T);
+    cylinder->apply();
+    cylinder->commit();
+    cylinder->name = "MyCylinder";
+    scene2->add(cylinder);
+    scene2->commit();
+    
+    printRaycast(scene2, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
+
+    scene->integrate(scene2);
+    scene->commit();
+
+    
+
+    // now cylinder is attached to two scenes
+    std::cout << "ID -> SCENE" << std::endl;
+    auto ids = cylinder->ids();
+    for(auto elem : ids)
+    {
+        std::cout << "- " << elem.first;
+        if(elem.second.lock() == scene)
+        {
+            std::cout << " -> scene 1";
+        } else if(elem.second.lock() == scene2) {
+            std::cout << " -> scene 2";
+        }
+        std::cout << std::endl;
+    }
+
+    
+    printRaycast(scene, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
+    printRaycast(scene2, {0.0, 0.0, 50.0}, {1.0, 0.0, 0.0});
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Embree Scene Building" << std::endl;
     
-    // std::cout << "SCENE EXAMPLE 1" << std::endl;
-    // scene_1();
+    int example = 1;
 
-    // std::cout << "SCENE EXAMPLE 2" << std::endl;
-    // scene_2();
+    if(argc > 1)
+    {
+        example = std::stoi( argv[1] );
+    }
 
-    // std::cout << "SCENE EXAMPLE 3" << std::endl;
-    // scene_3();
-
-    // std::cout << "SCENE EXAMPLE 4" << std::endl;
-    // scene_4();
-
-    // std::cout << "SCENE EXAMPLE 5" << std::endl;
-    // scene_5();
-
-    // std::cout << "SCENE EXAMPLE 6" << std::endl;
-    // scene_6();
-
-    // std::cout << "SCENE EXAMPLE 7" << std::endl;
-    // scene_7();
-
-    // std::cout << "SCENE EXAMPLE 8" << std::endl;
-    // scene_8();
-
-    std::cout << "SCENE EXAMPLE 9" << std::endl;
-    scene_9();
+    std::cout << "SCENE EXAMPLE " << example << std::endl;
+    
+    switch(example)
+    {
+        case 1: scene_1(); break;
+        case 2: scene_2(); break;
+        case 3: scene_3(); break;
+        case 4: scene_4(); break;
+        case 5: scene_5(); break;
+        case 6: scene_6(); break;
+        case 7: scene_7(); break;
+        case 8: scene_8(); break;
+        case 9: scene_9(); break;
+        case 10: scene_10(); break;
+        case 11: scene_11(); break;
+        default: break;
+    }
 
     return 0;
 }

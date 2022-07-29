@@ -7,7 +7,7 @@
 #include <embree3/rtcore.h>
 #include <memory>
 #include <unordered_map>
-#include <condition_variable>
+#include <optional>
 
 namespace rmagine
 {
@@ -57,13 +57,20 @@ public:
     void setFlags(RTCSceneFlags flags);
 
     unsigned int add(EmbreeGeometryPtr geom);
+    std::optional<unsigned int> get_opt(EmbreeGeometryPtr geom) const;
+    unsigned int get(EmbreeGeometryPtr geom) const;
+    bool has(EmbreeGeometryPtr geom) const;
+    bool remove(EmbreeGeometryPtr geom);
+
     EmbreeGeometryPtr get(unsigned int geom_id) const;
-    std::unordered_map<unsigned int, EmbreeGeometryPtr> geometries() const;
     bool has(unsigned int geom_id) const;
     EmbreeGeometryPtr remove(unsigned int geom_id);
 
     template<typename T>
     std::shared_ptr<T> get_as(unsigned int geom_id) const;
+
+    std::unordered_map<EmbreeGeometryPtr, unsigned int> ids() const;
+    std::unordered_map<unsigned int, EmbreeGeometryPtr> geometries() const;
 
     template<typename T>
     unsigned int count() const;
@@ -84,6 +91,8 @@ public:
 
     bool is_top_level() const;
 
+    std::unordered_map<unsigned int, unsigned int> integrate(EmbreeScenePtr other);
+
     /**
      * @brief 
      * 
@@ -95,6 +104,7 @@ public:
 private:
 
     std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
+    std::unordered_map<EmbreeGeometryPtr, unsigned int> m_ids;
 
     bool m_committed_once = false;
 

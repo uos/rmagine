@@ -54,7 +54,16 @@ public:
 
     virtual void commit();
 
+    std::unordered_map<unsigned int, EmbreeSceneWPtr> ids();
+
+    // actually multiple scenes are supported as parents
+
+    
+    EmbreeSceneWSet parents;
+
+    // TODO: remove
     EmbreeSceneWPtr parent;
+    // unique per scene. remove?
     unsigned int id;
     std::string name;
 

@@ -30,6 +30,8 @@ EmbreeScene::~EmbreeScene()
     }
 
     m_geometries.clear();
+    m_ids.clear();
+
     rtcReleaseScene(m_scene);
     // std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
 }
@@ -48,9 +50,53 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
 {
     unsigned int geom_id = rtcAttachGeometry(m_scene, geom->handle());
     m_geometries[geom_id] = geom;
+    m_ids[geom] = geom_id;
+    // TODO: geometry can be attached to multiple scenes!
+    geom->parents.insert(weak_from_this());
     geom->parent = weak_from_this();
     geom->id = geom_id;
     return geom_id;
+}
+
+std::optional<unsigned int> EmbreeScene::get_opt(EmbreeGeometryPtr geom) const
+{
+    auto it = m_ids.find(geom);
+    if(it != m_ids.end())
+    {
+        return it->second;
+    }
+    return {};
+}
+
+unsigned int EmbreeScene::get(EmbreeGeometryPtr geom) const
+{
+    return m_ids.at(geom);
+}
+
+bool EmbreeScene::has(EmbreeGeometryPtr geom) const
+{
+    return m_ids.find(geom) != m_ids.end();
+}
+
+bool EmbreeScene::remove(EmbreeGeometryPtr geom)
+{
+    bool ret = false;
+
+    auto geom_id_opt = get_opt(geom);
+    if(geom_id_opt)
+    {
+        unsigned int geom_id = *geom_id_opt;
+        rtcDetachGeometry(m_scene, geom_id);
+        // TODO: geometry can be attached to multiple scenes!
+        geom->parents.erase(weak_from_this());
+        geom->parent.reset();
+        m_geometries.erase(geom_id);
+        m_ids.erase(geom);
+
+        ret = true;
+    }
+
+    return ret;
 }
 
 EmbreeGeometryPtr EmbreeScene::get(unsigned int geom_id) const
@@ -64,11 +110,6 @@ EmbreeGeometryPtr EmbreeScene::get(unsigned int geom_id) const
     return ret;
 }
 
-std::unordered_map<unsigned int, EmbreeGeometryPtr> EmbreeScene::geometries() const
-{
-    return m_geometries;
-}
-
 bool EmbreeScene::has(unsigned int geom_id) const
 {
     return m_geometries.find(geom_id) != m_geometries.end();
@@ -76,17 +117,29 @@ bool EmbreeScene::has(unsigned int geom_id) const
 
 EmbreeGeometryPtr EmbreeScene::remove(unsigned int geom_id)
 {
-    EmbreeGeometryPtr ret;
+    EmbreeGeometryPtr geom;
 
     if(has(geom_id))
     {
         rtcDetachGeometry(m_scene, geom_id);
-        ret = m_geometries[geom_id];
-        ret->parent.reset();
+        geom = m_geometries[geom_id];
+        // TODO: geometry can be attached to multiple scenes!
+        geom->parent.reset();
         m_geometries.erase(geom_id);
+        m_ids.erase(geom);
     }
 
-    return ret;
+    return geom;
+}
+
+std::unordered_map<EmbreeGeometryPtr, unsigned int> EmbreeScene::ids() const
+{
+    return m_ids;
+}
+
+std::unordered_map<unsigned int, EmbreeGeometryPtr> EmbreeScene::geometries() const
+{
+    return m_geometries;
 }
 
 RTCScene EmbreeScene::handle()
@@ -108,6 +161,20 @@ bool EmbreeScene::committed_once() const
 bool EmbreeScene::is_top_level() const
 {
     return parents.empty();
+}
+
+std::unordered_map<unsigned int, unsigned int> EmbreeScene::integrate(EmbreeScenePtr other)
+{
+    std::unordered_map<unsigned int, unsigned int> integration_map;
+    for(auto elem : other->geometries())
+    {
+        unsigned int old_id = elem.first;
+        unsigned int new_id = add(elem.second);
+        std::cout << "integrating " << old_id << " -> " << new_id << std::endl;
+        integration_map[old_id] = new_id;
+    }
+
+    return integration_map;
 }
 
 void EmbreeScene::optimize()

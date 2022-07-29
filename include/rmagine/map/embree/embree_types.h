@@ -49,7 +49,8 @@ struct lex_compare {
 
 using EmbreeGeometryWSet = std::set<EmbreeGeometryWPtr, lex_compare<EmbreeGeometry> >;
 using EmbreeInstanceWSet = std::set<EmbreeInstanceWPtr, lex_compare<EmbreeInstance> >;
-using EmbreeMeshWSet = std::set<EmbreeMeshWPtr, lex_compare<EmbreeInstance> >;
+using EmbreeMeshWSet = std::set<EmbreeMeshWPtr, lex_compare<EmbreeMesh> >;
+using EmbreeSceneWSet = std::set<EmbreeSceneWPtr, lex_compare<EmbreeScene> >;
 
 } // namespace rmagine
 

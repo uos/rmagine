@@ -154,9 +154,6 @@ void EmbreeMesh::apply()
         vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
     }
 
-    // parent.lock()->co
-    EmbreeScenePtr bla;
-
     if(EmbreeScenePtr parent_ptr = parent.lock())
     {
         if(parent_ptr->committed_once())
@@ -165,11 +162,5 @@ void EmbreeMesh::apply()
         }
     }
 }
-
-// void EmbreeMesh::markAsChanged()
-// {
-//     // "this function needs to be called only when doing buffer modifications after the first rtcCommitScene"
-//     rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
-// }
 
 } // namespace rmagine
