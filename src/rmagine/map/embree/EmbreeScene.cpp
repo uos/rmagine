@@ -53,6 +53,17 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
     return geom_id;
 }
 
+EmbreeGeometryPtr EmbreeScene::get(unsigned int geom_id) const
+{
+    EmbreeGeometryPtr ret;
+    auto it = m_geometries.find(geom_id);
+    if(it != m_geometries.end())
+    {
+        ret = it->second;
+    }
+    return ret;
+}
+
 std::unordered_map<unsigned int, EmbreeGeometryPtr> EmbreeScene::geometries() const
 {
     return m_geometries;

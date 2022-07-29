@@ -54,6 +54,22 @@ public:
 };
 
 
+class EmbreeCylinder;
+using EmbreeCylinderPtr = std::shared_ptr<EmbreeCylinder>;
+using EmbreeCylinderWPtr = std::weak_ptr<EmbreeCylinder>;
+
+class EmbreeCylinder : public EmbreeMesh
+{
+    using Base = EmbreeMesh;
+public:
+    EmbreeCylinder(
+        unsigned int side_faces = 100,
+        EmbreeDevicePtr device = embree_default_device()
+    );
+};
+
+
+
 } // namespace rmagine
 
 

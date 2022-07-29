@@ -155,8 +155,19 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
 
     if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
     {
+        if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
+        {
+            auto geom = scene->get(rayhit.hit.instID[0]);
+            std::cout << "- id: " << rayhit.hit.instID[0] << std::endl;
+            std::cout << "- type: instance" << std::endl;
+            std::cout << "- name: " << geom->name << std::endl;
+        } else {
+            auto geom = scene->get(rayhit.hit.geomID);
+            std::cout << "- id: " << rayhit.hit.geomID << std::endl;
+            std::cout << "- type: mesh" << std::endl;
+            std::cout << "- name: " << geom->name << std::endl;
+        }
         
-        std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
     }
 
     if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
@@ -222,8 +233,6 @@ void scene_6()
         // make cube scene instance
         EmbreeInstancePtr cube_inst = std::make_shared<EmbreeInstance>();
         cube_inst->set(cube_scene);
-        
-
 
         Transform T;
         T.setIdentity();
@@ -252,9 +261,6 @@ void scene_6()
 
         scene->add(sphere);
     }
-
-
-    
 
     std::cout << "Commit Scene" << std::endl;
     scene->commit();
@@ -313,6 +319,117 @@ void scene_7()
     printRaycast(scene, {0.0, -5.0, 0.0}, {1.0, 0.0, 0.0});
 } 
 
+void scene_8()
+{
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+
+    std::cout << "Generate Sphere" << std::endl;
+    // gen sphere mesh
+    EmbreeSpherePtr sphere = std::make_shared<EmbreeSphere>(1.0);
+    sphere->name = "Sphere Mesh";
+    sphere->commit();
+
+    // make sphere scene
+    EmbreeScenePtr sphere_scene = std::make_shared<EmbreeScene>();
+    sphere_scene->add(sphere);
+    sphere_scene->commit();
+
+    // make N sphere instances
+    int Ninstances = 100;
+    for(int i=0; i < Ninstances; i++)
+    {
+        EmbreeInstancePtr sphere_inst = std::make_shared<EmbreeInstance>();
+        sphere_inst->set(sphere_scene);
+
+        float t = static_cast<float>(i - Ninstances / 2);
+
+        Transform T;
+        T.setIdentity();
+        T.t.y = t;
+
+        Vector3 scale = {
+            0.01f * static_cast<float>(i + 1),
+            0.01f * static_cast<float>(i + 1),
+            0.01f * static_cast<float>(i + 1)
+        };
+        
+        std::stringstream ss;
+        ss << "Sphere Instance " << i;
+        sphere_inst->name = ss.str();
+        sphere_inst->setTransform(T);
+        sphere_inst->setScale(scale);
+        sphere_inst->apply();
+        sphere_inst->commit();
+
+        scene->add(sphere_inst);
+    }
+
+    unsigned int cube_id = 0;
+    { // CUBE MESH
+        EmbreeCubePtr cube = std::make_shared<EmbreeCube>();
+        cube->name = "Cube";
+
+        Transform T;
+        T.setIdentity();
+        T.t.x += 10.0;
+        cube->setTransform(T);
+        cube->apply();
+        cube->commit();
+
+        cube_id = scene->add(cube);
+    }
+
+    std::cout << "Commit Scene" << std::endl;
+    scene->commit();
+
+    std::cout << "Raycast.." << std::endl;
+    printRaycast(scene, {0.0, 5.0, 0.0}, {1.0, 0.0, 0.0});
+    printRaycast(scene, {0.0, -5.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // try to hit cube
+    printRaycast(scene, {5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+
+    // remove cube
+    EmbreeCubePtr cube = std::dynamic_pointer_cast<EmbreeCube>(scene->remove(cube_id));
+    scene->commit();
+
+    printRaycast(scene, {5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // add cube again
+    scene->add(cube);
+    scene->commit();
+
+    printRaycast(scene, {5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // move cube
+    
+    auto T = cube->transform();
+    T.t.x += 0.5;
+    cube->setTransform(T);
+    cube->apply();
+    cube->markAsChanged();
+    cube->commit();
+
+    scene->commit();
+
+    printRaycast(scene, {5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // add ground plane
+    EmbreePlanePtr plane = std::make_shared<EmbreePlane>();
+    plane->name = "Ground Plane";
+    plane->setScale({1000.0, 1000.0, 1.0});
+    plane->apply();
+    plane->commit();
+
+    scene->add(plane);
+    scene->commit();
+
+    printRaycast(scene, {-5.0, 0.0, 5.0}, {0.0, 0.0, -1.0});
+
+
+} 
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Embree Scene Building" << std::endl;
@@ -335,8 +452,11 @@ int main(int argc, char** argv)
     // std::cout << "SCENE EXAMPLE 6" << std::endl;
     // scene_6();
 
-    std::cout << "SCENE EXAMPLE 7" << std::endl;
-    scene_7();
+    // std::cout << "SCENE EXAMPLE 7" << std::endl;
+    // scene_7();
+
+    std::cout << "SCENE EXAMPLE 8" << std::endl;
+    scene_8();
 
     return 0;
 }

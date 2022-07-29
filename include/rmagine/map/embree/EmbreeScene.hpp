@@ -60,24 +60,17 @@ public:
     void setFlags(RTCSceneFlags flags);
 
     unsigned int add(EmbreeGeometryPtr geom);
+    EmbreeGeometryPtr get(unsigned int geom_id) const;
     std::unordered_map<unsigned int, EmbreeGeometryPtr> geometries() const;
     bool has(unsigned int geom_id) const;
     EmbreeGeometryPtr remove(unsigned int geom_id);
 
+    template<typename T>
+    std::shared_ptr<T> get_as(unsigned int geom_id) const;
 
     template<typename T>
     unsigned int count() const;
 
-    // unsigned int add(EmbreeInstancePtr inst);
-    // std::unordered_map<unsigned int, EmbreeInstancePtr> instances() const;
-    // bool hasInstance(unsigned int inst_id) const;
-    // EmbreeInstancePtr removeInstance(unsigned int inst_id);
-
-
-    // // unsigned int add(EmbreeMeshPtr mesh);
-    // std::unordered_map<unsigned int, EmbreeMeshPtr> meshes() const;
-    // bool hasMesh(unsigned int mesh_id) const;
-    // EmbreeMeshPtr removeMesh(unsigned int mesh_id);
 
     RTCScene handle();
 
@@ -111,6 +104,21 @@ unsigned int EmbreeScene::count() const
         {
             ret++;
         }
+    }
+
+    return ret;
+}
+
+
+template<typename T>
+std::shared_ptr<T> EmbreeScene::get_as(unsigned int geom_id) const
+{
+    std::shared_ptr<T> ret;
+
+    EmbreeGeometryPtr geom = get(geom_id);
+    if(geom)
+    {
+        ret = std::dynamic_pointer_cast<T>(geom);
     }
 
     return ret;

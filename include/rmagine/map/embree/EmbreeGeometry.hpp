@@ -8,11 +8,12 @@
 #include "EmbreeDevice.hpp"
 #include "embree_types.h"
 #include <rmagine/math/types.h>
+#include <rmagine/math/linalg.h>
 
 namespace rmagine
 {
 
-void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
+
 
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>
@@ -24,7 +25,6 @@ public:
 
     // embree fields
     RTCGeometry handle() const;
-
 
     void setTransform(const Transform& T);
     Transform transform() const;

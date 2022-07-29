@@ -6,44 +6,6 @@
 namespace rmagine
 {
 
-void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
-{
-    Eigen::Matrix4f Meig;
-    for(size_t i=0; i<4; i++)
-    {
-        for(size_t j=0; j<4; j++)
-        {
-            Meig(i, j) = M(i, j);
-        }
-    }
-
-    Eigen::Affine3f A;
-    A.matrix() = Meig;
-
-
-    Eigen::Matrix3f Reig;
-    Eigen::Matrix3f Seig;
-    A.computeRotationScaling(&Reig, &Seig);
-    
-    Eigen::Vector3f t = A.translation();
-    
-    Matrix3x3 R;
-    for(size_t i=0; i<3; i++)
-    {
-        for(size_t j=0; j<3; j++)
-        {
-            R(i,j) = Reig(i,j);
-        }
-    }
-
-    T.t = {t.x(), t.y(), t.z()};
-    T.R.set(R);
-
-    scale.x = Seig(0,0);
-    scale.y = Seig(1,1);
-    scale.z = Seig(2,2);
-}
-
 EmbreeGeometry::EmbreeGeometry(EmbreeDevicePtr device)
 :m_device(device)
 ,m_S{1.0,1.0,1.0}

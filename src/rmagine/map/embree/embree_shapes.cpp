@@ -66,4 +66,25 @@ EmbreePlane::EmbreePlane(
     apply();
 }
 
+EmbreeCylinder::EmbreeCylinder(
+    unsigned int side_faces,
+    EmbreeDevicePtr device)
+:Base(device)
+{
+    std::vector<Vector3> _vertices;
+    std::vector<Face> _faces;
+
+    genCylinder(_vertices, _faces, side_faces);
+    init(_vertices.size(), _faces.size());
+
+    std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
+    std::copy(_faces.begin(), _faces.end(), faces);
+
+    computeFaceNormals();
+
+    apply();
+}
+
+
+
 } // namespace rmagine

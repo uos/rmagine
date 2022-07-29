@@ -2,12 +2,19 @@
 
 #include <iostream>
 #include <cassert>
+#include <sstream>
+#include <stdexcept>
 
 namespace rmagine {
 
 void errorFunction(void* userPtr, enum RTCError error, const char* str)
 {
-    printf("error %d: %s\n", error, str);
+    std::stringstream ss;
+    ss << "[EmbreeDevice] Embree Error " << error << ": " << str;
+    std::cout << ss.str() << std::endl; 
+    // printf("[EmbreeDevice] Embree Error %d: %s\n", error, str);
+    throw std::runtime_error(ss.str());
+
 }
 
 /////////////////
