@@ -66,14 +66,17 @@ public:
     std::unordered_map<EmbreeSceneWPtr, unsigned int> ids();
     std::unordered_map<EmbreeSceneWPtr, unsigned int> ids() const;
 
+    /**
+     * @brief Get unique (per scene) ID
+     * 
+     * @param scene  scene the object was attached to
+     * @return unsigned int  returns geometry id
+     */
     unsigned int id(EmbreeScenePtr scene) const;
 
-    // actually multiple scenes are supported as parents
-
-    // EmbreeSceneWSet parents;
     std::unordered_set<EmbreeSceneWPtr> parents;
-
     std::string name;
+
 protected:
 
     bool anyParentCommittedOnce() const;

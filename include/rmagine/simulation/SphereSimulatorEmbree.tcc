@@ -95,7 +95,7 @@ void SphereSimulatorEmbree::simulate(
                     {
                         if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
                         {
-                            ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.instID;
+                            ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.instID[0];
                         } else {
                             ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
                         }

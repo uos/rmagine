@@ -318,6 +318,10 @@ add_subdirectory(src/rmagine_tests/memory)
 add_subdirectory(src/rmagine_tests/memory_slicing)
 add_subdirectory(src/rmagine_tests/embree_sim)
 
+if(${embree_FOUND})
+add_subdirectory(src/rmagine_tests/assimp_to_embree)
+endif()
+
 if(Eigen3_FOUND)
     add_subdirectory(src/rmagine_tests/basic_math)
 endif(Eigen3_FOUND)

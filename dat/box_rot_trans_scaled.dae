@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.82.7</authoring_tool>
     </contributor>
-    <created>2022-07-28T23:38:31</created>
-    <modified>2022-07-28T23:38:31</modified>
+    <created>2022-07-30T14:31:23</created>
+    <modified>2022-07-30T14:31:23</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -147,15 +147,15 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">0.6859207 -0.3240135 0.6515582 7.358891 0.7276763 0.3054208 -0.6141704 -6.925791 0 0.8953956 0.4452714 4.958309 0 0 0 1</matrix>
+        <matrix sid="transform">0.7276763 0.3054208 -0.6141704 -6.925791 -0.6859207 0.3240135 -0.6515582 -7.358891 0 0.8953956 0.4452714 4.958309 0 0 0 1</matrix>
         <instance_camera url="#Camera-camera"/>
       </node>
       <node id="Light" name="Light" type="NODE">
-        <matrix sid="transform">-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1</matrix>
+        <matrix sid="transform">0.9551712 -0.1998834 0.2183912 1.005454 0.2908646 0.7711008 -0.5663932 -4.076245 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1</matrix>
         <instance_light url="#Light-light"/>
       </node>
       <node id="Cube" name="Cube" type="NODE">
-        <matrix sid="transform">0.3708175 -0.1631254 -0.2101446 1.194115 0.06499282 0.4051323 -0.1998001 0.001550209 0.2579663 0.1324168 0.3524138 0.3568095 0 0 0 1</matrix>
+        <matrix sid="transform">0.1414213 0.1414213 0 0 -0.1414213 0.1414213 0 -5 0 0 0.2 0 0 0 0 1</matrix>
         <instance_geometry url="#Cube-mesh" name="Cube">
           <bind_material>
             <technique_common>

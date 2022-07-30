@@ -73,6 +73,8 @@ void EmbreeMesh::init(
     Nvertices = amesh->mNumVertices;
     Nfaces = amesh->mNumFaces;
 
+    name = amesh->mName.C_Str();
+
     const aiVector3D* ai_vertices = amesh->mVertices;
     int num_vertices = amesh->mNumVertices;
 
@@ -158,24 +160,6 @@ void EmbreeMesh::apply()
     {
         rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
     }
-    // bool parent_updated_once = false;
-
-    // for(auto parent : parents)
-    // {
-    //     if(parent_ptr->committedOnce())
-    //     {
-    //         parent_updated_once = true;
-    //         break;
-    //     }
-    // }
-
-    // if(EmbreeScenePtr parent_ptr = parent.lock())
-    // {
-    //     if(parent_ptr->committedOnce())
-    //     {
-    //         rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
-    //     }
-    // }
 }
 
 } // namespace rmagine

@@ -55,7 +55,6 @@ public:
     Memory<Vector, RAM> vertex_normals;
     Memory<Vector, RAM> face_normals;
 
-
     void computeFaceNormals();
 
     /**
