@@ -85,7 +85,7 @@ void EmbreeGeometry::commit()
     rtcCommitGeometry(m_handle);
 }
 
-void EmbreeGeometry::cleanup_parents()
+void EmbreeGeometry::cleanupParents()
 {
     for(auto it = parents.begin(); it != parents.end();)
     {
@@ -98,24 +98,59 @@ void EmbreeGeometry::cleanup_parents()
     }
 }
 
-std::unordered_map<unsigned int, EmbreeSceneWPtr> EmbreeGeometry::ids()
+std::unordered_map<EmbreeSceneWPtr, unsigned int> EmbreeGeometry::ids()
 {
-    std::unordered_map<unsigned int, EmbreeSceneWPtr> ret;
+    std::unordered_map<EmbreeSceneWPtr, unsigned int> ret;
 
-    cleanup_parents();
+    cleanupParents();
 
     for(auto it = parents.begin(); it != parents.end(); ++it)
     {
         if(auto parent = it->lock())
         {
             // parent exists
-            ret[parent->get(shared_from_this())] = parent;
+            ret[parent] = parent->get(shared_from_this());
         }
     }
 
     return ret;
 }
 
+std::unordered_map<EmbreeSceneWPtr, unsigned int> EmbreeGeometry::ids() const
+{
+    std::unordered_map<EmbreeSceneWPtr, unsigned int> ret;
+
+    for(auto it = parents.begin(); it != parents.end(); ++it)
+    {
+        if(auto parent = it->lock())
+        {
+            // parent exists
+            ret[parent] = parent->get(shared_from_this());
+        }
+    }
+
+    return ret;
+}
+
+unsigned int EmbreeGeometry::id(EmbreeScenePtr scene) const
+{
+    return scene->get(shared_from_this());
+}
+
+bool EmbreeGeometry::anyParentCommittedOnce() const
+{
+    for(auto parentw : parents)
+    {
+        if(auto parent = parentw.lock())
+        {
+            if(parent->committedOnce())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}   
 
 
 } // namespace rmagine

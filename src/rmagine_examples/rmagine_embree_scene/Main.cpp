@@ -50,7 +50,7 @@ void scene_2()
     scene.reset();
     std::cout << "Now Scene should be destroyed but not the sphere" << std::endl;
 
-    if(!sphere->parent.lock())
+    if(sphere->parents.find(scene) == sphere->parents.end())
     {
         std::cout << "- sphere noticed parent was destroyed." << std::endl;
     }
@@ -72,7 +72,7 @@ void scene_3()
 
     std::cout << "Removed mesh from scene. the next numbers should be 0" << std::endl;
     std::cout << scene->count<EmbreeMesh>() << std::endl;
-    std::cout << sphere->parent.lock() << std::endl;
+    std::cout << sphere->parents.count(scene) << std::endl;
 }
 
 void scene_4()
@@ -549,7 +549,7 @@ void scene_9()
         sw();
         for(size_t i=0; i<100; i++)
         {
-            EmbreeInstancePtr inst = scene->get_as<EmbreeInstance>(i);
+            EmbreeInstancePtr inst = scene->getAs<EmbreeInstance>(i);
             auto T = inst->transform();
             T.t.x -= 5.0;
             inst->setTransform(T);
@@ -571,7 +571,7 @@ void scene_9()
         sw();
         for(size_t i=100; i<200; i++)
         {
-            EmbreeMeshPtr sphere = scene->get_as<EmbreeMesh>(i);
+            EmbreeMeshPtr sphere = scene->getAs<EmbreeMesh>(i);
             auto T = sphere->transform();
             T.t.x -= 5.0;
             sphere->setTransform(T);
@@ -638,18 +638,18 @@ void scene_11()
     
 
     // now cylinder is attached to two scenes
-    std::cout << "ID -> SCENE" << std::endl;
+    std::cout << "SCENE -> ID" << std::endl;
     auto ids = cylinder->ids();
     for(auto elem : ids)
     {
-        std::cout << "- " << elem.first;
-        if(elem.second.lock() == scene)
+        
+        if(elem.first.lock() == scene)
         {
-            std::cout << " -> scene 1";
-        } else if(elem.second.lock() == scene2) {
-            std::cout << " -> scene 2";
+            std::cout << "- scene 1";
+        } else if(elem.first.lock() == scene2) {
+            std::cout << "- scene 2";
         }
-        std::cout << std::endl;
+        std::cout << " -> " << elem.second << std::endl;
     }
 
 
@@ -666,18 +666,18 @@ void scene_11()
 
     std::cout << "Cylinder removed from scene 1" << std::endl;
 
-    std::cout << "ID -> SCENE" << std::endl;
+    std::cout << "SCENE -> ID" << std::endl;
     ids = cylinder->ids();
     for(auto elem : ids)
     {
-        std::cout << "- " << elem.first;
-        if(elem.second.lock() == scene)
+        
+        if(elem.first.lock() == scene)
         {
-            std::cout << " -> scene 1";
-        } else if(elem.second.lock() == scene2) {
-            std::cout << " -> scene 2";
+            std::cout << "- scene 1";
+        } else if(elem.first.lock() == scene2) {
+            std::cout << "- scene 2";
         }
-        std::cout << std::endl;
+        std::cout << " -> " << elem.second << std::endl;
     }
 }
 

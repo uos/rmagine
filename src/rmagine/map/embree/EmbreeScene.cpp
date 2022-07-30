@@ -27,6 +27,7 @@ EmbreeScene::~EmbreeScene()
     for(auto elem : m_geometries)
     {
         rtcDetachGeometry(m_scene, elem.first);
+        elem.second->cleanupParents();
     }
 
     m_geometries.clear();
@@ -63,12 +64,13 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
     {
         std::cout << "WARNING geometry seems to be already added before. same number of parents as before: " << nparents_after << std::endl; 
     }
-    geom->parent = weak_from_this();
-    geom->id = geom_id;
+    
+    // geom->id = geom_id;
     return geom_id;
 }
 
-std::optional<unsigned int> EmbreeScene::get_opt(EmbreeGeometryPtr geom) const
+std::optional<unsigned int> EmbreeScene::getOpt(
+    const EmbreeGeometryPtr geom) const
 {
     auto it = m_ids.find(geom);
     if(it != m_ids.end())
@@ -78,90 +80,57 @@ std::optional<unsigned int> EmbreeScene::get_opt(EmbreeGeometryPtr geom) const
     return {};
 }
 
-unsigned int EmbreeScene::get(EmbreeGeometryPtr geom) const
+std::optional<unsigned int> EmbreeScene::getOpt(
+    const std::shared_ptr<const EmbreeGeometry> geom) const
+{
+    return getOpt(std::const_pointer_cast<EmbreeGeometry>(geom));
+}
+
+unsigned int EmbreeScene::get(const std::shared_ptr<EmbreeGeometry> geom) const
 {
     return m_ids.at(geom);
 }
 
-bool EmbreeScene::has(EmbreeGeometryPtr geom) const
+unsigned int EmbreeScene::get(const std::shared_ptr<const EmbreeGeometry> geom) const
+{
+    // TODO check
+    return get(std::const_pointer_cast<EmbreeGeometry>(geom));
+}
+
+bool EmbreeScene::has(const EmbreeGeometryPtr geom) const
 {
     return m_ids.find(geom) != m_ids.end();
+}
+
+bool EmbreeScene::has(const std::shared_ptr<const EmbreeGeometry> geom) const
+{
+    return has(std::const_pointer_cast<EmbreeGeometry>(geom));
 }
 
 bool EmbreeScene::remove(EmbreeGeometryPtr geom)
 {
     bool ret = false;
 
-    auto geom_id_opt = get_opt(geom);
+    auto geom_id_opt = getOpt(geom);
     if(geom_id_opt)
     {
         unsigned int geom_id = *geom_id_opt;
         rtcDetachGeometry(m_scene, geom_id);
-        // TODO: geometry can be attached to multiple scenes!
-        auto self_shared = shared_from_this();
-        size_t nelements = geom->parents.erase(self_shared);
+        size_t nelements = geom->parents.erase(shared_from_this());
         if(nelements == 0)
         {
             std::cout << "WARNING could not remove self from childs parents" << std::endl;
-
-            // auto it = geom->parents.find(self_shared);
-            // if(it != geom->parents.end())
-            // {
-            //     std::cout << "- FOUND self" << std::endl;
-            // } else {
-            //     std::cout << "- self not found" << std::endl;
-            // }
-        
-            // std::cout << "try to find self in parents: " << this << std::endl;
-            
-            // EmbreeSceneWSet tmp_set;
-
-            // for(auto elem : geom->parents)
-            // {
-            //     EmbreeSceneWPtr sweak = elem;
-            //     tmp_set.insert(sweak);
-
-            //     if(auto sshared = sweak.lock())
-            //     {
-            //         std::cout << "- " << &(*sshared) 
-            //         << ", shared: " << (sshared == self_shared)
-            //         // << ", weak: " << (sweak == weak_from_this()) 
-            //         << std::endl;
-
-            //         if(sshared == self_shared)
-            //         {
-            //             bool comp = lex_compare<EmbreeScene>().debug(sshared, self_shared);
-            //             std::cout << "- debug comp: " << !comp << std::endl;
-
-            //             auto it2 = tmp_set.find(self_shared);
-            //             std::cout << "- debug comp 2: " << tmp_set.count(sshared) << std::endl;
-            //         }
-            //     }
-            // }
-
-            // // why can i find myself in a copy?
-            // std::cout << "try to find self in tmp: " 
-            //     << (tmp_set.find(self_shared) != tmp_set.end()) << std::endl;
-            
-            // // make another copy
-            // EmbreeSceneWSet geom_parents = geom->parents;
-            // std::cout << "try to find self in copy: " 
-            //     << (geom_parents.find(self_shared) != geom_parents.end()) << std::endl;
         }
         
-        
-        // std::cout << "EMBREE SCENE removed self from child: " << nelements << std::endl;
-        geom->parent.reset();
         m_geometries.erase(geom_id);
         m_ids.erase(geom);
-
         ret = true;
     }
 
     return ret;
 }
 
-EmbreeGeometryPtr EmbreeScene::get(unsigned int geom_id) const
+EmbreeGeometryPtr EmbreeScene::get(const unsigned int geom_id) const
 {
     EmbreeGeometryPtr ret;
     auto it = m_geometries.find(geom_id);
@@ -172,21 +141,26 @@ EmbreeGeometryPtr EmbreeScene::get(unsigned int geom_id) const
     return ret;
 }
 
-bool EmbreeScene::has(unsigned int geom_id) const
+bool EmbreeScene::has(const unsigned int geom_id) const
 {
     return m_geometries.find(geom_id) != m_geometries.end();
 }
 
-EmbreeGeometryPtr EmbreeScene::remove(unsigned int geom_id)
+EmbreeGeometryPtr EmbreeScene::remove(const unsigned int geom_id)
 {
     EmbreeGeometryPtr geom;
 
     if(has(geom_id))
     {
-        rtcDetachGeometry(m_scene, geom_id);
         geom = m_geometries[geom_id];
-        // TODO: geometry can be attached to multiple scenes!
-        geom->parent.reset();
+
+        rtcDetachGeometry(m_scene, geom_id);
+        size_t nelements = geom->parents.erase(shared_from_this());
+        if(nelements == 0)
+        {
+            std::cout << "WARNING could not remove self from childs parents" << std::endl;
+        }
+        
         m_geometries.erase(geom_id);
         m_ids.erase(geom);
     }
@@ -215,12 +189,12 @@ void EmbreeScene::commit()
     m_committed_once = true;
 }
 
-bool EmbreeScene::committed_once() const
+bool EmbreeScene::committedOnce() const
 {
     return m_committed_once;
 }
 
-bool EmbreeScene::is_top_level() const
+bool EmbreeScene::isTopLevel() const
 {
     return parents.empty();
 }
@@ -265,11 +239,8 @@ void EmbreeScene::optimize()
     // remove all
     for(auto instance : instances_to_optimize)
     {
-        remove(instance->id);
-        if(instance->parent.lock())
-        {
-            std::cout << "WARNING " << instance->id << " was not removed correctly" << std::endl;
-        }
+        unsigned int instance_id = m_ids[instance];
+        remove(instance_id);
 
         EmbreeMeshPtr mesh = std::dynamic_pointer_cast<EmbreeMesh>(
             instance->scene()->geometries().begin()->second);
@@ -283,9 +254,8 @@ void EmbreeScene::optimize()
             mesh->apply();
             mesh->commit();
 
-            // instance->T.setIdentity();
             unsigned int geom_id = add(mesh);
-            std::cout << "- instance " << instance->id << " optimized to mesh " << geom_id << std::endl;
+            std::cout << "- instance " << instance_id << " optimized to mesh " << geom_id << std::endl;
         }
     }
 

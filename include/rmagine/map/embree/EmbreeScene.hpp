@@ -57,17 +57,22 @@ public:
     void setFlags(RTCSceneFlags flags);
 
     unsigned int add(EmbreeGeometryPtr geom);
-    std::optional<unsigned int> get_opt(EmbreeGeometryPtr geom) const;
-    unsigned int get(EmbreeGeometryPtr geom) const;
-    bool has(EmbreeGeometryPtr geom) const;
+    std::optional<unsigned int> getOpt(const EmbreeGeometryPtr geom) const;
+    std::optional<unsigned int> getOpt(const std::shared_ptr<const EmbreeGeometry> geom) const;
+    
+    unsigned int get(const EmbreeGeometryPtr geom) const;
+    unsigned int get(const std::shared_ptr<const EmbreeGeometry> geom) const;
+
+    bool has(const EmbreeGeometryPtr geom) const;
+    bool has(const std::shared_ptr<const EmbreeGeometry> geom) const;
     bool remove(EmbreeGeometryPtr geom);
 
-    EmbreeGeometryPtr get(unsigned int geom_id) const;
-    bool has(unsigned int geom_id) const;
-    EmbreeGeometryPtr remove(unsigned int geom_id);
+    EmbreeGeometryPtr get(const unsigned int geom_id) const;
+    bool has(const unsigned int geom_id) const;
+    EmbreeGeometryPtr remove(const unsigned int geom_id);
 
     template<typename T>
-    std::shared_ptr<T> get_as(unsigned int geom_id) const;
+    std::shared_ptr<T> getAs(const unsigned int geom_id) const;
 
     std::unordered_map<EmbreeGeometryPtr, unsigned int> ids() const;
     std::unordered_map<unsigned int, EmbreeGeometryPtr> geometries() const;
@@ -87,9 +92,9 @@ public:
      * @return true 
      * @return false 
      */
-    bool committed_once() const;
+    bool committedOnce() const;
 
-    bool is_top_level() const;
+    bool isTopLevel() const;
 
     std::unordered_map<unsigned int, unsigned int> integrate(EmbreeScenePtr other);
 
@@ -100,7 +105,7 @@ public:
     void optimize();
 
     // Scene has no right to let parents stay alive
-    EmbreeInstanceWSet parents;
+    std::unordered_set<EmbreeInstanceWPtr> parents;
 private:
 
     std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
@@ -131,7 +136,7 @@ unsigned int EmbreeScene::count() const
 
 
 template<typename T>
-std::shared_ptr<T> EmbreeScene::get_as(unsigned int geom_id) const
+std::shared_ptr<T> EmbreeScene::getAs(const unsigned int geom_id) const
 {
     std::shared_ptr<T> ret;
 

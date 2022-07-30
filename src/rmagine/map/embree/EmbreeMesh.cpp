@@ -154,13 +154,28 @@ void EmbreeMesh::apply()
         vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
     }
 
-    if(EmbreeScenePtr parent_ptr = parent.lock())
+    if(anyParentCommittedOnce())
     {
-        if(parent_ptr->committed_once())
-        {
-            rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
-        }
+        rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
     }
+    // bool parent_updated_once = false;
+
+    // for(auto parent : parents)
+    // {
+    //     if(parent_ptr->committedOnce())
+    //     {
+    //         parent_updated_once = true;
+    //         break;
+    //     }
+    // }
+
+    // if(EmbreeScenePtr parent_ptr = parent.lock())
+    // {
+    //     if(parent_ptr->committedOnce())
+    //     {
+    //         rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
+    //     }
+    // }
 }
 
 } // namespace rmagine

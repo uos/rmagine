@@ -61,22 +61,23 @@ public:
 
     virtual void commit();
 
+    void cleanupParents();
 
-    void cleanup_parents();
-    std::unordered_map<unsigned int, EmbreeSceneWPtr> ids();
+    std::unordered_map<EmbreeSceneWPtr, unsigned int> ids();
+    std::unordered_map<EmbreeSceneWPtr, unsigned int> ids() const;
+
+    unsigned int id(EmbreeScenePtr scene) const;
 
     // actually multiple scenes are supported as parents
 
-    
-    EmbreeSceneWSet parents;
+    // EmbreeSceneWSet parents;
+    std::unordered_set<EmbreeSceneWPtr> parents;
 
-    // TODO: remove
-    EmbreeSceneWPtr parent;
-    // unique per scene. remove?
-    unsigned int id;
     std::string name;
-
 protected:
+
+    bool anyParentCommittedOnce() const;
+
     EmbreeDevicePtr m_device;
     RTCGeometry m_handle;
 

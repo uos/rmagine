@@ -175,7 +175,8 @@ void EmbreeMap::set(const aiScene* ascene)
     for(auto instance : instances)
     {
         unsigned int inst_id = scene->add(instance);
-        if(!instance->parent.lock())
+        
+        if(instance->parents.find(scene) == instance->parents.end())
         {
             std::cout << "WARNING Added instance has no parent scene!" << std::endl;
         }
@@ -184,7 +185,7 @@ void EmbreeMap::set(const aiScene* ascene)
 
     for(auto mesh : meshes_tmp)
     {
-        if(!mesh->parent.lock())
+        if(mesh->parents.find(scene) == mesh->parents.end())
         {
             // std::cout << "Add mesh without parent " << mesh->name << " " << mesh->id << std::endl;
             // std::cout << "- vertices, faces: " << mesh->vertices.size() << ", " << mesh->Nfaces << std::endl;
