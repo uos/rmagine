@@ -145,7 +145,6 @@ EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 {
     EmbreeSceneSettings tmp;
     scene = std::make_shared<EmbreeScene>(tmp, device);
-    
     // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
     // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
 }

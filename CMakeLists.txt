@@ -123,6 +123,7 @@ add_library(rmagine SHARED
     # Util
     src/rmagine/util/StopWatch.cpp
     src/rmagine/util/synthetic.cpp
+    src/rmagine/util/assimp/helper.cpp
     # # Noise
     src/rmagine/noise/noise.cpp
 )

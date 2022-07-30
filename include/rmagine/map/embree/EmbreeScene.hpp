@@ -8,6 +8,7 @@
 #include <memory>
 #include <unordered_map>
 #include <optional>
+#include <assimp/scene.h>
 
 namespace rmagine
 {
@@ -148,6 +149,9 @@ std::shared_ptr<T> EmbreeScene::getAs(const unsigned int geom_id) const
 
     return ret;
 }
+
+
+EmbreeScenePtr make_embree_scene(const aiScene* ascene);
 
 
 } // namespace rmagine
