@@ -134,7 +134,10 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
 
         
         EmbreeMeshPtr mesh = meshes[mesh_id];
-        std::cout << "-- instanciate mesh " << mesh_id << ", " << mesh->name <<  " at " << T << " with scale " << scale << std::endl;
+        EulerAngles e;
+        e.set(T.R);
+
+        std::cout << "-- instanciate mesh " << mesh_id << ", " << mesh->name <<  " at " << T.t << ", " << e << " with scale " << scale << std::endl;
 
         EmbreeScenePtr mesh_scene;
         if(mesh_scenes.find(mesh) != mesh_scenes.end())
@@ -148,8 +151,6 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
             std::cout << "--- created new scene for mesh: mesh_scene" << std::endl;
         }
 
-        
-        
         mesh_scene->add(mesh);
         mesh_scene->commit();
         std::cout << "--- mesh added to mesh_scene" << std::endl;
@@ -204,15 +205,18 @@ int main(int argc, char** argv)
     std::cout << "Start converting scene" << std::endl;
 
     auto scene = make_embree_scene(ascene);
-    
-
+    // scene->optimize();
     scene->commit();
-
-
-    printRaycast(scene, {5.0, 0.0, 0.0}, {0.0, 0.0, 1.0});
     
-
+    printRaycast(scene, {5.0, 2.0, 3.0}, {1.0, 0.0, 0.0});
     
+    // rotated 45 degrees around z axis. (1,1) | (1,-1) | (-1,1) | (-1,-1)
+    // should all give 0.2 range
+
+    Vector3 dir{1.0, 1.0, 0.0};
+    dir.normalize();
+    printRaycast(scene, {5.0, 2.0, 3.0}, dir);
+    printRaycast(scene, {5.0, 2.0, 3.0}, {0.0, 0.0, 1.0});
 
     return 0;
 }

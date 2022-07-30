@@ -46,7 +46,7 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Matrix4x4& M)
 
 inline std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
 {
-    os << "E [" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
+    os << "E[" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
     return os;
 }
 
