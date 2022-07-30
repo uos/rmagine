@@ -209,7 +209,7 @@ int main(int argc, char** argv)
     scene->commit();
 
 
-    printRaycast(scene, {0.0, 0.0, 5.0}, {0.0, 0.0, 1.0});
+    printRaycast(scene, {5.0, 0.0, 0.0}, {0.0, 0.0, 1.0});
     
 
     

@@ -118,7 +118,6 @@ void scene_4()
 
     if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
     {
-        
         std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
     }
 
