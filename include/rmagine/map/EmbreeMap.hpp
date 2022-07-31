@@ -138,7 +138,7 @@ static EmbreeMapPtr importEmbreeMap(
 
     if(!scene)
     {
-        std::cerr << io.Import::GetErrorString() << std::endl;
+        std::cerr << io.Importer::GetErrorString() << std::endl;
     }
 
     if(!scene->HasMeshes())

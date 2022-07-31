@@ -19,8 +19,8 @@ class AssimpIO
 , public Assimp::Exporter
 {
 public:
-    using Import = Assimp::Importer;
-    using Export = Assimp::Exporter;
+    using Importer = Assimp::Importer;
+    using Exporter = Assimp::Exporter;
     AssimpIO();
 };
 

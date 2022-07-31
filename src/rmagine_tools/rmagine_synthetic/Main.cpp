@@ -5,11 +5,10 @@
 #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/util/synthetic.h>
 
-#include <assimp/Exporter.hpp>
+#include <rmagine/map/AssimpIO.hpp>
 
 #include <unordered_map>
 #include <functional>
-
 
 #include <iomanip>
 
@@ -54,8 +53,8 @@ int main(int argc, char** argv)
     {
         aiScene scene = gen_map_it->second();
 
-        Assimp::Exporter exporter;
-        exporter.Export(&scene, "ply", filename);
+        AssimpIO io;
+        io.Export(&scene, "ply", filename);
     } else {
         std::cout << "mesh_type '" << mesh_type << "' not implemented." << std::endl; 
     }
