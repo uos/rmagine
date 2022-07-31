@@ -44,9 +44,6 @@
 #include "AssimpMap.hpp"
 #include "Map.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 #include <rmagine/types/MemoryCuda.hpp>
 
@@ -57,6 +54,7 @@
 
 #include <rmagine/util/cuda/CudaContext.hpp>
 #include <rmagine/util/optix/OptixContext.hpp>
+#include "AssimpIO.hpp"
 
 namespace rmagine {
 struct OptixAccelerationStructure
@@ -200,13 +198,13 @@ static OptixMapPtr importOptixMap(
     const std::string& meshfile, 
     int device = 0)
 {
-    Assimp::Importer importer;
+    AssimpIO io;
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = importer.ReadFile(meshfile, 0);
+    const aiScene* scene = io.ReadFile(meshfile, 0);
 
     if(!scene)
     {
-        std::cerr << importer.GetErrorString() << std::endl;
+        std::cerr << io.Import::GetErrorString() << std::endl;
     }
 
     if(!scene->HasMeshes())
@@ -225,13 +223,13 @@ static OptixMapPtr importOptixMap(
 static OptixMapPtr importOptixMap(
     const std::string& meshfile, OptixContextPtr optix_ctx)
 {
-    Assimp::Importer importer;
+    AssimpIO io;
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = importer.ReadFile(meshfile, 0);
+    const aiScene* scene = io.ReadFile(meshfile, 0);
 
     if(!scene)
     {
-        std::cerr << importer.GetErrorString() << std::endl;
+        std::cerr << io.Import::GetErrorString() << std::endl;
     }
 
     if(!scene->HasMeshes())

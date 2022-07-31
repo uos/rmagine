@@ -40,6 +40,7 @@
 #include <string>
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
+#include <assimp/Exporter.hpp>
 #include <rmagine/math/types.h>
 
 namespace rmagine {

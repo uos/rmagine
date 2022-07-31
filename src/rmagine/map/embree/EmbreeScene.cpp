@@ -38,6 +38,7 @@ EmbreeScene::~EmbreeScene()
     m_ids.clear();
 
     rtcReleaseScene(m_scene);
+    
     // std::cout << "[EmbreeScene::~EmbreeScene()] destroyed." << std::endl;
 }
 
@@ -56,13 +57,10 @@ unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
     unsigned int geom_id = rtcAttachGeometry(m_scene, geom->handle());
     m_geometries[geom_id] = geom;
     m_ids[geom] = geom_id;
-    // TODO: geometry can be attached to multiple scenes!
+    
     size_t nparents_before = geom->parents.size();
-    // std::cout << "parents before: " << geom->parents.size() << std::endl;
     geom->parents.insert(weak_from_this());
-    // std::cout << "parents after: " << geom->parents.size() << std::endl;
     size_t nparents_after = geom->parents.size();
-
 
     if(nparents_after == nparents_before)
     {
@@ -266,76 +264,83 @@ void EmbreeScene::optimize()
     std::cout << "[EmbreeScene::optimize()] finished optimizing scene.." << std::endl;
 }
 
-
 EmbreeScenePtr make_embree_scene(const aiScene* ascene)
 {   
     EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
 
-    std::vector<EmbreeMeshPtr> meshes;
+    // std::vector<EmbreeMeshPtr> meshes;
+
+    std::map<unsigned int, EmbreeMeshPtr> meshes;
 
     // 1. meshes
     for(size_t i=0; i<ascene->mNumMeshes; i++)
     {
+        // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
         const aiMesh* amesh = ascene->mMeshes[i];
-        EmbreeMeshPtr mesh = std::make_shared<EmbreeMesh>(amesh);
-        mesh->commit();
-        meshes.push_back(mesh);
+
+        if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+        {
+            // triangle mesh
+            EmbreeMeshPtr mesh = std::make_shared<EmbreeMesh>(amesh);
+            mesh->commit();
+            meshes[i] = mesh;
+        } else {
+            std::cout << "[ make_embree_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
+        }
     }
 
-    std::unordered_map<EmbreeMeshPtr, EmbreeScenePtr> mesh_scenes;
-
-    std::vector<EmbreeInstancePtr> instances;
+    std::unordered_set<EmbreeGeometryPtr> instanciated_meshes;
 
     // 2. instances
     const aiNode* root_node = ascene->mRootNode;
     std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
 
-    // std::cout << "Got " << mesh_nodes.size() << " nodes with meshes" << std::endl;
-
+    std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
         const aiNode* node = mesh_nodes[i];
-        // std::cout << "- " << i << ": " << node->mName.C_Str();
-        // std::cout << ", total path: ";
-
-        Matrix4x4 M = global_transform(node);
+        std::cout << "- " << i << ": " << node->mName.C_Str();
+        std::cout << ", total path: ";
 
         std::vector<std::string> path = path_names(node);
 
-        // for(auto name : path)
-        // {
-        //     std::cout << name << "/";
-        // }
-        // std::cout << std::endl;
+        for(auto name : path)
+        {
+            std::cout << name << "/";
+        }
+        std::cout << std::endl;
         
-        // std::cout << "- Transformation Matrix: " << std::endl;
-        // std::cout << M << std::endl;
+        Matrix4x4 M = global_transform(node);
         Transform T;
         Vector3 scale;
         decompose(M, T, scale);
-        
-        unsigned int mesh_id = node->mMeshes[0];
 
-        EmbreeMeshPtr mesh = meshes[mesh_id];
-        EulerAngles e;
-        e.set(T.R);
-
-        // std::cout << "-- instanciate mesh " << mesh_id << ", " << mesh->name <<  " at " << T.t << ", " << e << " with scale " << scale << std::endl;
-
-        EmbreeScenePtr mesh_scene;
-        if(mesh_scenes.find(mesh) != mesh_scenes.end())
         {
-            // take existing scene
-            mesh_scene = mesh_scenes[mesh];
-        } else {
-            // new scene required
-            mesh_scene = std::make_shared<EmbreeScene>();
-            mesh_scenes[mesh] = mesh_scene;
-            // std::cout << "--- created new scene for mesh: mesh_scene" << std::endl;
+            std::cout << "- Transformation Matrix: " << std::endl;
+            std::cout << M << std::endl;
+            std::cout << "- Transform: " << T << ", scale: " << scale << std::endl;
+            EulerAngles euler;
+            euler.set(T.R);
         }
 
-        mesh_scene->add(mesh);
+        EmbreeScenePtr mesh_scene = std::make_shared<EmbreeScene>();
+
+        for(unsigned int i = 0; i<node->mNumMeshes; i++)
+        {
+            unsigned int mesh_id = node->mMeshes[i];
+            auto mesh_it = meshes.find(mesh_id);
+            if(mesh_it != meshes.end())
+            {
+                // mesh found
+                EmbreeMeshPtr mesh = mesh_it->second;
+                instanciated_meshes.insert(mesh);
+                mesh_scene->add(mesh);
+                mesh_scene->commit();
+            }
+        }
+
         mesh_scene->commit();
+
         // std::cout << "--- mesh added to mesh_scene" << std::endl;
 
         EmbreeInstancePtr mesh_instance = std::make_shared<EmbreeInstance>();
@@ -351,11 +356,12 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
 
     // std::cout << "add meshes that are not instanciated ..." << std::endl;
     // ADD MESHES THAT ARE NOT INSTANCIATED
-    for(auto mesh : meshes)
+    for(auto elem : meshes)
     {
-        if(mesh_scenes.find(mesh) == mesh_scenes.end())
+        auto mesh = elem.second;
+        if(instanciated_meshes.find(mesh) == instanciated_meshes.end())
         {
-            // mesh was not instanciated
+            // mesh was never instanciated. add to scene
             scene->add(mesh);
         }
     }

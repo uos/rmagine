@@ -81,6 +81,11 @@ void EmbreeMesh::init(
     const aiFace* ai_faces = amesh->mFaces;
     int num_faces = amesh->mNumFaces;
 
+    if(!(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE) )
+    {
+        std::cout << "[EmbreeMesh::init()] WARNING: aiMesh* has no triangles. prim type: " << amesh->mPrimitiveTypes << std::endl; 
+    }
+
     vertices.resize(Nvertices);
 
     vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,

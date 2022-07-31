@@ -11,7 +11,7 @@ AssimpMap::AssimpMap(const aiScene* scene)
 AssimpMap::AssimpMap(std::string filename)
 {
     Assimp::Importer importer;
-    scene = importer.ReadFile( filename, 0);
+    scene = importer.ReadFile(filename, 0);
 
     if(!scene)
     {
@@ -24,4 +24,4 @@ AssimpMap::AssimpMap(std::string filename)
     }
 }
 
-} // namespace mamcl
+} // namespace rmagine

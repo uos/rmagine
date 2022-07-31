@@ -11,15 +11,21 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Vector& v)
     return os;
 }
 
+inline std::ostream& operator<<(std::ostream& os, const rmagine::AABB& aabb)
+{
+    os << "AABB [" << aabb.min <<  " - " << aabb.max << "]";
+    return os;
+}
+
 inline std::ostream& operator<<(std::ostream& os, const rmagine::Quaternion& q)
 {
     os << "q[" << q.x << "," << q.y << "," << q.z << "," << q.w << "]";
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
 {
-    os << "T[" << T.t << ", " << T.R << "]";
+    os << "E[" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
     return os;
 }
 
@@ -44,17 +50,12 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Matrix4x4& M)
     return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const rmagine::EulerAngles& e)
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform& T)
 {
-    os << "E[" << e.roll << ", " << e.pitch << ", " << e.yaw << "]";
+    rmagine::EulerAngles e;
+    e.set(T.R);
+    os << "T[" << T.t << ", " << e << "]";
     return os;
 }
-
-inline std::ostream& operator<<(std::ostream& os, const rmagine::AABB& aabb)
-{
-    os << "AABB [" << aabb.min <<  " - " << aabb.max << "]";
-    return os;
-}
-
 
 #endif // RMAGINE_UTIL_PRINTS_H

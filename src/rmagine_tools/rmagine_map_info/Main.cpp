@@ -1,6 +1,7 @@
 
 #include <rmagine/util/assimp/prints.h>
 #include <assimp/Importer.hpp>
+#include <rmagine/map/AssimpIO.hpp>
 
 using namespace rmagine;
 
@@ -21,8 +22,8 @@ int main(int argc, char** argv)
     std::cout << "Inputs: " << std::endl;
     std::cout << "- filename: " << filename << std::endl;
 
-    Assimp::Importer importer;
-    const aiScene* ascene = importer.ReadFile(filename, 0);
+    AssimpIO io;
+    const aiScene* ascene = io.ReadFile(filename, 0);
 
     print(ascene);
 

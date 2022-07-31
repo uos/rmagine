@@ -61,6 +61,7 @@
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/math/assimp_conversions.h>
+#include "AssimpIO.hpp"
 
 #include "embree/EmbreeDevice.hpp"
 #include "embree/EmbreeScene.hpp"
@@ -125,38 +126,19 @@ protected:
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
 
-// static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
-// {
-//     Assimp::Importer importer;
-//     // aiProcess_GenNormals does not work!
-//     const aiScene* scene = importer.ReadFile(meshfile, 0);
-
-//     if(!scene)
-//     {
-//         std::cerr << importer.GetErrorString() << std::endl;
-//     }
-
-//     if(!scene->HasMeshes())
-//     {
-//         std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
-//     }
-
-//     EmbreeMapPtr map(new EmbreeMap(scene) );
-//     return map;
-// }
-
 static EmbreeMapPtr importEmbreeMap(
     const std::string& meshfile,
     EmbreeDevicePtr device = embree_default_device())
 {
-    std::cout << "importEmbreeMap" << std::endl;
-    Assimp::Importer importer;
+    std::cout << "importEmbreeMap - WARNING deprecated" << std::endl;
+    AssimpIO io;
+
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = importer.ReadFile( meshfile, 0);
+    const aiScene* scene = io.ReadFile( meshfile, 0);
 
     if(!scene)
     {
-        std::cerr << importer.GetErrorString() << std::endl;
+        std::cerr << io.Import::GetErrorString() << std::endl;
     }
 
     if(!scene->HasMeshes())
