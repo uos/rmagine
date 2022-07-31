@@ -130,8 +130,17 @@ void EmbreeMesh::init(
 
 void EmbreeMesh::computeFaceNormals()
 {
-    face_normals.resize(Nfaces);
-    face_normals_transformed.resize(Nfaces);
+    if(face_normals.size() != Nfaces)
+    {
+        face_normals.resize(Nfaces);
+    }
+
+    if(face_normals_transformed.size() != Nfaces)
+    {
+        face_normals_transformed.resize(Nfaces);
+    }
+    
+    
     for(size_t i=0; i<Nfaces; i++)
     {
         const Vector v0 = vertices[faces[i].v0];

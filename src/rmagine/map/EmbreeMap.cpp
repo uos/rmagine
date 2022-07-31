@@ -194,7 +194,7 @@ void EmbreeMap::set(const aiScene* ascene)
         }
     }
 
-    bool is_static = true;
+    bool is_static = false;
 
     // optimize
     if(is_static)
