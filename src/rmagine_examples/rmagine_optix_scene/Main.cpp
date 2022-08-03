@@ -9,9 +9,14 @@
 // #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/map/optix/OptixMesh.hpp>
 #include <rmagine/map/optix/OptixInstance.hpp>
+#include <rmagine/map/optix/OptixScene.hpp>
 
 #include <rmagine/util/prints.h>
 #include <rmagine/util/StopWatch.hpp>
+
+#include <rmagine/util/IDGen.hpp>
+
+#include <rmagine/simulation/SphereSimulatorOptix.hpp>
 
 using namespace rmagine;
 namespace rm = rmagine;
@@ -19,6 +24,9 @@ namespace rm = rmagine;
 void scene_1()
 {
     std::cout << "Make Optix Mesh" << std::endl;
+
+    OptixScenePtr scene = std::make_shared<OptixScene>(); 
+
 
     OptixMeshPtr mesh = std::make_shared<OptixMesh>();
 
@@ -54,7 +62,37 @@ void scene_1()
     }
 
     // MAKE INSTANCE
-    OptixInstancePtr mesh_inst = std::make_shared<rm::OptixInstance>(mesh);
+
+    for(size_t i=0; i<100; i++)
+    {
+        OptixInstPtr mesh_inst = std::make_shared<OptixInst>(mesh);
+
+        Transform T;
+        T.setIdentity();
+        T.t.x = static_cast<float>(i);
+        mesh_inst->setTransform(T);
+
+        unsigned int id = scene->add(mesh_inst);
+        std::cout << "Added Instance " << id << std::endl;
+    }
+
+    scene->commit();
+
+    StopWatch sw;
+    double el;
+
+    sw();
+    for(size_t i=0; i<100; i++)
+    {
+        scene->commit();
+    }
+    el = sw();
+    
+    std::cout << "Updated scene 100 times in " << el << "s" << std::endl;
+    
+    // raycast
+
+    SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>();
 
 
 

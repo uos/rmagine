@@ -56,31 +56,12 @@
 #include <rmagine/util/optix/OptixContext.hpp>
 #include "AssimpIO.hpp"
 
+#include "optix/OptixAccelerationStructure.hpp"
+
+#include "optix/OptixMesh.hpp"
+
+
 namespace rmagine {
-struct OptixAccelerationStructure
-{
-    OptixTraversableHandle      handle;
-    CUdeviceptr                 buffer;
-};
-
-/**
- * @brief Single mesh. 
- * - Cuda Buffers for vertices, faces, normals
- * - TraversableHandle for raytracing
- */
-struct OptixMesh {
-    // Handle of geometry acceleration structure
-    unsigned int id;
-
-    Memory<Point, VRAM_CUDA>    vertices;
-    Memory<Face, VRAM_CUDA>     faces;
-    Memory<Vector, VRAM_CUDA>   normals;
-
-    // GAS
-    OptixAccelerationStructure  gas;
-};
-
-using OptixMeshPtr = std::shared_ptr<OptixMesh>;
 
 /**
  * @brief One instance is a transformed version of a mesh
@@ -88,11 +69,6 @@ using OptixMeshPtr = std::shared_ptr<OptixMesh>;
  * - Example: asteroids. Only one mesh for a lot of instances
  * 
  */
-// struct OptixInstance {
-//     Transform T; // Or Matrix4x4 ?
-//     OptixMeshPtr mesh; // connect a mesh to a instance
-// };
-
 using OptixInstancePtr = std::shared_ptr<OptixInstance>;
 
 class OptixMap : public Map {
@@ -106,7 +82,7 @@ public:
      */
     OptixMap(
         const aiScene* ascene, 
-        int device = 0);
+        int device);
 
     /**
      * @brief Construct a new Optix Map object
@@ -116,7 +92,7 @@ public:
      */
     OptixMap(
         const aiScene* ascene, 
-        OptixContextPtr optix_ctx);
+        OptixContextPtr optix_ctx = optix_default_context());
 
     ~OptixMap();
 

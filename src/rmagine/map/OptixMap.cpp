@@ -3,6 +3,8 @@
 #include "rmagine/types/MemoryCuda.hpp"
 #include "rmagine/util/GenericAlign.hpp"
 
+#include "rmagine/math/assimp_conversions.h"
+
 #include <optix.h>
 #include <optix_stubs.h>
 
@@ -46,7 +48,7 @@ OptixMap::~OptixMap()
     {
         for(size_t i=0; i<meshes.size(); i++)
         {
-            cudaFree( reinterpret_cast<void*>( meshes[i].gas.buffer ) );
+            cudaFree(reinterpret_cast<void*>( meshes[i].handle()->buffer ) );
         }
     }
 
@@ -77,15 +79,16 @@ void OptixMap::buildStructures(const aiScene* ascene)
         // Build GASes
         for(unsigned int mesh_id = 0; mesh_id < meshes.size(); mesh_id++)
         {
-            // OptixMesh& mesh = meshes[mesh_id];
-            buildGAS(meshes[mesh_id], meshes[mesh_id].gas);
+            OptixMesh& mesh = meshes[mesh_id];
+            mesh.apply();
+            mesh.commit();
+            // buildGAS(meshes[mesh_id], *meshes[mesh_id].handle());
         }
 
         // Get Instance information and fill the instances memory
         fillInstances(ascene);
         // Build the GAS
         buildIAS(instances, as);
-
     } else {
         buildGAS(meshes[0], as);
     }
@@ -107,7 +110,7 @@ void OptixMap::fillMeshes(const aiScene* ascene)
 
         mesh.vertices.resize(num_vertices);
         mesh.faces.resize(num_faces);
-        mesh.normals.resize(num_faces);
+        mesh.face_normals.resize(num_faces);
 
         Memory<Point, RAM> vertices_cpu(num_vertices);
         Memory<Face, RAM> faces_cpu(num_faces);
@@ -150,7 +153,7 @@ void OptixMap::fillMeshes(const aiScene* ascene)
 
         mesh.vertices = vertices_cpu;
         mesh.faces = faces_cpu;
-        mesh.normals = normals_cpu;
+        mesh.face_normals = normals_cpu;
         meshes[mesh_id] = mesh;
     }
 }
@@ -199,6 +202,8 @@ void OptixMap::fillInstances(const aiScene* ascene)
             // convert 
             OptixInstance& instance = instances[mesh_id];
 
+            // Matrix4x4 M = convert(T);
+
             // Build IAS
             instance.transform[ 0] = T.a1; // Rxx
             instance.transform[ 1] = T.a2; // Rxy
@@ -218,7 +223,7 @@ void OptixMap::fillInstances(const aiScene* ascene)
             instance.visibilityMask = 255;
             // you could override the geometry flags here: OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT
             instance.flags = OPTIX_INSTANCE_FLAG_NONE;
-            instance.traversableHandle = meshes[mesh_id].gas.handle;
+            instance.traversableHandle = meshes[mesh_id].handle()->handle;
         }
     }
 

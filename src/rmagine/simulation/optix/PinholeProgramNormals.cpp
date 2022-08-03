@@ -229,7 +229,7 @@ PinholeProgramNormals::PinholeProgramNormals(OptixMapPtr map)
     Memory<Vector*, RAM> normals_cpu(map->meshes.size());
     for(size_t i=0; i<map->meshes.size(); i++)
     {
-        normals_cpu[i] = map->meshes[i].normals.raw();
+        normals_cpu[i] = map->meshes[i].face_normals.raw();
     }
 
     // TODO: check if this will be freed

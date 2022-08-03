@@ -21,6 +21,11 @@
 namespace rmagine
 {
 
+/**
+//  * @brief Single mesh. 
+//  * - Cuda Buffers for vertices, faces, vertex_normals and face_normals
+//  * - TraversableHandle for raytracing
+//  */
 class OptixMesh : public OptixGeometry
 {
 public:
@@ -43,7 +48,6 @@ private:
     Memory<Point, VRAM_CUDA>    vertices_;
     Memory<Vector, VRAM_CUDA>   face_normals_;
     Memory<Vector, VRAM_CUDA>   vertex_normals_;
-
 };
 
 using OptixMeshPtr = std::shared_ptr<OptixMesh>;

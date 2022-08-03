@@ -270,7 +270,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
     Memory<Vector*, RAM> normals_cpu(map->meshes.size());
     for(size_t i=0; i<map->meshes.size(); i++)
     {
-        normals_cpu[i] = map->meshes[i].normals.raw();
+        normals_cpu[i] = map->meshes[i].face_normals.raw();
     }
     
     cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));

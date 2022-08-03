@@ -6,33 +6,33 @@
 
 #include <optix_types.h>
 
-namespace optix
-{
-    // using OptixInstance = ::OptixInstace;
-    using OptixInstancePtr = std::shared_ptr<OptixInstance>;
-}
-
 namespace rmagine
 {
 
-class OptixInstance : public OptixGeometry
+class OptixInst : public OptixGeometry
 {
 public:
     using Base = OptixGeometry;
 
-    OptixInstance(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
+    OptixInst(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
 
-    virtual ~OptixInstance();
+    virtual ~OptixInst();
 
     virtual void apply();
 
+    void setId(unsigned int id);
+
+    unsigned int id() const;
+
+    OptixInstance data() const;
+
     virtual void commit();
 protected:
-    ::OptixInstance m_instance;
+    OptixInstance m_data;
     OptixGeometryPtr m_geom;
 };
 
-using OptixInstancePtr = std::shared_ptr<OptixInstance>;
+using OptixInstPtr = std::shared_ptr<OptixInst>;
 
 } // namespace rmagine
 

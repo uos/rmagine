@@ -125,6 +125,7 @@ add_library(rmagine SHARED
     src/rmagine/util/StopWatch.cpp
     src/rmagine/util/synthetic.cpp
     src/rmagine/util/assimp/helper.cpp
+    src/rmagine/util/IDGen.cpp
     # # Noise
     src/rmagine/noise/noise.cpp
 )
@@ -266,6 +267,7 @@ if(OptiX_FOUND)
         src/rmagine/map/optix/OptixGeometry.cpp
         src/rmagine/map/optix/OptixMesh.cpp
         src/rmagine/map/optix/OptixInstance.cpp
+        src/rmagine/map/optix/OptixScene.cpp
         src/rmagine/map/OptixMap.cpp
         
         # Simulation
