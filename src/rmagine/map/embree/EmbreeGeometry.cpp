@@ -40,9 +40,9 @@ void EmbreeGeometry::setTransform(const Matrix4x4& T)
     setTransform(T2);
 }
 
-void setTransformAndScale(const Matrix4x4& T)
+void EmbreeGeometry::setTransformAndScale(const Matrix4x4& M)
 {
-
+    decompose(M, m_T, m_S);
 }
 
 Transform EmbreeGeometry::transform() const

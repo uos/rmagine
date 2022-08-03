@@ -14,6 +14,8 @@ class OptixContext;
 
 using OptixContextPtr = std::shared_ptr<OptixContext>;
 
+bool optix_initialized();
+void optix_initialize();
 
 class OptixContext {
 public:
@@ -28,9 +30,7 @@ public:
     }
 
     CudaContextPtr getCudaContext();
-
     OptixDeviceContext ref();
-
 
 private:
     void init(CudaContextPtr cuda_context);
@@ -40,9 +40,8 @@ private:
     OptixDeviceContext m_optix_context = nullptr;
 };
 
-
-
-static bool g_optix_initialized = false;
+OptixContextPtr optix_default_context();
+// void reset_optix_default_context();
 
 } // namespace rmagine
 

@@ -12,15 +12,33 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 
 namespace rmagine {
 
+bool optix_initialized_ = false;
+
+bool optix_initialized()
+{
+    return optix_initialized_;
+}
+
+void optix_initialize()
+{
+    std::stringstream optix_version_str;
+    optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
+    std::cout << "[OptixContext] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
+    OPTIX_CHECK( optixInit() );
+    optix_initialized_ = true;
+}
+
 OptixContext::OptixContext(CudaContextPtr cuda_context)
 :m_cuda_context(cuda_context)
 {
     init(cuda_context);
+    std::cout << "[OptixContext::OptixContext()] constructed." << std::endl;
 }
 
 OptixContext::~OptixContext()
 {
     optixDeviceContextDestroy( m_optix_context );
+    std::cout << "[OptixContext::~OptixContext()] destroyed." << std::endl;
 }
 
 CudaContextPtr OptixContext::getCudaContext()
@@ -35,16 +53,9 @@ OptixDeviceContext OptixContext::ref()
 
 void OptixContext::init(CudaContextPtr cuda_context)
 {
-    if(!g_optix_initialized)
+    if(!optix_initialized())
     {
-
-        std::stringstream optix_version_str;
-        optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
-
-        std::cout << "[OptixContext] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
-
-        OPTIX_CHECK( optixInit() );
-        g_optix_initialized = true;
+        optix_initialize();
     }
 
     // Specify context options
@@ -53,6 +64,13 @@ void OptixContext::init(CudaContextPtr cuda_context)
     options.logCallbackLevel          = 3;
 
     OPTIX_CHECK( optixDeviceContextCreate( cuda_context->ref(), &options, &m_optix_context ) );
+}
+
+OptixContextPtr optix_def_ctx(new OptixContext(cuda_current_context()) );
+
+OptixContextPtr optix_default_context()
+{   
+    return optix_def_ctx;
 }
 
 } // namespace rmagine

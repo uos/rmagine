@@ -263,7 +263,11 @@ if(OptiX_FOUND)
         src/rmagine/util/optix/OptixUtil.cpp
         src/rmagine/util/optix/OptixContext.cpp
         # Maps
+        src/rmagine/map/optix/OptixGeometry.cpp
+        src/rmagine/map/optix/OptixMesh.cpp
+        src/rmagine/map/optix/OptixInstance.cpp
         src/rmagine/map/OptixMap.cpp
+        
         # Simulation
         src/rmagine/simulation/SphereSimulatorOptix.cpp
         src/rmagine/simulation/PinholeSimulatorOptix.cpp
@@ -358,6 +362,10 @@ if(BUILD_EXAMPLES)
     if(embree_FOUND)
         add_subdirectory(src/rmagine_examples/rmagine_embree_scene)
     endif(embree_FOUND)
+
+    if(OptiX_FOUND)
+    add_subdirectory(src/rmagine_examples/rmagine_optix_scene)
+    endif(OptiX_FOUND)
 
 endif(BUILD_EXAMPLES)
 

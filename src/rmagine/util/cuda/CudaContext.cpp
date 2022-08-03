@@ -3,13 +3,25 @@
 
 namespace rmagine {
 
+bool cuda_initialized_ = false;
+
+bool cuda_initialized()
+{
+    return cuda_initialized_;
+}
+
+void cuda_initialize()
+{
+    cuInit(0);
+    cuda_initialized_ = true;
+}
+
 CudaContext::CudaContext(int device_id)
 {
-    if(!g_cuda_initialized)
+    if(!cuda_initialized())
     {
         std::cout << "[CudaContext] Init Cuda" << std::endl;
-        cuInit(0);
-        g_cuda_initialized = true;
+        cuda_initialize();
     }
 
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
@@ -26,8 +38,8 @@ CudaContext::CudaContext(CUcontext ctx)
 
 CudaContext::~CudaContext()
 {
-    // std::cout << "[CudaContext] ~CudaContext" << std::endl;
     cuCtxDestroy(m_context);
+    std::cout << "[CudaContext::~CudaContext()] destroyed." << std::endl;
 }
 
 int CudaContext::getDeviceId() const
@@ -144,6 +156,13 @@ std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
     os << "- Active: " << (ctx.isActive()? "true" : "false") << "\n";
 
     return os;
+}
+
+CudaContextPtr cuda_def_ctx(new CudaContext(0));
+
+CudaContextPtr cuda_current_context()
+{
+    return cuda_def_ctx;
 }
 
 } // namespace rmagine

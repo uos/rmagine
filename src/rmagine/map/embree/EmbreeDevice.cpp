@@ -45,16 +45,16 @@ RTCDevice EmbreeDevice::handle()
     return m_device;
 }
 
-EmbreeDevicePtr bla(new EmbreeDevice);
+EmbreeDevicePtr em_def_dev(new EmbreeDevice);
 
 EmbreeDevicePtr embree_default_device()
 {
-    return bla;
+    return em_def_dev;
 }
 
 void embree_default_device_reset()
 {
-    bla.reset();
+    em_def_dev.reset();
 }
 
 } // namespace mamcl

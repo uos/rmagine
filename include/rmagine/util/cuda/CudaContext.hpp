@@ -60,6 +60,9 @@ static void printCudaInfo()
     std::cout << "[RMagine] Latest CUDA for driver: " << driver_version_str.str() << ". Current CUDA version: " << cuda_version_str.str() << std::endl;
 }
 
+bool cuda_initialized();
+void cuda_initialize();
+
 class CudaContext {
 public:
     CudaContext(int device_id = 0);
@@ -89,25 +92,27 @@ private:
 
 using CudaContextPtr = std::shared_ptr<CudaContext>;
 
-static bool g_cuda_initialized = false;
+// static bool g_cuda_initialized = false;
 
-static CudaContextPtr currentCudaContext()
-{
-    CudaContextPtr res;
-    if(!g_cuda_initialized)
-    {
-        return res;
-    }
+// static CudaContextPtr currentCudaContext()
+// {
+//     CudaContextPtr res;
+//     if(!g_cuda_initialized)
+//     {
+//         return res;
+//     }
 
-    CUcontext ctx;
-    auto err = cuCtxGetCurrent(&ctx);
-    if(err == 0)
-    {
-        res.reset(new CudaContext(ctx));
-    }
+//     CUcontext ctx;
+//     auto err = cuCtxGetCurrent(&ctx);
+//     if(err == 0)
+//     {
+//         res.reset(new CudaContext(ctx));
+//     }
     
-    return res;
-}
+//     return res;
+// }
+
+CudaContextPtr cuda_current_context();
 
 } // namespace rmagine
 
