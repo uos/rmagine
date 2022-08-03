@@ -90,6 +90,7 @@ void OptixMap::buildStructures(const aiScene* ascene)
         // Build the GAS
         buildIAS(instances, as);
     } else {
+        // meshes[0].commit();
         buildGAS(meshes[0], as);
     }
 }
@@ -321,6 +322,14 @@ void OptixMap::buildIAS(
     instance_input.instanceArray.numInstances = instances.size();
     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
 
+    // OptixBuildInput instance_input = {};
+    // instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
+    // instance_input.instanceArray.numInstances = instances.size();
+    // instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
+
+
+
+
     OptixAccelBuildOptions ias_accel_options = {};
     ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
     ias_accel_options.motionOptions.numKeys = 1;
@@ -371,5 +380,65 @@ void OptixMap::buildIAS(
     instances_gpu = instances;
     buildIAS(instances_gpu, ias);
 }
+
+// void OptixMap::buildIAS(
+//     const Memory<OptixInstance*, VRAM_CUDA>& instances,
+//     OptixAccelerationStructure& ias)
+// {
+//     OptixBuildInput instance_input = {};
+//     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
+//     instance_input.instanceArray.numInstances = instances.size();
+//     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
+
+//     OptixAccelBuildOptions ias_accel_options = {};
+//     ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+//     ias_accel_options.motionOptions.numKeys = 1;
+//     ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+//     OptixAccelBufferSizes ias_buffer_sizes;
+//     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+//         m_optix_context->ref(), 
+//         &ias_accel_options, 
+//         &instance_input, 
+//         1, 
+//         &ias_buffer_sizes ) );
+
+//     CUdeviceptr d_temp_buffer_ias;
+//     CUDA_CHECK( cudaMalloc(
+//         reinterpret_cast<void**>( &d_temp_buffer_ias ),
+//         ias_buffer_sizes.tempSizeInBytes) );
+
+//     CUDA_CHECK( cudaMalloc(
+//                 reinterpret_cast<void**>( &ias.buffer ),
+//                 ias_buffer_sizes.outputSizeInBytes
+//                 ) );
+
+//     OPTIX_CHECK( optixAccelBuild( 
+//         m_optix_context->ref(), 
+//         0, 
+//         &ias_accel_options, 
+//         &instance_input, 
+//         1, 
+//         d_temp_buffer_ias,
+//         ias_buffer_sizes.tempSizeInBytes, 
+//         ias.buffer,
+//         ias_buffer_sizes.outputSizeInBytes,
+//         &ias.handle,
+//         nullptr, 
+//         0 
+//         ) );
+
+//     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+// }
+
+// void OptixMap::buildIAS(
+//     const Memory<OptixInstance*, RAM>& instances,
+//     OptixAccelerationStructure& ias)
+// {
+//     // copy to gpu
+//     Memory<OptixInstance*, VRAM_CUDA> instances_gpu;
+//     instances_gpu = instances;
+//     buildIAS(instances_gpu, ias);
+// }
 
 } // namespace mamcl

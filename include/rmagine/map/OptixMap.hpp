@@ -114,6 +114,8 @@ public:
     * Current Implementation: Each Instance has exactly one mesh (TODO)
     *
     */ 
+    // OptixAccelerationStructure as;
+
     OptixAccelerationStructure as;
 
     /**
@@ -149,12 +151,19 @@ private:
 
     void buildIAS(
         const Memory<OptixInstance, VRAM_CUDA>& instances,
-        OptixAccelerationStructure& ias
-    );
+        OptixAccelerationStructure& ias);
 
     void buildIAS(
         const Memory<OptixInstance, RAM>& instances,
         OptixAccelerationStructure& ias);
+
+    // void buildIAS(
+    //     const Memory<OptixInstance*, VRAM_CUDA>& instances,
+    //     OptixAccelerationStructure& ias);
+
+    // void buildIAS(
+    //     const Memory<OptixInstance*, RAM>& instances,
+    //     OptixAccelerationStructure& ias);
 
     bool                    m_instance_level;
 
