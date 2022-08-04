@@ -4,31 +4,24 @@
 #include <rmagine/util/optix/OptixContext.hpp>
 #include <rmagine/util/IDGen.hpp>
 
-#include "OptixAccelerationStructure.hpp"
-#include "OptixGeometry.hpp"
-#include "OptixInstance.hpp"
+#include "optix_definitions.h"
+
+#include "OptixEntity.hpp"
 
 namespace rmagine
 {
 
-class OptixScene
+class OptixScene 
+: public OptixEntity
 {
 public:
     OptixScene(OptixContextPtr context = optix_default_context());
-    unsigned int add(OptixInstPtr inst);
-
-    void commit();
+    OptixScene(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
+    
+    void set(OptixGeometryPtr geom);
 private:
-    IDGen gen;
-    OptixContextPtr m_ctx;
-
-    OptixAccelerationStructurePtr m_as;
-
-    std::unordered_map<unsigned int, OptixInstPtr> m_instances;
-    std::unordered_map<OptixInstPtr, unsigned int> m_ids;
+    OptixGeometryPtr m_geom;
 };
-
-using OptixScenePtr = std::shared_ptr<OptixScene>;
 
 } // namespace rmagine
 

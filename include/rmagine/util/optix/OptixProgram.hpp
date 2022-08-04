@@ -45,7 +45,7 @@ class OptixProgram
 {
 public:
     virtual ~OptixProgram();
-    
+
     virtual void update(MapPtr map){}
 
     OptixModule module = nullptr;

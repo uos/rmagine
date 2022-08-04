@@ -8,6 +8,8 @@
 
 #include <cuda_runtime.h>
 
+#include <rmagine/map/optix/OptixInstances.hpp>
+
 // Scan Programs
 #include <rmagine/simulation/optix/SphereProgramRanges.hpp>
 #include <rmagine/simulation/optix/SphereProgramNormals.hpp>
@@ -20,13 +22,25 @@ SphereSimulatorOptix::SphereSimulatorOptix()
 :m_model(1)
 ,m_Tsb(1)
 {
-    
+    Memory<Transform, RAM_CUDA> I(1);
+    I->setIdentity();
+    m_Tsb = I;
 }
 
 SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
 :SphereSimulatorOptix()
 {
     setMap(map);
+}
+
+SphereSimulatorOptix::SphereSimulatorOptix(OptixGeometryPtr geom)
+:SphereSimulatorOptix()
+{
+    m_programs.resize(1);
+    m_programs[0].reset(new SphereProgramRanges(geom));
+    m_geom = geom;
+
+    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
@@ -80,19 +94,24 @@ void SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    if(!m_map)
+    if(!m_map && !m_geom)
     {
         // no map set
         std::cout << "No Map assigned to Simulator!" << std::endl;
         return;
     }
-    
+
     Memory<OptixSimulationDataRangesSphere, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
+    if(m_map)
+    {
+        mem->handle = m_map->as.handle;
+    } else {
+        mem->handle = m_geom->acc()->handle;
+    }
 
     Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
@@ -114,6 +133,8 @@ void SphereSimulatorOptix::simulateRanges(
     } else {
         throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
     }
+
+    // std::cout << "DONE sim" << std::endl;
 }
 
 Memory<float, VRAM_CUDA> SphereSimulatorOptix::simulateRanges(

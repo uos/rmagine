@@ -1,22 +1,29 @@
-#include "rmagine/map/optix/OptixInstance.hpp"
+#include "rmagine/map/optix/OptixInst.hpp"
+
+#include "rmagine/map/optix/OptixAccelerationStructure.hpp"
+#include "rmagine/map/optix/OptixGeometry.hpp"
+
+#include <rmagine/util/optix/OptixDebug.hpp>
 
 namespace rmagine
 {
 
 OptixInst::OptixInst(OptixGeometryPtr geom, OptixContextPtr context)
-:Base(context)
-,m_geom(geom)
+:OptixScene(geom, context)
 {
     m_data.sbtOffset = 0;
     m_data.visibilityMask = 255;
     m_data.flags = OPTIX_INSTANCE_FLAG_NONE;
-    m_data.traversableHandle = geom->handle()->handle;
-    std::cout << "[OptixInst::OptixInst()] constructed." << std::endl;
+    m_data.traversableHandle = geom->acc()->handle;
+    // std::cout << "[OptixInst::OptixInst()] constructed." << std::endl;
 }
 
 OptixInst::~OptixInst()
 {
-    std::cout << "[OptixInst::~OptixInst()] destroyed." << std::endl;
+    if(m_data_gpu)
+    {
+        cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
+    }
 }
 
 void OptixInst::apply()
@@ -34,6 +41,24 @@ void OptixInst::apply()
     m_data.transform[ 9] = M(2,1); // Rzy
     m_data.transform[10] = M(2,2); // Rzz
     m_data.transform[11] = M(2,3); // tz
+
+    if(m_data_gpu)
+    {
+        // was committed before
+    } else {
+        // first alloc
+        CUDA_CHECK(cudaMalloc(
+            reinterpret_cast<void**>( &m_data_gpu ),
+            sizeof(OptixInstance)
+        ));
+    }
+
+    CUDA_CHECK(cudaMemcpy(
+        reinterpret_cast<void*>(m_data_gpu),
+        &m_data,
+        sizeof(OptixInstance),
+        cudaMemcpyHostToDevice
+    ));
 }
 
 void OptixInst::setId(unsigned int id)
@@ -51,11 +76,9 @@ OptixInstance OptixInst::data() const
     return m_data;
 }
 
-void OptixInst::commit()
+CUdeviceptr OptixInst::data_gpu() const
 {
-    
-
-
+    return m_data_gpu;
 }
 
 } // namespace rmagine

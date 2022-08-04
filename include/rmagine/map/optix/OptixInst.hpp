@@ -1,15 +1,25 @@
 #ifndef RMAGINE_MAP_OPTIX_INSTANCE_HPP
 #define RMAGINE_MAP_OPTIX_INSTANCE_HPP
 
-#include "OptixGeometry.hpp"
-#include <rmagine/util/optix/OptixContext.hpp>
 
 #include <optix_types.h>
+
+#include "optix_definitions.h"
+
+#include "OptixScene.hpp"
+#include "OptixTransformable.hpp"
+
+// #include <optix_types.h>
+
+// #include <cuda.h>
+// #include <cuda_runtime.h>
 
 namespace rmagine
 {
 
-class OptixInst : public OptixGeometry
+class OptixInst 
+: public OptixScene
+, public OptixTransformable
 {
 public:
     using Base = OptixGeometry;
@@ -25,14 +35,17 @@ public:
     unsigned int id() const;
 
     OptixInstance data() const;
+    CUdeviceptr data_gpu() const;
 
-    virtual void commit();
 protected:
+    
     OptixInstance m_data;
+    // filled after commit
+    CUdeviceptr m_data_gpu = 0;
+    // CUdeviceptr m_data_gpu;
+
     OptixGeometryPtr m_geom;
 };
-
-using OptixInstPtr = std::shared_ptr<OptixInst>;
 
 } // namespace rmagine
 

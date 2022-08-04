@@ -73,6 +73,10 @@ using OptixInstancePtr = std::shared_ptr<OptixInstance>;
 
 class OptixMap : public Map {
 public:
+    OptixMap(
+        OptixContextPtr optix_ctx = optix_default_context()
+    );
+
     /**
      * @brief Construct a new Optix Map object. 
      *   A new Optix and Cuda context on device is created an can be later accessed by calling context()

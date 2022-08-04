@@ -1,14 +1,15 @@
 #include "rmagine/map/optix/OptixGeometry.hpp"
 #include <rmagine/math/linalg.h>
 
+#include "rmagine/map/optix/OptixAccelerationStructure.hpp"
+
 namespace rmagine
 {
 
 OptixGeometry::OptixGeometry(OptixContextPtr context)
-:m_ctx(context)
+:OptixEntity(context)
+,OptixTransformable()
 {
-    m_T.setIdentity();
-    m_S = {1.0, 1.0, 1.0};
     std::cout << "[OptixGeometry::OptixGeometry()] constructed." << std::endl;
 }
 
@@ -21,52 +22,42 @@ OptixGeometry::~OptixGeometry()
     std::cout << "[OptixGeometry::~OptixGeometry()] destroyed." << std::endl;
 }
 
-OptixAccelerationStructurePtr OptixGeometry::handle()
+OptixAccelerationStructurePtr OptixGeometry::acc()
 {
     return m_as;
 }
 
-void OptixGeometry::apply()
+void OptixGeometry::cleanupParents()
 {
-
+    for(auto it = m_parents.cbegin(); it != m_parents.cend();)
+    {
+        if (it->expired())
+        {
+            m_parents.erase(it++);    // or "it = m.erase(it)" since C++11
+        } else {
+            ++it;
+        }
+    }
 }
 
-void OptixGeometry::setTransform(const Transform& T)
+std::unordered_set<OptixInstPtr> OptixGeometry::parents() const
 {
-    m_T = T;
+    std::unordered_set<OptixInstPtr> ret;
+
+    for(OptixInstWPtr elem : m_parents)
+    {
+        if(auto tmp = elem.lock())
+        {
+            ret.insert(tmp);
+        }
+    }
+    
+    return ret;
 }
 
-void OptixGeometry::setTransform(const Matrix4x4& T)
+void OptixGeometry::addParent(OptixInstPtr parent)
 {
-    // scale?
-    Transform T2;
-    T2.set(T);
-    setTransform(T2);
-}
-
-void OptixGeometry::setTransformAndScale(const Matrix4x4& M)
-{
-    decompose(M, m_T, m_S);
-}
-
-Transform OptixGeometry::transform() const
-{
-    return m_T;
-}
-
-void OptixGeometry::setScale(const Vector3& S)
-{
-    m_S = S;
-}
-
-Vector3 OptixGeometry::scale() const
-{
-    return m_S;
-}
-
-Matrix4x4 OptixGeometry::matrix() const
-{
-    return compose(m_T, m_S);
+    m_parents.insert(parent);
 }
 
 } // namespace rmagine

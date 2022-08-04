@@ -1,5 +1,7 @@
 #include "rmagine/map/optix/OptixMesh.hpp"
 
+#include "rmagine/map/optix/OptixAccelerationStructure.hpp"
+
 #include "rmagine/math/assimp_conversions.h"
 #include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/types/MemoryCuda.hpp"
@@ -76,11 +78,7 @@ void OptixMesh::commit()
     // Use default options for simplicity.  In a real use case we would want to
     // enable compaction, etc
     OptixAccelBuildOptions accel_options = {};
-#ifndef NDEBUG
-    accel_options.buildFlags = OPTIX_BUILD_FLAG_NONE;
-#else
-    accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
-#endif
+    accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_ALLOW_UPDATE | OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
     accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
 
     OptixAccelBufferSizes gas_buffer_sizes;

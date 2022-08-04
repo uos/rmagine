@@ -25,6 +25,12 @@ static void context_log_cb( unsigned int level, const char* tag, const char* mes
 
 namespace rmagine {
 
+OptixMap::OptixMap(
+    OptixContextPtr optix_ctx)
+{
+    m_optix_context = optix_ctx;
+}
+
 OptixMap::OptixMap(const aiScene* ascene, int device)
 {
     m_optix_context = OptixContext::create(0);
@@ -48,7 +54,7 @@ OptixMap::~OptixMap()
     {
         for(size_t i=0; i<meshes.size(); i++)
         {
-            cudaFree(reinterpret_cast<void*>( meshes[i].handle()->buffer ) );
+            // cudaFree(reinterpret_cast<void*>( meshes[i].handle()->buffer ) );
         }
     }
 
@@ -224,7 +230,7 @@ void OptixMap::fillInstances(const aiScene* ascene)
             instance.visibilityMask = 255;
             // you could override the geometry flags here: OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT
             instance.flags = OPTIX_INSTANCE_FLAG_NONE;
-            instance.traversableHandle = meshes[mesh_id].handle()->handle;
+            instance.traversableHandle = meshes[mesh_id].acc()->handle;
         }
     }
 
@@ -322,13 +328,11 @@ void OptixMap::buildIAS(
     instance_input.instanceArray.numInstances = instances.size();
     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
 
+    // TODO: check pointers: less copies from maps
     // OptixBuildInput instance_input = {};
     // instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
     // instance_input.instanceArray.numInstances = instances.size();
     // instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
-
-
-
 
     OptixAccelBuildOptions ias_accel_options = {};
     ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;

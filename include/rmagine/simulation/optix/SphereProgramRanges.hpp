@@ -4,12 +4,17 @@
 #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/util/optix/OptixProgram.hpp>
 
+#include <rmagine/map/optix/optix_definitions.h>
+
 namespace rmagine {
 
 class SphereProgramRanges : public OptixProgram
 {
 public:
+    // deprecated
     SphereProgramRanges(OptixMapPtr map);
+
+    SphereProgramRanges(OptixGeometryPtr geom);
 };
 
 } // namespace rmagine

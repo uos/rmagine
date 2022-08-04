@@ -4,54 +4,40 @@
 #include <memory>
 #include <rmagine/math/types.h>
 #include <rmagine/util/optix/OptixContext.hpp>
-#include "OptixAccelerationStructure.hpp"
+
+#include <unordered_set>
+
+
+#include "optix_definitions.h"
+#include "OptixEntity.hpp"
+#include "OptixTransformable.hpp"
+
 
 namespace rmagine
 {
 
-class OptixGeometry 
+class OptixGeometry
+: public OptixEntity
+, public OptixTransformable
 {
 public:
     OptixGeometry(OptixContextPtr context = optix_default_context());
 
     virtual ~OptixGeometry();
 
-    OptixAccelerationStructurePtr handle();
+    OptixAccelerationStructurePtr acc();
 
-    void setTransform(const Transform& T);
-    Transform transform() const;
-
-    /**
-     * @brief Set the Transform object. matrix must not contain scale.
-     * Otherwise call setTransformAndScale
-     * 
-     * @param T 
-     */
-    void setTransform(const Matrix4x4& T);
-    void setTransformAndScale(const Matrix4x4& T);
-
-    void setScale(const Vector3& S);
-    Vector3 scale() const;
-
-    /**
-     * @brief Obtain composed matrix
-     * 
-     * @return Matrix4x4 
-     */
-    Matrix4x4 matrix() const;
-
-    virtual void apply();
     virtual void commit() = 0;
 
+    // geometry can be instanced
+    void cleanupParents();
+    std::unordered_set<OptixInstPtr> parents() const;
+    void addParent(OptixInstPtr parent);
+
 protected:
-    Transform m_T;
-    Vector3 m_S;
+    std::unordered_set<OptixInstWPtr> m_parents;
     OptixAccelerationStructurePtr m_as;
-
-    OptixContextPtr m_ctx;
 };
-
-using OptixGeometryPtr = std::shared_ptr<OptixGeometry>;
 
 } // namespace rmagine
 

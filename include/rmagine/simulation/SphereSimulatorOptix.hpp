@@ -43,6 +43,9 @@
 #include <optix.h>
 
 #include <rmagine/map/OptixMap.hpp>
+#include <rmagine/map/optix/optix_definitions.h>
+
+
 #include <rmagine/util/optix/OptixProgram.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
@@ -119,6 +122,8 @@ class SphereSimulatorOptix {
 public:
     SphereSimulatorOptix();
     SphereSimulatorOptix(OptixMapPtr map);
+    SphereSimulatorOptix(OptixGeometryPtr geom);
+    
 
     ~SphereSimulatorOptix();
 
@@ -174,8 +179,9 @@ public:
     // member
 
 protected:
-
     OptixMapPtr m_map;
+    OptixGeometryPtr m_geom;
+
     cudaStream_t m_stream;
 
     uint32_t m_width;

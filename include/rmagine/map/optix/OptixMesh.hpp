@@ -18,6 +18,8 @@
 
 #include "OptixGeometry.hpp"
 
+#include "optix_definitions.h"
+
 namespace rmagine
 {
 
@@ -38,11 +40,12 @@ public:
     virtual void apply();
     virtual void commit();
 
+    // OptixInstWPtr 
+
     Memory<Point, VRAM_CUDA>    vertices;
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   face_normals;
     Memory<Vector, VRAM_CUDA>   vertex_normals;
-
 private:
     // after transform
     Memory<Point, VRAM_CUDA>    vertices_;
