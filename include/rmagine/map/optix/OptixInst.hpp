@@ -18,15 +18,20 @@ namespace rmagine
 {
 
 class OptixInst 
-: public OptixScene
+: public OptixEntity
 , public OptixTransformable
 {
 public:
     using Base = OptixGeometry;
 
+    OptixInst(OptixContextPtr context = optix_default_context());
+
     OptixInst(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
 
     virtual ~OptixInst();
+
+    void setGeometry(OptixGeometryPtr geom);
+    OptixGeometryPtr geometry() const;
 
     virtual void apply();
 

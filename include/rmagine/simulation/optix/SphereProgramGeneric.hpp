@@ -7,6 +7,8 @@
 
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
 
+#include <rmagine/map/optix/optix_definitions.h>
+
 namespace rmagine {
 
 typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
@@ -17,6 +19,11 @@ public:
     SphereProgramGeneric(
         OptixMapPtr map,
         const OptixSimulationDataGenericSphere& flags);
+
+    SphereProgramGeneric(
+        OptixGeometryPtr geom,
+        const OptixSimulationDataGenericSphere& flags
+    );
 
     ~SphereProgramGeneric();
 

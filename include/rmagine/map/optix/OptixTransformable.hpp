@@ -11,6 +11,7 @@ class OptixTransformable
 {
 public:
     OptixTransformable();
+    virtual ~OptixTransformable() {}
 
     void setTransform(const Transform& T);
     Transform transform() const;

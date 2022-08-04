@@ -73,7 +73,6 @@ void scene_1()
 
     OptixScenePtr scene = std::make_shared<OptixScene>(); 
 
-
     OptixMeshPtr mesh = std::make_shared<OptixMesh>();
 
 
@@ -103,16 +102,21 @@ void scene_1()
         mesh->apply();
         mesh->commit();
 
+        scene->add(mesh);
+
         // TODO
         // mesh->computeFaceNormals();
     }
+
 
     OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
     // MAKE INSTANCE
     for(size_t i=0; i<100; i++)
     {
-        OptixInstPtr mesh_inst = std::make_shared<OptixInst>(mesh);
+        OptixInstPtr mesh_inst = std::make_shared<OptixInst>();
+
+        mesh_inst->setGeometry(mesh);
 
         Transform T;
         T.setIdentity();
@@ -126,6 +130,8 @@ void scene_1()
 
     std::cout << "Commit Instances" << std::endl;
     insts->commit();
+
+    scene->setRoot(insts);
 
     printRaycast(insts, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 

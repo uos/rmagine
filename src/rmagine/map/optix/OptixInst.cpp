@@ -8,14 +8,18 @@
 namespace rmagine
 {
 
-OptixInst::OptixInst(OptixGeometryPtr geom, OptixContextPtr context)
-:OptixScene(geom, context)
+OptixInst::OptixInst(OptixContextPtr context)
+:OptixEntity(context)
 {
     m_data.sbtOffset = 0;
     m_data.visibilityMask = 255;
     m_data.flags = OPTIX_INSTANCE_FLAG_NONE;
-    m_data.traversableHandle = geom->acc()->handle;
-    // std::cout << "[OptixInst::OptixInst()] constructed." << std::endl;
+}
+
+OptixInst::OptixInst(OptixGeometryPtr geom, OptixContextPtr context)
+:OptixInst(context)
+{
+    setGeometry(geom);
 }
 
 OptixInst::~OptixInst()
@@ -24,6 +28,19 @@ OptixInst::~OptixInst()
     {
         cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
     }
+    m_geom->cleanupParents();
+}
+
+void OptixInst::setGeometry(OptixGeometryPtr geom)
+{
+    m_geom = geom;
+    geom->addParent(this_shared<OptixInst>());
+    m_data.traversableHandle = geom->acc()->handle;
+}
+
+OptixGeometryPtr OptixInst::geometry() const
+{
+    return m_geom;
 }
 
 void OptixInst::apply()

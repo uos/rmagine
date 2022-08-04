@@ -8,6 +8,10 @@
 
 #include "OptixEntity.hpp"
 
+#include <map>
+#include <rmagine/util/IDGen.hpp>
+
+
 namespace rmagine
 {
 
@@ -17,10 +21,26 @@ class OptixScene
 public:
     OptixScene(OptixContextPtr context = optix_default_context());
     OptixScene(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
+
+    virtual ~OptixScene();
+
     
-    void set(OptixGeometryPtr geom);
+
+    void setRoot(OptixGeometryPtr geom);
+    OptixGeometryPtr getRoot() const;
+
+    unsigned int add(OptixGeometryPtr geom);
+    unsigned int get(OptixGeometryPtr geom) const;
+    std::map<unsigned int, OptixGeometryPtr> geometries() const;
+    std::unordered_map<OptixGeometryPtr, unsigned int> ids() const;
+    
 private:
     OptixGeometryPtr m_geom;
+
+    IDGen gen;
+
+    std::map<unsigned int, OptixGeometryPtr> m_geometries;
+    std::unordered_map<OptixGeometryPtr, unsigned int> m_ids;
 };
 
 } // namespace rmagine

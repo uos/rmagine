@@ -24,10 +24,44 @@ OptixScene::OptixScene(OptixGeometryPtr geom, OptixContextPtr context)
     
 }
 
-void OptixScene::set(OptixGeometryPtr geom)
+OptixScene::~OptixScene()
+{
+
+}
+
+void OptixScene::setRoot(OptixGeometryPtr geom)
 {
     m_geom = geom;
 }
+
+OptixGeometryPtr OptixScene::getRoot() const
+{
+    return m_geom;
+}
+
+unsigned int OptixScene::add(OptixGeometryPtr geom)
+{
+    unsigned int id = gen.get();
+    m_geometries[id] = geom;
+    m_ids[geom] = id;
+    return id;
+}
+
+unsigned int OptixScene::get(OptixGeometryPtr geom) const
+{
+    return m_ids.at(geom);
+}
+
+std::map<unsigned int, OptixGeometryPtr> OptixScene::geometries() const
+{
+    return m_geometries;
+}
+
+std::unordered_map<OptixGeometryPtr, unsigned int> OptixScene::ids() const
+{
+    return m_ids;
+}
+
 
 // void OptixScene::commit()
 // {
