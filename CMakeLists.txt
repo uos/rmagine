@@ -186,8 +186,10 @@ add_library(rmagine_cuda SHARED
     # util
     src/rmagine/util/cuda/CudaContext.cpp
     src/rmagine/util/cuda/CudaStream.cpp
-    # Noise
+    # noise
     src/rmagine/noise/noise.cu
+    # map
+    src/rmagine/map/mesh_preprocessing.cu
 )
 
 target_link_libraries(rmagine_cuda
@@ -271,6 +273,7 @@ if(OptiX_FOUND)
         src/rmagine/map/optix/OptixScene.cpp
         src/rmagine/map/optix/OptixTransformable.cpp
         src/rmagine/map/optix/OptixEntity.cpp
+        src/rmagine/map/optix/optix_shapes.cpp
         src/rmagine/map/OptixMap.cpp
         
         # Simulation

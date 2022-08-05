@@ -37,17 +37,19 @@ public:
 
     virtual ~OptixMesh();
 
+    void computeFaceNormals();
+
     virtual void apply();
     virtual void commit();
 
-    // OptixInstWPtr 
-
+    // TODO manage read and write access over functions
+    // before transform: write here
     Memory<Point, VRAM_CUDA>    vertices;
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   face_normals;
     Memory<Vector, VRAM_CUDA>   vertex_normals;
-private:
-    // after transform
+
+    // after transform: read here
     Memory<Point, VRAM_CUDA>    vertices_;
     Memory<Vector, VRAM_CUDA>   face_normals_;
     Memory<Vector, VRAM_CUDA>   vertex_normals_;

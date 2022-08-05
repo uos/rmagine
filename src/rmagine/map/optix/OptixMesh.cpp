@@ -6,12 +6,16 @@
 #include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/types/MemoryCuda.hpp"
 #include "rmagine/util/GenericAlign.hpp"
+#include "rmagine/map/mesh_preprocessing.cuh"
+#include "rmagine/math/math.cuh"
 
 #include <optix.h>
 #include <optix_stubs.h>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+
+#include <rmagine/util/prints.h>
 
 namespace rmagine
 {
@@ -27,9 +31,44 @@ OptixMesh::~OptixMesh()
     std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
 }
 
+void OptixMesh::computeFaceNormals()
+{
+    if(face_normals.size() != faces.size())
+    {
+        face_normals.resize(faces.size());
+    }
+    rmagine::computeFaceNormals(vertices, faces, face_normals);
+}
+
 void OptixMesh::apply()
 {
-    vertices_ = vertices;
+    // TODO
+    Memory<Matrix4x4, RAM> M(1);
+    M[0] = matrix();
+
+    std::cout << "applying " << M[0] << " to vertices" << std::endl;
+
+    Memory<Matrix4x4, VRAM_CUDA> M_;
+    M_ = M;
+
+    if(vertices_.size() != vertices.size())
+    {
+        vertices_.resize(vertices.size());
+    }
+    
+    mult1xN(M_, vertices, vertices_);
+
+    // if(face_normals.size() > 0)
+    // {
+    //     if(face_normals_.size() != face_normals.size())
+    //     {
+    //         face_normals_.resize(face_normals.size());
+    //     }
+
+    //     multNx1(M_, face_normals, face_normals_);
+
+    //     // normalize
+    // }
 }
 
 void OptixMesh::commit()

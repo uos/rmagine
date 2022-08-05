@@ -330,6 +330,14 @@ struct EulerAngles
     float yaw; // z-axis
 
     // Functions
+    RMAGINE_FUNCTION
+    static EulerAngles Identity()
+    {
+        EulerAngles ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -373,6 +381,17 @@ struct Quaternion
     float y;
     float z;
     float w;
+
+
+
+    RMAGINE_FUNCTION
+    static Quaternion Identity()
+    {
+        Quaternion ret;
+        ret.setIdentity();
+        return ret;
+    }
+
 
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
@@ -486,6 +505,14 @@ struct Transform {
     uint32_t stamp;
 
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Transform Identity()
+    {
+        Transform ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -596,6 +623,14 @@ struct Matrix3x3 {
     const float* operator[](const unsigned int i) const;
 
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Matrix3x3 Identity()
+    {
+        Matrix3x3 ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -776,6 +811,14 @@ struct Matrix4x4 {
     const float* operator[](const unsigned int i) const;
 
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Matrix4x4 Identity()
+    {
+        Matrix4x4 ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 

@@ -135,6 +135,15 @@ Memory<Vector, VRAM_CUDA> multNx1(
     const MemoryView<Matrix3x3, VRAM_CUDA>& M,
     const MemoryView<Vector, VRAM_CUDA>& x);
 
+void multNx1(
+    const MemoryView<Matrix4x4, VRAM_CUDA>& M,
+    const MemoryView<Vector, VRAM_CUDA>& x,
+    MemoryView<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> multNx1(
+    const MemoryView<Matrix4x4, VRAM_CUDA>& M,
+    const MemoryView<Vector, VRAM_CUDA>& x);
+
 /////////////
 // #mult1xN
 ////////
@@ -190,6 +199,15 @@ void mult1xN(
 
 Memory<Vector, VRAM_CUDA> mult1xN(
     const MemoryView<Matrix3x3, VRAM_CUDA>& m,
+    const MemoryView<Vector, VRAM_CUDA>& X);
+
+void mult1xN(
+    const MemoryView<Matrix4x4, VRAM_CUDA>& m,
+    const MemoryView<Vector, VRAM_CUDA>& X,
+    MemoryView<Vector, VRAM_CUDA>& C);
+
+Memory<Vector, VRAM_CUDA> mult1xN(
+    const MemoryView<Matrix4x4, VRAM_CUDA>& m,
     const MemoryView<Vector, VRAM_CUDA>& X);
 
 //////
