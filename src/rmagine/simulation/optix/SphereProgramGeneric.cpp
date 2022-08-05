@@ -707,8 +707,20 @@ SphereProgramGeneric::~SphereProgramGeneric()
 {
     // std::cout << "Destruct SphereProgramGeneric" << std::endl;
     // cudaFree(hg_sbt.data.normals);
-    cudaFree(hg_sbt.data.inst_to_mesh);
-    cudaFree(hg_sbt.data.mesh_attributes);
+    if(hg_sbt.data.inst_to_mesh)
+    {
+        cudaFree(hg_sbt.data.inst_to_mesh);
+    }
+    
+    if(hg_sbt.data.mesh_attributes)
+    {
+        cudaFree(hg_sbt.data.mesh_attributes);
+    }
+
+    if(hg_sbt.data.instances_attributes)
+    {
+        cudaFree(hg_sbt.data.instances_attributes);
+    }
 }
 
 
