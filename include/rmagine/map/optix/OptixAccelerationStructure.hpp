@@ -8,11 +8,17 @@
 namespace rmagine
 {
 
-struct OptixAccelerationStructure
+class OptixAccelerationStructure
 {
+public:
+
+    ~OptixAccelerationStructure();
+
     OptixTraversableHandle      handle;
     CUdeviceptr                 buffer = 0;
     size_t                      buffer_size = 0;
+
+    
 };
 
 using OptixAccelerationStructurePtr = std::shared_ptr<OptixAccelerationStructure>;

@@ -25,6 +25,10 @@ public:
     virtual void apply();
     virtual void commit();
 
+
+    OptixInstPtr remove(unsigned int id);
+    bool remove(OptixInstPtr inst);
+
     unsigned int add(OptixInstPtr inst);
     unsigned int get(OptixInstPtr inst) const;
     OptixInstPtr get(unsigned int id) const;
@@ -41,6 +45,8 @@ private:
 
     std::map<unsigned int, OptixInstPtr> m_instances;
     std::unordered_map<OptixInstPtr, unsigned int> m_ids;
+
+    bool m_requires_build = false;
 
     // filled after commit
     // std::unordered_map<unsigned int, CUdeviceptr> m_instances_gpu;

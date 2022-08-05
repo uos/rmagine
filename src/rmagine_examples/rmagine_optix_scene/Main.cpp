@@ -40,18 +40,18 @@ SphericalModel single_ray_model()
     return model;
 }
 
-void printRaycast(
-    OptixScenePtr scene, 
+SphereSimulatorOptixPtr make_sim(OptixScenePtr scene)
+{
+    SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
+    SphericalModel model = single_ray_model();
+    gpu_sim->setModel(model);
+    return gpu_sim;
+}
+
+void printRaycast(SphereSimulatorOptixPtr gpu_sim,
     Vector3 pos, 
     EulerAngles angles)
 {
-    // std::cout << "Create Sphere Simulator" << std::endl;
-    SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
-
-
-    // std::cout << "Create single ray model" << std::endl;
-    SphericalModel model = single_ray_model();
-    gpu_sim->setModel(model);
     Transform T = Transform::Identity();
     T.t = pos;
     T.R.set(angles);
@@ -84,6 +84,15 @@ void printRaycast(
     std::cout << "- normal: " << normals[0] << std::endl;
     std::cout << "- face id: " << face_ids[0] << std::endl;
     std::cout << "- obj id: " << obj_ids[0] << std::endl;
+}
+
+void printRaycast(
+    OptixScenePtr scene, 
+    Vector3 pos, 
+    EulerAngles angles)
+{
+    auto gpu_sim = make_sim(scene);
+    printRaycast(gpu_sim, pos, angles);
 }
 
 OptixMeshPtr custom_mesh()
@@ -207,20 +216,131 @@ void scene_2()
     std::cout << "UPDATE SCENE" << std::endl;
 
     {
+        // move instance 5 behind instance 0
         OptixInstPtr inst = insts->get(5);
         Transform T = inst->transform();
         T.t.y = 0.0;
-        T.t.x = 5.0;
+        T.t.x = 15.0;
         inst->setTransform(T);
         inst->apply();
+
+        // disable istance 0
+        insts->get(0)->disable();
     }
 
     insts->commit();
 
-
     printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
+void scene_3()
+{
+    OptixScenePtr scene = std::make_shared<OptixScene>();
+
+    OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    geom->name = "Cube";
+    geom->commit();
+    scene->add(geom);
+
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+
+    for(size_t i=0; i<10; i++)
+    {
+        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+        inst_geom->setGeometry(geom);
+        inst_geom->name = "Instance " + i;
+        Transform T = Transform::Identity();
+        T.t.y = static_cast<float>(i);
+        T.t.x = 10.0;
+        inst_geom->setTransform(T);
+        inst_geom->apply();
+        insts->add(inst_geom);
+    }
+    insts->commit();
+
+    scene->setRoot(insts);
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    // add in front of 0
+    OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    {
+        inst_geom->setGeometry(geom);
+        Transform T = Transform::Identity();
+        T.t.x = 5.0;
+        inst_geom->setTransform(T);
+        inst_geom->apply();
+    }
+    unsigned int inst_id;
+    inst_id = insts->add(inst_geom);
+    insts->commit();
+    std::cout << "Added Instance with id " << inst_id << std::endl;
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    // remove
+    insts->remove(inst_geom);
+    insts->commit();
+    std::cout << "Removed Instance with id " << inst_id << std::endl;
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    
+    inst_id = insts->add(inst_geom);
+    insts->commit();
+    std::cout << "Added Instance with id " << inst_id << std::endl;
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+}
+
+void scene_4()
+{
+    // sensor update problem
+
+    OptixScenePtr scene = std::make_shared<OptixScene>();
+
+    OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    geom->name = "Cube";
+    geom->commit();
+    scene->add(geom);
+
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+
+    for(size_t i=0; i<2; i++)
+    {
+        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+        inst_geom->setGeometry(geom);
+        inst_geom->name = "Instance " + i;
+        Transform T = Transform::Identity();
+        T.t.x = static_cast<float>(i) * 5.0 + 5.0;
+        inst_geom->setTransform(T);
+        inst_geom->apply();
+        insts->add(inst_geom);
+    }
+    insts->commit();
+
+    scene->setRoot(insts);
+
+    auto sim = make_sim(scene);
+    printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    {
+        inst_geom->setGeometry(geom);
+        inst_geom->name = "Instance NEW";
+        Transform T = Transform::Identity();
+        T.t.x = 1.0;
+        inst_geom->setTransform(T);
+        inst_geom->apply();
+        insts->add(inst_geom);
+    }
+    insts->commit();
+
+    printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    
+}
 
 int main(int argc, char** argv)
 {
@@ -239,6 +359,8 @@ int main(int argc, char** argv)
     {
         case 1: scene_1(); break;
         case 2: scene_2(); break;
+        case 3: scene_3(); break;
+        case 4: scene_4(); break;
         default: break;
     }
 

@@ -12,7 +12,7 @@
 namespace rmagine {
 
 // typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
-typedef SbtRecord<HitGroupDataMesh>      HitGroupSbtRecordMesh;
+typedef SbtRecord<HitGroupDataScene>      HitGroupSbtRecordScene;
 
 class SphereProgramGeneric : public OptixProgram
 {
@@ -29,7 +29,8 @@ public:
     ~SphereProgramGeneric();
 
 private:
-    HitGroupSbtRecordMesh hg_sbt;
+    // to scene
+    HitGroupSbtRecordScene hg_sbt;
 };
 
 } // namespace rmagine

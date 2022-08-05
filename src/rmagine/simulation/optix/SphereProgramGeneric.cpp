@@ -281,14 +281,16 @@ SphereProgramGeneric::SphereProgramGeneric(
                 ) );
 
     CUdeviceptr hitgroup_record;
-    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecordMesh );
+    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecordScene );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     
 
     OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
 
     { // inst to mesh
-        Memory<unsigned int, RAM> inst_to_mesh(map->meshes.size());
+        unsigned int n_instances = map->meshes.size();
+        hg_sbt.data.n_instances = n_instances;
+        Memory<unsigned int, RAM> inst_to_mesh(n_instances);
         for(size_t i=0; i<map->meshes.size(); i++)
         {
             inst_to_mesh[i] = i;
@@ -305,22 +307,27 @@ SphereProgramGeneric::SphereProgramGeneric(
         
     }
 
-    { // normals
-        Memory<Vector*, RAM> normals_cpu(map->meshes.size());
+    { // mesh attributes
+        unsigned int n_meshes = map->meshes.size();
+        hg_sbt.data.n_meshes = n_meshes;
+        Memory<MeshAttributes, RAM> attr_cpu(n_meshes);
+
         for(size_t i=0; i<map->meshes.size(); i++)
         {
-            normals_cpu[i] = map->meshes[i].face_normals.raw();
+            attr_cpu[i].face_normals = map->meshes[i].face_normals.raw();
+            attr_cpu[i].vertex_normals = map->meshes[i].vertex_normals.raw();
         }
-        
-        cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
-        // gpu array of gpu pointers
+
+        cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.mesh_attributes), 
+            attr_cpu.size() * sizeof(MeshAttributes));
+
         CUDA_CHECK( cudaMemcpy(
-                    reinterpret_cast<void*>(hg_sbt.data.normals),
-                    reinterpret_cast<void*>(normals_cpu.raw()),
-                    map->meshes.size() * sizeof(Vector*),
+                    reinterpret_cast<void*>(hg_sbt.data.mesh_attributes),
+                    reinterpret_cast<void*>(attr_cpu.raw()),
+                    attr_cpu.size() * sizeof(MeshAttributes),
                     cudaMemcpyHostToDevice
                     ) );
-    } 
+    }
 
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
@@ -338,7 +345,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
     sbt.missRecordCount             = 1;
     sbt.hitgroupRecordBase          = hitgroup_record;
-    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecordMesh );
+    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecordScene );
     sbt.hitgroupRecordCount         = 1;
 }
 
@@ -548,7 +555,6 @@ SphereProgramGeneric::SphereProgramGeneric(
         OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
     }
 
-
     uint32_t direct_callable_stack_size_from_traversal;
     uint32_t direct_callable_stack_size_from_state;
     uint32_t continuation_stack_size;
@@ -593,7 +599,7 @@ SphereProgramGeneric::SphereProgramGeneric(
                 ) );
 
     CUdeviceptr hitgroup_record;
-    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecordMesh );
+    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecordScene );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     
     // HitGroupSbtRecord hg_sbt;
@@ -607,6 +613,7 @@ SphereProgramGeneric::SphereProgramGeneric(
             // instances are available
             auto instances = insts->instances();
             size_t Ninstances = instances.rbegin()->first + 1;
+
 
             inst_to_mesh.resize(Ninstances);
             for(unsigned int i=0; i<inst_to_mesh.size(); i++)
@@ -632,6 +639,9 @@ SphereProgramGeneric::SphereProgramGeneric(
             inst_to_mesh[0] = 0;
         }
 
+        std::cout << "- SET " << inst_to_mesh.size() << " instance to mesh links" << std::endl;
+
+        hg_sbt.data.n_instances = inst_to_mesh.size();
         cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.inst_to_mesh), inst_to_mesh.size() * sizeof(unsigned int));
         // gpu array of gpu pointers
         CUDA_CHECK( cudaMemcpy(
@@ -641,34 +651,34 @@ SphereProgramGeneric::SphereProgramGeneric(
                     cudaMemcpyHostToDevice
                     ) );
     }
-    
-    {
+
+    { // mesh attributes
         std::map<unsigned int, OptixGeometryPtr> geoms = scene->geometries();
-
         // get last id
-        unsigned int normal_buffer_size = geoms.rbegin()->first + 1;
+        unsigned int n_meshes = geoms.rbegin()->first + 1;
+        hg_sbt.data.n_meshes = n_meshes;
 
-        // std::cout << "Meshes: " << normal_buffer_size << std::endl; 
+        Memory<MeshAttributes, RAM> attr_cpu(n_meshes);
 
-        Memory<Vector*, RAM> normals_cpu(normal_buffer_size);
         for(auto elem : geoms)
         {
-            // check if mesh
             OptixMeshPtr mesh = std::dynamic_pointer_cast<OptixMesh>(elem.second);
             if(mesh)
             {
-                normals_cpu[elem.first] = mesh->face_normals.raw();
+                attr_cpu[elem.first].face_normals = mesh->face_normals.raw();
+                attr_cpu[elem.first].vertex_normals = mesh->vertex_normals.raw();
             } else {
                 std::cout << "NO MESH: how to handle normals?" << std::endl;
             }
         }
-        
-        cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), normals_cpu.size() * sizeof(Vector*));
-        // gpu array of gpu pointers
+
+        cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.mesh_attributes), 
+            attr_cpu.size() * sizeof(MeshAttributes));
+
         CUDA_CHECK( cudaMemcpy(
-                    reinterpret_cast<void*>(hg_sbt.data.normals),
-                    reinterpret_cast<void*>(normals_cpu.raw()),
-                    normals_cpu.size() * sizeof(Vector*),
+                    reinterpret_cast<void*>(hg_sbt.data.mesh_attributes),
+                    reinterpret_cast<void*>(attr_cpu.raw()),
+                    attr_cpu.size() * sizeof(MeshAttributes),
                     cudaMemcpyHostToDevice
                     ) );
     }
@@ -689,7 +699,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
     sbt.missRecordCount             = 1;
     sbt.hitgroupRecordBase          = hitgroup_record;
-    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecordMesh );
+    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecordScene );
     sbt.hitgroupRecordCount         = 1;
 }
 
@@ -698,7 +708,7 @@ SphereProgramGeneric::~SphereProgramGeneric()
     // std::cout << "Destruct SphereProgramGeneric" << std::endl;
     // cudaFree(hg_sbt.data.normals);
     cudaFree(hg_sbt.data.inst_to_mesh);
-    cudaFree(hg_sbt.data.normals);
+    cudaFree(hg_sbt.data.mesh_attributes);
 }
 
 

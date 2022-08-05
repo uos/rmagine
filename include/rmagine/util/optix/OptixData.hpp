@@ -64,17 +64,28 @@ struct HitGroupDataNormals {
     Vector** normals;
 };
 
-// struct MeshAttributes 
-// {
-//     Vector* vertex_normals;
-//     Vector* face_normals;
-// };
+struct MeshAttributes 
+{
+    Vector* vertex_normals;
+    Vector* face_normals;
+};
 
-struct HitGroupDataMesh {
+struct InstanceAttributes
+{
+
+};
+
+struct HitGroupDataScene {
+    // instance attributes
+    unsigned int n_instances;
+    InstanceAttributes* instances_attributes;
+
     // link from instance id to mesh id
     int* inst_to_mesh;
-    // mesh normals
-    Vector** normals;
+
+    // mesh attributes
+    unsigned int n_meshes;
+    MeshAttributes* mesh_attributes;
 };
 
 // struct 

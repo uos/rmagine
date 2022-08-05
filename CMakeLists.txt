@@ -266,6 +266,7 @@ if(OptiX_FOUND)
         src/rmagine/util/optix/OptixUtil.cpp
         src/rmagine/util/optix/OptixContext.cpp
         # Maps
+        src/rmagine/map/optix/OptixAccelerationStructure.cpp
         src/rmagine/map/optix/OptixGeometry.cpp
         src/rmagine/map/optix/OptixMesh.cpp
         src/rmagine/map/optix/OptixSpheres.cpp

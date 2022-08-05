@@ -39,7 +39,41 @@ unsigned int OptixInstances::add(OptixInstPtr inst)
     inst->setId(inst_id);
     m_instances[inst_id] = inst;
     m_ids[inst] = inst_id;
+    m_requires_build = true;
     return inst_id;
+}
+
+bool OptixInstances::remove(OptixInstPtr inst)
+{
+    auto it = m_ids.find(inst);
+    if(it != m_ids.end())
+    {
+        auto ptr = remove(it->second);
+        if(ptr)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+OptixInstPtr OptixInstances::remove(unsigned int id)
+{
+    OptixInstPtr ret;
+
+    auto it = m_instances.find(id);
+    if(it != m_instances.end())
+    {
+        ret = it->second;
+        m_ids.erase(ret);
+        m_instances.erase(id);
+        gen.give_back(id);
+        m_requires_build = true;
+    }
+
+    return ret;
 }
 
 unsigned int OptixInstances::get(OptixInstPtr inst) const
@@ -151,44 +185,23 @@ std::unordered_map<OptixInstPtr, unsigned int> OptixInstances::ids() const
 
 void OptixInstances::build_acc_old()
 {
-    // std::cout << "[OptixInstances::build_acc_old()] !!!" << std::endl;
-    // std::cout << "- Instances: " << m_instances.size() << std::endl;
-
-    // Memory<OptixInstance, RAM> inst_h(m_instances.size());
-    // 
-
-    std::vector<OptixInstance> inst_vec;
-    // TODO get only instances that requires update
-    
+    Memory<OptixInstance, RAM> inst_h(m_instances.size());
+    size_t i=0;
     for(auto elem : m_instances)
     {
-        unsigned int inst_id = elem.first;
         OptixInstPtr inst = elem.second;
-        // if(inst->m_changed)
-        // {
-            std::cout << "Instance " << inst_id << " changed!" << std::endl;
-            inst_vec.push_back(inst->data());
-        // }
+        inst_h[i] = inst->data();
+        i++;
     }
-
-    if(m_as)
-    {
-        // std::cout << OPTIX_DEVICE_PROPERTY_LIMIT_MAX_INSTANCE_ID << std::endl;
-        // reverse
-        // std::reverse(inst_vec.begin(), inst_vec.end());
-        inst_vec[5].visibilityMask = 0;
-    }
-
-    Memory<OptixInstance, RAM> inst_h(inst_vec.size());
-    std::copy(inst_vec.begin(), inst_vec.end(), inst_h.raw());
+    
     Memory<OptixInstance, VRAM_CUDA> inst_d = inst_h;
 
-    if(m_as)
-    {
-        std::cout << "UPDATE " << inst_d.size() << " instances" << std::endl;
-    } else {
-        std::cout << "COMMIT " << inst_d.size() << " instances" << std::endl;
-    }
+    // if(m_as)
+    // {
+    //     std::cout << "UPDATE " << inst_d.size() << " instances" << std::endl;
+    // } else {
+    //     std::cout << "COMMIT " << inst_d.size() << " instances" << std::endl;
+    // }
 
     OptixBuildInput instance_input = {};
     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
@@ -205,15 +218,20 @@ void OptixInstances::build_acc_old()
     }
     ias_accel_options.buildFlags = build_flags;
     ias_accel_options.motionOptions.numKeys = 1;
-    
-    if(m_as)
+
+    if(m_as && !m_requires_build)
     {
-        // update
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
+        std::cout << "UPDATE " << inst_d.size() << " instances" << std::endl;
     } else {
         // first commit
-        m_as = std::make_shared<OptixAccelerationStructure>();
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+        std::cout << "COMMIT " << inst_d.size() << " instances" << std::endl;
+    }
+
+    if(!m_as)
+    {
+        m_as = std::make_shared<OptixAccelerationStructure>();
     }
 
     OptixAccelBufferSizes ias_buffer_sizes;
@@ -267,6 +285,9 @@ void OptixInstances::build_acc_old()
     {
         elem.second->m_changed = false;
     }
+
+    std::cout << "acc done." << std::endl;
+    m_requires_build = false;
 }
 
 } // namespace rmagine

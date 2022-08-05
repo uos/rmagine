@@ -13,7 +13,6 @@
 
 #include <assimp/scene.h>
 
-
 namespace rmagine
 {
 
