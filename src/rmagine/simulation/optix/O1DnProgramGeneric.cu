@@ -133,7 +133,7 @@ void computeNoPoint()
 }
 
 __forceinline__ __device__
-void computeNormal()
+void computeNormalSBT()
 {
     // Get Payloads
     const unsigned int glob_id = optixGetPayload_0();
@@ -171,6 +171,62 @@ void computeNormal()
 
     mem.normals[glob_id] = nint.normalized();
 
+}
+
+
+__forceinline__ __device__
+void computeNormal()
+{
+    // Get Payloads
+    const unsigned int glob_id = optixGetPayload_0();
+    Transform Tsm;
+    Tsm.R.x = __uint_as_float(optixGetPayload_1());
+    Tsm.R.y = __uint_as_float(optixGetPayload_2());
+    Tsm.R.z = __uint_as_float(optixGetPayload_3());
+    Tsm.R.w = __uint_as_float(optixGetPayload_4());
+    Tsm.t.x = __uint_as_float(optixGetPayload_5());
+    Tsm.t.y = __uint_as_float(optixGetPayload_6());
+    Tsm.t.z = __uint_as_float(optixGetPayload_7());
+    const Transform Tms = Tsm.inv();
+
+    const float3 dir_m = optixGetWorldRayDirection();
+    const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
+    const Vector ray_dir_s = Tms.R * ray_dir_m;
+
+
+    // Get additional info
+    const unsigned int face_id = optixGetPrimitiveIndex();
+    const unsigned int object_id = optixGetInstanceId();
+    OptixTraversableHandle gas = optixGetGASTraversableHandle();
+    const unsigned int gas_id = optixGetSbtGASIndex();
+    float time = optixGetRayTime();
+
+    // fetch vertices of face
+    float3 vertices[3];
+    optixGetTriangleVertexData(gas, face_id, gas_id, time, vertices);
+
+    // compute normal
+    const Vector v0 = {vertices[0].x, vertices[0].y, vertices[0].z};
+    const Vector v1 = {vertices[1].x, vertices[1].y, vertices[1].z};
+    const Vector v2 = {vertices[2].x, vertices[2].y, vertices[2].z};
+
+    const Vector3 rm_normal = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+
+    // printf("- Normal: %f %f %f\n", rm_normal.x, rm_normal.y, rm_normal.z);
+    const float3 normal = make_float3(rm_normal.x, rm_normal.y, rm_normal.z);
+    const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
+
+    Vector nint{normal_world.x, normal_world.y, normal_world.z};
+    nint.normalize();
+    nint = Tms.R * nint;
+
+    // flip?
+    if(ray_dir_s.dot(nint) > 0.0)
+    {
+        nint *= -1.0;
+    }
+
+    mem.normals[glob_id] = nint.normalized();
 }
 
 __forceinline__ __device__

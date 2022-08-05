@@ -268,6 +268,8 @@ if(OptiX_FOUND)
         # Maps
         src/rmagine/map/optix/OptixGeometry.cpp
         src/rmagine/map/optix/OptixMesh.cpp
+        src/rmagine/map/optix/OptixSpheres.cpp
+        src/rmagine/map/optix/OptixBoxes.cpp
         src/rmagine/map/optix/OptixInst.cpp
         src/rmagine/map/optix/OptixInstances.cpp
         src/rmagine/map/optix/OptixScene.cpp

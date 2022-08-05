@@ -8,6 +8,7 @@
 
 // #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/map/optix/OptixMesh.hpp>
+#include <rmagine/map/optix/OptixBoxes.hpp>
 #include <rmagine/map/optix/OptixInst.hpp>
 #include <rmagine/map/optix/OptixInstances.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
@@ -39,14 +40,13 @@ SphericalModel single_ray_model()
     return model;
 }
 
-
 void printRaycast(
-    OptixGeometryPtr geom, 
+    OptixScenePtr scene, 
     Vector3 pos, 
     EulerAngles angles)
 {
     std::cout << "Create Sphere Simulator" << std::endl;
-    SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(geom);
+    SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
 
 
     std::cout << "Create single ray model" << std::endl;
@@ -64,10 +64,26 @@ void printRaycast(
 
     std::cout << "Simulate!" << std::endl;
 
-    Memory<float, RAM> res = gpu_sim->simulateRanges(Tbm_gpu);
-    std::cout << "- ranges: " << res.size() << std::endl;
-    std::cout << "- range 0: " << res[0] << std::endl;
-    std::cout << "done." << std::endl;
+    using ResultT = Bundle<
+        Ranges<VRAM_CUDA>,
+        Normals<VRAM_CUDA>,
+        FaceIds<VRAM_CUDA>,
+        ObjectIds<VRAM_CUDA>
+    >;
+    ResultT res = gpu_sim->simulate<ResultT>(Tbm_gpu);
+
+    // Download results
+    Memory<float, RAM> ranges = res.ranges;
+    Memory<Vector, RAM> normals = res.normals;
+    Memory<unsigned int, RAM> face_ids = res.face_ids;
+    Memory<unsigned int, RAM> obj_ids = res.object_ids;
+
+    // print results
+    std::cout << "Result:" << std::endl;
+    std::cout << "- range: " << ranges[0] << std::endl;
+    std::cout << "- normal: " << normals[0] << std::endl;
+    std::cout << "- face id: " << face_ids[0] << std::endl;
+    std::cout << "- obj id: " << obj_ids[0] << std::endl;
 }
 
 OptixMeshPtr custom_mesh()
@@ -86,6 +102,9 @@ OptixMeshPtr custom_mesh()
 
     mesh->computeFaceNormals();
 
+    Memory<Vector, RAM> normals = mesh->face_normals;
+    std::cout << "Computed normal: " << normals[0] << std::endl;
+
     Transform T;
     T.setIdentity();
     mesh->setTransform(T);
@@ -100,51 +119,50 @@ void scene_1()
 
     OptixScenePtr scene = std::make_shared<OptixScene>(); 
 
-    OptixMeshPtr mesh1 = custom_mesh();
-    mesh1->commit();
-    OptixMeshPtr mesh2 = std::make_shared<OptixSphere>(50, 50);
-    mesh2->commit();
-    scene->add(mesh1);
-    scene->add(mesh2);
+    OptixGeometryPtr geom1 = custom_mesh();
+    geom1->commit();
+    OptixGeometryPtr geom2 = std::make_shared<OptixSphere>(50, 50);
+    geom2->commit();
 
+    scene->add(geom1);
+    scene->add(geom2);
 
     OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
     {   // two custom instances (5, 0, 0) and (5, 5, 0)
-        OptixInstPtr mesh_inst_1 = std::make_shared<OptixInst>();
-        mesh_inst_1->setGeometry(mesh1);
+        OptixInstPtr geom_inst_1 = std::make_shared<OptixInst>();
+        geom_inst_1->setGeometry(geom1);
 
         Transform T = Transform::Identity();
         T.t.x = 5.0;
-        mesh_inst_1->setTransform(T);
-        mesh_inst_1->apply();
-        insts->add(mesh_inst_1);
+        geom_inst_1->setTransform(T);
+        geom_inst_1->apply();
+        insts->add(geom_inst_1);
         std::cout << T << std::endl;
 
-        OptixInstPtr mesh_inst_2 = std::make_shared<OptixInst>();
-        mesh_inst_2->setGeometry(mesh1);
-        T.t.y = 5.0;
-        mesh_inst_2->setTransform(T);
-        mesh_inst_2->apply();
-        insts->add(mesh_inst_2);
+        OptixInstPtr geom_inst_2 = std::make_shared<OptixInst>();
+        geom_inst_2->setGeometry(geom1);
+        T.t.x = 10.0;
+        geom_inst_2->setTransform(T);
+        geom_inst_2->apply();
+        insts->add(geom_inst_2);
     }
 
     { // 10 sphere instances at z = 10 from x=0 to x=10
         for(size_t i=0; i<10; i++)
         {
-            OptixInstPtr mesh_inst = std::make_shared<OptixInst>();
+            OptixInstPtr geom_inst = std::make_shared<OptixInst>();
 
-            mesh_inst->setGeometry(mesh2);
+            geom_inst->setGeometry(geom2);
 
-            Transform T;
-            T.setIdentity();
+            Transform T = Transform::Identity();
             T.t.z = 10.0;
             T.t.x = static_cast<float>(i);
-            mesh_inst->setTransform(T);
-            mesh_inst->apply();
+            geom_inst->setTransform(T);
+            geom_inst->apply();
 
-            unsigned int id = insts->add(mesh_inst);
-            std::cout << "Created instance " << id << std::endl;
+            unsigned int id = insts->add(geom_inst);
+            std::cout << "Created Sphere instance " << id << std::endl;
         }
     }
 
@@ -153,7 +171,13 @@ void scene_1()
 
     scene->setRoot(insts);
 
-    printRaycast(insts, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {6.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
+}
+
+void scene_2()
+{
+    OptixScenePtr scene = std::make_shared<OptixScene>();
 }
 
 int main(int argc, char** argv)
@@ -172,6 +196,7 @@ int main(int argc, char** argv)
     switch(example)
     {
         case 1: scene_1(); break;
+        case 2: scene_2(); break;
         default: break;
     }
 

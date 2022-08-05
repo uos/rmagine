@@ -43,6 +43,14 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixGeometryPtr geom)
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
 }
 
+SphereSimulatorOptix::SphereSimulatorOptix(OptixScenePtr scene)
+:SphereSimulatorOptix()
+{
+    m_programs.resize(0);
+    m_scene = scene;
+    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+}
+
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
     // std::cout << "[SphereSimulatorOptix] ~SphereSimulatorOptix" << std::endl;

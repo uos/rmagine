@@ -31,22 +31,11 @@ OptixMesh::~OptixMesh()
     std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
 }
 
-void OptixMesh::computeFaceNormals()
-{
-    if(face_normals.size() != faces.size())
-    {
-        face_normals.resize(faces.size());
-    }
-    rmagine::computeFaceNormals(vertices, faces, face_normals);
-}
-
 void OptixMesh::apply()
 {
     // TODO
     Memory<Matrix4x4, RAM> M(1);
     M[0] = matrix();
-
-    std::cout << "applying " << M[0] << " to vertices" << std::endl;
 
     Memory<Matrix4x4, VRAM_CUDA> M_;
     M_ = M;
@@ -158,6 +147,15 @@ void OptixMesh::commit()
     // // We can now free the scratch space buffer used during build and the vertex
     // // inputs, since they are not needed by our trivial shading method
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
+}
+
+void OptixMesh::computeFaceNormals()
+{
+    if(face_normals.size() != faces.size())
+    {
+        face_normals.resize(faces.size());
+    }
+    rmagine::computeFaceNormals(vertices, faces, face_normals);
 }
 
 OptixMeshPtr make_optix_mesh(const aiMesh* amesh)

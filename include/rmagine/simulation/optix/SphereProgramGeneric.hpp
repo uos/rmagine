@@ -21,14 +21,14 @@ public:
         const OptixSimulationDataGenericSphere& flags);
 
     SphereProgramGeneric(
-        OptixGeometryPtr geom,
+        OptixScenePtr scene,
         const OptixSimulationDataGenericSphere& flags
     );
 
     ~SphereProgramGeneric();
 
 private:
-    HitGroupSbtRecord m_hg_sbt;
+    HitGroupSbtRecord hg_sbt;
 };
 
 } // namespace rmagine

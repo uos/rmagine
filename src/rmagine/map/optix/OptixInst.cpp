@@ -43,6 +43,8 @@ OptixGeometryPtr OptixInst::geometry() const
     return m_geom;
 }
 
+
+
 void OptixInst::apply()
 {
     Matrix4x4 M = matrix();

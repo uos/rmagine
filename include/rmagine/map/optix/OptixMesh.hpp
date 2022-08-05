@@ -37,10 +37,10 @@ public:
 
     virtual ~OptixMesh();
 
-    void computeFaceNormals();
-
     virtual void apply();
     virtual void commit();
+
+    void computeFaceNormals();
 
     // TODO manage read and write access over functions
     // before transform: write here

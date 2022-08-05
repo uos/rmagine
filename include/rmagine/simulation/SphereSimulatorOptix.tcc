@@ -5,6 +5,7 @@
 #include <optix_stubs.h>
 
 // #include <rmagine/util/StopWatch.hpp>
+#include <rmagine/map/optix/OptixScene.hpp>
 
 namespace rmagine
 {
@@ -96,7 +97,13 @@ void SphereSimulatorOptix::preBuildProgram()
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new SphereProgramGeneric(m_map, flags ) );
+        OptixProgramPtr program;
+        if(m_map)
+        {
+            program = std::make_shared<SphereProgramGeneric>(m_map, flags);
+        } else if(m_scene) {
+            program = std::make_shared<SphereProgramGeneric>(m_scene, flags);
+        }
         m_generic_programs[flags] = program;
     }
 }
@@ -114,7 +121,12 @@ void SphereSimulatorOptix::simulate(
     OptixProgramPtr program;
     if(it == m_generic_programs.end())
     {
-        program.reset(new SphereProgramGeneric(m_map, mem[0] ) );
+        if(m_map)
+        {
+            program = std::make_shared<SphereProgramGeneric>(m_map, mem[0]);
+        } else if(m_scene) {
+            program = std::make_shared<SphereProgramGeneric>(m_scene, mem[0]);
+        }
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
@@ -124,7 +136,14 @@ void SphereSimulatorOptix::simulate(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+
+    if(m_map)
+    {
+        mem->handle = m_map->as.handle;
+    } else if(m_scene) {
+        mem->handle = m_scene->getRoot()->acc()->handle;
+    }
+    
 
     // set generic data
     setGenericData(res, mem[0]);

@@ -123,6 +123,7 @@ public:
     SphereSimulatorOptix();
     SphereSimulatorOptix(OptixMapPtr map);
     SphereSimulatorOptix(OptixGeometryPtr geom);
+    SphereSimulatorOptix(OptixScenePtr scene);
     
 
     ~SphereSimulatorOptix();
@@ -181,6 +182,7 @@ public:
 protected:
     OptixMapPtr m_map;
     OptixGeometryPtr m_geom;
+    OptixScenePtr m_scene;
 
     cudaStream_t m_stream;
 
