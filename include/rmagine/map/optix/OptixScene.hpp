@@ -11,6 +11,8 @@
 #include <map>
 #include <rmagine/util/IDGen.hpp>
 
+#include <assimp/scene.h>
+
 
 namespace rmagine
 {
@@ -42,6 +44,8 @@ private:
     std::map<unsigned int, OptixGeometryPtr> m_geometries;
     std::unordered_map<OptixGeometryPtr, unsigned int> m_ids;
 };
+
+OptixScenePtr make_optix_scene(const aiScene* ascene);
 
 } // namespace rmagine
 

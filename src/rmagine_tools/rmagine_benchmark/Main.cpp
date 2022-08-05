@@ -11,6 +11,9 @@
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/map/embree/embree_shapes.h>
 
+#include <rmagine/map/AssimpIO.hpp>
+
+
 // GPU
 #if defined WITH_OPTIX
 #include <rmagine/simulation/SphereSimulatorOptix.hpp>
@@ -256,8 +259,24 @@ int main(int argc, char** argv)
         Memory<LiDARModel, RAM> model = velodyne_model();
         
         // Load mesh
-        OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
-        SphereSimulatorOptixPtr gpu_sim(new SphereSimulatorOptix(gpu_mesh));
+        AssimpIO io;
+        const aiScene* ascene = io.ReadFile(path_to_mesh, 0);
+
+        if(!ascene)
+        {
+            std::cerr << io.Importer::GetErrorString() << std::endl;
+        }
+
+        OptixScenePtr scene = make_optix_scene(ascene);
+
+        if(!scene->getRoot())
+        {
+            std::cout << "No Root!" << std::endl;
+        }
+
+        // OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
+        SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
+        // SphereSimulatorOptixPtr gpu_sim(new SphereSimulatorOptix(scene));
 
         gpu_sim->setTsb(Tsb);
         gpu_sim->setModel(model);
@@ -269,9 +288,15 @@ int main(int argc, char** argv)
         // Define what to simulate
 
         Memory<float, RAM> ranges_cpu;
-        using ResultT = Bundle<Ranges<VRAM_CUDA> >;
+        using ResultT = Bundle<
+            Ranges<VRAM_CUDA>,
+            Normals<VRAM_CUDA>
+        >;
+
+
         ResultT res;
         res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
+        res.normals.resize(Tbm.size() * model->size());
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;
         

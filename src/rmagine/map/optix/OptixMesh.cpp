@@ -23,12 +23,52 @@ namespace rmagine
 OptixMesh::OptixMesh(OptixContextPtr context)
 :Base(context)
 {
-    std::cout << "[OptixMesh::OptixMesh()] constructed." << std::endl;
+    // std::cout << "[OptixMesh::OptixMesh()] constructed." << std::endl;
+}
+
+OptixMesh::OptixMesh(
+    const aiMesh* amesh, 
+    OptixContextPtr context)
+:OptixMesh(context)
+{
+    const aiVector3D* avertices = amesh->mVertices;
+    unsigned int num_vertices = amesh->mNumVertices;
+    const aiFace* afaces = amesh->mFaces;
+    unsigned int num_faces = amesh->mNumFaces;
+
+    name = amesh->mName.C_Str();
+
+    vertices.resize(num_vertices);
+    faces.resize(num_faces);
+
+    Memory<Point, RAM> vertices_cpu(num_vertices);
+    Memory<Face, RAM> faces_cpu(num_faces);
+
+    // convert
+    for(size_t i=0; i<num_vertices; i++)
+    {
+        vertices_cpu[i] = {
+                avertices[i].x,
+                avertices[i].y,
+                avertices[i].z};
+    }
+
+    for(size_t i=0; i<num_faces; i++)
+    {
+        faces_cpu[i].v0 = afaces[i].mIndices[0];
+        faces_cpu[i].v1 = afaces[i].mIndices[1];
+        faces_cpu[i].v2 = afaces[i].mIndices[2];
+    }
+
+    vertices = vertices_cpu;
+    faces = faces_cpu;
+    computeFaceNormals();
+    apply();
 }
 
 OptixMesh::~OptixMesh()
 {
-    std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
+    // std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
 }
 
 void OptixMesh::apply()
@@ -63,15 +103,7 @@ void OptixMesh::apply()
 void OptixMesh::commit()
 {
     // build/update acceleration structure
-    if(!m_as)
-    {
-        // No acceleration structure exists yet!
-        m_as = std::make_shared<OptixAccelerationStructure>();
-        std::cout << "Build acceleration structure" << std::endl;
-    } else {
-        // update existing structure
-        std::cout << "Update acceleration structure" << std::endl;
-    }
+    
 
     if(vertices.size() != vertices_.size())
     {
@@ -106,8 +138,26 @@ void OptixMesh::commit()
     // Use default options for simplicity.  In a real use case we would want to
     // enable compaction, etc
     OptixAccelBuildOptions accel_options = {};
-    accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_ALLOW_UPDATE | OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
-    accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
+
+    unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+
+    { // BUILD FLAGS
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
+    }
+
+    accel_options.buildFlags = build_flags;
+
+    if(m_as)
+    {
+        // update existing structure
+        accel_options.operation  = OPTIX_BUILD_OPERATION_UPDATE;
+    } else {
+        // No acceleration structure exists yet!
+        m_as = std::make_shared<OptixAccelerationStructure>();
+        accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
+    }
 
     OptixAccelBufferSizes gas_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage(
@@ -122,10 +172,22 @@ void OptixMesh::commit()
     CUDA_CHECK( cudaMalloc(
         reinterpret_cast<void**>( &d_temp_buffer_gas ),
         gas_buffer_sizes.tempSizeInBytes) );
-    CUDA_CHECK( cudaMalloc(
+
+    if(m_as->buffer && (m_as->buffer_size != gas_buffer_sizes.outputSizeInBytes ) )
+    {
+        CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
+        m_as->buffer = 0;
+        m_as->buffer_size = 0;
+    }
+
+    if(!m_as->buffer)
+    {
+        CUDA_CHECK( cudaMalloc(
                 reinterpret_cast<void**>( &m_as->buffer ),
                 gas_buffer_sizes.outputSizeInBytes
                 ) );
+        m_as->buffer_size = gas_buffer_sizes.outputSizeInBytes;
+    }
 
     OPTIX_CHECK( optixAccelBuild(
                 m_ctx->ref(),

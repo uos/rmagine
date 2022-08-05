@@ -47,9 +47,9 @@ struct RayGenDataEmpty {
 };
 
 // For fixed spherical model
-struct RayGenDataSpherical {
-    SphericalModel model;
-};
+// struct RayGenDataSpherical {
+//     SphericalModel model;
+// };
 
 struct MissDataEmpty {
 
@@ -63,6 +63,21 @@ struct HitGroupDataNormals {
     // instance -> normals
     Vector** normals;
 };
+
+// struct MeshAttributes 
+// {
+//     Vector* vertex_normals;
+//     Vector* face_normals;
+// };
+
+struct HitGroupDataMesh {
+    // link from instance id to mesh id
+    int* inst_to_mesh;
+    // mesh normals
+    Vector** normals;
+};
+
+// struct 
 
 } // namespace rmagine
 

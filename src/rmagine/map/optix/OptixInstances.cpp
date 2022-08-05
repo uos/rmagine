@@ -89,21 +89,26 @@ void OptixInstances::build_acc()
     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
 
     OptixAccelBuildOptions ias_accel_options = {};
-    ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+    
+    unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+    { // BUILD FLAGS
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+    }
+    ias_accel_options.buildFlags = build_flags;
+
     ias_accel_options.motionOptions.numKeys = 1;
 
     if(m_as)
     {
-        // first commit
-        // std::cout << "UPDATE" << std::endl;
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
     } else {
-        // std::cout << "FIRST COMMIT" << std::endl;
+        // first commit
         m_as = std::make_shared<OptixAccelerationStructure>();
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
     }
 
-    // std::cout << "dnodwa" << std::endl;
     OptixAccelBufferSizes ias_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
         m_ctx->ref(), 
@@ -167,17 +172,23 @@ void OptixInstances::build_acc_old()
     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
 
     OptixAccelBuildOptions ias_accel_options = {};
-    ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE | OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+
+    unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+    { // BUILD FLAGS
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+    }
+    ias_accel_options.buildFlags = build_flags;
     ias_accel_options.motionOptions.numKeys = 1;
     
     if(m_as)
     {
-        // first commit
-        std::cout << "UPDATE" << std::endl;
+        // update
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
 
     } else {
-        std::cout << "FIRST COMMIT" << std::endl;
+        // first commit
         m_as = std::make_shared<OptixAccelerationStructure>();
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
     }
@@ -213,7 +224,7 @@ void OptixInstances::build_acc_old()
         m_as->buffer_size = ias_buffer_sizes.outputSizeInBytes;
     }
 
-    cudaDeviceSynchronize();
+    // cudaDeviceSynchronize();
 
     OPTIX_CHECK(optixAccelBuild( 
         m_ctx->ref(), 

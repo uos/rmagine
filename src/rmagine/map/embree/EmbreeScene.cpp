@@ -319,8 +319,6 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
             std::cout << "- Transformation Matrix: " << std::endl;
             std::cout << M << std::endl;
             std::cout << "- Transform: " << T << ", scale: " << scale << std::endl;
-            EulerAngles euler;
-            euler.set(T.R);
         }
 
         EmbreeScenePtr mesh_scene = std::make_shared<EmbreeScene>();

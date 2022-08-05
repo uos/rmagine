@@ -10,7 +10,7 @@ OptixGeometry::OptixGeometry(OptixContextPtr context)
 :OptixEntity(context)
 ,OptixTransformable()
 {
-    std::cout << "[OptixGeometry::OptixGeometry()] constructed." << std::endl;
+    // std::cout << "[OptixGeometry::OptixGeometry()] constructed." << std::endl;
 }
 
 OptixGeometry::~OptixGeometry()
@@ -19,7 +19,7 @@ OptixGeometry::~OptixGeometry()
     {
         cudaFree( reinterpret_cast<void*>( m_as->buffer ) );
     }
-    std::cout << "[OptixGeometry::~OptixGeometry()] destroyed." << std::endl;
+    // std::cout << "[OptixGeometry::~OptixGeometry()] destroyed." << std::endl;
 }
 
 OptixAccelerationStructurePtr OptixGeometry::acc()

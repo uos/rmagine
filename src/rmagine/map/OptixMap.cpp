@@ -270,11 +270,16 @@ void OptixMap::buildGAS(
     // Use default options for simplicity.  In a real use case we would want to
     // enable compaction, etc
     OptixAccelBuildOptions accel_options = {};
-#ifndef NDEBUG
-    accel_options.buildFlags = OPTIX_BUILD_FLAG_NONE;
-#else
-    accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
-#endif
+
+    unsigned int accel_options_build_flags = OPTIX_BUILD_FLAG_NONE;
+
+    { // SET BUILD FLAGS FOR GAS
+        accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
+        accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+    }
+
+    accel_options.buildFlags = accel_options_build_flags;
     accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
 
     OptixAccelBufferSizes gas_buffer_sizes;
@@ -335,7 +340,16 @@ void OptixMap::buildIAS(
     // instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
 
     OptixAccelBuildOptions ias_accel_options = {};
-    ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+
+    unsigned int ias_accel_options_build_flags = OPTIX_BUILD_FLAG_NONE;
+
+    { // BUILD FLAGS FOR IAS
+        ias_accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        ias_accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+        ias_accel_options_build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+    }   
+
+    ias_accel_options.buildFlags = ias_accel_options_build_flags;
     ias_accel_options.motionOptions.numKeys = 1;
     ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
 

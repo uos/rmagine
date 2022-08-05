@@ -147,13 +147,15 @@ void computeNormalSBT()
     // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
     const unsigned int object_id = optixGetInstanceIndex();
+    
     const float3 dir_m = optixGetWorldRayDirection();
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
-
     const Vector ray_dir_s = Tms.R * ray_dir_m;
 
-    rmagine::HitGroupDataNormals* hg_data  = reinterpret_cast<rmagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
-    const float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
+    rmagine::HitGroupDataMesh* hg_data  = reinterpret_cast<rmagine::HitGroupDataMesh*>( optixGetSbtDataPointer() );
+    
+    const int mesh_id = hg_data->inst_to_mesh[object_id];
+    const float3 normal = make_float3(hg_data->normals[mesh_id][face_id].x, hg_data->normals[mesh_id][face_id].y, hg_data->normals[mesh_id][face_id].z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
@@ -268,7 +270,6 @@ void computeNoObjectId()
 
 extern "C" __global__ void __miss__ms()
 {
-    printf("MISS!\n");
     if(mem.computeHits)
     {
         computeNoHit();
@@ -303,8 +304,6 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
-    printf("HIT!\n");
-
     if(mem.computeHits)
     {
         computeHit();
@@ -322,7 +321,7 @@ extern "C" __global__ void __closesthit__ch()
 
     if(mem.computeNormals)
     {
-        computeNormal();
+        computeNormalSBT();
     }
 
     if(mem.computeFaceIds)

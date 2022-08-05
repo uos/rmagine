@@ -171,7 +171,7 @@ void scene_1()
 
     scene->setRoot(insts);
 
-    printRaycast(scene, {6.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {0.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
     printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
 }
 

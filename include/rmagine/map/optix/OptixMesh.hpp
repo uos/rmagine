@@ -34,6 +34,8 @@ public:
     using Base = OptixGeometry;
 
     OptixMesh(OptixContextPtr context = optix_default_context());
+    OptixMesh(const aiMesh* amesh, OptixContextPtr context = optix_default_context());
+
 
     virtual ~OptixMesh();
 

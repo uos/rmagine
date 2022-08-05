@@ -1,11 +1,17 @@
 #include "rmagine/map/optix/OptixScene.hpp"
-
 #include "rmagine/map/optix/OptixGeometry.hpp"
+#include "rmagine/map/optix/OptixMesh.hpp"
+#include "rmagine/map/optix/OptixInstances.hpp"
+#include "rmagine/map/optix/OptixInst.hpp"
 
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/util/optix/OptixDebug.hpp>
 
 #include <optix_stubs.h>
+
+#include <rmagine/math/assimp_conversions.h>
+#include <rmagine/util/assimp/helper.h>
+#include <rmagine/math/linalg.h>
 
 
 namespace rmagine
@@ -63,59 +69,103 @@ std::unordered_map<OptixGeometryPtr, unsigned int> OptixScene::ids() const
 }
 
 
-// void OptixScene::commit()
-// {
-//     // make flat buffer
-//     Memory<OptixInstance, RAM> instances(m_instances.size());
-//     std::unordered_map<unsigned int, unsigned int> id_map;
+OptixScenePtr make_optix_scene(const aiScene* ascene)
+{
+    OptixScenePtr scene = std::make_shared<OptixScene>();
 
-//     unsigned int id = 0;
-//     for(auto elem : m_instances)
-//     {
-//         instances[id] = elem.second->data();
-//         id_map[elem.first] = id;
-//         id++;
-//     }
+    // 1. meshes
+    for(size_t i=0; i<ascene->mNumMeshes; i++)
+    {
+        // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
+        const aiMesh* amesh = ascene->mMeshes[i];
 
-//     Memory<OptixInstance, VRAM_CUDA> instances_gpu;
-//     instances_gpu = instances;
+        if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+        {
+            // triangle mesh
+            OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh);
+            mesh->commit();
+            scene->add(mesh);
+        } else {
+            std::cout << "[ make_embree_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
+        }
+    }
 
-//     OptixBuildInput instance_input = {};
-//     // TODO check: OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS
-//     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-//     instance_input.instanceArray.numInstances = instances.size();
-//     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(instances.raw());
+    // tmp
+    auto meshes = scene->geometries();
 
-//     OptixAccelBuildOptions ias_accel_options = {};
-//     ias_accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION | OPTIX_BUILD_FLAG_PREFER_FAST_TRACE | OPTIX_BUILD_FLAG_ALLOW_UPDATE;
-//     ias_accel_options.motionOptions.numKeys = 1;
+    // 2. instances (if available)
+    std::unordered_set<OptixGeometryPtr> instanciated_meshes;
+
+    const aiNode* root_node = ascene->mRootNode;
+    std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
     
-//     if(m_as)
-//     {
-//         std::cout << "Update existing scene!" << std::endl;
-//         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
-//     } else {
-//         m_as = std::make_shared<OptixAccelerationStructure>();
-//         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
-//     }
+    std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
 
-//     OptixAccelBufferSizes ias_buffer_sizes;
-//     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
-//         m_ctx->ref(), 
-//         &ias_accel_options, 
-//         &instance_input, 
-//         1, 
-//         &ias_buffer_sizes ) );
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
-//     CUdeviceptr d_temp_buffer_ias;
-//     CUDA_CHECK( cudaMalloc(
-//         reinterpret_cast<void**>( &d_temp_buffer_ias ),
-//         ias_buffer_sizes.tempSizeInBytes) );
+    for(size_t i=0; i<mesh_nodes.size(); i++)
+    {
+        const aiNode* node = mesh_nodes[i];
+        std::cout << "- " << i << ": " << node->mName.C_Str();
+        std::cout << ", total path: ";
 
-//     CUDA_CHECK( cudaMalloc(
-//                 reinterpret_cast<void**>( &m_as->buffer ),
-//                 ias_buffer_sizes.outputSizeInBytes
-//                 ) );
-// }
+        std::vector<std::string> path = path_names(node);   
+        for(auto name : path)
+        {
+            std::cout << name << "/";
+        }
+        std::cout << std::endl;
+
+        Matrix4x4 M = global_transform(node);
+        Transform T;
+        Vector3 scale;
+        decompose(M, T, scale);
+
+        OptixInstPtr mesh_inst = std::make_shared<OptixInst>();
+        
+        if(node->mNumMeshes > 1)
+        {
+            std::cout << "Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl; 
+        } else {
+            unsigned int mesh_id = node->mMeshes[0];
+            auto mesh_it = meshes.find(mesh_id);
+            if(mesh_it != meshes.end())
+            {
+                OptixGeometryPtr mesh = mesh_it->second;
+                instanciated_meshes.insert(mesh);
+                mesh_inst->setGeometry(mesh);
+            }
+        }
+
+        mesh_inst->name = node->mName.C_Str();
+        mesh_inst->setTransform(T);
+        mesh_inst->setScale(scale);
+        mesh_inst->apply();
+
+        insts->add(mesh_inst);
+    }
+
+    if(instanciated_meshes.size() == 0)
+    {
+        // SINGLE GAS
+        if(scene->geometries().size() == 1)
+        {
+            scene->setRoot(scene->geometries().begin()->second);
+        } else {
+            std::cout << scene->geometries().size() << " unconnected meshes!" << std::endl;
+        }
+    } else {
+        
+        if(instanciated_meshes.size() != meshes.size())
+        {
+            std::cout << "There are some meshes left" << std::endl;
+        }
+        insts->commit();
+        scene->setRoot(insts);
+    }
+
+    return scene;
+}
+
 
 } // namespace rmagine

@@ -14,6 +14,8 @@ public:
 
     virtual ~OptixEntity() {};
 
+    std::string name;
+
     inline OptixContextPtr context() const
     {
         return m_ctx;
