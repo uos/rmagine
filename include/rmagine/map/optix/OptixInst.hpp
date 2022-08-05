@@ -39,6 +39,10 @@ public:
 
     unsigned int id() const;
 
+    void disable();
+
+    void enable();
+
     OptixInstance data() const;
     CUdeviceptr data_gpu() const;
 

@@ -45,11 +45,11 @@ void printRaycast(
     Vector3 pos, 
     EulerAngles angles)
 {
-    std::cout << "Create Sphere Simulator" << std::endl;
+    // std::cout << "Create Sphere Simulator" << std::endl;
     SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
 
 
-    std::cout << "Create single ray model" << std::endl;
+    // std::cout << "Create single ray model" << std::endl;
     SphericalModel model = single_ray_model();
     gpu_sim->setModel(model);
     Transform T = Transform::Identity();
@@ -62,7 +62,7 @@ void printRaycast(
     Memory<Transform, VRAM_CUDA> Tbm_gpu;
     Tbm_gpu = Tbm;
 
-    std::cout << "Simulate!" << std::endl;
+    // std::cout << "Simulate!" << std::endl;
 
     using ResultT = Bundle<
         Ranges<VRAM_CUDA>,
@@ -178,7 +178,49 @@ void scene_1()
 void scene_2()
 {
     OptixScenePtr scene = std::make_shared<OptixScene>();
+
+    OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    geom->name = "Cube";
+    geom->commit();
+    scene->add(geom);
+
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+
+    for(size_t i=0; i<10; i++)
+    {
+        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+        inst_geom->setGeometry(geom);
+        inst_geom->name = "Instance " + i;
+        Transform T = Transform::Identity();
+        T.t.y = static_cast<float>(i);
+        T.t.x = 10.0;
+        inst_geom->setTransform(T);
+        inst_geom->apply();
+        insts->add(inst_geom);
+    }
+    insts->commit();
+
+    scene->setRoot(insts);
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    std::cout << "UPDATE SCENE" << std::endl;
+
+    {
+        OptixInstPtr inst = insts->get(5);
+        Transform T = inst->transform();
+        T.t.y = 0.0;
+        T.t.x = 5.0;
+        inst->setTransform(T);
+        inst->apply();
+    }
+
+    insts->commit();
+
+
+    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
+
 
 int main(int argc, char** argv)
 {

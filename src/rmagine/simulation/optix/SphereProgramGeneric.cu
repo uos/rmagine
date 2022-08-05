@@ -257,8 +257,12 @@ __forceinline__ __device__
 void computeObjectId()
 {
     const unsigned int glob_id = optixGetPayload_0();
-    const unsigned int object_id = optixGetInstanceIndex();
-    mem.object_ids[glob_id] = object_id;
+    // 
+    // const unsigned int object_id = optixGetInstanceIndex();
+
+    // const unsigned int object_id2 = optixGetInstanceId();
+    // printf("ObjIds: %u %u \n", object_id, object_id2);
+    mem.object_ids[glob_id] = optixGetInstanceId();
 }
 
 __forceinline__ __device__

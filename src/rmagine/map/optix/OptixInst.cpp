@@ -43,8 +43,6 @@ OptixGeometryPtr OptixInst::geometry() const
     return m_geom;
 }
 
-
-
 void OptixInst::apply()
 {
     Matrix4x4 M = matrix();
@@ -78,6 +76,8 @@ void OptixInst::apply()
         sizeof(OptixInstance),
         cudaMemcpyHostToDevice
     ));
+
+    m_changed = true;
 }
 
 void OptixInst::setId(unsigned int id)
@@ -88,6 +88,16 @@ void OptixInst::setId(unsigned int id)
 unsigned int OptixInst::id() const
 {
     return m_data.instanceId;
+}
+
+void OptixInst::disable()
+{
+    m_data.visibilityMask = 0;
+}
+
+void OptixInst::enable()
+{
+    m_data.visibilityMask = 255;
 }
 
 OptixInstance OptixInst::data() const

@@ -36,7 +36,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     OptixMapPtr map,
     const OptixSimulationDataGenericSphere& flags)
 {
-    std::cout << "Construct SphereProgramGeneric" << std::endl;
+    // std::cout << "Construct SphereProgramGeneric" << std::endl;
 
     const char *kernel =
     #include "kernels/SphereProgramGenericString.h"
@@ -347,7 +347,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     OptixScenePtr scene,
     const OptixSimulationDataGenericSphere& flags)
 {
-    std::cout << "Construct SphereProgramGeneric on Scene" << std::endl;
+    // std::cout << "Construct SphereProgramGeneric on Scene" << std::endl;
 
     const char *kernel =
     #include "kernels/SphereProgramGenericString.h"
@@ -405,7 +405,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
 
-    std::cout << "Scene get root" << std::endl;
+    // std::cout << "Scene get root" << std::endl;
     OptixGeometryPtr geom = scene->getRoot();
 
     OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
@@ -445,7 +445,7 @@ SphereProgramGeneric::SphereProgramGeneric(
                 &module
                 ));
 
-    std::cout << "Compiled Generic Shader" << std::endl;
+    // std::cout << "Compiled Generic Shader" << std::endl;
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
@@ -563,7 +563,7 @@ SphereProgramGeneric::SphereProgramGeneric(
                                             ) );
 
 
-    std::cout << "Construct SBT ..." << std::endl;
+    // std::cout << "Construct SBT ..." << std::endl;
     // 4. setup shader binding table
     CUdeviceptr  raygen_record;
     const size_t raygen_record_size = sizeof( RayGenSbtRecord );
@@ -648,7 +648,7 @@ SphereProgramGeneric::SphereProgramGeneric(
         // get last id
         unsigned int normal_buffer_size = geoms.rbegin()->first + 1;
 
-        std::cout << "Meshes: " << normal_buffer_size << std::endl; 
+        // std::cout << "Meshes: " << normal_buffer_size << std::endl; 
 
         Memory<Vector*, RAM> normals_cpu(normal_buffer_size);
         for(auto elem : geoms)

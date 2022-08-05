@@ -42,10 +42,12 @@ public:
      * 
      */
     virtual void apply() = 0;
+
+    bool m_changed;
 protected:
     Transform m_T;
     Vector3 m_S;
-    bool m_changed;
+    
 };
 
 using OptixTransformablePtr = std::shared_ptr<OptixTransformable>;

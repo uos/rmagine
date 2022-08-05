@@ -64,111 +64,135 @@ std::unordered_map<OptixInstPtr, unsigned int> OptixInstances::ids() const
 
 
 // PRIVATE
-void OptixInstances::build_acc()
-{
-    std::cout << "[OptixInstances::commit()] !!!" << std::endl;
-    std::cout << "- Instances: " << m_instances.size() << std::endl;
+// void OptixInstances::build_acc()
+// {
+//     std::cout << "[OptixInstances::commit()] !!!" << std::endl;
+//     std::cout << "- Instances: " << m_instances.size() << std::endl;
 
-    Memory<CUdeviceptr, RAM> inst_h(m_instances.size());
-    Memory<CUdeviceptr, VRAM_CUDA> inst_d;
+//     Memory<CUdeviceptr, RAM> inst_h(m_instances.size());
+//     Memory<CUdeviceptr, VRAM_CUDA> inst_d;
 
-    size_t i=0;
-    for(auto elem : m_instances)
-    {
-        std::cout << elem.first << " -> " << i << std::endl;
-        inst_h[i] = elem.second->data_gpu();
-        i++;
-    }
+//     size_t i=0;
+//     for(auto elem : m_instances)
+//     {
+//         std::cout << elem.first << " -> " << i << std::endl;
+//         inst_h[i] = elem.second->data_gpu();
+//         i++;
+//     }
 
-    // upload pointers
-    inst_d = inst_h;
+//     // upload pointers
+//     inst_d = inst_h;
 
-    OptixBuildInput instance_input = {};
-    instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
-    instance_input.instanceArray.numInstances = m_instances.size();
-    instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
+//     OptixBuildInput instance_input = {};
+//     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
+//     instance_input.instanceArray.numInstances = m_instances.size();
+//     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
 
-    OptixAccelBuildOptions ias_accel_options = {};
+//     OptixAccelBuildOptions ias_accel_options = {};
     
-    unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
-    { // BUILD FLAGS
-        build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
-        build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
-        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
-    }
-    ias_accel_options.buildFlags = build_flags;
+//     unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+//     { // BUILD FLAGS
+//         build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+//         build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+//         build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+//     }
+//     ias_accel_options.buildFlags = build_flags;
 
-    ias_accel_options.motionOptions.numKeys = 1;
+//     ias_accel_options.motionOptions.numKeys = 1;
 
-    if(m_as)
-    {
-        ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
-    } else {
-        // first commit
-        m_as = std::make_shared<OptixAccelerationStructure>();
-        ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
-    }
+//     if(m_as)
+//     {
+//         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
+//     } else {
+//         // first commit
+//         m_as = std::make_shared<OptixAccelerationStructure>();
+//         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+//     }
 
-    OptixAccelBufferSizes ias_buffer_sizes;
-    OPTIX_CHECK( optixAccelComputeMemoryUsage( 
-        m_ctx->ref(), 
-        &ias_accel_options, 
-        &instance_input, 
-        1, 
-        &ias_buffer_sizes ) );
+//     OptixAccelBufferSizes ias_buffer_sizes;
+//     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+//         m_ctx->ref(), 
+//         &ias_accel_options, 
+//         &instance_input, 
+//         1, 
+//         &ias_buffer_sizes ) );
 
-    cudaDeviceSynchronize();
+//     cudaDeviceSynchronize();
 
-    CUdeviceptr d_temp_buffer_ias;
-    CUDA_CHECK( cudaMalloc(
-        reinterpret_cast<void**>( &d_temp_buffer_ias ),
-        ias_buffer_sizes.tempSizeInBytes) );
+//     CUdeviceptr d_temp_buffer_ias;
+//     CUDA_CHECK( cudaMalloc(
+//         reinterpret_cast<void**>( &d_temp_buffer_ias ),
+//         ias_buffer_sizes.tempSizeInBytes) );
 
-    CUDA_CHECK( cudaMalloc(
-                reinterpret_cast<void**>( &m_as->buffer ),
-                ias_buffer_sizes.outputSizeInBytes
-                ) );
+//     CUDA_CHECK( cudaMalloc(
+//                 reinterpret_cast<void**>( &m_as->buffer ),
+//                 ias_buffer_sizes.outputSizeInBytes
+//                 ) );
 
-    cudaDeviceSynchronize();
+//     cudaDeviceSynchronize();
 
-    OPTIX_CHECK(optixAccelBuild( 
-        m_ctx->ref(), 
-        0, 
-        &ias_accel_options, 
-        &instance_input, 
-        1, 
-        d_temp_buffer_ias,
-        ias_buffer_sizes.tempSizeInBytes, 
-        m_as->buffer,
-        ias_buffer_sizes.outputSizeInBytes,
-        &(m_as->handle),
-        nullptr, 
-        0 
-    ));
+//     OPTIX_CHECK(optixAccelBuild( 
+//         m_ctx->ref(), 
+//         0, 
+//         &ias_accel_options, 
+//         &instance_input, 
+//         1, 
+//         d_temp_buffer_ias,
+//         ias_buffer_sizes.tempSizeInBytes, 
+//         m_as->buffer,
+//         ias_buffer_sizes.outputSizeInBytes,
+//         &(m_as->handle),
+//         nullptr, 
+//         0 
+//     ));
 
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
-}
+//     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+// }
 
 void OptixInstances::build_acc_old()
 {
-    std::cout << "[OptixInstances::build_acc_old()] !!!" << std::endl;
-    std::cout << "- Instances: " << m_instances.size() << std::endl;
+    // std::cout << "[OptixInstances::build_acc_old()] !!!" << std::endl;
+    // std::cout << "- Instances: " << m_instances.size() << std::endl;
 
-    Memory<OptixInstance, RAM> inst_h(m_instances.size());
-    Memory<OptixInstance, VRAM_CUDA> inst_d;
+    // Memory<OptixInstance, RAM> inst_h(m_instances.size());
+    // 
 
-    size_t i=0;
+    std::vector<OptixInstance> inst_vec;
+    // TODO get only instances that requires update
+    
     for(auto elem : m_instances)
     {
-        inst_h[i] = elem.second->data();
-        i++;
+        unsigned int inst_id = elem.first;
+        OptixInstPtr inst = elem.second;
+        // if(inst->m_changed)
+        // {
+            std::cout << "Instance " << inst_id << " changed!" << std::endl;
+            inst_vec.push_back(inst->data());
+        // }
     }
 
-    inst_d = inst_h;
+    if(m_as)
+    {
+        // std::cout << OPTIX_DEVICE_PROPERTY_LIMIT_MAX_INSTANCE_ID << std::endl;
+        // reverse
+        // std::reverse(inst_vec.begin(), inst_vec.end());
+        inst_vec[5].visibilityMask = 0;
+    }
+
+    Memory<OptixInstance, RAM> inst_h(inst_vec.size());
+    std::copy(inst_vec.begin(), inst_vec.end(), inst_h.raw());
+    Memory<OptixInstance, VRAM_CUDA> inst_d = inst_h;
+
+    if(m_as)
+    {
+        std::cout << "UPDATE " << inst_d.size() << " instances" << std::endl;
+    } else {
+        std::cout << "COMMIT " << inst_d.size() << " instances" << std::endl;
+    }
 
     OptixBuildInput instance_input = {};
     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-    instance_input.instanceArray.numInstances = m_instances.size();
+    instance_input.instanceArray.numInstances = inst_d.size();
     instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
 
     OptixAccelBuildOptions ias_accel_options = {};
@@ -186,7 +210,6 @@ void OptixInstances::build_acc_old()
     {
         // update
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
-
     } else {
         // first commit
         m_as = std::make_shared<OptixAccelerationStructure>();
@@ -200,8 +223,6 @@ void OptixInstances::build_acc_old()
         &instance_input, 
         1, 
         &ias_buffer_sizes ) );
-
-    std::cout << "Tmp buffer size: " << ias_buffer_sizes.tempSizeInBytes << std::endl;
 
     CUdeviceptr d_temp_buffer_ias;
     CUDA_CHECK( cudaMalloc(
@@ -224,8 +245,6 @@ void OptixInstances::build_acc_old()
         m_as->buffer_size = ias_buffer_sizes.outputSizeInBytes;
     }
 
-    // cudaDeviceSynchronize();
-
     OPTIX_CHECK(optixAccelBuild( 
         m_ctx->ref(), 
         0, 
@@ -242,6 +261,12 @@ void OptixInstances::build_acc_old()
     ));
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+
+    // set every child to commited
+    for(auto elem : m_instances)
+    {
+        elem.second->m_changed = false;
+    }
 }
 
 } // namespace rmagine
