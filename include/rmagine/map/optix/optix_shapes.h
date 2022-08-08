@@ -47,8 +47,6 @@ public:
 };
 
 using OptixPlanePtr = std::shared_ptr<OptixPlane>;
-
-
 class OptixCylinder : public OptixMesh 
 {
 public:

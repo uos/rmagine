@@ -56,7 +56,7 @@ private:
     std::unordered_map<OptixGeometryPtr, unsigned int> m_ids;
 };
 
-OptixScenePtr make_optix_scene(const aiScene* ascene);
+OptixScenePtr make_optix_scene(const aiScene* ascene, OptixContextPtr context = optix_default_context());
 
 } // namespace rmagine
 

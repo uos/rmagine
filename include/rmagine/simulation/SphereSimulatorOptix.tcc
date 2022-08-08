@@ -91,18 +91,18 @@ void setGenericFlags(
 template<typename BundleT>
 void SphereSimulatorOptix::preBuildProgram()
 {
+    if(!m_map)
+    {
+        throw std::runtime_error("[SphereSimulatorOptix] preBuildProgram(): No Map available!");
+    }
+
     OptixSimulationDataGenericSphere flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program;
-        if(m_map)
-        {
-            program = std::make_shared<SphereProgramGeneric>(m_map, flags);
-        }
-        m_generic_programs[flags] = program;
+        m_generic_programs[flags] = std::make_shared<SphereProgramGeneric>(m_map, flags);
     }
 }
 

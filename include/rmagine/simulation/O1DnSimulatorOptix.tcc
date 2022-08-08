@@ -100,8 +100,7 @@ void O1DnSimulatorOptix::preBuildProgram()
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new O1DnProgramGeneric(m_map, flags ) );
-        m_generic_programs[flags] = program;
+        m_generic_programs[flags] = std::make_shared<O1DnProgramGeneric>(m_map, flags);
     }
 }
 
@@ -126,6 +125,7 @@ void O1DnSimulatorOptix::simulate(
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
+        program->updateSBT();
     }
 
     // set general data

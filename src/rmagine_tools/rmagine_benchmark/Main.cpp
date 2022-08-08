@@ -40,46 +40,6 @@ Memory<LiDARModel, RAM> velodyne_model()
     return model;
 }
 
-
-void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
-{
-    RTCIntersectContext context;
-    rtcInitIntersectContext(&context);
-    // std::cout << "[printRaycast()] called." << std::endl;
-    // std::cout << "- instance stack size: " << context.instStackSize << std::endl;
-
-    RTCRayHit rayhit;
-    rayhit.ray.org_x = orig.x;
-    rayhit.ray.org_y = orig.y;
-    rayhit.ray.org_z = orig.z;
-    rayhit.ray.dir_x = dir.x;
-    rayhit.ray.dir_y = dir.y;
-    rayhit.ray.dir_z = dir.z;
-    rayhit.ray.tnear = 0;
-    rayhit.ray.tfar = INFINITY;
-    rayhit.ray.mask = 0;
-    rayhit.ray.flags = 0;
-    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
-
-    rtcIntersect1(scene->handle(), &context, &rayhit);
-
-    std::cout << "Raycast:" << std::endl;
-
-    std::cout << "- range: " << rayhit.ray.tfar << std::endl;
-
-    if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-    {
-        
-        std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
-    }
-
-    if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
-    {
-        std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
-    }
-}
-
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Benchmark" << std::endl;

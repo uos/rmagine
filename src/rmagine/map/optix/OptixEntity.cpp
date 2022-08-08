@@ -9,4 +9,9 @@ OptixEntity::OptixEntity(OptixContextPtr context_)
     
 }
 
+void OptixEntity::setContext(OptixContextPtr context)
+{
+    m_ctx = context;
+}
+
 } // namespace rmagine

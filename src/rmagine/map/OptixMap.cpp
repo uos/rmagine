@@ -46,6 +46,7 @@ OptixMap::~OptixMap()
 
 void OptixMap::setScene(OptixScenePtr scene)
 {
+    setContext(scene->context());
     m_scene = scene;
 }
 

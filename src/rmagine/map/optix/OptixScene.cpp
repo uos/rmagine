@@ -211,9 +211,11 @@ void OptixScene::commit()
     // m_hitgroup_data = m_h_hitgroup_data;
 }
 
-OptixScenePtr make_optix_scene(const aiScene* ascene)
+OptixScenePtr make_optix_scene(
+    const aiScene* ascene, 
+    OptixContextPtr context)
 {
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    OptixScenePtr scene = std::make_shared<OptixScene>(context);
 
     // 1. meshes
     for(size_t i=0; i<ascene->mNumMeshes; i++)
@@ -224,7 +226,7 @@ OptixScenePtr make_optix_scene(const aiScene* ascene)
         if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
         {
             // triangle mesh
-            OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh);
+            OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh, context);
             mesh->commit();
             scene->add(mesh);
         } else {
@@ -243,7 +245,7 @@ OptixScenePtr make_optix_scene(const aiScene* ascene)
     
     std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>(context);
 
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
@@ -263,7 +265,7 @@ OptixScenePtr make_optix_scene(const aiScene* ascene)
         Vector3 scale;
         decompose(M, T, scale);
 
-        OptixInstPtr mesh_inst = std::make_shared<OptixInst>();
+        OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
         
         if(node->mNumMeshes > 1)
         {

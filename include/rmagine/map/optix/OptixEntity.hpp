@@ -21,6 +21,8 @@ public:
         return m_ctx;
     }
 
+    void setContext(OptixContextPtr context);
+
     template<typename T>
     inline std::shared_ptr<T> this_shared()
     {

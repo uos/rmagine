@@ -62,14 +62,11 @@
 
 #include "optix/OptixScene.hpp"
 
-
 namespace rmagine {
-
 
 class OptixMap 
 : public OptixEntity {
 public:
-
     OptixMap(OptixScenePtr scene);
 
     OptixMap(OptixContextPtr optix_ctx = optix_default_context());
@@ -83,174 +80,33 @@ protected:
     OptixScenePtr m_scene;
 };
 
-/**
- * @brief One instance is a transformed version of a mesh
- * Multiple instances can connect to a single mesh to save memory
- * - Example: asteroids. Only one mesh for a lot of instances
- * 
- */
-// using OptixInstancePtr = std::shared_ptr<OptixInstance>;
-
-// class OptixMap : public Map {
-// public:
-//     OptixMap(
-//         OptixContextPtr optix_ctx = optix_default_context()
-//     );
-
-//     /**
-//      * @brief Construct a new Optix Map object. 
-//      *   A new Optix and Cuda context on device is created an can be later accessed by calling context()
-//      * 
-//      * @param ascene 
-//      * @param device 
-//      */
-//     OptixMap(
-//         const aiScene* ascene, 
-//         int device);
-
-//     /**
-//      * @brief Construct a new Optix Map object
-//      * 
-//      * @param ascene 
-//      * @param optix_ctx 
-//      */
-//     OptixMap(
-//         const aiScene* ascene, 
-//         OptixContextPtr optix_ctx = optix_default_context());
-
-//     ~OptixMap();
-
-//     // OptixDeviceContext context = nullptr;
-//     // int m_device;
-
-//     // TODO: make own cuda context class
-//     // CUcontext cuda_context;
-
-//     // CudaContextPtr m_cuda_context;
-
-//     Memory<OptixInstance, RAM> instances;
-//     std::vector<OptixMesh> meshes;
-
-//     /** top-level structure: can be one of:
-//     * - Geometry Acceleration Structure (GAS). If loaded map contains only one mesh
-//     * - Instance Acceleration Structure (IAS). If loaded map contrains more than one mesh. 
-//     * 
-//     * Current Implementation: Each Instance has exactly one mesh (TODO)
-//     *
-//     */ 
-//     // OptixAccelerationStructure as;
-
-//     OptixAccelerationStructure as;
-
-//     /**
-//      * @brief If the map has a instance level acceleration structure
-//      * 
-//      * @return true Yes
-//      * @return false No
-//      */
-//     bool ias() const
-//     {
-//         return m_instance_level;
-//     }
-
-//     OptixContextPtr context() const
-//     {
-//         return m_optix_context;
-//     }
-
-// private:
-
-//     void buildStructures(const aiScene* ascene);
-
-//     // BUILD GAS
-//     void fillMeshes(const aiScene* ascene);
-
-//     void buildGAS(
-//         const OptixMesh& mesh, 
-//         OptixAccelerationStructure& gas);
-
-//     // BUILD IAS
-//     // fillInstances, buildIAS requires fillMeshes and buildGAS to be called first
-//     void fillInstances(const aiScene* ascene);
-
-//     void buildIAS(
-//         const Memory<OptixInstance, VRAM_CUDA>& instances,
-//         OptixAccelerationStructure& ias);
-
-//     void buildIAS(
-//         const Memory<OptixInstance, RAM>& instances,
-//         OptixAccelerationStructure& ias);
-
-//     // void buildIAS(
-//     //     const Memory<OptixInstance*, VRAM_CUDA>& instances,
-//     //     OptixAccelerationStructure& ias);
-
-//     // void buildIAS(
-//     //     const Memory<OptixInstance*, RAM>& instances,
-//     //     OptixAccelerationStructure& ias);
-
-//     bool                    m_instance_level;
-
-//     OptixContextPtr         m_optix_context;
-// };
-
 using OptixMapPtr = std::shared_ptr<OptixMap>;
-
-/**
- * @brief 
- * 
- * @param meshfile 
- * @param device 
- * @return OptixMapPtr 
- */
-// static OptixMapPtr importOptixMap(
-//     const std::string& meshfile, 
-//     int device = 0)
-// {
-//     AssimpIO io;
-//     // aiProcess_GenNormals does not work!
-//     const aiScene* scene = io.ReadFile(meshfile, 0);
-
-//     if(!scene)
-//     {
-//         std::cerr << io.Importer::GetErrorString() << std::endl;
-//     }
-
-//     if(!scene->HasMeshes())
-//     {
-//         std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
-//     }
-
-    
-
-//     OptixMapPtr map(new OptixMap(scene, device) );
-//     return map;
-// }
 
 /**
  * @brief Import a mesh file as OptixMap to an existing OptixContext 
  * 
  */
-// static OptixMapPtr importOptixMap(
-//     const std::string& meshfile, OptixContextPtr optix_ctx)
-// {
-//     AssimpIO io;
-//     // aiProcess_GenNormals does not work!
-//     const aiScene* scene = io.ReadFile(meshfile, 0);
+static OptixMapPtr importOptixMap(
+    const std::string& meshfile, 
+    OptixContextPtr optix_ctx = optix_default_context())
+{
+    AssimpIO io;
+    // aiProcess_GenNormals does not work!
+    const aiScene* ascene = io.ReadFile(meshfile, 0);
 
-//     if(!scene)
-//     {
-//         std::cerr << io.Importer::GetErrorString() << std::endl;
-//     }
+    if(!ascene)
+    {
+        std::cerr << io.Importer::GetErrorString() << std::endl;
+    }
 
-//     if(!scene->HasMeshes())
-//     {
-//         std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
-//     }
+    if(!ascene->HasMeshes())
+    {
+        std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
+    }
 
-//     OptixMapPtr map(new OptixMap(scene, optix_ctx) );
-//     return map;
-// }
+    OptixScenePtr scene = make_optix_scene(ascene, optix_ctx);
+    return std::make_shared<OptixMap>(scene);
+}
 
 } // namespace rmagine
 

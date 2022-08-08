@@ -93,6 +93,7 @@ void PinholeSimulatorOptix::simulateRanges(
 
     if(program)
     {
+        program->updateSBT();
         OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream,

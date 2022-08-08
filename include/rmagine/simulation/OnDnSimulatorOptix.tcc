@@ -89,14 +89,18 @@ void setGenericFlags(
 template<typename BundleT>
 void OnDnSimulatorOptix::preBuildProgram()
 {
+    if(!m_map)
+    {
+        throw std::runtime_error("[OnDnSimulatorOptix] preBuildProgram(): No Map available!");
+    }
+
     OptixSimulationDataGenericOnDn flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new OnDnProgramGeneric(m_map, flags ) );
-        m_generic_programs[flags] = program;
+        m_generic_programs[flags] = std::make_shared<OnDnProgramGeneric>(m_map, flags);
     }
 }
 
@@ -117,6 +121,7 @@ void OnDnSimulatorOptix::simulate(
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
+        program->updateSBT();
     }
 
     // set general data

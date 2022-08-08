@@ -173,6 +173,7 @@ void OnDnSimulatorOptix::simulateNormals(
 
     if(program)
     {
+        program->updateSBT();
         OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream,

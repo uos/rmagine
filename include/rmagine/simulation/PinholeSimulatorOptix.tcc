@@ -89,14 +89,18 @@ void setGenericFlags(
 template<typename BundleT>
 void PinholeSimulatorOptix::preBuildProgram()
 {
+    if(!m_map)
+    {
+        throw std::runtime_error("[PinholeSimulatorOptix] preBuildProgram(): No Map available!");
+    }
+
     OptixSimulationDataGenericPinhole flags;
     setGenericFlags<BundleT>(flags);
     auto it = m_generic_programs.find(flags);
     
     if(it == m_generic_programs.end())
     {
-        OptixProgramPtr program(new PinholeProgramGeneric(m_map, flags ) );
-        m_generic_programs[flags] = program;
+        m_generic_programs[flags] = std::make_shared<PinholeProgramGeneric>(m_map, flags);
     }
 }
 
@@ -113,10 +117,11 @@ void PinholeSimulatorOptix::simulate(
     OptixProgramPtr program;
     if(it == m_generic_programs.end())
     {
-        program.reset(new PinholeProgramGeneric(m_map, mem[0] ) );
+        program = std::make_shared<PinholeProgramGeneric>(m_map, mem[0]);
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
+        program->updateSBT();
     }
 
     // set general data
