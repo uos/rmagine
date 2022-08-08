@@ -35,12 +35,19 @@ void OptixInstances::commit()
 
 unsigned int OptixInstances::add(OptixInstPtr inst)
 {
-    unsigned int inst_id = gen.get();
-    inst->setId(inst_id);
-    m_instances[inst_id] = inst;
-    m_ids[inst] = inst_id;
-    m_requires_build = true;
-    return inst_id;
+    auto it = m_ids.find(inst);
+
+    if(it == m_ids.end())
+    {
+        unsigned int inst_id = gen.get();
+        inst->setId(inst_id);
+        m_instances[inst_id] = inst;
+        m_ids[inst] = inst_id;
+        m_requires_build = true;
+        return inst_id;
+    } else {
+        return it->second;
+    }
 }
 
 bool OptixInstances::remove(OptixInstPtr inst)

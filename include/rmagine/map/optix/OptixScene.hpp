@@ -45,7 +45,6 @@ public:
     void commit();
 
     Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
-    // Memory<HitGroupDataScene, VRAM_CUDA> m_hitgroup_data;
 
 private:
     OptixGeometryPtr m_root;

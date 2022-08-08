@@ -63,10 +63,17 @@ OptixGeometryPtr OptixScene::getRoot() const
 
 unsigned int OptixScene::add(OptixGeometryPtr geom)
 {
-    unsigned int id = gen.get();
-    m_geometries[id] = geom;
-    m_ids[geom] = id;
-    return id;
+    auto it = m_ids.find(geom);
+
+    if(it == m_ids.end())
+    {
+        unsigned int id = gen.get();
+        m_geometries[id] = geom;
+        m_ids[geom] = id;
+        return id;
+    } else {
+        return it->second;
+    }
 }
 
 unsigned int OptixScene::get(OptixGeometryPtr geom) const
