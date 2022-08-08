@@ -16,9 +16,13 @@ OptixInst::OptixInst(OptixContextPtr context)
     m_data.flags = OPTIX_INSTANCE_FLAG_NONE;
 }
 
-OptixInst::OptixInst(OptixGeometryPtr geom, OptixContextPtr context)
+OptixInst::OptixInst(
+    OptixGeometryPtr geom, 
+    OptixContextPtr context)
 :OptixInst(context)
 {
+    // coused weak ptr error in gazebo 'std::bad_weak_ptr'
+    // maybe the template function this_shared<OptixInst>() does not work in constructors?
     setGeometry(geom);
 }
 

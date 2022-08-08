@@ -107,12 +107,12 @@ public:
 
     EmbreeDevicePtr device;
     EmbreeScenePtr scene;
-    // TODO:
+    
 
+    // container for storing meshes for faster access
+    // - meshes are also shared referenced somewhere in scene
+    // TODO: not only meshes here. Every geometry
     std::unordered_set<EmbreeMeshPtr> meshes;
-
-    // std::vector<EmbreeMeshPtr> meshes;
-    // std::vector<EmbreeInstancePtr> instances;
 
     RTCPointQueryContext pq_context;
 
