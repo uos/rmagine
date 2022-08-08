@@ -1,4 +1,6 @@
 #include <optix.h>
+#include <math_constants.h>
+
 #include "rmagine/math/math.h"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
@@ -58,9 +60,9 @@ extern "C" __global__ void __miss__ms()
 {
     const unsigned int glob_id = optixGetPayload_0();
     mem.normals[glob_id] = {
-        mem.model->range.max + 1.0f,
-        mem.model->range.max + 1.0f,
-        mem.model->range.max + 1.0f
+        CUDART_NAN_F,
+        CUDART_NAN_F,
+        CUDART_NAN_F
     };
 }
 
@@ -81,28 +83,27 @@ extern "C" __global__ void __closesthit__ch()
     // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
     const unsigned int object_id = optixGetInstanceIndex();
+    
     const float3 dir_m = optixGetWorldRayDirection();
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
-
     const Vector ray_dir_s = Tms.R * ray_dir_m;
+
+    rmagine::HitGroupDataScene* hg_data  = reinterpret_cast<rmagine::HitGroupDataScene*>( optixGetSbtDataPointer() );
     
+    const int mesh_id = hg_data->inst_to_mesh[object_id];
+    const MeshAttributes* mesh_attr = &hg_data->mesh_attributes[mesh_id];
 
-    // const Vector ray_dir_m =
-
-    // Test to receive the normal as attribute instead. like barycentrics  
-    // doesnt work: attributes are fixed for primitive types. in this case triangles: only barycentrics  
-    rmagine::HitGroupDataNormals* hg_data  = reinterpret_cast<rmagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
-
-    float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
-    
-    float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
-
-    
+    const float3 normal = make_float3(
+        mesh_attr->face_normals[face_id].x, 
+        mesh_attr->face_normals[face_id].y, 
+        mesh_attr->face_normals[face_id].z);
+    const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
     nint.normalize();
     nint = Tms.R * nint;
 
+    // flip?
     if(ray_dir_s.dot(nint) > 0.0)
     {
         nint *= -1.0;

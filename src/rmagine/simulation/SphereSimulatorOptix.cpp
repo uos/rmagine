@@ -33,22 +33,11 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
     setMap(map);
 }
 
-SphereSimulatorOptix::SphereSimulatorOptix(OptixGeometryPtr geom)
-:SphereSimulatorOptix()
-{
-    m_programs.resize(1);
-    m_programs[0].reset(new SphereProgramRanges(geom));
-    m_geom = geom;
-
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
-}
-
 SphereSimulatorOptix::SphereSimulatorOptix(OptixScenePtr scene)
 :SphereSimulatorOptix()
 {
-    m_programs.resize(0);
-    m_scene = scene;
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+    OptixMapPtr map = std::make_shared<OptixMap>(scene);
+    setMap(map);
 }
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
@@ -65,11 +54,12 @@ void SphereSimulatorOptix::setMap(const OptixMapPtr map)
     m_map = map;
     // none generic version
     m_programs.resize(2);
-    m_programs[0].reset(new SphereProgramRanges(map));
-    m_programs[1].reset(new SphereProgramNormals(map));
+    m_programs[0] = std::make_shared<SphereProgramRanges>(map);
+    m_programs[1] = std::make_shared<SphereProgramNormals>(map);
 
     // need to create stream after map was created: cuda device api context is required
     CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+    std::cout << "SphereSimulatorOptix::setMap" << std::endl;
 }
 
 void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
@@ -102,7 +92,7 @@ void SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    if(!m_map && !m_geom)
+    if(!m_map)
     {
         // no map set
         std::cout << "No Map assigned to Simulator!" << std::endl;
@@ -116,9 +106,7 @@ void SphereSimulatorOptix::simulateRanges(
     mem->ranges = ranges.raw();
     if(m_map)
     {
-        mem->handle = m_map->as.handle;
-    } else {
-        mem->handle = m_geom->acc()->handle;
+        mem->handle = m_map->scene()->getRoot()->acc()->handle;
     }
 
     Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem(1);
@@ -161,7 +149,7 @@ void SphereSimulatorOptix::simulateNormals(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+    mem->handle = m_map->scene()->getRoot()->acc()->handle;
     mem->normals = normals.raw();
 
     Memory<OptixSimulationDataNormalsSphere, VRAM_CUDA> d_mem(1);

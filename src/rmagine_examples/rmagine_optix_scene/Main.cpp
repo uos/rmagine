@@ -179,6 +179,8 @@ void scene_1()
     insts->commit();
 
     scene->setRoot(insts);
+    scene->commit();
+    std::cout << "Scene committed" << std::endl;
 
     printRaycast(scene, {0.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
     printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
@@ -259,6 +261,7 @@ void scene_3()
     insts->commit();
 
     scene->setRoot(insts);
+    scene->commit();
 
     printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
@@ -274,6 +277,7 @@ void scene_3()
     unsigned int inst_id;
     inst_id = insts->add(inst_geom);
     insts->commit();
+    scene->commit();
     std::cout << "Added Instance with id " << inst_id << std::endl;
 
     printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
@@ -281,6 +285,7 @@ void scene_3()
     // remove
     insts->remove(inst_geom);
     insts->commit();
+    scene->commit();
     std::cout << "Removed Instance with id " << inst_id << std::endl;
 
     printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
@@ -288,6 +293,7 @@ void scene_3()
     
     inst_id = insts->add(inst_geom);
     insts->commit();
+    scene->commit();
     std::cout << "Added Instance with id " << inst_id << std::endl;
 
     printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
@@ -321,6 +327,7 @@ void scene_4()
     insts->commit();
 
     scene->setRoot(insts);
+    scene->commit();
 
     auto sim = make_sim(scene);
     printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
@@ -336,10 +343,9 @@ void scene_4()
         insts->add(inst_geom);
     }
     insts->commit();
+    scene->commit();
 
     printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
-
-    
 }
 
 int main(int argc, char** argv)

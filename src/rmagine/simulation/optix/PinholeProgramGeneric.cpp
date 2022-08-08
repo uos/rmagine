@@ -4,6 +4,10 @@
 #include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
+#include "rmagine/map/optix/OptixInstances.hpp"
+#include "rmagine/map/optix/OptixScene.hpp"
+#include "rmagine/map/optix/OptixInst.hpp"
+
 // use own lib instead
 #include "rmagine/util/optix/OptixUtil.hpp"
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
@@ -17,10 +21,6 @@
 #include <fstream>
 
 namespace rmagine {
-
-typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
-typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
 
 PinholeProgramGeneric::PinholeProgramGeneric(
     OptixMapPtr map,
@@ -81,10 +81,18 @@ PinholeProgramGeneric::PinholeProgramGeneric(
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
-    if(map->ias())
+
+
+    
+    OptixScenePtr scene = map->scene();
+    OptixGeometryPtr geom = scene->getRoot();
+    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
+    
+    if(insts)
     {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
+        std::cout << "OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS" << std::endl;
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     }
     pipeline_compile_options.numPayloadValues      = 8;
@@ -104,8 +112,9 @@ PinholeProgramGeneric::PinholeProgramGeneric(
         throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
+
     OPTIX_CHECK( optixModuleCreateFromPTX(
-                map->context()->ref(),
+                scene->context()->ref(),
                 &module_compile_options,
                 &pipeline_compile_options,
                 ptx.c_str(),
@@ -114,6 +123,8 @@ PinholeProgramGeneric::PinholeProgramGeneric(
                 &sizeof_log,
                 &module
                 ));
+
+    // std::cout << "Compiled Generic Shader" << std::endl;
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
@@ -128,7 +139,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
         
 
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                    map->context()->ref(),
+                    geom->context()->ref(),
                     &raygen_prog_group_desc,
                     1,   // num program groups
                     &program_group_options,
@@ -147,7 +158,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
         miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
 
         OPTIX_CHECK_LOG(optixProgramGroupCreate(
-                map->context()->ref(),
+                scene->context()->ref(),
                 &miss_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -166,7 +177,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
         hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
 
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                map->context()->ref(),
+                scene->context()->ref(),
                 &hitgroup_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -179,7 +190,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
     uint32_t    max_traversable_depth = 1;
-    if(map->ias())
+    if(insts)
     {
         max_traversable_depth = 2;
     }
@@ -200,7 +211,7 @@ PinholeProgramGeneric::PinholeProgramGeneric(
 #endif
     sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
-                map->context()->ref(),
+                geom->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
                 program_groups,
@@ -216,7 +227,6 @@ PinholeProgramGeneric::PinholeProgramGeneric(
         OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
     }
 
-
     uint32_t direct_callable_stack_size_from_traversal;
     uint32_t direct_callable_stack_size_from_state;
     uint32_t continuation_stack_size;
@@ -230,73 +240,75 @@ PinholeProgramGeneric::PinholeProgramGeneric(
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
 
-
-
+    // std::cout << "Construct SBT ..." << std::endl;
     // 4. setup shader binding table
-    CUdeviceptr  raygen_record;
-    const size_t raygen_record_size = sizeof( RayGenSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
-    RayGenSbtRecord rg_sbt;
+
+    // fill Headers
     OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
+    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
+    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+
+    const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
+    const size_t miss_record_size       = sizeof( MissSbtRecord );
+    const size_t hitgroup_record_size   = sizeof( HitGroupSbtRecord );
+
+
+    sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
+    sbt.missRecordCount             = 1;
+    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
+    sbt.hitgroupRecordCount         = 1;
+
+    // malloc
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.raygenRecord ), raygen_record_size ) );
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.missRecordBase ), miss_record_size) );
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), hitgroup_record_size ) );
+    
+    m_scene = scene;
+    m_map = map;
+
+    updateSBT();
+}
+
+PinholeProgramGeneric::~PinholeProgramGeneric()
+{
+    // std::cout << "Destruct SphereProgramGeneric" << std::endl;
+}
+
+void PinholeProgramGeneric::updateSBT()
+{
+    const size_t      raygen_record_size = sizeof( RayGenSbtRecord );
+    const size_t      miss_record_size = sizeof( MissSbtRecord );
+    const size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
+    
+    if(m_scene->m_h_hitgroup_data.size() == 0)
+    {
+        std::cout << "[SphereProgramGeneric] ERROR no sbt data in scene. Did you call commit() on the scene first?" << std::endl;
+    }
+
+    hg_sbt.data = m_scene->m_h_hitgroup_data[0];
+
+    // upload
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( raygen_record ),
+                reinterpret_cast<void*>( sbt.raygenRecord ),
                 &rg_sbt,
                 raygen_record_size,
                 cudaMemcpyHostToDevice
                 ) );
 
-    CUdeviceptr miss_record;
-    size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size) );
-    
-    MissSbtRecord ms_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
-
-
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( miss_record ),
+                reinterpret_cast<void*>( sbt.missRecordBase ),
                 &ms_sbt,
                 miss_record_size,
                 cudaMemcpyHostToDevice
                 ) );
-
-    CUdeviceptr hitgroup_record;
-    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     
-    HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-
-    Memory<Vector*, RAM> normals_cpu(map->meshes.size());
-    for(size_t i=0; i<map->meshes.size(); i++)
-    {
-        normals_cpu[i] = map->meshes[i].face_normals.raw();
-    }
-    
-    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
-    // gpu array of gpu pointers
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>(hg_sbt.data.normals),
-                reinterpret_cast<void*>(normals_cpu.raw()),
-                map->meshes.size() * sizeof(Vector*),
-                cudaMemcpyHostToDevice
-                ) );
-    
-
-    CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( hitgroup_record ),
+                reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
                 &hg_sbt,
                 hitgroup_record_size,
                 cudaMemcpyHostToDevice
                 ) );
-
-    sbt.raygenRecord                = raygen_record;
-    sbt.missRecordBase              = miss_record;
-    sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-    sbt.missRecordCount             = 1;
-    sbt.hitgroupRecordBase          = hitgroup_record;
-    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-    sbt.hitgroupRecordCount         = 1;
+    // set
 }
 
 } // namespace rmagine

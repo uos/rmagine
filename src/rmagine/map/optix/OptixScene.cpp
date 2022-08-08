@@ -23,26 +23,42 @@ OptixScene::OptixScene(OptixContextPtr context)
     
 }
 
-OptixScene::OptixScene(OptixGeometryPtr geom, OptixContextPtr context)
+OptixScene::OptixScene(OptixGeometryPtr root, OptixContextPtr context)
 :OptixEntity(context)
-,m_geom(geom)
+,m_root(root)
 {
     
 }
 
 OptixScene::~OptixScene()
 {
+    if(m_h_hitgroup_data.size())
+    {
+        if(m_h_hitgroup_data[0].mesh_attributes)
+        {
+            cudaFree(m_h_hitgroup_data[0].mesh_attributes);
+        }
 
+        if(m_h_hitgroup_data[0].inst_to_mesh)
+        {
+            cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
+        }
+
+        if(m_h_hitgroup_data[0].instances_attributes)
+        {
+            cudaFree(m_h_hitgroup_data[0].instances_attributes);
+        }
+    }
 }
 
-void OptixScene::setRoot(OptixGeometryPtr geom)
+void OptixScene::setRoot(OptixGeometryPtr root)
 {
-    m_geom = geom;
+    m_root = root;
 }
 
 OptixGeometryPtr OptixScene::getRoot() const
 {
-    return m_geom;
+    return m_root;
 }
 
 unsigned int OptixScene::add(OptixGeometryPtr geom)
@@ -68,6 +84,132 @@ std::unordered_map<OptixGeometryPtr, unsigned int> OptixScene::ids() const
     return m_ids;
 }
 
+void OptixScene::commit()
+{
+    // fill m_hitgroup_data
+
+    { // meshes
+        unsigned int n_meshes = m_geometries.rbegin()->first + 1;
+        if(!m_h_hitgroup_data.size())
+        {
+            m_h_hitgroup_data.resize(1);
+        }
+
+        Memory<MeshAttributes, RAM> attr_cpu(n_meshes);
+        for(auto elem : m_geometries)
+        {
+            OptixMeshPtr mesh = std::dynamic_pointer_cast<OptixMesh>(elem.second);
+            if(mesh)
+            {
+                attr_cpu[elem.first].face_normals = mesh->face_normals.raw();
+                attr_cpu[elem.first].vertex_normals = mesh->vertex_normals.raw();
+            } else {
+                std::cout << "NO MESH: how to handle normals?" << std::endl;
+            }
+        }
+
+        if(m_h_hitgroup_data[0].n_meshes != n_meshes)
+        {
+            // Number of meshes changed! Recreate
+            if(m_h_hitgroup_data[0].mesh_attributes)
+            {
+                cudaFree(m_h_hitgroup_data[0].mesh_attributes);
+            }
+
+            // create space for mesh attributes
+            cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].mesh_attributes), 
+                n_meshes * sizeof(MeshAttributes));
+
+            // std::cout << "HITGROUP DATA: Created space for " << n_meshes << " meshes" << std::endl;
+        }
+
+        m_h_hitgroup_data[0].n_meshes = n_meshes;
+
+        // copy mesh attributes
+        CUDA_CHECK( cudaMemcpy(
+                    reinterpret_cast<void*>(m_h_hitgroup_data[0].mesh_attributes),
+                    reinterpret_cast<void*>(attr_cpu.raw()),
+                    attr_cpu.size() * sizeof(MeshAttributes),
+                    cudaMemcpyHostToDevice
+                    ) );
+
+        // std::cout << "HITGROUP DATA: Copied " << n_meshes << " meshes" << std::endl;
+    } // meshes
+
+    { // connections inst -> mesh + instances
+        Memory<unsigned int, RAM> inst_to_mesh;
+
+        OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(m_root);
+
+        if(insts)
+        {
+            auto instances = insts->instances();
+            size_t Ninstances = instances.rbegin()->first + 1;
+
+            inst_to_mesh.resize(Ninstances);
+            for(unsigned int i=0; i<inst_to_mesh.size(); i++)
+            {
+                inst_to_mesh[i] = -1;
+            }
+
+            for(auto elem : instances)
+            {
+                unsigned int inst_id = elem.first;
+                OptixGeometryPtr geom = elem.second->geometry();
+                OptixMeshPtr mesh = std::dynamic_pointer_cast<OptixMesh>(geom);
+
+                if(mesh)
+                {
+                    unsigned int mesh_id = get(mesh);
+                    inst_to_mesh[inst_id] = mesh_id;
+                }
+            }
+        } else {
+            // only one mesh 0 -> 0
+            inst_to_mesh.resize(1);
+            inst_to_mesh[0] = 0;
+        }
+
+        unsigned int n_instances = inst_to_mesh.size();
+
+        if(m_h_hitgroup_data[0].n_instances != n_instances)
+        {
+            // Number of instances changed! Recreate
+            if(m_h_hitgroup_data[0].inst_to_mesh)
+            {
+                cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
+            }
+
+            if(m_h_hitgroup_data[0].instances_attributes)
+            {
+                cudaFree(m_h_hitgroup_data[0].instances_attributes);
+            }
+
+            // create space for mesh attributes
+            cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].inst_to_mesh), 
+                n_instances * sizeof(int));
+
+            // create space for mesh attributes
+            cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].instances_attributes), 
+                n_instances * sizeof(InstanceAttributes));
+        
+            // std::cout << "HITGROUP DATA: Created space for " << n_instances << " instances" << std::endl;
+        }
+        m_h_hitgroup_data[0].n_instances = n_instances;
+
+        CUDA_CHECK( cudaMemcpy(
+                    reinterpret_cast<void*>(m_h_hitgroup_data[0].inst_to_mesh),
+                    reinterpret_cast<void*>(inst_to_mesh.raw()),
+                    inst_to_mesh.size() * sizeof(unsigned int),
+                    cudaMemcpyHostToDevice
+                    ) );
+
+        // std::cout << "HITGROUP DATA: Copied " << n_instances << " instances" << std::endl;
+    }
+
+    // std::cout << "UPLOAD HITGROUP DATA" << std::endl;
+    // m_hitgroup_data = m_h_hitgroup_data;
+}
 
 OptixScenePtr make_optix_scene(const aiScene* ascene)
 {
@@ -166,6 +308,8 @@ OptixScenePtr make_optix_scene(const aiScene* ascene)
 
     return scene;
 }
+
+
 
 
 } // namespace rmagine

@@ -149,13 +149,20 @@ void computeNormalSBT()
     // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
     const unsigned int object_id = optixGetInstanceIndex();
+    
     const float3 dir_m = optixGetWorldRayDirection();
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
-
     const Vector ray_dir_s = Tms.R * ray_dir_m;
 
-    rmagine::HitGroupDataNormals* hg_data  = reinterpret_cast<rmagine::HitGroupDataNormals*>( optixGetSbtDataPointer() );
-    const float3 normal = make_float3(hg_data->normals[object_id][face_id].x, hg_data->normals[object_id][face_id].y, hg_data->normals[object_id][face_id].z);
+    rmagine::HitGroupDataScene* hg_data  = reinterpret_cast<rmagine::HitGroupDataScene*>( optixGetSbtDataPointer() );
+    
+    const int mesh_id = hg_data->inst_to_mesh[object_id];
+    const MeshAttributes* mesh_attr = &hg_data->mesh_attributes[mesh_id];
+
+    const float3 normal = make_float3(
+        mesh_attr->face_normals[face_id].x, 
+        mesh_attr->face_normals[face_id].y, 
+        mesh_attr->face_normals[face_id].z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
@@ -169,9 +176,7 @@ void computeNormalSBT()
     }
 
     mem.normals[glob_id] = nint.normalized();
-
 }
-
 
 __forceinline__ __device__
 void computeNormal()
@@ -259,7 +264,7 @@ __forceinline__ __device__
 void computeObjectId()
 {
     const unsigned int glob_id = optixGetPayload_0();
-    const unsigned int object_id = optixGetInstanceIndex();
+    const unsigned int object_id = optixGetInstanceId();
     mem.object_ids[glob_id] = object_id;
 }
 
@@ -323,7 +328,7 @@ extern "C" __global__ void __closesthit__ch()
 
     if(mem.computeNormals)
     {
-        computeNormal();
+        computeNormalSBT();
     }
 
     if(mem.computeFaceIds)

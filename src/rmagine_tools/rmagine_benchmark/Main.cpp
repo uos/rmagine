@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 
     StopWatch sw;
     double elapsed;
-    double elapsed_total;
+    double elapsed_total = 0.0;
 
     if(device == "cpu")
     {
@@ -268,11 +268,14 @@ int main(int argc, char** argv)
         }
 
         OptixScenePtr scene = make_optix_scene(ascene);
+        
 
         if(!scene->getRoot())
         {
             std::cout << "No Root!" << std::endl;
         }
+
+        scene->commit();
 
         // OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
         SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
@@ -314,6 +317,7 @@ int main(int argc, char** argv)
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
+            scene->commit();
             gpu_sim->simulate(Tbm_gpu, res);
             elapsed = sw();
             elapsed_total += elapsed;

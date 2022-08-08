@@ -101,8 +101,6 @@ void SphereSimulatorOptix::preBuildProgram()
         if(m_map)
         {
             program = std::make_shared<SphereProgramGeneric>(m_map, flags);
-        } else if(m_scene) {
-            program = std::make_shared<SphereProgramGeneric>(m_scene, flags);
         }
         m_generic_programs[flags] = program;
     }
@@ -124,12 +122,11 @@ void SphereSimulatorOptix::simulate(
         if(m_map)
         {
             program = std::make_shared<SphereProgramGeneric>(m_map, mem[0]);
-        } else if(m_scene) {
-            program = std::make_shared<SphereProgramGeneric>(m_scene, mem[0]);
         }
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
+        program->updateSBT();
     }
 
     // set general data
@@ -139,9 +136,7 @@ void SphereSimulatorOptix::simulate(
 
     if(m_map)
     {
-        mem->handle = m_map->as.handle;
-    } else if(m_scene) {
-        mem->handle = m_scene->getRoot()->acc()->handle;
+        mem->handle = m_map->scene()->getRoot()->acc()->handle;
     }
     
 

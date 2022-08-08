@@ -123,7 +123,7 @@ void PinholeSimulatorOptix::simulate(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+    mem->handle = m_map->scene()->getRoot()->acc()->handle;
 
     // set generic data
     setGenericData(res, mem[0]);

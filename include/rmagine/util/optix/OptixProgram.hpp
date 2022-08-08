@@ -47,6 +47,8 @@ public:
     virtual ~OptixProgram();
 
     virtual void update(MapPtr map){}
+    
+    virtual void updateSBT() {};
 
     OptixModule module = nullptr;
     OptixProgramGroup raygen_prog_group   = nullptr;

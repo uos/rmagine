@@ -77,16 +77,20 @@ struct InstanceAttributes
 
 struct HitGroupDataScene {
     // instance attributes
-    unsigned int n_instances;
+    unsigned int n_instances = 0;
     InstanceAttributes* instances_attributes = nullptr;
 
     // link from instance id to mesh id
     int* inst_to_mesh = nullptr;
 
     // mesh attributes
-    unsigned int n_meshes;
+    unsigned int n_meshes = 0;
     MeshAttributes* mesh_attributes = nullptr;
 };
+
+// struct HitGroupDataSceneRef {
+//     HitGroupDataScene* ref = nullptr;
+// };
 
 // struct 
 

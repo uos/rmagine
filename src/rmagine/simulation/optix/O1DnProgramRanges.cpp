@@ -1,9 +1,13 @@
 #include "rmagine/simulation/optix/O1DnProgramRanges.hpp"
 
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
-
 #include "rmagine/util/GenericAlign.hpp"
 #include "rmagine/util/optix/OptixDebug.hpp"
+#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+
+
+#include "rmagine/map/optix/OptixInstances.hpp"
+
+// use own lib instead
 #include "rmagine/util/optix/OptixUtil.hpp"
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
 #include "rmagine/util/optix/OptixData.hpp"
@@ -43,7 +47,13 @@ O1DnProgramRanges::O1DnProgramRanges(OptixMapPtr map)
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
-    if(map->ias())
+
+    
+    OptixScenePtr scene = map->scene();
+    OptixGeometryPtr geom = scene->getRoot();
+    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
+
+    if(insts)
     {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
@@ -129,7 +139,7 @@ O1DnProgramRanges::O1DnProgramRanges(OptixMapPtr map)
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
     uint32_t    max_traversable_depth = 1;
-    if(map->ias())
+    if(insts)
     {
         max_traversable_depth = 2;
     }

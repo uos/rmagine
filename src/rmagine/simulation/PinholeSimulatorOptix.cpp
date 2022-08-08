@@ -83,7 +83,7 @@ void PinholeSimulatorOptix::simulateRanges(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+    mem->handle = m_map->scene()->getRoot()->acc()->handle;
     mem->ranges = ranges.raw();
 
     Memory<OptixSimulationDataRangesPinhole, VRAM_CUDA> d_mem(1);
@@ -124,7 +124,7 @@ void PinholeSimulatorOptix::simulateNormals(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+    mem->handle = m_map->scene()->getRoot()->acc()->handle;
     mem->normals = normals.raw();
 
     Memory<OptixSimulationDataNormalsPinhole, VRAM_CUDA> d_mem(1);

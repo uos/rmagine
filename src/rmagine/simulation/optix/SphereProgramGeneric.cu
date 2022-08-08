@@ -163,11 +163,6 @@ void computeNormalSBT()
         mesh_attr->face_normals[face_id].z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
-    // printf("Inst %u/%u, Mesh %d/%u, Face %u, Normal %f %f %f \n", 
-    //     object_id, hg_data->n_instances, 
-    //     mesh_id, hg_data->n_meshes,
-    //     face_id, normal.x, normal.y, normal.z);
-
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
     nint.normalize();
     nint = Tms.R * nint;
@@ -309,7 +304,6 @@ extern "C" __global__ void __miss__ms()
         computeNoObjectId();
     }
 }
-
 
 extern "C" __global__ void __closesthit__ch()
 {

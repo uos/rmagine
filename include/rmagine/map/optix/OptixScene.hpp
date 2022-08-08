@@ -4,6 +4,8 @@
 #include <rmagine/util/optix/OptixContext.hpp>
 #include <rmagine/util/IDGen.hpp>
 
+#include <optix.h>
+
 #include "optix_definitions.h"
 
 #include "OptixEntity.hpp"
@@ -13,8 +15,15 @@
 
 #include <assimp/scene.h>
 
+#include <rmagine/util/optix/OptixData.hpp>
+#include <rmagine/types/MemoryCuda.hpp>
+
+#include "rmagine/util/optix/OptixSbtRecord.hpp"
+
 namespace rmagine
 {
+
+// typedef SbtRecord<HitGroupDataScene>      HitGroupSbtRecordScene;
 
 class OptixScene 
 : public OptixEntity
@@ -25,9 +34,7 @@ public:
 
     virtual ~OptixScene();
 
-    
-
-    void setRoot(OptixGeometryPtr geom);
+    void setRoot(OptixGeometryPtr root);
     OptixGeometryPtr getRoot() const;
 
     unsigned int add(OptixGeometryPtr geom);
@@ -35,9 +42,14 @@ public:
     std::map<unsigned int, OptixGeometryPtr> geometries() const;
     std::unordered_map<OptixGeometryPtr, unsigned int> ids() const;
     
-private:
-    OptixGeometryPtr m_geom;
+    void commit();
 
+    Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
+    // Memory<HitGroupDataScene, VRAM_CUDA> m_hitgroup_data;
+
+private:
+    OptixGeometryPtr m_root;
+    
     IDGen gen;
 
     std::map<unsigned int, OptixGeometryPtr> m_geometries;

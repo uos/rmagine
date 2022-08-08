@@ -4,6 +4,10 @@
 #include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
+#include "rmagine/map/optix/OptixInstances.hpp"
+#include "rmagine/map/optix/OptixScene.hpp"
+#include "rmagine/map/optix/OptixInst.hpp"
+
 // use own lib instead
 #include "rmagine/util/optix/OptixUtil.hpp"
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
@@ -18,15 +22,13 @@
 
 namespace rmagine {
 
-typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
-typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-typedef SbtRecord<HitGroupDataNormals>   HitGroupSbtRecord;
-
 O1DnProgramNormals::O1DnProgramNormals(OptixMapPtr map)
 {
     const char *kernel =
     #include "kernels/O1DnProgramNormalsString.h"
     ;
+
+    OptixScenePtr scene = map->scene();
 
     // 1. INIT MODULE
     char log[2048]; // For error reporting from OptiX creation functions
@@ -44,7 +46,11 @@ O1DnProgramNormals::O1DnProgramNormals(OptixMapPtr map)
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
-    if(map->ias())
+
+    OptixGeometryPtr geom = scene->getRoot();
+    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
+
+    if(insts)
     {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
@@ -139,7 +145,7 @@ O1DnProgramNormals::O1DnProgramNormals(OptixMapPtr map)
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
     uint32_t    max_traversable_depth = 1;
-    if(map->ias())
+    if(insts)
     {
         max_traversable_depth = 2;
     }
@@ -190,73 +196,76 @@ O1DnProgramNormals::O1DnProgramNormals(OptixMapPtr map)
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
 
+
     // 4. setup shader binding table
-    CUdeviceptr  raygen_record;
-    const size_t raygen_record_size = sizeof( RayGenSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
-    RayGenSbtRecord rg_sbt;
+
+    // fill Headers
     OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
+    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
+    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+
+    const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
+    const size_t miss_record_size       = sizeof( MissSbtRecord );
+    const size_t hitgroup_record_size   = sizeof( HitGroupSbtRecord );
+
+
+    sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
+    sbt.missRecordCount             = 1;
+    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
+    sbt.hitgroupRecordCount         = 1;
+
+    // malloc
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.raygenRecord ), raygen_record_size ) );
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.missRecordBase ), miss_record_size) );
+    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), hitgroup_record_size ) );
+    
+    m_scene = scene;
+    m_map = map;
+
+    updateSBT();
+}
+
+
+O1DnProgramNormals::~O1DnProgramNormals()
+{
+    // std::cout << "Destruct SphereProgramNormals" << std::endl;
+    // cudaFree(m_hg_sbt.data.normals);
+}
+
+void O1DnProgramNormals::updateSBT()
+{
+    const size_t      raygen_record_size = sizeof( RayGenSbtRecord );
+    const size_t      miss_record_size = sizeof( MissSbtRecord );
+    const size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
+    
+    if(m_scene->m_h_hitgroup_data.size() == 0)
+    {
+        std::cout << "[SphereProgramGeneric] ERROR no sbt data in scene. Did you call commit() on the scene first?" << std::endl;
+    }
+
+    hg_sbt.data = m_scene->m_h_hitgroup_data[0];
+
+    // upload
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( raygen_record ),
+                reinterpret_cast<void*>( sbt.raygenRecord ),
                 &rg_sbt,
                 raygen_record_size,
                 cudaMemcpyHostToDevice
                 ) );
 
-    CUdeviceptr miss_record;
-    size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
-    MissSbtRecord ms_sbt;
-    
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( miss_record ),
+                reinterpret_cast<void*>( sbt.missRecordBase ),
                 &ms_sbt,
                 miss_record_size,
                 cudaMemcpyHostToDevice
                 ) );
-
-    CUdeviceptr hitgroup_record;
-    size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
-    HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-
-    // std::cout << "Skip old SBT stuff" << std::endl;
-
-    // build array of normal buffer. one normal buffer per mesh
-    Memory<Vector*, RAM> normals_cpu(map->meshes.size());
-    for(size_t i=0; i<map->meshes.size(); i++)
-    {
-        normals_cpu[i] = map->meshes[i].face_normals.raw();
-    }
-
-    // TODO: check if this will be freed
-    cudaMalloc(reinterpret_cast<void**>(&hg_sbt.data.normals), map->meshes.size() * sizeof(Vector*));
-
-    // gpu array of gpu pointers
+    
     CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>(hg_sbt.data.normals),
-                reinterpret_cast<void*>(normals_cpu.raw()),
-                map->meshes.size() * sizeof(Vector*),
-                cudaMemcpyHostToDevice
-                ) );
-
-    // cpu -> gpu hitgroup record
-    CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( hitgroup_record ),
+                reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
                 &hg_sbt,
                 hitgroup_record_size,
                 cudaMemcpyHostToDevice
                 ) );
-
-    sbt.raygenRecord                = raygen_record;
-    sbt.missRecordBase              = miss_record;
-    sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-    sbt.missRecordCount             = 1;
-    sbt.hitgroupRecordBase          = hitgroup_record;
-    sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-    sbt.hitgroupRecordCount         = 1;
 }
 
 } // namespace rmagine
