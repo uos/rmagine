@@ -201,7 +201,19 @@ void OptixInstances::build_acc_old()
         i++;
     }
     
-    Memory<OptixInstance, VRAM_CUDA> inst_d = inst_h;
+    if(m_inst_buffer_elements != inst_h.size())
+    {
+        m_inst_buffer_elements = inst_h.size();
+        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &m_inst_buffer ), m_inst_buffer_elements * sizeof(OptixInstance) ) );
+    }
+
+    // copy to buffer
+    CUDA_CHECK( cudaMemcpy(
+                reinterpret_cast<void*>( m_inst_buffer ),
+                inst_h.raw(),
+                m_inst_buffer_elements * sizeof(OptixInstance),
+                cudaMemcpyHostToDevice
+                ) );
 
     // if(m_as)
     // {
@@ -212,8 +224,8 @@ void OptixInstances::build_acc_old()
 
     OptixBuildInput instance_input = {};
     instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-    instance_input.instanceArray.numInstances = inst_d.size();
-    instance_input.instanceArray.instances = reinterpret_cast<CUdeviceptr>(inst_d.raw());
+    instance_input.instanceArray.numInstances = inst_h.size();
+    instance_input.instanceArray.instances = m_inst_buffer;
 
     OptixAccelBuildOptions ias_accel_options = {};
 
@@ -229,11 +241,11 @@ void OptixInstances::build_acc_old()
     if(m_as && !m_requires_build)
     {
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
-        std::cout << "UPDATE " << inst_d.size() << " instances" << std::endl;
+        std::cout << "UPDATE " << inst_h.size() << " instances" << std::endl;
     } else {
         // first commit
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
-        std::cout << "COMMIT " << inst_d.size() << " instances" << std::endl;
+        std::cout << "COMMIT " << inst_h.size() << " instances" << std::endl;
     }
 
     if(!m_as)
@@ -270,6 +282,7 @@ void OptixInstances::build_acc_old()
         m_as->buffer_size = ias_buffer_sizes.outputSizeInBytes;
     }
 
+    std::cout << "ACCEL BUILD" << std::endl;
     OPTIX_CHECK(optixAccelBuild( 
         m_ctx->ref(), 
         0, 
@@ -285,6 +298,7 @@ void OptixInstances::build_acc_old()
         0 
     ));
 
+    std::cout << "ACCEL BUILD DONE." << std::endl;
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
     // set every child to commited

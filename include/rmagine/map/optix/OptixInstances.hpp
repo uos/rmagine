@@ -48,6 +48,10 @@ private:
 
     bool m_requires_build = false;
 
+
+    size_t m_inst_buffer_elements = 0;
+    CUdeviceptr m_inst_buffer = 0;
+
     // filled after commit
     // std::unordered_map<unsigned int, CUdeviceptr> m_instances_gpu;
 };
