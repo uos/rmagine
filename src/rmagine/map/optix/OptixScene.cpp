@@ -284,28 +284,58 @@ OptixScenePtr make_optix_scene(
         Vector3 scale;
         decompose(M, T, scale);
 
-        OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
+        std::vector<OptixInstPtr> mesh_insts;
+        
         
         if(node->mNumMeshes > 1)
         {
             std::cout << "Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl;
+        
+            // make flat hierarchy: one instance per mesh
+            for(unsigned int i = 0; i < node->mNumMeshes; i++)
+            {
+                unsigned int mesh_id = node->mMeshes[i];
+                auto mesh_it = meshes.find(mesh_id);
+                if(mesh_it != meshes.end())
+                {
+                    OptixGeometryPtr mesh = mesh_it->second;
+                    // mark as instanciated
+                    instanciated_meshes.insert(mesh);
+
+                    OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
+                    mesh_inst->setGeometry(mesh);
+                    mesh_inst->name = std::string(node->mName.C_Str()) + "/" + mesh->name;
+                    mesh_insts.push_back(mesh_inst);
+                } else {
+                    // TODO: warning
+                }
+            }
         } else {
             unsigned int mesh_id = node->mMeshes[0];
             auto mesh_it = meshes.find(mesh_id);
             if(mesh_it != meshes.end())
             {
                 OptixGeometryPtr mesh = mesh_it->second;
+                // mark as instanciated
                 instanciated_meshes.insert(mesh);
+
+                OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
                 mesh_inst->setGeometry(mesh);
+                mesh_inst->name = node->mName.C_Str();
+                mesh_insts.push_back(mesh_inst);
+            } else {
+                // TODO: warning
             }
         }
 
-        mesh_inst->name = node->mName.C_Str();
-        mesh_inst->setTransform(T);
-        mesh_inst->setScale(scale);
-        mesh_inst->apply();
 
-        insts->add(mesh_inst);
+        for(auto mesh_inst : mesh_insts)
+        {
+            mesh_inst->setTransform(T);
+            mesh_inst->setScale(scale);
+            mesh_inst->apply();
+            insts->add(mesh_inst);
+        }
     }
 
     if(instanciated_meshes.size() == 0)
