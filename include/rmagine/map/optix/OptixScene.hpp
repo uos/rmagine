@@ -43,9 +43,9 @@ public:
     std::unordered_map<OptixGeometryPtr, unsigned int> ids() const;
     
     void commit();
+    unsigned int depth() const;
 
     Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
-
 private:
     OptixGeometryPtr m_root;
     

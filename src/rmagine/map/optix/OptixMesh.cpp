@@ -211,6 +211,11 @@ void OptixMesh::commit()
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 }
 
+unsigned int OptixMesh::depth() const
+{
+    return 0;
+}
+
 void OptixMesh::computeFaceNormals()
 {
     if(face_normals.size() != faces.size())

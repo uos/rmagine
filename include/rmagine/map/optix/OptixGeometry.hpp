@@ -29,11 +29,15 @@ public:
 
     virtual void commit() = 0;
 
+    // if child -> 0, else max of child + 1
+    virtual unsigned int depth() const = 0;
+
     // geometry can be instanced
     void cleanupParents();
     std::unordered_set<OptixInstPtr> parents() const;
     void addParent(OptixInstPtr parent);
 
+    
 protected:
     std::unordered_set<OptixInstWPtr> m_parents;
     OptixAccelerationStructurePtr m_as;

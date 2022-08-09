@@ -41,6 +41,7 @@ public:
 
     virtual void apply();
     virtual void commit();
+    virtual unsigned int depth() const;
 
     void computeFaceNormals();
 

@@ -218,6 +218,18 @@ void OptixScene::commit()
     // m_hitgroup_data = m_h_hitgroup_data;
 }
 
+unsigned int OptixScene::depth() const
+{
+    unsigned int ret = 0;
+
+    if(m_root)
+    {
+        ret = m_root->depth() + 1;
+    }
+
+    return ret;
+}
+
 OptixScenePtr make_optix_scene(
     const aiScene* ascene, 
     OptixContextPtr context)
@@ -276,7 +288,7 @@ OptixScenePtr make_optix_scene(
         
         if(node->mNumMeshes > 1)
         {
-            std::cout << "Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl; 
+            std::cout << "Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl;
         } else {
             unsigned int mesh_id = node->mMeshes[0];
             auto mesh_it = meshes.find(mesh_id);

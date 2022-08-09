@@ -36,6 +36,20 @@ void OptixInstances::commit()
     build_acc_old();
 }
 
+unsigned int OptixInstances::depth() const
+{
+    unsigned int max_depth = 0;
+    for(auto elem : m_instances)
+    {
+        unsigned int geom_depth = elem.second->geometry()->depth();
+        if(geom_depth > max_depth)
+        {
+            max_depth = geom_depth;
+        }
+    }
+    return max_depth + 1;
+}
+
 unsigned int OptixInstances::add(OptixInstPtr inst)
 {
     auto it = m_ids.find(inst);

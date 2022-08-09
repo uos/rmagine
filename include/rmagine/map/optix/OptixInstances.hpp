@@ -24,6 +24,7 @@ public:
 
     virtual void apply();
     virtual void commit();
+    virtual unsigned int depth() const;
 
 
     OptixInstPtr remove(unsigned int id);

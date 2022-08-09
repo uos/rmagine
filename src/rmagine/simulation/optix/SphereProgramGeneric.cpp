@@ -83,18 +83,27 @@ SphereProgramGeneric::SphereProgramGeneric(
     pipeline_compile_options.usesMotionBlur        = false;
 
 
-
     OptixScenePtr scene = map->scene();
     OptixGeometryPtr geom = scene->getRoot();
     OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
-    
-    if(insts)
+    unsigned int scene_depth = scene->depth();
+
+    if(scene_depth < 1)
     {
+        std::cout << "ERROR: OptixScene has not root" << std::endl; 
+        throw std::runtime_error("OptixScene has not root");
+    } else if(scene_depth < 2) {
+        // 1 Only GAS
+        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+    } else if(scene_depth < 3) {
+        // 2 Only single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
-        std::cout << "OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS" << std::endl;
-        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+        // 3 or more allow any
+        // careful: with two level IAS performance is half as slow as single level IAS
+        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     }
+    
     pipeline_compile_options.numPayloadValues      = 8;
     pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
@@ -189,12 +198,8 @@ SphereProgramGeneric::SphereProgramGeneric(
 
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
-    uint32_t    max_traversable_depth = 1;
-    if(insts)
-    {
-        max_traversable_depth = 2;
-    }
-    const uint32_t    max_trace_depth  = 1;
+    uint32_t    max_traversable_depth = scene_depth;
+    const uint32_t    max_trace_depth  = 1; // TODO: 31 is maximum. Set this dynamically?
     
     OptixProgramGroup program_groups[] = { 
         raygen_prog_group, 
