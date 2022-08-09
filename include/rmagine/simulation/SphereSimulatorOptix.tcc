@@ -6,6 +6,7 @@
 
 // #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
+#include <rmagine/util/cuda/CudaStream.hpp>
 
 namespace rmagine
 {
@@ -111,6 +112,21 @@ void SphereSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
+    if(!m_map)
+    {
+        // no map set
+        throw std::runtime_error("[SphereSimulatorOptix] simulate(): No Map available!");
+        return;
+    }
+
+    auto optix_ctx = m_map->context();
+    auto cuda_ctx = optix_ctx->getCudaContext();
+    if(!cuda_ctx->isActive())
+    {
+        std::cout << "[SphereSimulatorOptix::simulate() Need to activate map context" << std::endl;
+        cuda_ctx->use();
+    }
+
     Memory<OptixSimulationDataGenericSphere, RAM> mem(1);
 
     setGenericFlags<BundleT>(mem[0]);
@@ -134,10 +150,8 @@ void SphereSimulatorOptix::simulate(
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
 
-    if(m_map)
-    {
-        mem->handle = m_map->scene()->getRoot()->acc()->handle;
-    }
+    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    
     
 
     // set generic data
@@ -148,13 +162,13 @@ void SphereSimulatorOptix::simulate(
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
     Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
+    copy(mem, d_mem, m_stream->handle());
     
     if(program)
     {
         OPTIX_CHECK( optixLaunch(
                 program->pipeline,
-                m_stream,
+                m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
                 sizeof( OptixSimulationDataGenericSphere ),
                 &program->sbt,

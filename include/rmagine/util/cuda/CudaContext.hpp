@@ -44,6 +44,8 @@
 
 #include "CudaHelper.hpp"
 
+#include "cuda_definitions.h"
+
 namespace rmagine {
 
 static void printCudaInfo()
@@ -63,7 +65,8 @@ static void printCudaInfo()
 bool cuda_initialized();
 void cuda_initialize();
 
-class CudaContext {
+class CudaContext : std::enable_shared_from_this<CudaContext>
+{
 public:
     CudaContext(int device_id = 0);
     CudaContext(CUcontext ctx);
@@ -74,6 +77,8 @@ public:
     void use();
     void enqueue();
     bool isActive() const;
+
+    CudaStreamPtr createStream(unsigned int flags = 0) const;
 
     // Only 4 and 8 Bytes are supported yet
     void setSharedMemBankSize(unsigned int bytes);
@@ -91,26 +96,6 @@ private:
 };
 
 using CudaContextPtr = std::shared_ptr<CudaContext>;
-
-// static bool g_cuda_initialized = false;
-
-// static CudaContextPtr currentCudaContext()
-// {
-//     CudaContextPtr res;
-//     if(!g_cuda_initialized)
-//     {
-//         return res;
-//     }
-
-//     CUcontext ctx;
-//     auto err = cuCtxGetCurrent(&ctx);
-//     if(err == 0)
-//     {
-//         res.reset(new CudaContext(ctx));
-//     }
-    
-//     return res;
-// }
 
 CudaContextPtr cuda_current_context();
 

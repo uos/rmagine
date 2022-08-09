@@ -1,18 +1,30 @@
+#ifndef RMAGINE_UTIL_CUDA_STREAM_HPP
+#define RMAGINE_UTIL_CUDA_STREAM_HPP
+
 #include <cuda_runtime.h>
+#include <cuda.h>
 #include <memory>
+
+#include "cuda_definitions.h"
+#include "CudaContext.hpp"
 
 namespace rmagine {
 
-class CudaStream {
+class CudaStream : std::enable_shared_from_this<CudaStream> 
+{
 public:
-    CudaStream();
+    CudaStream(CudaContextPtr ctx = cuda_current_context());
+    CudaStream(unsigned int flags, CudaContextPtr ctx = cuda_current_context());
     ~CudaStream();
 
-    cudaStream_t handle();
+    cudaStream_t handle() const;
+    CudaContextPtr context() const;
 private:
     cudaStream_t m_stream = NULL;
+    // weak connection to context
+    CudaContextPtr m_ctx;
 };
 
-using CudaStreamPtr = std::shared_ptr<CudaStream>;
-
 } // namespace rmagine
+
+#endif // RMAGINE_UTIL_CUDA_STREAM_HPP

@@ -1,6 +1,8 @@
 #include "rmagine/util/cuda/CudaContext.hpp"
 #include <iostream>
 
+#include "rmagine/util/cuda/CudaStream.hpp"
+
 namespace rmagine {
 
 bool cuda_initialized_ = false;
@@ -76,6 +78,19 @@ bool CudaContext::isActive() const
     CUcontext old;
     cuCtxGetCurrent(&old);
     return (old == m_context);
+}
+
+CudaStreamPtr CudaContext::createStream(unsigned int flags) const
+{
+    CUcontext old;
+    cuCtxGetCurrent(&old);
+    cuCtxSetCurrent(m_context);
+
+    CudaStreamPtr ret = std::make_shared<CudaStream>(flags);
+
+    // restore old
+    cuCtxSetCurrent(old);
+    return ret;
 }
 
 void CudaContext::setSharedMemBankSize(unsigned int bytes)
@@ -162,6 +177,13 @@ CudaContextPtr cuda_def_ctx(new CudaContext(0));
 
 CudaContextPtr cuda_current_context()
 {
+    // if(!cuda_def_ctx->defaultStream())
+    // {
+    //     std::cout << "initDefaultStream" << std::endl;
+    //     cuda_def_ctx->initDefaultStream();
+    //     std::cout << "initDefaultStream done." << std::endl;
+    // }
+    
     return cuda_def_ctx;
 }
 

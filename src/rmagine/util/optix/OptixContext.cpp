@@ -61,7 +61,7 @@ void OptixContext::init(CudaContextPtr cuda_context)
     // Specify context options
     OptixDeviceContextOptions options = {};
     options.logCallbackFunction       = &context_log_cb;
-    options.logCallbackLevel          = 0;
+    options.logCallbackLevel          = 3;
 
     OPTIX_CHECK( optixDeviceContextCreate( cuda_context->ref(), &options, &m_optix_context ) );
 }

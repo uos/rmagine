@@ -1,11 +1,35 @@
 #include "rmagine/util/cuda/CudaStream.hpp"
 
+#include "rmagine/util/cuda/CudaDebug.hpp"
+#include "rmagine/util/cuda/CudaContext.hpp"
+
 namespace rmagine
 {
 
-CudaStream::CudaStream()
+CudaStream::CudaStream(CudaContextPtr ctx)
+:m_ctx(ctx)
 {
-    cudaStreamCreate(&m_stream);
+    CUcontext old;
+    cuCtxGetCurrent(&old);
+
+    ctx->use();
+    CUDA_DEBUG( cudaStreamCreate(&m_stream) );
+
+    // restore old
+    cuCtxSetCurrent(old);
+}
+
+CudaStream::CudaStream(unsigned int flags, CudaContextPtr ctx)
+:m_ctx(ctx)
+{
+    CUcontext old;
+    cuCtxGetCurrent(&old);
+
+    ctx->use();
+    CUDA_DEBUG( cudaStreamCreateWithFlags(&m_stream, flags) );
+
+    // restore old
+    cuCtxSetCurrent(old);
 }
 
 CudaStream::~CudaStream()
@@ -13,9 +37,14 @@ CudaStream::~CudaStream()
     cudaStreamDestroy(m_stream);
 }
 
-cudaStream_t CudaStream::handle()
+cudaStream_t CudaStream::handle() const
 {
     return m_stream;
+}
+
+CudaContextPtr CudaStream::context() const
+{
+    return m_ctx;
 }
 
 } // namespace rmagine
