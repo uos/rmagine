@@ -273,6 +273,7 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
     std::map<unsigned int, EmbreeMeshPtr> meshes;
 
     // 1. meshes
+    // std::cout << "[make_embree_scene()] Loading Meshes..." << std::endl;
     for(size_t i=0; i<ascene->mNumMeshes; i++)
     {
         // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
@@ -295,31 +296,25 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
     const aiNode* root_node = ascene->mRootNode;
     std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
 
-    std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
+    // std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
         const aiNode* node = mesh_nodes[i];
-        std::cout << "- " << i << ": " << node->mName.C_Str();
-        std::cout << ", total path: ";
+        // std::cout << "[make_embree_scene()] - " << i << ": " << node->mName.C_Str();
+        // std::cout << ", total path: ";
 
-        std::vector<std::string> path = path_names(node);
+        // std::vector<std::string> path = path_names(node);
 
-        for(auto name : path)
-        {
-            std::cout << name << "/";
-        }
-        std::cout << std::endl;
+        // for(auto name : path)
+        // {
+        //     std::cout << name << "/";
+        // }
+        // std::cout << std::endl;
         
         Matrix4x4 M = global_transform(node);
         Transform T;
         Vector3 scale;
         decompose(M, T, scale);
-
-        {
-            std::cout << "- Transformation Matrix: " << std::endl;
-            std::cout << M << std::endl;
-            std::cout << "- Transform: " << T << ", scale: " << scale << std::endl;
-        }
 
         EmbreeScenePtr mesh_scene = std::make_shared<EmbreeScene>();
 
@@ -334,6 +329,9 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
                 instanciated_meshes.insert(mesh);
                 mesh_scene->add(mesh);
                 mesh_scene->commit();
+            } else {
+                std::cout << "[make_embree_scene()] WARNING: could not find mesh_id " 
+                    << mesh_id << " in meshes during instantiation" << std::endl;
             }
         }
 
@@ -363,6 +361,8 @@ EmbreeScenePtr make_embree_scene(const aiScene* ascene)
             scene->add(mesh);
         }
     }
+
+    // std::cout << "[make_embree_scene()] Scene loaded." << std::endl;
 
     return scene;
 }

@@ -237,6 +237,8 @@ OptixScenePtr make_optix_scene(
     OptixScenePtr scene = std::make_shared<OptixScene>(context);
 
     // 1. meshes
+    // std::cout << "[make_optix_scene()] Loading Meshes..." << std::endl;
+
     for(size_t i=0; i<ascene->mNumMeshes; i++)
     {
         // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
@@ -249,7 +251,7 @@ OptixScenePtr make_optix_scene(
             mesh->commit();
             scene->add(mesh);
         } else {
-            std::cout << "[ make_embree_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
+            std::cout << "[ make_optix_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
         }
     }
 
@@ -262,22 +264,22 @@ OptixScenePtr make_optix_scene(
     const aiNode* root_node = ascene->mRootNode;
     std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
     
-    std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
+    // std::cout << "[make_optix_scene()] Loading Instances..." << std::endl;
 
     OptixInstancesPtr insts = std::make_shared<OptixInstances>(context);
 
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
         const aiNode* node = mesh_nodes[i];
-        std::cout << "- " << i << ": " << node->mName.C_Str();
-        std::cout << ", total path: ";
+        // std::cout << "[make_optix_scene()] - " << i << ": " << node->mName.C_Str();
+        // std::cout << ", total path: ";
 
-        std::vector<std::string> path = path_names(node);   
-        for(auto name : path)
-        {
-            std::cout << name << "/";
-        }
-        std::cout << std::endl;
+        // std::vector<std::string> path = path_names(node);   
+        // for(auto name : path)
+        // {
+        //     std::cout << name << "/";
+        // }
+        // std::cout << std::endl;
 
         Matrix4x4 M = global_transform(node);
         Transform T;
@@ -289,7 +291,7 @@ OptixScenePtr make_optix_scene(
         
         if(node->mNumMeshes > 1)
         {
-            std::cout << "Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl;
+            // std::cout << "[make_optix_scene()] Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl;
         
             // make flat hierarchy: one instance per mesh
             for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -308,6 +310,7 @@ OptixScenePtr make_optix_scene(
                     mesh_insts.push_back(mesh_inst);
                 } else {
                     // TODO: warning
+                    std::cout << "[make_optix_scene()] WARNING could not find mesh_id " << mesh_id << " in meshes" << std::endl;
                 }
             }
         } else {
@@ -325,6 +328,8 @@ OptixScenePtr make_optix_scene(
                 mesh_insts.push_back(mesh_inst);
             } else {
                 // TODO: warning
+                std::cout << "[make_optix_scene()] WARNING could not find mesh_id " 
+                    << mesh_id << " in meshes during instantiation" << std::endl;
             }
         }
 
@@ -345,13 +350,13 @@ OptixScenePtr make_optix_scene(
         {
             scene->setRoot(scene->geometries().begin()->second);
         } else {
-            std::cout << scene->geometries().size() << " unconnected meshes!" << std::endl;
+            std::cout << "[make_optix_scene()] " << scene->geometries().size() << " unconnected meshes!" << std::endl;
         }
     } else {
         
         if(instanciated_meshes.size() != meshes.size())
         {
-            std::cout << "There are some meshes left" << std::endl;
+            std::cout << "[make_optix_scene()] There are some meshes left" << std::endl;
         }
         insts->commit();
         scene->setRoot(insts);

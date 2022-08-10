@@ -7,7 +7,7 @@ include(GNUInstallDirs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
-#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
@@ -186,8 +186,12 @@ add_library(rmagine_cuda SHARED
     # util
     src/rmagine/util/cuda/CudaContext.cpp
     src/rmagine/util/cuda/CudaStream.cpp
+    src/rmagine/util/cuda/random.cu
     # noise
     src/rmagine/noise/noise.cu
+    src/rmagine/noise/NoiseCuda.cu
+    src/rmagine/noise/GaussianNoiseCuda.cu
+    src/rmagine/noise/UniformDustNoiseCuda.cu
     # map
     src/rmagine/map/mesh_preprocessing.cu
 )

@@ -5,6 +5,9 @@
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/util/StopWatch.hpp>
 
+#include <rmagine/math/math.cuh>
+
+#include <rmagine/util/prints.h>
 
 using namespace rmagine;
 
@@ -65,6 +68,49 @@ void test_slicing()
     ad(5, 10) = ad(0, 5);
     ah(80, 90) = ad;
     std::cout << ah[80] << std::endl;
+
+
+    // math
+
+    Memory<Transform, RAM> T(1);
+    T[0] = Transform::Identity();
+    Memory<Transform, VRAM_CUDA> Td = T;
+
+    Memory<Vector, RAM> V(1000);
+    for(size_t i=0; i<V.size(); i++)
+    {
+        V[i] = {(float)i, (float)i, (float)i};
+    }
+    Memory<Vector, VRAM_CUDA> Vd = V;
+
+    Memory<Vector, VRAM_CUDA> resd(1000);
+
+    for(size_t i=0; i<10; i++)
+    {
+        auto slice = resd(i * 100, i * 100 + 100);
+        mult1xN(Td, Vd(i * 100, i * 100 + 100), slice);
+    }
+
+    Memory<Vector, RAM> res = resd;
+    std::cout << "Math Test 1: " << res[500] << " " << res[999] << std::endl;
+
+    // clear
+    for(size_t i=0; i<res.size(); i++)
+    {
+        res[i] = {0.0, 0.0, 0.0};
+    }
+    resd = res;
+
+
+    for(size_t i=0; i<10; i++)
+    {
+        resd(i * 100, i * 100 + 100) = mult1xN(Td, Vd(i * 100, i * 100 + 100) );
+    }
+
+    res = resd;
+    std::cout << "Math Test 2: " << res[500] << " " << res[999] << std::endl;
+
+
 
 }
 

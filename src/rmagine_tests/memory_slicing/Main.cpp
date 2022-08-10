@@ -4,6 +4,8 @@
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/util/StopWatch.hpp>
 
+#include <rmagine/math/math.h>
+
 
 using namespace rmagine;
 
