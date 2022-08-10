@@ -58,7 +58,8 @@ void SphereSimulatorOptix::setMap(const OptixMapPtr map)
     m_programs[0] = std::make_shared<SphereProgramRanges>(map);
     m_programs[1] = std::make_shared<SphereProgramNormals>(map);
 
-    m_stream = m_map->context()->getCudaContext()->createStream();
+    // m_stream = m_map->context()->getCudaContext()->createStream();
+    m_stream = m_map->stream();
 
     // need to create stream after map was created: cuda device api context is required
     // CUDA_CHECK( cudaStreamCreate( &m_stream ) );

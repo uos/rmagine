@@ -21,6 +21,11 @@ public:
         return m_ctx;
     }
 
+    inline CudaStreamPtr stream() const 
+    {
+        return m_stream;
+    }
+
     void setContext(OptixContextPtr context);
 
     template<typename T>
