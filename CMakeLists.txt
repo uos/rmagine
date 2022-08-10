@@ -127,7 +127,10 @@ add_library(rmagine SHARED
     src/rmagine/util/assimp/helper.cpp
     src/rmagine/util/IDGen.cpp
     # # Noise
-    src/rmagine/noise/noise.cpp
+    # src/rmagine/noise/noise.cpp
+    src/rmagine/noise/Noise.cpp
+    src/rmagine/noise/GaussianNoise.cpp
+    src/rmagine/noise/UniformDustNoise.cpp
 )
 
 target_link_libraries(rmagine
@@ -188,7 +191,6 @@ add_library(rmagine_cuda SHARED
     src/rmagine/util/cuda/CudaStream.cpp
     src/rmagine/util/cuda/random.cu
     # noise
-    src/rmagine/noise/noise.cu
     src/rmagine/noise/NoiseCuda.cu
     src/rmagine/noise/GaussianNoiseCuda.cu
     src/rmagine/noise/UniformDustNoiseCuda.cu

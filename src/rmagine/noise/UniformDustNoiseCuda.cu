@@ -16,7 +16,7 @@ __global__ void kernel_uniform_dust_noise_apply(
     if(idx < N)
     {
         curandState state = states[idx];
-        float range = data[idx];
+        const float range = data[idx];
 
         // compute total probability
         // from hit probability per meter with actual range
@@ -28,7 +28,7 @@ __global__ void kernel_uniform_dust_noise_apply(
             const float new_range = curand_uniform(&state) * range;
 
             // calculate return probability dependend on new range
-            float p_return = powf(return_probability, new_range);
+            const float p_return = powf(return_probability, new_range);
 
             const float p_return_rand = curand_uniform(&state);
             if(p_return_rand < p_return)
