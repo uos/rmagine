@@ -31,6 +31,7 @@ public:
 
 protected:
     OptixContextPtr m_ctx;
+    CudaStreamPtr m_stream;
 };
 
 } // namespace rmagine

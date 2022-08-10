@@ -9,6 +9,8 @@
 #include <optix_stubs.h>
 #include <rmagine/types/MemoryCuda.hpp>
 
+#include "rmagine/util/cuda/CudaStream.hpp"
+
 namespace rmagine
 {
 
@@ -229,12 +231,18 @@ void OptixInstances::build_acc_old()
         CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &m_inst_buffer ), m_inst_buffer_elements * sizeof(OptixInstance) ) );
     }
 
+    if(!m_stream->context()->isActive())
+    {
+        m_stream->context()->use();
+    }
+
     // copy to buffer
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( m_inst_buffer ),
                 inst_h.raw(),
                 m_inst_buffer_elements * sizeof(OptixInstance),
-                cudaMemcpyHostToDevice
+                cudaMemcpyHostToDevice,
+                m_stream->handle()
                 ) );
 
     OptixBuildInput instance_input = {};
@@ -300,10 +308,10 @@ void OptixInstances::build_acc_old()
     // std::cout << "ACCEL BUILD" << std::endl;
     OPTIX_CHECK(optixAccelBuild( 
         m_ctx->ref(), 
-        0, 
+        m_stream->handle(), 
         &ias_accel_options, 
         &instance_input, 
-        1, 
+        1, // num build inputs
         d_temp_buffer_ias,
         ias_buffer_sizes.tempSizeInBytes, 
         m_as->buffer,
@@ -313,7 +321,6 @@ void OptixInstances::build_acc_old()
         0 
     ));
 
-    // std::cout << "ACCEL BUILD DONE." << std::endl;
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
     // set every child to commited
@@ -322,7 +329,6 @@ void OptixInstances::build_acc_old()
         elem.second->m_changed = false;
     }
 
-    // std::cout << "acc done." << std::endl;
     m_requires_build = false;
 }
 

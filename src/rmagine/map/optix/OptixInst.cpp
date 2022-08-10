@@ -17,9 +17,8 @@ OptixInst::OptixInst(OptixContextPtr context)
 }
 
 OptixInst::OptixInst(
-    OptixGeometryPtr geom, 
-    OptixContextPtr context)
-:OptixInst(context)
+    OptixGeometryPtr geom)
+:OptixInst(geom->context())
 {
     // coused weak ptr error in gazebo 'std::bad_weak_ptr'
     // maybe the template function this_shared<OptixInst>() does not work in constructors?

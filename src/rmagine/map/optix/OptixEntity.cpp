@@ -4,14 +4,14 @@ namespace rmagine
 {
 
 OptixEntity::OptixEntity(OptixContextPtr context_)
-:m_ctx(context_)
 {
-    
+    setContext(context_);
 }
 
 void OptixEntity::setContext(OptixContextPtr context)
 {
     m_ctx = context;
+    m_stream = m_ctx->getCudaContext()->createStream();
 }
 
 } // namespace rmagine

@@ -9,6 +9,8 @@
 #include "rmagine/map/mesh_preprocessing.cuh"
 #include "rmagine/math/math.cuh"
 
+#include "rmagine/util/cuda/CudaStream.hpp"
+
 #include <optix.h>
 #include <optix_stubs.h>
 
@@ -103,8 +105,6 @@ void OptixMesh::apply()
 void OptixMesh::commit()
 {
     // build/update acceleration structure
-    
-
     if(vertices.size() != vertices_.size())
     {
         std::cout << "[OptixMesh::commit()] WARNING: transformation was not applied" << std::endl;
@@ -131,7 +131,7 @@ void OptixMesh::commit()
 
     // ADDITIONAL SETTINGS
     triangle_input.triangleArray.flags         = triangle_input_flags;
-    // TODO: this is bad. I define the sbt records inside the programs. 
+    // TODO: this is bad. I define the sbt records inside the sensor programs. 
     triangle_input.triangleArray.numSbtRecords = 1;
 
     // Acceleration Options
@@ -189,9 +189,14 @@ void OptixMesh::commit()
         m_as->buffer_size = gas_buffer_sizes.outputSizeInBytes;
     }
 
+    if(!m_stream->context()->isActive())
+    {
+        m_stream->context()->use();
+    }
+
     OPTIX_CHECK( optixAccelBuild(
                 m_ctx->ref(),
-                0,                  // CUDA stream
+                m_stream->handle(),                  // CUDA stream
                 &accel_options,
                 &triangle_input,
                 1,                  // num build inputs
