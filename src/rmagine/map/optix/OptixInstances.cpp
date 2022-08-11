@@ -256,7 +256,9 @@ void OptixInstances::build_acc_old()
     { // BUILD FLAGS
         build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
         build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
-        //build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+        #if OPTIX_VERSION >= 73000
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+        #endif
     }
     ias_accel_options.buildFlags = build_flags;
     ias_accel_options.motionOptions.numKeys = 1;
