@@ -383,7 +383,6 @@ if(BUILD_EXAMPLES)
     if(OptiX_FOUND)
     add_subdirectory(src/rmagine_examples/rmagine_optix_scene)
     endif(OptiX_FOUND)
-
 endif(BUILD_EXAMPLES)
 
 
@@ -399,12 +398,12 @@ install(TARGETS ${RMAGINE_LIBRARIES})
 # install(TARGETS rmagine_cuda COMPONENT cuda)
 # install(TARGETS rmagine_optix COMPONENT optix)
 
-if(BUILD_TOOLS)
-# Install Tools
-install(TARGETS rmagine_benchmark
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# if(BUILD_TOOLS)
+# # Install Tools
+# install(TARGETS rmagine_benchmark
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-endif(BUILD_TOOLS)
+# endif(BUILD_TOOLS)
 
 
 

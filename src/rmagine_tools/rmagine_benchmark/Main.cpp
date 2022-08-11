@@ -1,26 +1,24 @@
 #include <iostream>
 
-// General mamcl includes
+// Core rmagine includes
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
-
-// CPU
-#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
-#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
-
 #include <rmagine/types/Memory.hpp>
-#include <rmagine/map/embree/embree_shapes.h>
-
 #include <rmagine/map/AssimpIO.hpp>
 
 
-// GPU
+// CPU - Embree
+#if defined WITH_EMBREE
+#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
+#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
+#endif
+
+// GPU - Optix
 #if defined WITH_OPTIX
 #include <rmagine/simulation/SphereSimulatorOptix.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
 #endif
 
-#include <iomanip>
 
 using namespace rmagine;
 
@@ -78,6 +76,7 @@ int main(int argc, char** argv)
 
     if(device == "cpu")
     {
+        #if defined WITH_EMBREE
         // Define one Transform Sensor to Base
         Memory<Transform, RAM> Tsb(1);
         Tsb->R.x = 0.0;
@@ -111,57 +110,12 @@ int main(int argc, char** argv)
 
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
-
-        // // cpu_mesh->scene.reset();
-
-        // // cpu_mesh->scene = std::make_shared<EmbreeScene>();
-
-        // auto scene = std::make_shared<EmbreeScene>();
-
-        // auto sphere = std::make_shared<EmbreeSphere>(1.0);
-        // sphere->commit();
-
-        // auto sphere_scene = std::make_shared<EmbreeScene>();
-        // sphere_scene->add(sphere);
-        // sphere_scene->commit();
-
-        // auto sphere_inst = std::make_shared<EmbreeInstance>();
-        // sphere_inst->set(sphere_scene);
-        // Transform T;
-        // T.setIdentity();
-        // sphere_inst->setTransform(T);
-        // sphere_inst->setScale({5.0, 5.0, 5.0});
-        // sphere_inst->apply();
-        // sphere_inst->commit();
-
-        // scene->add(sphere_inst);
-        
-        // scene->commit();
-        // // cpu_mesh->scene = scene;
-
-        // std::cout << "Raycast.." << std::endl;
-        // printRaycast(scene, {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
-
-        
-        // // EmbreeMapPtr cpu_mesh;
-        // std::cout << "Default constructor" << std::endl;
-        // EmbreeMapPtr cpu_mesh = std::make_shared<EmbreeMap>();
-        // cpu_mesh->scene = scene;
-
-        // return 0;
-
-        
-        // return 0;
-        // std::cout << "Mesh loaded to CPU." << std::endl;
-        // SphereSimulatorEmbreePtr cpu_sim;
         SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
-        // std::cout << "Initialized CPU simulator." << std::endl;
 
         cpu_sim->setTsb(Tsb);
         cpu_sim->setModel(model);
 
         // Define what to simulate
-
         double velos_per_second_mean = 0.0;
 
         std::cout << "- range of last ray: " << cpu_sim->simulateRanges(Tbm)[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
@@ -194,6 +148,11 @@ int main(int argc, char** argv)
         std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
 
         // clean up
+        #else // WITH_EMBREE
+
+        std::cout << "cpu benchmark not possible. Compile with Embree support." << std::endl;
+
+        #endif
 
     } else if(device == "gpu") {
         #if defined WITH_OPTIX
@@ -297,6 +256,9 @@ int main(int argc, char** argv)
 
         std::cout << std::endl;
         std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
+        #else // WITH_OPTIX
+            std::cout << "gpu benchmark not possible. Compile with OptiX support." << std::endl;
+
         #endif
     } else {
         std::cout << "Device " << device << " unknown" << std::endl;
