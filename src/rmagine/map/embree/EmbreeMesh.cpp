@@ -140,7 +140,6 @@ void EmbreeMesh::computeFaceNormals()
         face_normals_transformed.resize(Nfaces);
     }
     
-    
     for(size_t i=0; i<Nfaces; i++)
     {
         const Vector v0 = vertices[faces[i].v0];
@@ -153,17 +152,28 @@ void EmbreeMesh::computeFaceNormals()
 
 void EmbreeMesh::apply()
 {
+    // TRANSFORM VERTICES
     for(unsigned int i=0; i<Nvertices; i++)
     {
         vertices_transformed[i] = m_T * (vertices[i].mult_ewise(m_S));
     }
 
+    // TRANSFORM FACE NORMALS
+    if(face_normals_transformed.size() != face_normals.size())
+    {
+        face_normals_transformed.resize(face_normals.size());
+    }
     for(unsigned int i=0; i<face_normals.size(); i++)
     {
         auto face_normal_scaled = face_normals[i].mult_ewise(m_S);
         face_normals_transformed[i] = m_T.R * face_normal_scaled.normalized();
     }
 
+    // TRANSFORM VERTEX NORMALS
+    if(vertex_normals_transformed.size() != vertex_normals.size())
+    {
+        vertex_normals_transformed.resize(vertex_normals.size());
+    }
     for(unsigned int i=0; i<vertex_normals.size(); i++)
     {
         auto vertex_normal_scaled = vertex_normals[i].mult_ewise(m_S);

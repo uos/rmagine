@@ -107,7 +107,6 @@ public:
 
     EmbreeDevicePtr device;
     EmbreeScenePtr scene;
-    
 
     // container for storing meshes for faster access
     // - meshes are also shared referenced somewhere in scene

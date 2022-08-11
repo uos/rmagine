@@ -9,7 +9,6 @@ int main(int argc, char** argv)
 {
     std::cout << "Rmagine Map Info" << std::endl;
 
-
     // minimum 1 argument
     if(argc < 2)
     {
@@ -25,7 +24,17 @@ int main(int argc, char** argv)
     AssimpIO io;
     const aiScene* ascene = io.ReadFile(filename, 0);
 
-    print(ascene);
+    if(ascene)
+    {
+        print(ascene);
+    } else {
+        std::cout << "Loading failed" << std::endl;
+        std::cerr << io.Importer::GetErrorString() << std::endl;
+    
+        
+    }
+
+    
 
     return 0;
 }
