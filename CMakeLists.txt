@@ -193,6 +193,7 @@ add_library(rmagine_cuda SHARED
     # noise
     src/rmagine/noise/NoiseCuda.cu
     src/rmagine/noise/GaussianNoiseCuda.cu
+    src/rmagine/noise/RelGaussianNoiseCuda.cu
     src/rmagine/noise/UniformDustNoiseCuda.cu
     # map
     src/rmagine/map/mesh_preprocessing.cu

@@ -12,9 +12,10 @@ class Noise
 public:
     struct Options {
         unsigned int seed = 42;
+        float max_range = 10000.0;
     };
 
-    Noise(Options options = {42});
+    Noise(Options options = {42, 10000.0});
 
     virtual void apply(MemoryView<float, RAM>& ranges) = 0;
 protected:

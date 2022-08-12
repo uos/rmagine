@@ -19,10 +19,11 @@ public:
         unsigned int estimated_memory_size = 0; // estimate the number of elements for ranges. >= is goot estimate
         bool never_shrink_memory = true; // perfect performance but more memory consuming
         unsigned int seed = 42;
+        float max_range = 10000.0;
     };
 
     NoiseCuda(
-        Options options = {false, 0, true, 42});
+        Options options = {false, 0, true, 42, 10000.0});
 
     virtual void apply(MemoryView<float, VRAM_CUDA>& ranges) = 0;
 
