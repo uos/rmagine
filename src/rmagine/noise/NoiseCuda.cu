@@ -30,7 +30,6 @@ void NoiseCuda::updateStates(MemoryView<float, VRAM_CUDA>& ranges)
             // create new states
             auto slice_new = m_states(states_old.size(), m_states.size());
             random_init(slice_new, m_options.seed);
-        
         } else if(m_states.size() > ranges.size()) {
             if(!m_options.never_shrink_memory)
             {

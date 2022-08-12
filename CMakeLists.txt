@@ -130,6 +130,7 @@ add_library(rmagine SHARED
     # src/rmagine/noise/noise.cpp
     src/rmagine/noise/Noise.cpp
     src/rmagine/noise/GaussianNoise.cpp
+    src/rmagine/noise/RelGaussianNoise.cpp
     src/rmagine/noise/UniformDustNoise.cpp
 )
 

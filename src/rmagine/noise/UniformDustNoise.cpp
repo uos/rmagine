@@ -19,9 +19,15 @@ UniformDustNoise::UniformDustNoise(
 
 void UniformDustNoise::apply(MemoryView<float, RAM>& ranges)
 {
+    const float max_range = m_options.max_range;
     for(size_t i=0; i<ranges.size(); i++)
     {
-        const float range = ranges[i];
+        float range = ranges[i];
+
+        if(range > max_range)
+        {
+            range = max_range;
+        }
 
         // compute total probability
         // from hit probability per meter with actual range
