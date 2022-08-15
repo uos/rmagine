@@ -32,6 +32,7 @@ public:
 
     unsigned int add(OptixInstPtr inst);
     unsigned int get(OptixInstPtr inst) const;
+    std::optional<unsigned int> getOpt(OptixInstPtr inst) const;
     OptixInstPtr get(unsigned int id) const;
 
     std::map<unsigned int, OptixInstPtr> instances() const;

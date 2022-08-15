@@ -107,6 +107,17 @@ unsigned int OptixInstances::get(OptixInstPtr inst) const
     return m_ids.at(inst);
 }
 
+std::optional<unsigned int> OptixInstances::getOpt(OptixInstPtr inst) const
+{
+    auto it = m_ids.find(inst);
+    if(it != m_ids.end())
+    {
+        return it->second;
+    }
+
+    return {};
+}
+
 OptixInstPtr OptixInstances::get(unsigned int id) const
 {
     return m_instances.at(id);
