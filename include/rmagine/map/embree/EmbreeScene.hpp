@@ -85,6 +85,8 @@ public:
 
     void commit();
 
+    EmbreeInstancePtr instantiate();
+
     /**
      * @brief check if scene was committed at least one time.
      * important for functions as rtcUpdateGeometryBuffer:

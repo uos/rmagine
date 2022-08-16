@@ -191,6 +191,13 @@ void EmbreeScene::commit()
     m_committed_once = true;
 }
 
+EmbreeInstancePtr EmbreeScene::instantiate()
+{
+    EmbreeInstancePtr geom_inst = std::make_shared<EmbreeInstance>(m_device);
+    geom_inst->set(shared_from_this());
+    return geom_inst;
+}
+
 bool EmbreeScene::committedOnce() const
 {
     return m_committed_once;

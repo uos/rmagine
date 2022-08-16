@@ -23,6 +23,7 @@ public:
     virtual ~EmbreeGeometry();
 
     // embree fields
+    void setQuality(RTCBuildQuality quality);
     RTCGeometry handle() const;
 
     void setTransform(const Transform& T);
@@ -61,7 +62,12 @@ public:
 
     virtual void commit();
 
+    EmbreeScenePtr makeScene();
+
+    EmbreeInstancePtr instantiate();
+
     void cleanupParents();
+    
 
     std::unordered_map<EmbreeSceneWPtr, unsigned int> ids();
     std::unordered_map<EmbreeSceneWPtr, unsigned int> ids() const;
@@ -76,6 +82,7 @@ public:
 
     std::unordered_set<EmbreeSceneWPtr> parents;
     std::string name;
+
 
 protected:
 

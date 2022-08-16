@@ -1,9 +1,9 @@
 
 #include "rmagine/map/embree/EmbreeGeometry.hpp"
 #include "rmagine/map/embree/EmbreeScene.hpp"
+#include "rmagine/map/embree/EmbreeInstance.hpp"
 
 #include <iostream>
-#include <Eigen/Dense>
 
 namespace rmagine
 {
@@ -20,6 +20,11 @@ EmbreeGeometry::~EmbreeGeometry()
 {
     release();
     // std::cout << "[EmbreeGeometry::~EmbreeGeometry()] destroyed." << std::endl;
+}
+
+void EmbreeGeometry::setQuality(RTCBuildQuality quality)
+{
+    rtcSetGeometryBuildQuality(m_handle, quality);
 }
 
 RTCGeometry EmbreeGeometry::handle() const
@@ -85,6 +90,28 @@ void EmbreeGeometry::commit()
     rtcCommitGeometry(m_handle);
 }
 
+EmbreeScenePtr EmbreeGeometry::makeScene()
+{
+    EmbreeSceneSettings params = {};
+    EmbreeScenePtr geom_scene = std::make_shared<EmbreeScene>(params, m_device);
+
+    geom_scene->add(shared_from_this());
+
+    return geom_scene;
+}
+
+EmbreeInstancePtr EmbreeGeometry::instantiate()
+{
+    EmbreeScenePtr geom_scene = makeScene();
+    geom_scene->commit();
+
+    EmbreeInstancePtr geom_inst = std::make_shared<EmbreeInstance>(m_device);
+    geom_inst->set(geom_scene);
+    
+    // EmbreeInstancePtr inst;
+    return geom_inst;
+}
+
 void EmbreeGeometry::cleanupParents()
 {
     for(auto it = parents.begin(); it != parents.end();)
@@ -97,6 +124,7 @@ void EmbreeGeometry::cleanupParents()
         }
     }
 }
+
 
 std::unordered_map<EmbreeSceneWPtr, unsigned int> EmbreeGeometry::ids()
 {
