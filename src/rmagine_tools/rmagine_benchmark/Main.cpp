@@ -110,6 +110,7 @@ int main(int argc, char** argv)
 
         // Load mesh
         EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
+        
         SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
 
         cpu_sim->setTsb(Tsb);
@@ -122,7 +123,15 @@ int main(int argc, char** argv)
         std::cout << "-- Starting Benchmark --" << std::endl;
 
         // predefine result buffer
-        Memory<float, RAM> res(Tbm.size() * model->phi.size * model->theta.size);
+        // Memory<float, RAM> res(Tbm.size() * model->phi.size * model->theta.size);
+
+        using ResultT = Bundle<
+            Ranges<RAM>,
+            Normals<RAM>
+        >;
+
+        ResultT res;
+        res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
 
         int run = 0;
         while(elapsed_total < benchmark_duration)
@@ -130,7 +139,7 @@ int main(int argc, char** argv)
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
-            cpu_sim->simulateRanges(Tbm, res);
+            cpu_sim->simulate(Tbm, res);
             elapsed = sw();
             elapsed_total += elapsed;
             double velos_per_second = static_cast<double>(Nposes) / elapsed;

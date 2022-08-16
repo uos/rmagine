@@ -143,79 +143,13 @@ void print(const aiMatrix4x4& T)
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
 :device(device)
 {
-    EmbreeSceneSettings tmp;
-    scene = std::make_shared<EmbreeScene>(tmp, device);
-    // scene->setQuality(RTCBuildQuality::RTC_BUILD_QUALITY_LOW);
-    // scene->setFlags(RTCSceneFlags::RTC_SCENE_FLAG_DYNAMIC);
+    
 }
 
-EmbreeMap::EmbreeMap(const aiScene* ascene, EmbreeDevicePtr device)
-:EmbreeMap(device)
+EmbreeMap::EmbreeMap(EmbreeScenePtr scene)
+:EmbreeMap(scene->device())
 {
-    set(ascene);
-}
-
-void EmbreeMap::set(const aiScene* ascene)
-{
-    
-    
-    std::vector<EmbreeMeshPtr> meshes_tmp = loadMeshes(ascene);
-    // std::cout << "Meshes loaded: " <<  meshes_tmp.size() << std::endl;
-    
-    std::vector<EmbreeInstancePtr> instances = loadInstances(ascene->mRootNode, meshes_tmp);
-    // std::cout << "Instances loaded: " << instances.size() << std::endl;
-
-    // instancing implemented. can be enabled with this flag
-    // - problem: slower runtime
-    // if accelerated: how to handle object ids. Geometry ID or instance ID?
-    
-
-    // std::cout << "Using Embree with Instance Level" << std::endl;
-    for(auto instance : instances)
-    {
-        unsigned int inst_id = scene->add(instance);
-        
-        if(instance->parents.find(scene) == instance->parents.end())
-        {
-            std::cout << "WARNING Added instance has no parent scene!" << std::endl;
-        }
-        // std::cout << "Added instance " << instance->name << " " << inst_id << std::endl;
-    }
-
-    for(auto mesh : meshes_tmp)
-    {
-        if(mesh->parents.find(scene) == mesh->parents.end())
-        {
-            // std::cout << "Add mesh without parent " << mesh->name << " " << mesh->id << std::endl;
-            // std::cout << "- vertices, faces: " << mesh->vertices.size() << ", " << mesh->Nfaces << std::endl;
-            // has not parent push to scene
-            unsigned int mesh_id = scene->add(mesh);
-            // std::cout << "Added mesh " << mesh_id << std::endl;
-        }
-    }
-
-    bool is_static = false;
-
-    // optimize
-    if(is_static)
-    {
-        scene->optimize();
-    }
-    
-    // std::cout << "Commit Top Level Scene:" << std::endl;
-    // std::cout << "- " << scene->count<EmbreeMesh>() << " meshes" << std::endl;
-    // std::cout << "- " << scene->count<EmbreeInstance>() << " instances" << std::endl;
-    scene->commit();
-
-    // std::cout << "done. " << std::endl;
-    // rtcInitPointQueryContext(&pq_context);
-
-    // std::cout << "EmbreeMap created." << std::endl;
-}
-
-unsigned int EmbreeMap::addMesh(EmbreeMeshPtr mesh)
-{
-    return scene->add(mesh);
+    this->scene = scene;
 }
 
 EmbreeMap::~EmbreeMap()

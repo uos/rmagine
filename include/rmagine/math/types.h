@@ -165,6 +165,12 @@ struct Vector3 {
     float y;
     float z;
 
+    RMAGINE_FUNCTION
+    static Vector3 NaN()
+    {
+        return {NAN, NAN, NAN};
+    }
+
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector3 add(const Vector3& b) const;
@@ -2036,6 +2042,7 @@ void Matrix4x4::set(const Transform& T)
 RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix4x4::rotation() const
 {
+    // careful: if scale was applied, result of this function will be wrong
     Matrix3x3 R;
     R(0,0) = at(0,0);
     R(0,1) = at(0,1);

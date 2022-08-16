@@ -100,10 +100,26 @@ public:
     std::unordered_map<unsigned int, unsigned int> integrate(EmbreeScenePtr other);
 
     /**
-     * @brief 
+     * @brief freeze makes the map static. 
+     * 
+     * Improve ray traversal time -> decreases map update time
+     * 
+     * Steps:
+     * - any geometry that has only one instance
+     *    - instance destroyed
+     *    - instance transform applied to geometry
+     *    - transformed geometry added to root
+     * 
+     * Drawbacks:
+     * - Recover to dynamic map not tested yet. use with care
      * 
      */
-    void optimize();
+    void freeze();
+
+    inline EmbreeDevicePtr device() const 
+    {
+        return m_device;
+    }
 
     // Scene has no right to let parents stay alive
     std::unordered_set<EmbreeInstanceWPtr> parents;
@@ -151,7 +167,9 @@ std::shared_ptr<T> EmbreeScene::getAs(const unsigned int geom_id) const
 }
 
 
-EmbreeScenePtr make_embree_scene(const aiScene* ascene);
+EmbreeScenePtr make_embree_scene(
+    const aiScene* ascene,
+    EmbreeDevicePtr device = embree_default_device());
 
 
 } // namespace rmagine

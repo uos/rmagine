@@ -18,32 +18,50 @@ void setGenericData(
 {
     if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
     {
-        mem.hits = res.Hits<VRAM_CUDA>::hits.raw();
+        if(res.Hits<VRAM_CUDA>::hits.size() > 0)
+        {
+            mem.hits = res.Hits<VRAM_CUDA>::hits.raw();
+        }
     }
 
     if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
     {
-        mem.ranges = res.Ranges<VRAM_CUDA>::ranges.raw();
+        if(res.Ranges<VRAM_CUDA>::ranges.size() > 0)
+        {
+            mem.ranges = res.Ranges<VRAM_CUDA>::ranges.raw();
+        }
     }
 
     if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
     {
-        mem.points = res.Points<VRAM_CUDA>::points.raw();
+        if(res.Points<VRAM_CUDA>::points.size() > 0)
+        {
+            mem.points = res.Points<VRAM_CUDA>::points.raw();
+        }
     }
 
     if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
     {
-        mem.normals = res.Normals<VRAM_CUDA>::normals.raw();
+        if(res.Normals<VRAM_CUDA>::normals.size() > 0)
+        {
+            mem.normals = res.Normals<VRAM_CUDA>::normals.raw();
+        }
     }
 
     if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
     {
-        mem.face_ids = res.FaceIds<VRAM_CUDA>::face_ids.raw();
+        if(res.FaceIds<VRAM_CUDA>::face_ids.size() > 0)
+        {
+            mem.face_ids = res.FaceIds<VRAM_CUDA>::face_ids.raw();
+        }
     }
 
     if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
     {
-        mem.object_ids = res.ObjectIds<VRAM_CUDA>::object_ids.raw();
+        if(res.ObjectIds<VRAM_CUDA>::object_ids.size() > 0)
+        {
+            mem.object_ids = res.ObjectIds<VRAM_CUDA>::object_ids.raw();
+        }
     }
 }
 
@@ -89,6 +107,68 @@ void setGenericFlags(
     }
 }
 
+
+template<typename BundleT>
+void setGenericFlags(
+    const BundleT& res,
+    OptixSimulationDataGenericSphere& flags)
+{
+    flags.computeHits = false;
+    flags.computeRanges = false;
+    flags.computePoints = false;
+    flags.computeNormals = false;
+    flags.computeFaceIds = false;
+    flags.computeObjectIds = false;
+
+    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
+    {
+        if(res.hits.size() > 0)
+        {
+            flags.computeHits = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
+    {
+        if(res.ranges.size() > 0)
+        {
+            flags.computeRanges = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
+    {
+        if(res.points.size() > 0)
+        {
+            flags.computePoints = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
+    {
+        if(res.normals.size() > 0)
+        {
+            flags.computeNormals = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
+    {
+        if(res.face_ids.size() > 0)
+        {
+            flags.computeFaceIds = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
+    {
+        if(res.object_ids.size() > 0)
+        {
+            flags.computeObjectIds = true;
+        }
+    }
+}
+
 template<typename BundleT>
 void SphereSimulatorOptix::preBuildProgram()
 {
@@ -129,7 +209,7 @@ void SphereSimulatorOptix::simulate(
 
     Memory<OptixSimulationDataGenericSphere, RAM> mem(1);
 
-    setGenericFlags<BundleT>(mem[0]);
+    setGenericFlags(res, mem[0]);
 
     auto it = m_generic_programs.find(mem[0]);
     OptixProgramPtr program;
@@ -152,8 +232,6 @@ void SphereSimulatorOptix::simulate(
 
     mem->handle = m_map->scene()->getRoot()->acc()->handle;
     
-    
-
     // set generic data
     setGenericData(res, mem[0]);
 
@@ -163,6 +241,7 @@ void SphereSimulatorOptix::simulate(
     // => this takes too long. Can we somehow preupload stuff?
     Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
+
     
     if(program)
     {

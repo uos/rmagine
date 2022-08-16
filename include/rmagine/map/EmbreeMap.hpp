@@ -95,13 +95,9 @@ struct PointQueryUserData
 class EmbreeMap {
 public:
     EmbreeMap(EmbreeDevicePtr device = embree_default_device());
-    EmbreeMap(const aiScene* ascene, EmbreeDevicePtr device = embree_default_device());
-    
+    EmbreeMap(EmbreeScenePtr scene);
+
     ~EmbreeMap();
-
-    void set(const aiScene* ascene);
-
-    unsigned int addMesh(EmbreeMeshPtr mesh);
 
     Point closestPoint(const Point& qp);
 
@@ -129,23 +125,25 @@ static EmbreeMapPtr importEmbreeMap(
     const std::string& meshfile,
     EmbreeDevicePtr device = embree_default_device())
 {
-    std::cout << "importEmbreeMap - WARNING deprecated" << std::endl;
     AssimpIO io;
 
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = io.ReadFile( meshfile, 0);
+    const aiScene* ascene = io.ReadFile( meshfile, 0);
 
-    if(!scene)
+    if(!ascene)
     {
         std::cerr << io.Importer::GetErrorString() << std::endl;
     }
 
-    if(!scene->HasMeshes())
+    if(!ascene->HasMeshes())
     {
         std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
     }
 
-    return std::make_shared<EmbreeMap>(scene, device);
+    EmbreeScenePtr scene = make_embree_scene(ascene, device);
+    scene->freeze();
+    scene->commit();
+    return std::make_shared<EmbreeMap>(scene);
 }
 
 } // namespace rmagine

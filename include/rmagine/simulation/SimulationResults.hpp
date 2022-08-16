@@ -107,6 +107,17 @@ struct ObjectIds {
     Memory<unsigned int, MemT> object_ids;
 };
 
+
+template<typename MemT>
+using IntAttrAny = Bundle<
+    Hits<MemT>,
+    Ranges<MemT>,
+    Points<MemT>,
+    Normals<MemT>,
+    FaceIds<MemT>,
+    ObjectIds<MemT>
+>;
+
 /**
  * @brief Helper function to resize a whole bundle of attributes by one size
  * 

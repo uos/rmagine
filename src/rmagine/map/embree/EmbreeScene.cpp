@@ -215,9 +215,9 @@ std::unordered_map<unsigned int, unsigned int> EmbreeScene::integrate(EmbreeScen
     return integration_map;
 }
 
-void EmbreeScene::optimize()
+void EmbreeScene::freeze()
 {
-    std::cout << "[EmbreeScene::optimize()] start optimizing scene.." << std::endl;
+    std::cout << "[EmbreeScene::freeze()] start optimizing scene.." << std::endl;
     std::vector<EmbreeInstancePtr> instances_to_optimize;
 
     for(auto it = m_geometries.begin(); it != m_geometries.end(); ++it)
@@ -261,12 +261,15 @@ void EmbreeScene::optimize()
         }
     }
 
-    std::cout << "[EmbreeScene::optimize()] finished optimizing scene.." << std::endl;
+    std::cout << "[EmbreeScene::freeze()] finished optimizing scene.." << std::endl;
 }
 
-EmbreeScenePtr make_embree_scene(const aiScene* ascene)
+EmbreeScenePtr make_embree_scene(
+    const aiScene* ascene,
+    EmbreeDevicePtr device)
 {   
-    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+    EmbreeSceneSettings settings = {};
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>(settings, device);
 
     // std::vector<EmbreeMeshPtr> meshes;
 
