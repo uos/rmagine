@@ -36,9 +36,16 @@ public:
 
     void init(unsigned int Npoints);
 
+    virtual EmbreeGeometryType type() const
+    {
+        return EmbreeGeometryType::POINTS;
+    }
+
     unsigned int Npoints;
     PointWithRadius* points;
 };
+
+using EmbreePointsPtr = std::shared_ptr<EmbreePoints>;
 
 // TODO
 // class EmbreePointDiscs

@@ -62,6 +62,12 @@ public:
      * 
      */
     void apply();
+
+    virtual EmbreeGeometryType type() const
+    {
+        return EmbreeGeometryType::MESH;
+    }
+
 private:
     // embree constructed buffers
     unsigned int Nvertices;

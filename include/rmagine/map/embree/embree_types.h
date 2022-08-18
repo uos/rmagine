@@ -14,6 +14,13 @@
 namespace rmagine 
 {
 
+enum EmbreeGeometryType 
+{
+    INSTANCE,
+    MESH,
+    POINTS
+};
+
 class EmbreeDevice;
 class EmbreeGeometry;
 class EmbreeMesh;

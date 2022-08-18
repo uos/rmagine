@@ -7,10 +7,13 @@
 #include <rmagine/util/synthetic.h>
 
 #include <rmagine/map/EmbreeMap.hpp>
+#include <rmagine/map/embree/EmbreePoints.hpp>
 
 #include <rmagine/map/embree/embree_shapes.h>
 #include <rmagine/util/prints.h>
 #include <rmagine/util/StopWatch.hpp>
+
+
 
 using namespace rmagine;
 
@@ -125,7 +128,6 @@ void scene_4()
     {
         std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
     }
-    
 }
 
 void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
@@ -155,25 +157,25 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
 
     if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
     {
+        unsigned int objID;
+        std::string type;
         if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
         {
-            auto geom = scene->get(rayhit.hit.instID[0]);
-            std::cout << "- id: " << rayhit.hit.instID[0] << std::endl;
-            std::cout << "- type: instance" << std::endl;
-            std::cout << "- name: " << geom->name << std::endl;
+            objID = rayhit.hit.instID[0];
+            type = "instance";
         } else {
-            auto geom = scene->get(rayhit.hit.geomID);
-            std::cout << "- id: " << rayhit.hit.geomID << std::endl;
-            std::cout << "- type: mesh" << std::endl;
-            std::cout << "- name: " << geom->name << std::endl;
+            objID = rayhit.hit.geomID;
+            type = "geometry";
         }
 
-        std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
+        auto geom = scene->get(objID);
+
+        std::cout << "- type: " << geom->type() << std::endl;
+        std::cout << "- name: " << geom->name << std::endl;
+        std::cout << "- objID: " << objID << std::endl;
         std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
         std::cout << "- faceID: " << rayhit.hit.primID << std::endl;
-        
     }
-
     
 }
 
@@ -741,6 +743,7 @@ void scene_14()
 
     // 0. define two geometries to spawn
     EmbreeMeshPtr sphere1 = std::make_shared<EmbreeSphere>();
+    sphere1->name = "1. sphere mesh";
     sphere1->commit();
 
     EmbreeMeshPtr sphere2 = std::make_shared<EmbreeSphere>();
@@ -749,11 +752,8 @@ void scene_14()
         T.t.x = -1.0;
         sphere2->setTransform(T);
         sphere2->apply();
-        
     }
     sphere2->commit();
-
-
 
     ////////////////////////////////////
     // 1. add single mesh sphere
@@ -768,6 +768,7 @@ void scene_14()
         sphere_inst->setTransform(T);
         sphere_inst->apply();
         sphere_inst->commit();
+        sphere_inst->name = "2. single sphere instance";
     }
     scene->add(sphere_inst);
 
@@ -786,6 +787,7 @@ void scene_14()
         T.t.y = 4.0;
         two_sphere_inst->setTransform(T);
         two_sphere_inst->apply();
+        two_sphere_inst->name = "3. two spheres instance";
     }
     two_sphere_inst->commit();
 
@@ -801,6 +803,40 @@ void scene_14()
     // hit 3. two meshes as one instance
     printRaycast(scene, {-5.0, 4.0, 0.0}, {1.0, 0.0, 0.0});
 
+}
+
+void scene_15()
+{
+    // Create scene with pointcloud as EmbreePoints type
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+    scene->setQuality(RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTC_SCENE_FLAG_DYNAMIC);
+
+    EmbreePointsPtr points = std::make_shared<EmbreePoints>(100 * 100);
+
+    // fill
+    for(size_t i=0; i<100; i++)
+    {
+        for(size_t j=0; j<100; j++)
+        {
+            PointWithRadius p;
+            p.p = {
+                0.0,
+                static_cast<float>(i) - 50.0f,
+                static_cast<float>(j) - 50.0f
+            };
+            p.r = 0.1;
+            points->points[i * 100 + j] = p;
+        }
+    }
+
+    points->apply();
+    points->commit();
+
+    scene->add(points);
+    scene->commit();
+
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
 }
 
 int main(int argc, char** argv)
@@ -832,6 +868,7 @@ int main(int argc, char** argv)
         case 12: scene_12(); break;
         case 13: scene_13(); break;
         case 14: scene_14(); break;
+        case 15: scene_15(); break;
         default: break;
     }
 

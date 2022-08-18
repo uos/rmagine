@@ -62,6 +62,8 @@ public:
 
     virtual void commit();
 
+    virtual EmbreeGeometryType type() const = 0;
+
     EmbreeScenePtr makeScene();
 
     EmbreeInstancePtr instantiate();

@@ -50,6 +50,11 @@ public:
      */
     void apply();
 
+    virtual EmbreeGeometryType type() const
+    {
+        return EmbreeGeometryType::INSTANCE;
+    }
+
 private:
 
     // scene that is instanced by this object
