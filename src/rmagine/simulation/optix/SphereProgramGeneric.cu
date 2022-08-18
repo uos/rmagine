@@ -306,6 +306,7 @@ void computeNoObjectId()
     mem.object_ids[glob_id] = __INT_MAX__ * 2U + 1;
 }
 
+
 extern "C" __global__ void __miss__ms()
 {
     if(mem.computeHits)

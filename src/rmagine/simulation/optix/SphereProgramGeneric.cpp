@@ -20,6 +20,7 @@
 #include <iostream>
 #include <fstream>
 
+
 namespace rmagine {
 
 SphereProgramGeneric::SphereProgramGeneric(

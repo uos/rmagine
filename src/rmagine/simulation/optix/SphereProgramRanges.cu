@@ -1,6 +1,8 @@
 #include <optix.h>
-#include "rmagine/math/math.h"
+#include "rmagine/math/types.h"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
+
+
 
 using namespace rmagine;
 
@@ -10,7 +12,6 @@ __constant__ OptixSimulationDataRangesSphere mem;
 
 extern "C" __global__ void __raygen__rg()
 {
-    printf("RAYGEN!\n");
     // Lookup our location within the launch grid
     const uint3 idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();
@@ -61,4 +62,17 @@ extern "C" __global__ void __closesthit__ch()
     const float t = optixGetRayTmax();
     const unsigned int glob_id = optixGetPayload_0();
     mem.ranges[glob_id] = t;
+
+
+    // printf("HIT!\n");
+
+    // __UINT32_MAX__
+    // printf("Max uint : %u\n", __UINT_MAX__);
+
+    const unsigned int inst_id = optixGetInstanceId();
+    const unsigned int geom_id = optixGetSbtGASIndex();
+
+    printf("- inst_id: %u\n", inst_id);
+    printf("- geom_id: %u\n", geom_id);
+
 }

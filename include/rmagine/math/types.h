@@ -8,7 +8,7 @@
 
 #include <rmagine/types/SharedFunctions.hpp>
 
-
+#define __UINT_MAX__ (__INT_MAX__ * 2U + 1U)
 
 namespace rmagine
 {
