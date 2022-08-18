@@ -805,6 +805,10 @@ void scene_14()
 
 }
 
+/**
+ * @brief Build a scene with pointcloud
+ * 
+ */
 void scene_15()
 {
     // Create scene with pointcloud as EmbreePoints type
