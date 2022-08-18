@@ -14,16 +14,17 @@ OptixInst::OptixInst(OptixContextPtr context)
     m_data.sbtOffset = 0;
     m_data.visibilityMask = 255;
     m_data.flags = OPTIX_INSTANCE_FLAG_NONE;
+    // m_data.flags = OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT;
 }
 
-OptixInst::OptixInst(
-    OptixGeometryPtr geom)
-:OptixInst(geom->context())
-{
-    // coused weak ptr error in gazebo 'std::bad_weak_ptr'
-    // maybe the template function this_shared<OptixInst>() does not work in constructors?
-    setGeometry(geom);
-}
+// OptixInst::OptixInst(
+//     OptixGeometryPtr geom)
+// :OptixInst(geom->context())
+// {
+//     // coused weak ptr error in gazebo 'std::bad_weak_ptr'
+//     // maybe the template function this_shared<OptixInst>() does not work in constructors?
+//     setGeometry(geom);
+// }
 
 OptixInst::~OptixInst()
 {
@@ -31,7 +32,10 @@ OptixInst::~OptixInst()
     {
         cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
     }
-    m_geom->cleanupParents();
+    if(m_geom)
+    {
+        m_geom->cleanupParents();
+    }
 }
 
 void OptixInst::setGeometry(OptixGeometryPtr geom)

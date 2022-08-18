@@ -26,8 +26,6 @@ public:
 
     OptixInst(OptixContextPtr context = optix_default_context());
 
-    OptixInst(OptixGeometryPtr geom);
-
     virtual ~OptixInst();
 
     void setGeometry(OptixGeometryPtr geom);

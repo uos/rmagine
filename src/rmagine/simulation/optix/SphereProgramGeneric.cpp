@@ -34,7 +34,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
     
-    OptixModuleCompileBoundValueEntry options[6];
+    OptixModuleCompileBoundValueEntry options[7];
     // computeHits
     options[0] = {};
     options[0].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeHits);
@@ -60,11 +60,16 @@ SphereProgramGeneric::SphereProgramGeneric(
     options[4].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeFaceIds);
     options[4].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeFaceIds );
     options[4].boundValuePtr = &flags.computeFaceIds;
-    // computeObjectIds
+    // computeFaceIds
     options[5] = {};
-    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeObjectIds);
-    options[5].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeObjectIds );
-    options[5].boundValuePtr = &flags.computeObjectIds;
+    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeGeomIds);
+    options[5].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeGeomIds );
+    options[5].boundValuePtr = &flags.computeGeomIds;
+    // computeObjectIds
+    options[6] = {};
+    options[6].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeObjectIds);
+    options[6].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeObjectIds );
+    options[6].boundValuePtr = &flags.computeObjectIds;
 
 
     OptixModuleCompileOptions module_compile_options = {};
@@ -77,7 +82,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 #endif
     module_compile_options.boundValues = &options[0];
-    module_compile_options.numBoundValues = 6;
+    module_compile_options.numBoundValues = 7;
 
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
@@ -99,6 +104,7 @@ SphereProgramGeneric::SphereProgramGeneric(
         // 2 Only single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
+        std::cout << "ALLOW ANY" << std::endl;
         // 3 or more allow any
         // careful: with two level IAS performance is half as slow as single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
@@ -184,6 +190,14 @@ SphereProgramGeneric::SphereProgramGeneric(
         hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
         hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
         hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
+        
+        // if(scene_depth >= 3)
+        // {
+        //     std::cout << "ALLOW ANYHIT!" << std::endl;
+        //     hitgroup_prog_group_desc.hitgroup.moduleAH = module;
+        //     hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH = "__anyhit__ah";
+        // }
+        
 
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
                 scene->context()->ref(),

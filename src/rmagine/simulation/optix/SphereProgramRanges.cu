@@ -10,6 +10,7 @@ __constant__ OptixSimulationDataRangesSphere mem;
 
 extern "C" __global__ void __raygen__rg()
 {
+    printf("RAYGEN!\n");
     // Lookup our location within the launch grid
     const uint3 idx = optixGetLaunchIndex();
     const uint3 dim = optixGetLaunchDimensions();

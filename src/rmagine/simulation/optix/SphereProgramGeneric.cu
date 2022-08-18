@@ -33,6 +33,8 @@ extern "C" __global__ void __raygen__rg()
 
     unsigned int p0, p1, p2, p3, p4, p5, p6, p7;
     
+    printf("ray: %f %f %f - %f %f %f \n", Tsm.t.x, Tsm.t.y, Tsm.t.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
+
     p0 = glob_id;
     p1 = __float_as_uint(Tsm.R.x);
     p2 = __float_as_uint(Tsm.R.y);
@@ -259,6 +261,38 @@ void computeNoFaceId()
 }
 
 __forceinline__ __device__
+void computeGeomId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+
+    printf("GEOM ID\n");
+
+    const unsigned int inst_id = optixGetInstanceId();
+    const unsigned int inst_index = optixGetInstanceIndex();
+
+    
+    OptixTraversableHandle gas = optixGetGASTraversableHandle();
+    const unsigned int gas_id = optixGetSbtGASIndex();
+
+
+
+    printf("optixGetInstanceId %u\n", inst_id);
+    printf("optixGetInstanceIndex %u\n", inst_index);
+    printf("GasId: %u\n", gas_id);
+    
+
+
+    mem.geom_ids[glob_id] = 0;
+}
+
+__forceinline__ __device__
+void computeNoGeomId()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.geom_ids[glob_id] = __INT_MAX__ * 2U + 1;
+}
+
+__forceinline__ __device__
 void computeObjectId()
 {
     const unsigned int glob_id = optixGetPayload_0();
@@ -299,6 +333,11 @@ extern "C" __global__ void __miss__ms()
         computeNoFaceId();
     }
 
+    if(mem.computeGeomIds)
+    {
+        computeNoGeomId();
+    }
+
     if(mem.computeObjectIds)
     {
         computeNoObjectId();
@@ -332,8 +371,18 @@ extern "C" __global__ void __closesthit__ch()
         computeFaceId();
     }
 
+    if(mem.computeGeomIds)
+    {
+        computeGeomId();
+    }
+
     if(mem.computeObjectIds)
     {
         computeObjectId();
     }
+}
+
+extern "C" __global__ void __anyhit__ah()
+{
+    printf("Anyhit!\n");
 }

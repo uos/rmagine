@@ -110,6 +110,8 @@ void OptixMesh::commit()
         std::cout << "[OptixMesh::commit()] WARNING: transformation was not applied" << std::endl;
     }
 
+    
+
     const uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT };
     OptixBuildInput triangle_input = {};
     triangle_input.type                        = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;

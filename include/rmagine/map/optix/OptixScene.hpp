@@ -23,8 +23,6 @@
 namespace rmagine
 {
 
-// typedef SbtRecord<HitGroupDataScene>      HitGroupSbtRecordScene;
-
 class OptixScene 
 : public OptixEntity
 {

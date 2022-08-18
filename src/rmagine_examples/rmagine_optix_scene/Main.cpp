@@ -68,23 +68,29 @@ void printRaycast(SphereSimulatorOptixPtr gpu_sim,
 
     using ResultT = Bundle<
         Ranges<VRAM_CUDA>,
-        Normals<VRAM_CUDA>,
+        // Normals<VRAM_CUDA>,
         FaceIds<VRAM_CUDA>,
+        GeomIds<VRAM_CUDA>,
         ObjectIds<VRAM_CUDA>
     >;
+
+    // using ResultT = IntAttrAny<VRAM_CUDA>;
+
     ResultT res = gpu_sim->simulate<ResultT>(Tbm_gpu);
 
     // Download results
     Memory<float, RAM> ranges = res.ranges;
-    Memory<Vector, RAM> normals = res.normals;
+    // Memory<Vector, RAM> normals = res.normals;
     Memory<unsigned int, RAM> face_ids = res.face_ids;
+    Memory<unsigned int, RAM> geom_ids = res.geom_ids;
     Memory<unsigned int, RAM> obj_ids = res.object_ids;
 
     // print results
     std::cout << "Result:" << std::endl;
     std::cout << "- range: " << ranges[0] << std::endl;
-    std::cout << "- normal: " << normals[0] << std::endl;
+    // std::cout << "- normal: " << normals[0] << std::endl;
     std::cout << "- face id: " << face_ids[0] << std::endl;
+    std::cout << "- geom id: " << geom_ids[0] << std::endl;
     std::cout << "- obj id: " << obj_ids[0] << std::endl;
 }
 
@@ -403,6 +409,106 @@ void scene_5()
     printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
+void scene_6()
+{
+    OptixScenePtr scene = std::make_shared<OptixScene>();
+
+    OptixMeshPtr sphere1 = std::make_shared<OptixSphere>(30, 30);
+    sphere1->name = "Sphere Mesh 1";
+    sphere1->commit();
+
+    OptixMeshPtr sphere2 = std::make_shared<OptixSphere>(30, 30);
+    {
+        Transform T = Transform::Identity();
+        T.t.x = -1.0;
+        sphere2->setTransform(T);
+        sphere2->apply();
+    }
+    sphere2->commit();
+
+    // add as reference
+    scene->add(sphere1);
+    scene->add(sphere2);
+
+    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+
+    ////////////////////////////////////
+    // 1. add single mesh sphere (doesnt work in optix. needs an instance)
+    // scene->add(geom1);
+
+    ////////////////////////////////////
+    // 2. add sphere as instance
+    // {
+    //     OptixInstPtr inst = std::make_shared<OptixInst>();
+    //     inst->setGeometry(sphere1);
+
+    //     Transform T = Transform::Identity();
+    //     T.t.y = 0.0;
+    //     inst->setTransform(T);
+    //     inst->name = "Instance 1 Sphere 1";
+    //     inst->apply();
+    //     insts->add(inst);
+    // }
+
+    ////////////////////////////////////
+    // 3. add two sphere as one instance
+    {
+        OptixInstPtr inst = std::make_shared<OptixInst>();
+        {
+            OptixInstancesPtr insts_nested = std::make_shared<OptixInstances>();
+            {
+                OptixInstPtr inst2 = std::make_shared<OptixInst>();
+                inst2->setGeometry(sphere2);
+                inst2->apply();
+                insts_nested->add(inst2);
+                
+                OptixInstPtr inst1 = std::make_shared<OptixInst>();
+                inst1->setGeometry(sphere1);
+                inst1->apply();
+                insts_nested->add(inst1);
+
+                
+            }
+            insts_nested->apply();
+            insts_nested->commit();
+
+            inst->setGeometry(insts_nested);
+        }
+        Transform T = Transform::Identity();
+        T.t.y = 4.0;
+        inst->setTransform(T);
+        inst->apply();
+
+        inst->name = "Instance 2, Mesh 1 and 2";
+        insts->add(inst);
+    }
+
+    insts->apply();
+    insts->commit();
+
+    scene->setRoot(insts);
+    scene->commit();
+
+
+    // hit 2. mesh instanciated
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    // hit 3. two meshes as one instance
+
+    std::cout << "-----------------" << std::endl;
+
+    printRaycast(scene, {-5.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {0.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
+
+
+    
+
+
+
+
+    
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Optix Scene Building" << std::endl;
@@ -423,6 +529,7 @@ int main(int argc, char** argv)
         case 3: scene_3(); break;
         case 4: scene_4(); break;
         case 5: scene_5(); break;
+        case 6: scene_6(); break;
         default: break;
     }
 

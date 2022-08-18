@@ -44,33 +44,33 @@ void cubeTest()
     exporter.Export(&scene, "ply", "cube.ply");
 }
 
-void simulationTest()
-{
-    aiScene scene = genSphere(50, 50);
+// void simulationTest()
+// {
+//     aiScene scene = genSphere(50, 50);
 
-    // Do Simulation on synthetic data
+//     // Do Simulation on synthetic data
 
-    EmbreeMapPtr map(new EmbreeMap(&scene));
-    SphereSimulatorEmbree sim(map);
+//     EmbreeMapPtr map(new EmbreeMap(&scene));
+//     SphereSimulatorEmbree sim(map);
 
-    sim.setModel(exampleModel());
+//     sim.setModel(exampleModel());
 
-    Transform Tsb;
-    Tsb.setIdentity();
+//     Transform Tsb;
+//     Tsb.setIdentity();
 
-    sim.setTsb(Tsb);
+//     sim.setTsb(Tsb);
 
 
-    Memory<Transform, RAM> Tbm(10);
+//     Memory<Transform, RAM> Tbm(10);
 
-    for(size_t i=0; i<Tbm.size(); i++)
-    {
-        Tbm[i].setIdentity();
-    }
+//     for(size_t i=0; i<Tbm.size(); i++)
+//     {
+//         Tbm[i].setIdentity();
+//     }
 
-    auto ranges = sim.simulateRanges(Tbm);
-    std::cout << "Simulated " << ranges.size() << " ranges." << std::endl;
-}
+//     auto ranges = sim.simulateRanges(Tbm);
+//     std::cout << "Simulated " << ranges.size() << " ranges." << std::endl;
+// }
 
 int main(int argc, char** argv)
 {
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
     sphereTest();
     cubeTest();
-    simulationTest();
+    // simulationTest();
 
 
     return 0;

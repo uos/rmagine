@@ -134,6 +134,7 @@ using IntAttrAny = Bundle<
     Points<MemT>,
     Normals<MemT>,
     FaceIds<MemT>,
+    GeomIds<MemT>,
     ObjectIds<MemT>
 >;
 
@@ -176,6 +177,11 @@ void resizeMemoryBundle(BundleT& res,
     if constexpr(BundleT::template has<FaceIds<MemT> >())
     {
         res.FaceIds<MemT>::face_ids.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<GeomIds<MemT> >())
+    {
+        res.GeomIds<MemT>::geom_ids.resize(W*H*N);
     }
 
     if constexpr(BundleT::template has<ObjectIds<MemT> >())

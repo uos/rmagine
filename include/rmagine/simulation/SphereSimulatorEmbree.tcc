@@ -15,6 +15,7 @@ void SphereSimulatorEmbree::simulate(
     bool sim_points = false;
     bool sim_normals = false;
     bool sim_object_ids = false;
+    bool sim_geom_ids = false;
     bool sim_face_ids = false;
 
     if constexpr(BundleT::template has<Hits<RAM> >())
@@ -46,6 +47,14 @@ void SphereSimulatorEmbree::simulate(
         if(ret.ObjectIds<RAM>::object_ids.size() > 0)
         {
             sim_object_ids = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<GeomIds<RAM> >())
+    {
+        if(ret.GeomIds<RAM>::geom_ids.size() > 0)
+        {
+            sim_geom_ids = true;
         }
     }
 
@@ -153,6 +162,14 @@ void SphereSimulatorEmbree::simulate(
                         }
                     }
 
+                    if constexpr(BundleT::template has<GeomIds<RAM> >())
+                    {
+                        if(sim_geom_ids)
+                        {
+                            ret.GeomIds<RAM>::geom_ids[glob_id] = rayhit.hit.geomID;
+                        }
+                    }
+
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
                         if(sim_object_ids)
@@ -165,6 +182,7 @@ void SphereSimulatorEmbree::simulate(
                             }
                         }
                     }
+                    
                 } else {
                     if constexpr(BundleT::template has<Hits<RAM> >())
                     {
@@ -207,6 +225,14 @@ void SphereSimulatorEmbree::simulate(
                         if(sim_face_ids)
                         {
                             ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        }
+                    }
+
+                    if constexpr(BundleT::template has<GeomIds<RAM> >())
+                    {
+                        if(sim_geom_ids)
+                        {
+                            ret.GeomIds<RAM>::geom_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                         }
                     }
 

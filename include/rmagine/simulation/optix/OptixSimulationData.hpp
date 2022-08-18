@@ -64,6 +64,7 @@ struct OptixSimulationDataGeneric {
     bool                        computePoints;
     bool                        computeNormals;
     bool                        computeFaceIds;
+    bool                        computeGeomIds;
     bool                        computeObjectIds;
     // Result
     uint8_t*                    hits;
@@ -71,6 +72,7 @@ struct OptixSimulationDataGeneric {
     Point*                      points;
     Vector*                     normals;
     unsigned int*               face_ids;
+    unsigned int*               geom_ids;
     unsigned int*               object_ids;
 };
 

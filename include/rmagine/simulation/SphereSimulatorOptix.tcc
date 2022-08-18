@@ -56,6 +56,14 @@ void setGenericData(
         }
     }
 
+    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
+    {
+        if(res.GeomIds<VRAM_CUDA>::geom_ids.size() > 0)
+        {
+            mem.geom_ids = res.GeomIds<VRAM_CUDA>::geom_ids.raw();
+        }
+    }
+
     if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
     {
         if(res.ObjectIds<VRAM_CUDA>::object_ids.size() > 0)
@@ -74,6 +82,7 @@ void setGenericFlags(
     flags.computePoints = false;
     flags.computeNormals = false;
     flags.computeFaceIds = false;
+    flags.computeGeomIds = false;
     flags.computeObjectIds = false;
 
     if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
@@ -101,6 +110,11 @@ void setGenericFlags(
         flags.computeFaceIds = true;
     }
 
+    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
+    {
+        flags.computeGeomIds = true;
+    }
+
     if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
     {
         flags.computeObjectIds = true;
@@ -118,6 +132,7 @@ void setGenericFlags(
     flags.computePoints = false;
     flags.computeNormals = false;
     flags.computeFaceIds = false;
+    flags.computeGeomIds = false;
     flags.computeObjectIds = false;
 
     if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
@@ -157,6 +172,14 @@ void setGenericFlags(
         if(res.face_ids.size() > 0)
         {
             flags.computeFaceIds = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
+    {
+        if(res.geom_ids.size() > 0)
+        {
+            flags.computeGeomIds = true;
         }
     }
 
