@@ -88,6 +88,14 @@ public:
     EmbreeInstancePtr instantiate();
 
     /**
+     * @brief find all leaf geometries recursively
+     * 
+     * @param scene 
+     * @return std::unordered_set<EmbreeMeshPtr> 
+     */
+    std::unordered_set<EmbreeGeometryPtr> findLeafs() const;
+
+    /**
      * @brief check if scene was committed at least one time.
      * important for functions as rtcUpdateGeometryBuffer:
      * "this function needs to be called only when doing buffer modifications after the first rtcCommitScene"

@@ -97,6 +97,25 @@ struct FaceIds {
     Memory<unsigned int, MemT> face_ids;
 };
 
+
+/**
+ * @brief GeomIds computed by the simulators
+ * 
+ * Embree:
+ * - each instance can have multiply geometries 
+ * -> id of those
+ * 
+ * OptiX:
+ * - each instance can have only one geometry
+ * -> id is zero anytime
+ * 
+ * @tparam MemT 
+ */
+template<typename MemT>
+struct GeomIds {
+    Memory<unsigned int, MemT> geom_ids;
+};
+
 /**
  * @brief ObjectIds computed by the simulators
  * 

@@ -21,6 +21,8 @@
 #include <rmagine/simulation/SphereSimulatorOptix.hpp>
 #include <rmagine/map/optix/optix_shapes.h>
 
+#include "mesh_changer.h"
+
 using namespace rmagine;
 namespace rm = rmagine;
 
@@ -348,6 +350,59 @@ void scene_4()
     printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
+void scene_5()
+{
+    StopWatch sw;
+    double el;
+
+    OptixScenePtr scene = std::make_shared<OptixScene>();
+
+    // large sphere
+    OptixMeshPtr geom = std::make_shared<OptixSphere>(100, 100);
+    geom->name = "Sphere";
+    geom->commit();
+    scene->add(geom);
+    std::cout << "Constructed sphere with " << geom->faces.size() << " faces" << std::endl;
+
+    scene->setRoot(geom);
+    scene->commit();
+    std::cout << "Scene depth: " << scene->depth() << std::endl;
+
+    auto sim = make_sim(scene);
+    // shoot ray from x=-5.0 along x axis on unit cube
+    // -> range should be 4.5
+    printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+
+    std::cout << "Changing scene geometry" << std::endl;
+    // move vertices 1m along x axis
+    // - this function calls a cuda kernel (zero copy)
+    sw();
+    moveVertices(geom->vertices, {1.0, 0.0, 0.0});
+    el = sw();
+    std::cout << "- move vertices: " << el * 1000.0 << "ms" << std::endl;
+
+    sw();
+    geom->computeFaceNormals();
+    geom->apply();
+    el = sw();
+    std::cout << "- postprocessing: " << el * 1000.0 << "ms" << std::endl;
+    
+    sw();
+    geom->commit();
+    el = sw();
+    std::cout << "- geometry commit: " << el * 1000.0 << "ms" << std::endl;
+    
+    sw();
+    scene->commit();
+    el = sw();
+
+    std::cout << "- scene commit: " << el * 1000.0 << "ms" << std::endl;
+
+    // shoot ray from x=-5.0 along x axis on unit cube
+    // -> range should be 5.5
+    printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Optix Scene Building" << std::endl;
@@ -367,6 +422,7 @@ int main(int argc, char** argv)
         case 2: scene_2(); break;
         case 3: scene_3(); break;
         case 4: scene_4(); break;
+        case 5: scene_5(); break;
         default: break;
     }
 

@@ -198,6 +198,28 @@ EmbreeInstancePtr EmbreeScene::instantiate()
     return geom_inst;
 }
 
+std::unordered_set<EmbreeGeometryPtr> EmbreeScene::findLeafs() const
+{
+    std::unordered_set<EmbreeGeometryPtr> ret;
+
+    for(auto elem : m_geometries)
+    {
+        EmbreeInstancePtr inst = std::dynamic_pointer_cast<EmbreeInstance>(elem.second);
+        if(inst)
+        {
+            // is instance
+            EmbreeScenePtr inst_scene = inst->scene();
+            std::unordered_set<EmbreeGeometryPtr> ret2 = inst_scene->findLeafs();
+            // integrate ret2 in ret
+            ret.insert(ret2.begin(), ret2.end());
+        } else {
+            ret.insert(elem.second);
+        }
+    }
+
+    return ret;
+}
+
 bool EmbreeScene::committedOnce() const
 {
     return m_committed_once;

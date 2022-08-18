@@ -167,13 +167,14 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
             std::cout << "- type: mesh" << std::endl;
             std::cout << "- name: " << geom->name << std::endl;
         }
+
+        std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
+        std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;
+        std::cout << "- faceID: " << rayhit.hit.primID << std::endl;
         
     }
 
-    if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
-    {
-        std::cout << "- instID: " << rayhit.hit.instID[0] << std::endl;
-    }
+    
 }
 
 void scene_5()
@@ -280,16 +281,15 @@ void scene_7()
     sphere->commit();
 
     // make sphere scene
-    EmbreeScenePtr sphere_scene = std::make_shared<EmbreeScene>();
-    sphere_scene->add(sphere);
+    
+    EmbreeScenePtr sphere_scene = sphere->makeScene();
     sphere_scene->commit();
 
     // make N sphere instances
     int Ninstances = 100;
     for(int i=0; i < Ninstances; i++)
     {
-        EmbreeInstancePtr sphere_inst = std::make_shared<EmbreeInstance>();
-        sphere_inst->set(sphere_scene);
+        EmbreeInstancePtr sphere_inst = sphere_scene->instantiate();
 
         float t = static_cast<float>(i - Ninstances / 2);
 
@@ -338,8 +338,8 @@ void scene_8()
     int Ninstances = 100;
     for(int i=0; i < Ninstances; i++)
     {
-        EmbreeInstancePtr sphere_inst = std::make_shared<EmbreeInstance>();
-        sphere_inst->set(sphere_scene);
+
+        EmbreeInstancePtr sphere_inst = sphere_scene->instantiate();
 
         float t = static_cast<float>(i - Ninstances / 2);
 
@@ -680,6 +680,129 @@ void scene_11()
     }
 }
 
+void scene_12()
+{
+    std::cout << "Create a scene" << std::endl;
+    EmbreeScenePtr scene = make_scene();
+    scene->commit();
+
+
+
+    std::cout << "scene graph: " << scene->geometries().size() << std::endl;
+    std::cout << "-- meshes: " << scene->count<EmbreeMesh>() << std::endl;
+    std::cout << "-- instances: " << scene->count<EmbreeInstance>() << std::endl;
+
+    std::unordered_set<EmbreeGeometryPtr> leaf_geometries = scene->findLeafs();
+
+    std::cout << "Total of leaf geometries: " << leaf_geometries.size() << std::endl; 
+}
+
+void scene_13()
+{
+    std::cout << "Create a scene" << std::endl;
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+    scene->setQuality(RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTC_SCENE_FLAG_DYNAMIC);
+
+    // add cube
+    EmbreeMeshPtr cube = std::make_shared<EmbreeCube>();
+    cube->name = "MyCube";
+    cube->commit();
+    scene->add(cube);
+    
+
+    scene->commit();
+
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // change cube vertices: shift 1 along x axis
+    for(size_t i=0; i<cube->vertices.size(); i++)
+    {
+        cube->vertices[i].x += 1.0;
+    }
+    // apply changes
+    cube->apply();
+    // commit geometry
+    cube->commit();
+
+    // commit scene
+    scene->commit();
+
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+}
+
+void scene_14()
+{
+    std::cout << "Create a scene" << std::endl;
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+    scene->setQuality(RTC_BUILD_QUALITY_LOW);
+    scene->setFlags(RTC_SCENE_FLAG_DYNAMIC);
+
+
+    // 0. define two geometries to spawn
+    EmbreeMeshPtr sphere1 = std::make_shared<EmbreeSphere>();
+    sphere1->commit();
+
+    EmbreeMeshPtr sphere2 = std::make_shared<EmbreeSphere>();
+    {
+        Transform T = Transform::Identity();
+        T.t.x = -1.0;
+        sphere2->setTransform(T);
+        sphere2->apply();
+        
+    }
+    sphere2->commit();
+
+
+
+    ////////////////////////////////////
+    // 1. add single mesh sphere
+    scene->add(sphere1);
+
+    ////////////////////////////////////
+    // 2. add sphere as instance
+    EmbreeInstancePtr sphere_inst = sphere1->instantiate();
+    {
+        Transform T = Transform::Identity();
+        T.t.y = 2.0;
+        sphere_inst->setTransform(T);
+        sphere_inst->apply();
+        sphere_inst->commit();
+    }
+    scene->add(sphere_inst);
+
+    ///////////////////////////////////
+    // 3. add two spheres as one instance
+    EmbreeScenePtr two_sphere_scene = std::make_shared<EmbreeScene>();
+    {
+        two_sphere_scene->add(sphere1);
+        two_sphere_scene->add(sphere2);
+    }
+    two_sphere_scene->commit();
+    
+    EmbreeInstancePtr two_sphere_inst = two_sphere_scene->instantiate();
+    {
+        Transform T = Transform::Identity();
+        T.t.y = 4.0;
+        two_sphere_inst->setTransform(T);
+        two_sphere_inst->apply();
+    }
+    two_sphere_inst->commit();
+
+    scene->add(two_sphere_inst);
+    scene->commit();
+
+    // hit 1. mesh only 
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // hit 2. mesh instanciated
+    printRaycast(scene, {-5.0, 2.0, 0.0}, {1.0, 0.0, 0.0});
+
+    // hit 3. two meshes as one instance
+    printRaycast(scene, {-5.0, 4.0, 0.0}, {1.0, 0.0, 0.0});
+
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Embree Scene Building" << std::endl;
@@ -706,6 +829,9 @@ int main(int argc, char** argv)
         case 9: scene_9(); break;
         case 10: scene_10(); break;
         case 11: scene_11(); break;
+        case 12: scene_12(); break;
+        case 13: scene_13(); break;
+        case 14: scene_14(); break;
         default: break;
     }
 

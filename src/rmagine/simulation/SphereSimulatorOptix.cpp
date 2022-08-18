@@ -51,7 +51,6 @@ SphereSimulatorOptix::~SphereSimulatorOptix()
 
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
 {
-    std::cout << "[SphereSimulatorOptix::setMap] done." << std::endl;
     m_map = map;
     // none generic version
     m_programs.resize(2);
@@ -63,7 +62,6 @@ void SphereSimulatorOptix::setMap(const OptixMapPtr map)
 
     // need to create stream after map was created: cuda device api context is required
     // CUDA_CHECK( cudaStreamCreate( &m_stream ) );
-    std::cout << "[SphereSimulatorOptix::setMap] done." << std::endl;
 }
 
 void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
