@@ -415,12 +415,9 @@ int main(int argc, char** argv)
     }
 
 
-
-    size_t ias1_n_elements = 1;
+    // [ 2][       ERROR]: "numBuildInputs" must be 1 for instance acceleration builds
+    // size_t ias1_n_elements = 1;
     OptixAccelerationStructure ias1;
-    
-    CUdeviceptr m_inst_buffer_1;
-
     {
         Memory<OptixInstance, RAM> inst_h(4);
         for(size_t i=0; i<inst_h.size(); i++)
@@ -472,8 +469,9 @@ int main(int argc, char** argv)
                 stream->handle()
                 ) );
 
-
         // BEGIN WITH BUILD INPUT
+
+    
         OptixBuildInput instance_input = {};
         instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
         instance_input.instanceArray.numInstances = inst_h.size();
@@ -492,6 +490,7 @@ int main(int argc, char** argv)
         ias_accel_options.buildFlags = build_flags;
         ias_accel_options.motionOptions.numKeys = 1;
         ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
 
         OptixAccelBufferSizes ias_buffer_sizes;
         OPTIX_CHECK( optixAccelComputeMemoryUsage( 
@@ -524,6 +523,138 @@ int main(int argc, char** argv)
             ias1.buffer,
             ias_buffer_sizes.outputSizeInBytes,
             &ias1.handle,
+            nullptr, 
+            0 
+        ));
+    }
+
+
+
+    
+    std::vector<CUdeviceptr> instances;
+
+    CUdeviceptr instance_ptrs;
+    {
+        size_t N = 4;
+        for(size_t i=0; i<N; i++)
+        {
+            OptixInstance m_data;
+
+            m_data.instanceId = i;
+            if(i % 2)
+            {
+                m_data.traversableHandle = gas1.handle;
+            } else {
+                m_data.traversableHandle = gas2.handle;
+            }
+            
+
+            Transform T = Transform::Identity();
+            T.t = {0.0, 0.0, static_cast<float>(i) * 2.0f};
+            Matrix4x4 M;
+            M.set(T);
+
+            m_data.transform[ 0] = M(0,0); // Rxx
+            m_data.transform[ 1] = M(0,1); // Rxy
+            m_data.transform[ 2] = M(0,2); // Rxz
+            m_data.transform[ 3] = M(0,3); // tx
+            m_data.transform[ 4] = M(1,0); // Ryx
+            m_data.transform[ 5] = M(1,1); // Ryy
+            m_data.transform[ 6] = M(1,2); // Ryz
+            m_data.transform[ 7] = M(1,3); // ty 
+            m_data.transform[ 8] = M(2,0); // Rzx
+            m_data.transform[ 9] = M(2,1); // Rzy
+            m_data.transform[10] = M(2,2); // Rzz
+            m_data.transform[11] = M(2,3); // tz
+
+            m_data.sbtOffset = 0;
+            m_data.visibilityMask = 255;
+            m_data.flags = OPTIX_INSTANCE_FLAG_NONE;
+
+            CUdeviceptr inst_ptr;
+            CUDA_CHECK( cudaMalloc( 
+                reinterpret_cast<void**>( &inst_ptr ), 
+                sizeof(OptixInstance) ) );
+
+            CUDA_CHECK( cudaMemcpyAsync(
+                reinterpret_cast<void*>( inst_ptr ),
+                &m_data,
+                sizeof(OptixInstance),
+                cudaMemcpyHostToDevice,
+                stream->handle()
+                ) );
+            instances.push_back(inst_ptr);
+        }
+
+        CUDA_CHECK( cudaMalloc( 
+                reinterpret_cast<void**>( &instance_ptrs ), 
+                sizeof(OptixInstance*) * N ) );
+
+        CUDA_CHECK( cudaMemcpyAsync(
+                reinterpret_cast<void*>( instance_ptrs ),
+                &instances[0],
+                sizeof(OptixInstance*) * N,
+                cudaMemcpyHostToDevice,
+                stream->handle()
+                ) );
+
+        
+    }
+
+    OptixAccelerationStructure ias2;
+    {
+        // BEGIN WITH BUILD INPUT
+        OptixBuildInput instance_input = {};
+        instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCE_POINTERS;
+        instance_input.instanceArray.numInstances = instances.size();
+        instance_input.instanceArray.instances = instance_ptrs;
+
+        OptixAccelBuildOptions ias_accel_options = {};
+        unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+        { // BUILD FLAGS
+            build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+            build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+            #if OPTIX_VERSION >= 73000
+            build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+            #endif
+        }
+
+        ias_accel_options.buildFlags = build_flags;
+        ias_accel_options.motionOptions.numKeys = 1;
+        ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+
+        OptixAccelBufferSizes ias_buffer_sizes;
+        OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+            ctx->ref(), 
+            &ias_accel_options,
+            &instance_input, 
+            1, 
+            &ias_buffer_sizes ) );
+
+        CUdeviceptr d_temp_buffer_ias;
+        CUDA_CHECK( cudaMalloc(
+            reinterpret_cast<void**>( &d_temp_buffer_ias ),
+            ias_buffer_sizes.tempSizeInBytes) );
+
+        CUDA_CHECK( cudaMalloc(
+            reinterpret_cast<void**>( &ias2.buffer ),
+            ias_buffer_sizes.outputSizeInBytes
+        ));
+
+        ias2.buffer_size = ias_buffer_sizes.outputSizeInBytes;
+
+        OPTIX_CHECK(optixAccelBuild( 
+            ctx->ref(), 
+            stream->handle(), 
+            &ias_accel_options, 
+            &instance_input, 
+            1, // num build inputs
+            d_temp_buffer_ias,
+            ias_buffer_sizes.tempSizeInBytes, 
+            ias2.buffer,
+            ias_buffer_sizes.outputSizeInBytes,
+            &ias2.handle,
             nullptr, 
             0 
         ));
@@ -794,6 +925,22 @@ int main(int argc, char** argv)
         {
             std::cout << "------ IAS1 - LAUNCH (" << i << "," << j << ") -> (3,3) -------" << std::endl;
             quickLaunch(stream, ias1, pipeline, sbt, {
+                -5.0, 
+                5.0f * static_cast<float>(j), 
+                2.0f * static_cast<float>(i)
+            });
+        }
+    }
+
+
+
+
+    for(size_t i=0; i<4; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            std::cout << "------ IAS2 - LAUNCH (" << i << "," << j << ") -> (3,3) -------" << std::endl;
+            quickLaunch(stream, ias2, pipeline, sbt, {
                 -5.0, 
                 5.0f * static_cast<float>(j), 
                 2.0f * static_cast<float>(i)
