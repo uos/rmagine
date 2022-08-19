@@ -170,7 +170,7 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
 
         auto geom = scene->get(objID);
 
-        std::cout << "- type: " << geom->type() << std::endl;
+        std::cout << "- type: " << type << std::endl;
         std::cout << "- name: " << geom->name << std::endl;
         std::cout << "- objID: " << objID << std::endl;
         std::cout << "- geomID: " << rayhit.hit.geomID << std::endl;

@@ -6,8 +6,8 @@
 
 #include "optix_definitions.h"
 
+#include "OptixGeometry.hpp"
 #include "OptixScene.hpp"
-#include "OptixTransformable.hpp"
 
 // #include <optix_types.h>
 
@@ -18,8 +18,7 @@ namespace rmagine
 {
 
 class OptixInst 
-: public OptixEntity
-, public OptixTransformable
+: public OptixGeometry
 {
 public:
     using Base = OptixGeometry;
@@ -28,22 +27,26 @@ public:
 
     virtual ~OptixInst();
 
-    void setGeometry(OptixGeometryPtr geom);
-    OptixGeometryPtr geometry() const;
+    void set(OptixScenePtr geom);
+    OptixScenePtr scene() const;
 
     virtual void apply();
+    // virtual void commit();
+    virtual unsigned int depth() const;
 
     void setId(unsigned int id);
-
     unsigned int id() const;
 
     void disable();
-
     void enable();
+
+    virtual OptixGeometryType type() const
+    {
+        return OptixGeometryType::INSTANCE;
+    }
 
     OptixInstance data() const;
     CUdeviceptr data_gpu() const;
-
 protected:
     
     OptixInstance m_data;
@@ -51,7 +54,7 @@ protected:
     CUdeviceptr m_data_gpu = 0;
     // CUdeviceptr m_data_gpu;
 
-    OptixGeometryPtr m_geom;
+    OptixScenePtr m_scene;
 };
 
 } // namespace rmagine

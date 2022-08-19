@@ -6,7 +6,7 @@
 #include <embree3/rtcore.h>
 
 #include "EmbreeDevice.hpp"
-#include "embree_types.h"
+#include "embree_definitions.h"
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.h>

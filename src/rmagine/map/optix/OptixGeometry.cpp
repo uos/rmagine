@@ -2,6 +2,7 @@
 #include <rmagine/math/linalg.h>
 
 #include "rmagine/map/optix/OptixAccelerationStructure.hpp"
+#include "rmagine/map/optix/OptixScene.hpp"
 
 namespace rmagine
 {
@@ -15,17 +16,9 @@ OptixGeometry::OptixGeometry(OptixContextPtr context)
 
 OptixGeometry::~OptixGeometry()
 {
-    if(m_as)
-    {
-        cudaFree( reinterpret_cast<void*>( m_as->buffer ) );
-    }
     // std::cout << "[OptixGeometry::~OptixGeometry()] destroyed." << std::endl;
 }
 
-OptixAccelerationStructurePtr OptixGeometry::acc()
-{
-    return m_as;
-}
 
 void OptixGeometry::cleanupParents()
 {
@@ -40,13 +33,13 @@ void OptixGeometry::cleanupParents()
     }
 }
 
-std::unordered_set<OptixInstPtr> OptixGeometry::parents() const
+std::unordered_set<OptixScenePtr> OptixGeometry::parents() const
 {
-    std::unordered_set<OptixInstPtr> ret;
+    std::unordered_set<OptixScenePtr> ret;
 
-    for(OptixInstWPtr elem : m_parents)
+    for(OptixSceneWPtr elem : m_parents)
     {
-        if(auto tmp = elem.lock())
+        if(OptixScenePtr tmp = elem.lock())
         {
             ret.insert(tmp);
         }
@@ -55,7 +48,7 @@ std::unordered_set<OptixInstPtr> OptixGeometry::parents() const
     return ret;
 }
 
-void OptixGeometry::addParent(OptixInstPtr parent)
+void OptixGeometry::addParent(OptixScenePtr parent)
 {
     m_parents.insert(parent);
 }

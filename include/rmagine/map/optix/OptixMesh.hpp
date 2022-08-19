@@ -28,7 +28,8 @@ namespace rmagine
 //  * - Cuda Buffers for vertices, faces, vertex_normals and face_normals
 //  * - TraversableHandle for raytracing
 //  */
-class OptixMesh : public OptixGeometry
+class OptixMesh 
+: public OptixGeometry
 {
 public:
     using Base = OptixGeometry;
@@ -40,10 +41,19 @@ public:
     virtual ~OptixMesh();
 
     virtual void apply();
-    virtual void commit();
+    // virtual void commit();
+
     virtual unsigned int depth() const;
 
+    virtual OptixGeometryType type() const 
+    {
+        return OptixGeometryType::MESH;
+    }
+
     void computeFaceNormals();
+
+    const CUdeviceptr* getVertexBuffer() const;
+    CUdeviceptr getFaceBuffer();
 
     // TODO manage read and write access over functions
     // before transform: write here
@@ -51,11 +61,15 @@ public:
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   face_normals;
     Memory<Vector, VRAM_CUDA>   vertex_normals;
+    
 
     // after transform: read here
     Memory<Point, VRAM_CUDA>    vertices_;
     Memory<Vector, VRAM_CUDA>   face_normals_;
     Memory<Vector, VRAM_CUDA>   vertex_normals_;
+
+private:
+    CUdeviceptr m_vertices_ref;
 };
 
 using OptixMeshPtr = std::shared_ptr<OptixMesh>;

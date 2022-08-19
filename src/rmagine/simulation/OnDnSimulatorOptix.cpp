@@ -118,7 +118,7 @@ void OnDnSimulatorOptix::simulateRanges(
     mem->Tsb = m_Tsb.raw();
     mem->model = model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    mem->handle = m_map->scene()->as()->handle;
     mem->ranges = ranges.raw();
 
     Memory<OptixSimulationDataRangesOnDn, VRAM_CUDA> d_mem(1);
@@ -163,7 +163,7 @@ void OnDnSimulatorOptix::simulateNormals(
     mem->Tsb = m_Tsb.raw();
     mem->model = model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    mem->handle = m_map->scene()->as()->handle;
     mem->normals = normals.raw();
 
     Memory<OptixSimulationDataNormalsOnDn, VRAM_CUDA> d_mem(1);

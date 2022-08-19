@@ -20,6 +20,9 @@
 
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
 
+
+#include <unordered_set>
+
 namespace rmagine
 {
 
@@ -28,15 +31,12 @@ class OptixScene
 {
 public:
     OptixScene(OptixContextPtr context = optix_default_context());
-    OptixScene(OptixGeometryPtr geom, OptixContextPtr context = optix_default_context());
 
     virtual ~OptixScene();
 
-    void setRoot(OptixGeometryPtr root);
-    OptixGeometryPtr getRoot() const;
-
     unsigned int add(OptixGeometryPtr geom);
     unsigned int get(OptixGeometryPtr geom) const;
+
     std::map<unsigned int, OptixGeometryPtr> geometries() const;
     std::unordered_map<OptixGeometryPtr, unsigned int> ids() const;
     
@@ -44,13 +44,44 @@ public:
     unsigned int depth() const;
 
     Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
+
+    inline OptixAccelerationStructurePtr as() const
+    {
+        return m_as;
+    }
+
+    inline OptixSceneType type() const 
+    {
+        return m_type;
+    }
+
+    inline OptixGeometryType geom_type() const
+    {
+        return m_geom_type;
+    }
+
+    // geometry can be instanced
+    void cleanupParents();
+    std::unordered_set<OptixInstPtr> parents() const;
+    void addParent(OptixInstPtr parent);
+
 private:
-    OptixGeometryPtr m_root;
-    
+
+    void buildGAS();
+
+    void buildIAS();
+
+    OptixAccelerationStructurePtr m_as;
+
+    OptixSceneType m_type = OptixSceneType::NONE;
+    OptixGeometryType m_geom_type = OptixGeometryType::MESH;
+
     IDGen gen;
 
     std::map<unsigned int, OptixGeometryPtr> m_geometries;
     std::unordered_map<OptixGeometryPtr, unsigned int> m_ids;
+
+    std::unordered_set<OptixInstWPtr> m_parents;
 };
 
 OptixScenePtr make_optix_scene(const aiScene* ascene, OptixContextPtr context = optix_default_context());

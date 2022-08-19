@@ -17,6 +17,7 @@ public:
     OptixTraversableHandle      handle;
     CUdeviceptr                 buffer = 0;
     size_t                      buffer_size = 0;
+    size_t                      n_elements = 0;
 
     
 };

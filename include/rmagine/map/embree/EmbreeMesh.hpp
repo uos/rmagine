@@ -1,7 +1,7 @@
 #ifndef RMAGINE_MAP_EMBREE_MESH_HPP
 #define RMAGINE_MAP_EMBREE_MESH_HPP
 
-#include "embree_types.h"
+#include "embree_definitions.h"
 
 #include <rmagine/types/Memory.hpp>
 #include <assimp/mesh.h>

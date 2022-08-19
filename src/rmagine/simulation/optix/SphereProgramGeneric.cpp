@@ -90,8 +90,7 @@ SphereProgramGeneric::SphereProgramGeneric(
 
 
     OptixScenePtr scene = map->scene();
-    OptixGeometryPtr geom = scene->getRoot();
-    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
+    OptixSceneType scene_type = scene->type();
     unsigned int scene_depth = scene->depth();
 
     if(scene_depth < 1)
@@ -155,7 +154,7 @@ SphereProgramGeneric::SphereProgramGeneric(
         
 
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                    geom->context()->ref(),
+                    scene->context()->ref(),
                     &raygen_prog_group_desc,
                     1,   // num program groups
                     &program_group_options,
@@ -231,7 +230,7 @@ SphereProgramGeneric::SphereProgramGeneric(
 #endif
     sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
-                geom->context()->ref(),
+                scene->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
                 program_groups,

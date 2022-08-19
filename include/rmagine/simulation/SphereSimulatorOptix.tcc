@@ -253,7 +253,7 @@ void SphereSimulatorOptix::simulate(
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
 
-    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    mem->handle = m_map->scene()->as()->handle;
     
     // set generic data
     setGenericData(res, mem[0]);

@@ -1,7 +1,7 @@
 #ifndef RMAGINE_MAP_EMBREE_INSTANCE_HPP
 #define RMAGINE_MAP_EMBREE_INSTANCE_HPP
 
-#include "embree_types.h"
+#include "embree_definitions.h"
 
 #include <rmagine/math/types.h>
 #include <rmagine/types/mesh_types.h>

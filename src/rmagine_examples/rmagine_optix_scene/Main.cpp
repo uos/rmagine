@@ -132,179 +132,179 @@ OptixMeshPtr custom_mesh()
 
 void scene_1()
 {
-    std::cout << "Make Optix Mesh" << std::endl;
+    // std::cout << "Make Optix Mesh" << std::endl;
 
-    OptixScenePtr scene = std::make_shared<OptixScene>(); 
+    // OptixScenePtr scene = std::make_shared<OptixScene>(); 
 
-    OptixGeometryPtr geom1 = custom_mesh();
-    geom1->commit();
-    OptixGeometryPtr geom2 = std::make_shared<OptixSphere>(50, 50);
-    geom2->commit();
+    // OptixGeometryPtr geom1 = custom_mesh();
+    // geom1->commit();
+    // OptixGeometryPtr geom2 = std::make_shared<OptixSphere>(50, 50);
+    // geom2->commit();
 
-    scene->add(geom1);
-    scene->add(geom2);
+    // scene->add(geom1);
+    // scene->add(geom2);
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
-    {   // two custom instances (5, 0, 0) and (5, 5, 0)
-        OptixInstPtr geom_inst_1 = std::make_shared<OptixInst>();
-        geom_inst_1->setGeometry(geom1);
+    // {   // two custom instances (5, 0, 0) and (5, 5, 0)
+    //     OptixInstPtr geom_inst_1 = std::make_shared<OptixInst>();
+    //     geom_inst_1->setGeometry(geom1);
 
-        Transform T = Transform::Identity();
-        T.t.x = 5.0;
-        geom_inst_1->setTransform(T);
-        geom_inst_1->apply();
-        insts->add(geom_inst_1);
-        std::cout << T << std::endl;
+    //     Transform T = Transform::Identity();
+    //     T.t.x = 5.0;
+    //     geom_inst_1->setTransform(T);
+    //     geom_inst_1->apply();
+    //     insts->add(geom_inst_1);
+    //     std::cout << T << std::endl;
 
-        OptixInstPtr geom_inst_2 = std::make_shared<OptixInst>();
-        geom_inst_2->setGeometry(geom1);
-        T.t.x = 10.0;
-        geom_inst_2->setTransform(T);
-        geom_inst_2->apply();
-        insts->add(geom_inst_2);
-    }
+    //     OptixInstPtr geom_inst_2 = std::make_shared<OptixInst>();
+    //     geom_inst_2->setGeometry(geom1);
+    //     T.t.x = 10.0;
+    //     geom_inst_2->setTransform(T);
+    //     geom_inst_2->apply();
+    //     insts->add(geom_inst_2);
+    // }
 
-    { // 10 sphere instances at z = 10 from x=0 to x=10
-        for(size_t i=0; i<10; i++)
-        {
-            OptixInstPtr geom_inst = std::make_shared<OptixInst>();
+    // { // 10 sphere instances at z = 10 from x=0 to x=10
+    //     for(size_t i=0; i<10; i++)
+    //     {
+    //         OptixInstPtr geom_inst = std::make_shared<OptixInst>();
 
-            geom_inst->setGeometry(geom2);
+    //         geom_inst->setGeometry(geom2);
 
-            Transform T = Transform::Identity();
-            T.t.z = 10.0;
-            T.t.x = static_cast<float>(i);
-            geom_inst->setTransform(T);
-            geom_inst->apply();
+    //         Transform T = Transform::Identity();
+    //         T.t.z = 10.0;
+    //         T.t.x = static_cast<float>(i);
+    //         geom_inst->setTransform(T);
+    //         geom_inst->apply();
 
-            unsigned int id = insts->add(geom_inst);
-            std::cout << "Created Sphere instance " << id << std::endl;
-        }
-    }
+    //         unsigned int id = insts->add(geom_inst);
+    //         std::cout << "Created Sphere instance " << id << std::endl;
+    //     }
+    // }
 
-    std::cout << "Commit Instances" << std::endl;
-    insts->commit();
+    // std::cout << "Commit Instances" << std::endl;
+    // insts->commit();
 
-    scene->setRoot(insts);
-    scene->commit();
-    std::cout << "Scene committed" << std::endl;
+    // scene->setRoot(insts);
+    // scene->commit();
+    // std::cout << "Scene committed" << std::endl;
 
-    printRaycast(scene, {0.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
-    printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
 }
 
 void scene_2()
 {
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    // OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    OptixGeometryPtr geom = std::make_shared<OptixCube>();
-    geom->name = "Cube";
-    geom->commit();
-    scene->add(geom);
+    // OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    // geom->name = "Cube";
+    // geom->commit();
+    // scene->add(geom);
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
-    for(size_t i=0; i<10; i++)
-    {
-        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
-        inst_geom->setGeometry(geom);
-        inst_geom->name = "Instance " + i;
-        Transform T = Transform::Identity();
-        T.t.y = static_cast<float>(i);
-        T.t.x = 10.0;
-        inst_geom->setTransform(T);
-        inst_geom->apply();
-        insts->add(inst_geom);
-    }
-    insts->commit();
+    // for(size_t i=0; i<10; i++)
+    // {
+    //     OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    //     inst_geom->setGeometry(geom);
+    //     inst_geom->name = "Instance " + i;
+    //     Transform T = Transform::Identity();
+    //     T.t.y = static_cast<float>(i);
+    //     T.t.x = 10.0;
+    //     inst_geom->setTransform(T);
+    //     inst_geom->apply();
+    //     insts->add(inst_geom);
+    // }
+    // insts->commit();
 
-    scene->setRoot(insts);
+    // scene->setRoot(insts);
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    std::cout << "UPDATE SCENE" << std::endl;
+    // std::cout << "UPDATE SCENE" << std::endl;
 
-    {
-        // move instance 5 behind instance 0
-        OptixInstPtr inst = insts->get(5);
-        Transform T = inst->transform();
-        T.t.y = 0.0;
-        T.t.x = 15.0;
-        inst->setTransform(T);
-        inst->apply();
+    // {
+    //     // move instance 5 behind instance 0
+    //     OptixInstPtr inst = insts->get(5);
+    //     Transform T = inst->transform();
+    //     T.t.y = 0.0;
+    //     T.t.x = 15.0;
+    //     inst->setTransform(T);
+    //     inst->apply();
 
-        // disable istance 0
-        insts->get(0)->disable();
-    }
+    //     // disable istance 0
+    //     insts->get(0)->disable();
+    // }
 
-    insts->commit();
+    // insts->commit();
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
 void scene_3()
 {
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    // OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    OptixGeometryPtr geom = std::make_shared<OptixCube>();
-    geom->name = "Cube";
-    geom->commit();
-    scene->add(geom);
+    // OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    // geom->name = "Cube";
+    // geom->commit();
+    // scene->add(geom);
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
-    for(size_t i=0; i<10; i++)
-    {
-        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
-        inst_geom->setGeometry(geom);
-        inst_geom->name = "Instance " + i;
-        Transform T = Transform::Identity();
-        T.t.y = static_cast<float>(i);
-        T.t.x = 10.0;
-        inst_geom->setTransform(T);
-        inst_geom->apply();
-        insts->add(inst_geom);
-    }
-    insts->commit();
+    // for(size_t i=0; i<10; i++)
+    // {
+    //     OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    //     inst_geom->setGeometry(geom);
+    //     inst_geom->name = "Instance " + i;
+    //     Transform T = Transform::Identity();
+    //     T.t.y = static_cast<float>(i);
+    //     T.t.x = 10.0;
+    //     inst_geom->setTransform(T);
+    //     inst_geom->apply();
+    //     insts->add(inst_geom);
+    // }
+    // insts->commit();
 
-    scene->setRoot(insts);
-    scene->commit();
+    // scene->setRoot(insts);
+    // scene->commit();
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    // add in front of 0
-    OptixInstPtr inst_geom = std::make_shared<OptixInst>();
-    {
-        inst_geom->setGeometry(geom);
-        Transform T = Transform::Identity();
-        T.t.x = 5.0;
-        inst_geom->setTransform(T);
-        inst_geom->apply();
-    }
-    unsigned int inst_id;
-    inst_id = insts->add(inst_geom);
-    insts->commit();
-    scene->commit();
-    std::cout << "Added Instance with id " << inst_id << std::endl;
+    // // add in front of 0
+    // OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    // {
+    //     inst_geom->setGeometry(geom);
+    //     Transform T = Transform::Identity();
+    //     T.t.x = 5.0;
+    //     inst_geom->setTransform(T);
+    //     inst_geom->apply();
+    // }
+    // unsigned int inst_id;
+    // inst_id = insts->add(inst_geom);
+    // insts->commit();
+    // scene->commit();
+    // std::cout << "Added Instance with id " << inst_id << std::endl;
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    // remove
-    insts->remove(inst_geom);
-    insts->commit();
-    scene->commit();
-    std::cout << "Removed Instance with id " << inst_id << std::endl;
+    // // remove
+    // insts->remove(inst_geom);
+    // insts->commit();
+    // scene->commit();
+    // std::cout << "Removed Instance with id " << inst_id << std::endl;
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
     
-    inst_id = insts->add(inst_geom);
-    insts->commit();
-    scene->commit();
-    std::cout << "Added Instance with id " << inst_id << std::endl;
+    // inst_id = insts->add(inst_geom);
+    // insts->commit();
+    // scene->commit();
+    // std::cout << "Added Instance with id " << inst_id << std::endl;
 
-    printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
 }
 
@@ -312,125 +312,125 @@ void scene_4()
 {
     // sensor update problem
 
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    // OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    OptixGeometryPtr geom = std::make_shared<OptixCube>();
-    geom->name = "Cube";
-    geom->commit();
-    scene->add(geom);
+    // OptixGeometryPtr geom = std::make_shared<OptixCube>();
+    // geom->name = "Cube";
+    // geom->commit();
+    // scene->add(geom);
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
-    for(size_t i=0; i<2; i++)
-    {
-        OptixInstPtr inst_geom = std::make_shared<OptixInst>();
-        inst_geom->setGeometry(geom);
-        inst_geom->name = "Instance " + i;
-        Transform T = Transform::Identity();
-        T.t.x = static_cast<float>(i) * 5.0 + 5.0;
-        inst_geom->setTransform(T);
-        inst_geom->apply();
-        insts->add(inst_geom);
-    }
-    insts->commit();
+    // for(size_t i=0; i<2; i++)
+    // {
+    //     OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    //     inst_geom->setGeometry(geom);
+    //     inst_geom->name = "Instance " + i;
+    //     Transform T = Transform::Identity();
+    //     T.t.x = static_cast<float>(i) * 5.0 + 5.0;
+    //     inst_geom->setTransform(T);
+    //     inst_geom->apply();
+    //     insts->add(inst_geom);
+    // }
+    // insts->commit();
 
-    scene->setRoot(insts);
-    scene->commit();
+    // scene->setRoot(insts);
+    // scene->commit();
 
-    auto sim = make_sim(scene);
-    printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // auto sim = make_sim(scene);
+    // printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    OptixInstPtr inst_geom = std::make_shared<OptixInst>();
-    {
-        inst_geom->setGeometry(geom);
-        inst_geom->name = "Instance NEW";
-        Transform T = Transform::Identity();
-        T.t.x = 1.0;
-        inst_geom->setTransform(T);
-        inst_geom->apply();
-        insts->add(inst_geom);
-    }
-    insts->commit();
-    scene->commit();
+    // OptixInstPtr inst_geom = std::make_shared<OptixInst>();
+    // {
+    //     inst_geom->setGeometry(geom);
+    //     inst_geom->name = "Instance NEW";
+    //     Transform T = Transform::Identity();
+    //     T.t.x = 1.0;
+    //     inst_geom->setTransform(T);
+    //     inst_geom->apply();
+    //     insts->add(inst_geom);
+    // }
+    // insts->commit();
+    // scene->commit();
 
-    printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(sim, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
 void scene_5()
 {
-    StopWatch sw;
-    double el;
+    // StopWatch sw;
+    // double el;
 
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    // OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    // large sphere
-    OptixMeshPtr geom = std::make_shared<OptixSphere>(100, 100);
-    geom->name = "Sphere";
-    geom->commit();
-    scene->add(geom);
-    std::cout << "Constructed sphere with " << geom->faces.size() << " faces" << std::endl;
+    // // large sphere
+    // OptixMeshPtr geom = std::make_shared<OptixSphere>(100, 100);
+    // geom->name = "Sphere";
+    // geom->commit();
+    // scene->add(geom);
+    // std::cout << "Constructed sphere with " << geom->faces.size() << " faces" << std::endl;
 
-    scene->setRoot(geom);
-    scene->commit();
-    std::cout << "Scene depth: " << scene->depth() << std::endl;
+    // scene->setRoot(geom);
+    // scene->commit();
+    // std::cout << "Scene depth: " << scene->depth() << std::endl;
 
-    auto sim = make_sim(scene);
-    // shoot ray from x=-5.0 along x axis on unit cube
-    // -> range should be 4.5
-    printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // auto sim = make_sim(scene);
+    // // shoot ray from x=-5.0 along x axis on unit cube
+    // // -> range should be 4.5
+    // printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    std::cout << "Changing scene geometry" << std::endl;
-    // move vertices 1m along x axis
-    // - this function calls a cuda kernel (zero copy)
-    sw();
-    moveVertices(geom->vertices, {1.0, 0.0, 0.0});
-    el = sw();
-    std::cout << "- move vertices: " << el * 1000.0 << "ms" << std::endl;
+    // std::cout << "Changing scene geometry" << std::endl;
+    // // move vertices 1m along x axis
+    // // - this function calls a cuda kernel (zero copy)
+    // sw();
+    // moveVertices(geom->vertices, {1.0, 0.0, 0.0});
+    // el = sw();
+    // std::cout << "- move vertices: " << el * 1000.0 << "ms" << std::endl;
 
-    sw();
-    geom->computeFaceNormals();
-    geom->apply();
-    el = sw();
-    std::cout << "- postprocessing: " << el * 1000.0 << "ms" << std::endl;
+    // sw();
+    // geom->computeFaceNormals();
+    // geom->apply();
+    // el = sw();
+    // std::cout << "- postprocessing: " << el * 1000.0 << "ms" << std::endl;
     
-    sw();
-    geom->commit();
-    el = sw();
-    std::cout << "- geometry commit: " << el * 1000.0 << "ms" << std::endl;
+    // sw();
+    // geom->commit();
+    // el = sw();
+    // std::cout << "- geometry commit: " << el * 1000.0 << "ms" << std::endl;
     
-    sw();
-    scene->commit();
-    el = sw();
+    // sw();
+    // scene->commit();
+    // el = sw();
 
-    std::cout << "- scene commit: " << el * 1000.0 << "ms" << std::endl;
+    // std::cout << "- scene commit: " << el * 1000.0 << "ms" << std::endl;
 
-    // shoot ray from x=-5.0 along x axis on unit cube
-    // -> range should be 5.5
-    printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // // shoot ray from x=-5.0 along x axis on unit cube
+    // // -> range should be 5.5
+    // printRaycast(sim, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
 void scene_6()
 {
-    OptixScenePtr scene = std::make_shared<OptixScene>();
+    // OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    OptixMeshPtr sphere1 = std::make_shared<OptixSphere>(30, 30);
-    sphere1->name = "Sphere Mesh 1";
-    sphere1->commit();
+    // OptixMeshPtr sphere1 = std::make_shared<OptixSphere>(30, 30);
+    // sphere1->name = "Sphere Mesh 1";
+    // sphere1->commit();
 
-    OptixMeshPtr sphere2 = std::make_shared<OptixSphere>(30, 30);
-    {
-        Transform T = Transform::Identity();
-        T.t.x = -1.0;
-        sphere2->setTransform(T);
-        sphere2->apply();
-    }
-    sphere2->commit();
+    // OptixMeshPtr sphere2 = std::make_shared<OptixSphere>(30, 30);
+    // {
+    //     Transform T = Transform::Identity();
+    //     T.t.x = -1.0;
+    //     sphere2->setTransform(T);
+    //     sphere2->apply();
+    // }
+    // sphere2->commit();
 
-    // add as reference
-    scene->add(sphere1);
-    scene->add(sphere2);
+    // // add as reference
+    // scene->add(sphere1);
+    // scene->add(sphere2);
 
-    OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
 
     ////////////////////////////////////
     // 1. add single mesh sphere (doesnt work in optix. needs an instance)
@@ -452,53 +452,53 @@ void scene_6()
 
     ////////////////////////////////////
     // 3. add two sphere as one instance
-    {
-        OptixInstPtr inst = std::make_shared<OptixInst>();
-        {
-            OptixInstancesPtr insts_nested = std::make_shared<OptixInstances>();
-            {
-                OptixInstPtr inst2 = std::make_shared<OptixInst>();
-                inst2->setGeometry(sphere2);
-                inst2->apply();
-                insts_nested->add(inst2);
+    // {
+    //     OptixInstPtr inst = std::make_shared<OptixInst>();
+    //     {
+    //         OptixInstancesPtr insts_nested = std::make_shared<OptixInstances>();
+    //         {
+    //             OptixInstPtr inst2 = std::make_shared<OptixInst>();
+    //             inst2->setGeometry(sphere2);
+    //             inst2->apply();
+    //             insts_nested->add(inst2);
                 
-                OptixInstPtr inst1 = std::make_shared<OptixInst>();
-                inst1->setGeometry(sphere1);
-                inst1->apply();
-                insts_nested->add(inst1);
+    //             OptixInstPtr inst1 = std::make_shared<OptixInst>();
+    //             inst1->setGeometry(sphere1);
+    //             inst1->apply();
+    //             insts_nested->add(inst1);
 
                 
-            }
-            insts_nested->apply();
-            insts_nested->commit();
+    //         }
+    //         insts_nested->apply();
+    //         insts_nested->commit();
 
-            inst->setGeometry(insts_nested);
-        }
-        Transform T = Transform::Identity();
-        T.t.y = 4.0;
-        inst->setTransform(T);
-        inst->apply();
+    //         inst->setGeometry(insts_nested);
+    //     }
+    //     Transform T = Transform::Identity();
+    //     T.t.y = 4.0;
+    //     inst->setTransform(T);
+    //     inst->apply();
 
-        inst->name = "Instance 2, Mesh 1 and 2";
-        insts->add(inst);
-    }
+    //     inst->name = "Instance 2, Mesh 1 and 2";
+    //     insts->add(inst);
+    // }
 
-    insts->apply();
-    insts->commit();
+    // insts->apply();
+    // insts->commit();
 
-    scene->setRoot(insts);
-    scene->commit();
+    // scene->setRoot(insts);
+    // scene->commit();
 
 
-    // hit 2. mesh instanciated
-    printRaycast(scene, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    // // hit 2. mesh instanciated
+    // printRaycast(scene, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
 
-    // hit 3. two meshes as one instance
+    // // hit 3. two meshes as one instance
 
-    std::cout << "-----------------" << std::endl;
+    // std::cout << "-----------------" << std::endl;
 
-    printRaycast(scene, {-5.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
-    printRaycast(scene, {0.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {-5.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
+    // printRaycast(scene, {0.0, 4.0, 0.0}, {0.0, 0.0, 0.0});
 
 
     

@@ -12,7 +12,7 @@
 
 // Scan Programs
 #include <rmagine/simulation/optix/SphereProgramRanges.hpp>
-#include <rmagine/simulation/optix/SphereProgramNormals.hpp>
+// #include <rmagine/simulation/optix/SphereProgramNormals.hpp>
 #include <rmagine/simulation/optix/SphereProgramGeneric.hpp>
 
 #include <rmagine/util/cuda/CudaStream.hpp>
@@ -55,7 +55,7 @@ void SphereSimulatorOptix::setMap(const OptixMapPtr map)
     // none generic version
     m_programs.resize(2);
     m_programs[0] = std::make_shared<SphereProgramRanges>(map);
-    m_programs[1] = std::make_shared<SphereProgramNormals>(map);
+    // m_programs[1] = std::make_shared<SphereProgramNormals>(map);
 
     // m_stream = m_map->context()->getCudaContext()->createStream();
     m_stream = m_map->stream();
@@ -114,7 +114,7 @@ void SphereSimulatorOptix::simulateRanges(
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
     mem->ranges = ranges.raw();
-    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    mem->handle = m_map->scene()->as()->handle;
     
 
     Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem(1);
@@ -171,7 +171,7 @@ void SphereSimulatorOptix::simulateNormals(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->getRoot()->acc()->handle;
+    mem->handle = m_map->scene()->as()->handle;
     mem->normals = normals.raw();
 
     Memory<OptixSimulationDataNormalsSphere, VRAM_CUDA> d_mem(1);

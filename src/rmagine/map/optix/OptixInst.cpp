@@ -9,7 +9,7 @@ namespace rmagine
 {
 
 OptixInst::OptixInst(OptixContextPtr context)
-:OptixEntity(context)
+:Base(context)
 {
     m_data.sbtOffset = 0;
     m_data.visibilityMask = 255;
@@ -17,37 +17,28 @@ OptixInst::OptixInst(OptixContextPtr context)
     // m_data.flags = OPTIX_INSTANCE_FLAG_ENFORCE_ANYHIT;
 }
 
-// OptixInst::OptixInst(
-//     OptixGeometryPtr geom)
-// :OptixInst(geom->context())
-// {
-//     // coused weak ptr error in gazebo 'std::bad_weak_ptr'
-//     // maybe the template function this_shared<OptixInst>() does not work in constructors?
-//     setGeometry(geom);
-// }
-
 OptixInst::~OptixInst()
 {
     if(m_data_gpu)
     {
         cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
     }
-    if(m_geom)
+    if(m_scene)
     {
-        m_geom->cleanupParents();
+        m_scene->cleanupParents();
     }
 }
 
-void OptixInst::setGeometry(OptixGeometryPtr geom)
+void OptixInst::set(OptixScenePtr scene)
 {
-    m_geom = geom;
-    geom->addParent(this_shared<OptixInst>());
-    m_data.traversableHandle = geom->acc()->handle;
+    m_scene = scene;
+    scene->addParent(this_shared<OptixInst>());
+    m_data.traversableHandle = scene->as()->handle;
 }
 
-OptixGeometryPtr OptixInst::geometry() const
+OptixScenePtr OptixInst::scene() const
 {
-    return m_geom;
+    return m_scene;
 }
 
 void OptixInst::apply()
@@ -85,6 +76,16 @@ void OptixInst::apply()
     ));
 
     m_changed = true;
+}
+
+unsigned int OptixInst::depth() const 
+{
+    if(m_scene)
+    {
+        return m_scene->depth();
+    } else {
+        return 0;
+    }
 }
 
 void OptixInst::setId(unsigned int id)

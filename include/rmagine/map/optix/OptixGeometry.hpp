@@ -12,7 +12,6 @@
 #include "OptixEntity.hpp"
 #include "OptixTransformable.hpp"
 
-
 namespace rmagine
 {
 
@@ -25,22 +24,20 @@ public:
 
     virtual ~OptixGeometry();
 
-    OptixAccelerationStructurePtr acc();
+    // virtual void commit() = 0;
 
-    virtual void commit() = 0;
+    virtual OptixGeometryType type() const = 0;
 
     // if child -> 0, else max of child + 1
     virtual unsigned int depth() const = 0;
 
-    // geometry can be instanced
-    void cleanupParents();
-    std::unordered_set<OptixInstPtr> parents() const;
-    void addParent(OptixInstPtr parent);
+    // virtual void apply() = 0 in OptixTransformable
 
-    
+    void cleanupParents();
+    std::unordered_set<OptixScenePtr> parents() const;
+    void addParent(OptixScenePtr parent);
 protected:
-    std::unordered_set<OptixInstWPtr> m_parents;
-    OptixAccelerationStructurePtr m_as;
+    std::unordered_set<OptixSceneWPtr> m_parents;
 };
 
 } // namespace rmagine

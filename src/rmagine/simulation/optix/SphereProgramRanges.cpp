@@ -50,10 +50,12 @@ SphereProgramRanges::SphereProgramRanges(OptixMapPtr map)
     pipeline_compile_options.usesMotionBlur        = false;
 
     OptixScenePtr scene = map->scene();
-    OptixGeometryPtr geom = scene->getRoot();
-    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
 
-    if(insts)
+    OptixSceneType scene_type = scene->type();
+    unsigned int scene_depth = scene->depth();
+
+    
+    if(scene_type == OptixSceneType::INSTANCES)
     {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
@@ -138,11 +140,7 @@ SphereProgramRanges::SphereProgramRanges(OptixMapPtr map)
 
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
-    uint32_t    max_traversable_depth = 1;
-    if(insts)
-    {
-        max_traversable_depth = 2;
-    }
+    uint32_t    max_traversable_depth = scene_depth;
     const uint32_t    max_trace_depth  = 1;
     
     OptixProgramGroup program_groups[] = { 

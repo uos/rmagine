@@ -14,7 +14,7 @@
 namespace rmagine 
 {
 
-enum EmbreeGeometryType 
+enum class EmbreeGeometryType 
 {
     INSTANCE,
     MESH,

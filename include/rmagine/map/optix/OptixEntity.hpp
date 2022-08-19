@@ -2,6 +2,7 @@
 #define RMAGINE_MAP_OPTIX_ENTITY_HPP
 
 #include <rmagine/util/optix/OptixContext.hpp>
+#include <rmagine/util/cuda/CudaStream.hpp>
 
 namespace rmagine
 {

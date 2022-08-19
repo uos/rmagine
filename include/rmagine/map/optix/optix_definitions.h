@@ -7,6 +7,23 @@
 namespace rmagine
 {
 
+
+enum class OptixGeometryType
+{
+    NONE,
+    INSTANCE,
+    MESH,
+    POINTS
+};
+
+enum class OptixSceneType
+{
+    NONE,
+    INSTANCES,
+    GEOMETRIES
+};
+
+
 class OptixEntity;
 class OptixTransformable;
 class OptixAccelerationStructure;
@@ -54,6 +71,25 @@ template<>
 struct less<rmagine::OptixInstWPtr> 
     : public rmagine::weak_less<rmagine::OptixInst>
 {};
+
+
+
+// SCENE
+template<>
+struct hash<rmagine::OptixSceneWPtr> 
+    : public rmagine::weak_hash<rmagine::OptixScene>
+{};
+
+template<>
+struct equal_to<rmagine::OptixSceneWPtr> 
+    : public rmagine::weak_equal_to<rmagine::OptixScene>
+{};
+
+template<>
+struct less<rmagine::OptixSceneWPtr> 
+    : public rmagine::weak_less<rmagine::OptixScene>
+{};
+
 
 } // namespace std
 

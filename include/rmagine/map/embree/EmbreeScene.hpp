@@ -1,7 +1,7 @@
 #ifndef RMAGINE_MAP_EMBREE_SCENE_HPP
 #define RMAGINE_MAP_EMBREE_SCENE_HPP
 
-#include "embree_types.h"
+#include "embree_definitions.h"
 #include "EmbreeDevice.hpp"
 
 #include <embree3/rtcore.h>
