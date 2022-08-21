@@ -19,7 +19,6 @@ OptixGeometry::~OptixGeometry()
     // std::cout << "[OptixGeometry::~OptixGeometry()] destroyed." << std::endl;
 }
 
-
 void OptixGeometry::cleanupParents()
 {
     for(auto it = m_parents.cbegin(); it != m_parents.cend();)
@@ -31,6 +30,24 @@ void OptixGeometry::cleanupParents()
             ++it;
         }
     }
+}
+
+bool OptixGeometry::removeParent(OptixScenePtr parent)
+{
+    auto it = m_parents.find(parent);
+
+    if(it != m_parents.end())
+    {
+        m_parents.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+bool OptixGeometry::hasParent(OptixScenePtr parent) const
+{
+    return m_parents.find(parent) != m_parents.end();
 }
 
 std::unordered_set<OptixScenePtr> OptixGeometry::parents() const

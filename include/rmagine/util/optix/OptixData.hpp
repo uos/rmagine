@@ -39,6 +39,9 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/sensor_models.h>
 
+#include <rmagine/map/optix/optix_definitions.h>
+
+
 namespace rmagine 
 {
 
@@ -70,9 +73,13 @@ struct MeshAttributes
     Vector* face_normals;
 };
 
+
 struct InstanceAttributes
 {
-
+    // one instance can have multiple geometries
+    int* geom_ids;
+    // global mesh ids
+    int* mesh_ids;
 };
 
 struct HitGroupDataScene {
@@ -81,18 +88,45 @@ struct HitGroupDataScene {
     InstanceAttributes* instances_attributes = nullptr;
 
     // link from instance id to mesh id
-    int* inst_to_mesh = nullptr;
+    // int* inst_to_mesh = nullptr;
 
     // mesh attributes
     unsigned int n_meshes = 0;
     MeshAttributes* mesh_attributes = nullptr;
 };
 
-// struct HitGroupDataSceneRef {
-//     HitGroupDataScene* ref = nullptr;
-// };
 
-// struct 
+// FORWARD DECLARE
+union GeomData;
+struct SceneData;
+struct MeshData;
+struct InstanceData;
+
+
+struct MeshData 
+{
+    Vector* vertex_normals;
+    Vector* face_normals;  
+};
+
+struct InstanceData
+{
+    SceneData* scene = nullptr;
+};
+
+union GeomData
+{
+    MeshData mesh_data;
+    InstanceData inst_data;
+};
+
+struct SceneData
+{
+    OptixSceneType type;
+    unsigned int n_geometries = 0;
+    GeomData* geometries = nullptr;
+    unsigned int* sbtgas_to_geom = nullptr;
+};
 
 } // namespace rmagine
 

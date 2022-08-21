@@ -8,21 +8,29 @@
 #include <rmagine/util/optix/OptixSbtRecord.hpp>
 #include <rmagine/map/optix/optix_definitions.h>
 
+#include <memory>
+
 namespace rmagine {
 
 class SphereProgramGeneric : public OptixProgram
 {
     using RayGenData        = RayGenDataEmpty;
     using MissData          = MissDataEmpty;
-    using HitGroupData      = HitGroupDataScene;
+    using HitGroupData      = SceneData;
 
     using RayGenSbtRecord   = SbtRecord<RayGenData>;
     using MissSbtRecord     = SbtRecord<MissData>;
     using HitGroupSbtRecord = SbtRecord<HitGroupData>;
+
 public:
     SphereProgramGeneric(
         OptixMapPtr map,
         const OptixSimulationDataGenericSphere& flags);
+
+    SphereProgramGeneric(
+        OptixScenePtr scene,
+        const OptixSimulationDataGenericSphere& flags
+    );
 
     virtual ~SphereProgramGeneric();
 
@@ -34,10 +42,13 @@ private:
     // currently used scene
     OptixScenePtr       m_scene;
 
-    RayGenSbtRecord     rg_sbt;
-    MissSbtRecord       ms_sbt;
-    HitGroupSbtRecord   hg_sbt;
+
+    Memory<RayGenSbtRecord, RAM> rg_sbt;
+    Memory<MissSbtRecord, RAM> ms_sbt;
+    Memory<HitGroupSbtRecord, RAM> hg_sbt;
 };
+
+using SphereProgramGenericPtr = std::shared_ptr<SphereProgramGeneric>;
 
 } // namespace rmagine
 

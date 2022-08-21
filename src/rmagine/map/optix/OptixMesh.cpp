@@ -91,19 +91,8 @@ void OptixMesh::apply()
 
     m_vertices_ref = reinterpret_cast<CUdeviceptr>(vertices_.raw());
 
-
-
-    // if(face_normals.size() > 0)
-    // {
-    //     if(face_normals_.size() != face_normals.size())
-    //     {
-    //         face_normals_.resize(face_normals.size());
-    //     }
-
-    //     multNx1(M_, face_normals, face_normals_);
-
-    //     // normalize
-    // }
+    attributes.vertex_normals = vertex_normals.raw();
+    attributes.face_normals = face_normals.raw();
 }
 
 // void OptixMesh::commit()

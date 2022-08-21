@@ -18,6 +18,7 @@
 
 #include <rmagine/map/optix/OptixScene.hpp>
 #include <rmagine/map/optix/optix_shapes.h>
+#include <rmagine/util/prints.h>
 
 using namespace rmagine;
 
@@ -45,7 +46,6 @@ void quickLaunch(
     const OptixShaderBindingTable& sbt,
     Vector pos)
 {
-    
     Memory<Transform, RAM> Tsb(1);
     Tsb[0] = Transform::Identity();
     Memory<Transform, VRAM_CUDA> Tsb_ = Tsb;
@@ -65,6 +65,7 @@ void quickLaunch(
     Memory<Transform, VRAM_CUDA> Tbm_ = Tbm;
 
     Memory<float, VRAM_CUDA> ranges_(1);
+    
 
     Memory<OptixSimulationDataRangesSphere, RAM> mem(1);
     mem->Tsb = Tsb_.raw();
@@ -131,6 +132,7 @@ void quickLaunch(
     Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, scene->stream()->handle());
 
+    
     OPTIX_CHECK( optixLaunch(
                 pipeline,
                 scene->stream()->handle(),
@@ -141,6 +143,7 @@ void quickLaunch(
                 1, // height Ydim
                 1 // depth Zdim
                 ));
+    
 
     // download
     Memory<float, RAM> ranges = ranges_;
@@ -148,6 +151,276 @@ void quickLaunch(
     std::cout << "- range: " << ranges[0] << std::endl;
 }
 
+
+
+void quickLaunch(
+    OptixScenePtr scene,
+    SphereProgramGenericPtr program,
+    Memory<OptixSimulationDataGenericSphere, RAM>& mem,
+    Vector pos)
+{
+    program->updateSBT();
+
+    Memory<Transform, RAM> Tsb(1);
+    Tsb[0] = Transform::Identity();
+    Memory<Transform, VRAM_CUDA> Tsb_ = Tsb;
+
+    
+    Memory<SphericalModel, RAM> model(1);
+    model[0].phi.size = 1;
+    model[0].phi.min = 0.0;
+    model[0].theta.size = 1;
+    model[0].theta.min = 0.0;
+    model[0].range.min = 0.05;
+    model[0].range.max = 100.0;
+    Memory<SphericalModel, VRAM_CUDA> model_ = model;
+
+    Memory<Transform, RAM> Tbm(1);
+    Tbm[0] = Transform::Identity();
+    Tbm[0].t = pos;
+    Memory<Transform, VRAM_CUDA> Tbm_ = Tbm;
+
+    Memory<float, VRAM_CUDA> ranges_(1);
+    Memory<Vector3, VRAM_CUDA> normals_(1);
+    Memory<unsigned int, VRAM_CUDA> face_ids_(1);
+    Memory<unsigned int, VRAM_CUDA> geom_ids_(1);
+    Memory<unsigned int, VRAM_CUDA> obj_ids_(1);
+
+    
+    mem->Tsb = Tsb_.raw();
+    mem->model = model_.raw();
+    mem->Tbm = Tbm_.raw();
+    mem->ranges = ranges_.raw();
+
+    if(mem->computeGeomIds)
+    {
+        mem->geom_ids = geom_ids_.raw();
+    }
+
+    if(mem->computeObjectIds)
+    {
+        mem->object_ids = obj_ids_.raw();
+    }
+
+    // mem->normals = normals_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->face_ids = face_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->geom_ids = geom_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->object_ids = obj_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    if(!scene->as())
+    {
+        std::cout << "Scene has no AS" << std::endl;
+    }
+
+    mem->handle = scene->as()->handle;
+
+    Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem(1);
+    copy(mem, d_mem, scene->stream()->handle());
+
+    OptixShaderBindingTable sbt = program->sbt;
+    // std::cout << "LAUNCH!" << std::endl;
+    OPTIX_CHECK( optixLaunch(
+                program->pipeline,
+                scene->stream()->handle(),
+                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+                sizeof( OptixSimulationDataGenericSphere ),
+                &sbt,
+                1, // width Xdim
+                1, // height Ydim
+                1 // depth Zdim
+                ));
+
+    // std::cout << "Launch finished." << std::endl;
+
+    // CUDA_CHECK(cudaDeviceSynchronize());            
+
+    // download
+    if(mem->computeRanges)
+    {
+        Memory<float, RAM> ranges = ranges_;
+        std::cout << "- range: " << ranges[0] << std::endl;
+    }
+
+    if(mem->computeGeomIds)
+    {
+        Memory<unsigned int, RAM> geom_ids = geom_ids_;
+        std::cout << "- geom_id: " << geom_ids[0] << std::endl;
+    }
+
+    if(mem->computeObjectIds)
+    {
+        Memory<unsigned int, RAM> obj_ids = obj_ids_;
+        std::cout << "- object_id: " << obj_ids[0] << std::endl;
+    }
+    
+    // Memory<Vector, RAM> normals = normals_;
+    // Memory<unsigned int, RAM> face_ids = face_ids_;
+    // Memory<unsigned int, RAM> geom_ids = geom_ids_;
+    // Memory<unsigned int, RAM> obj_ids = obj_ids_;
+
+    
+    // std::cout << "- normal: " << normals[0] << std::endl;
+    // std::cout << "- face id: " << face_ids[0] << std::endl;
+    // std::cout << "- geom id: " << geom_ids[0] << std::endl;
+    // std::cout << "- object id: " << obj_ids[0] << std::endl;
+}
+
+
+void quickLaunch(
+    OptixScenePtr scene,
+    Vector pos)
+{
+    Memory<OptixSimulationDataGenericSphere, RAM> mem(1);
+    mem->computeHits = false;
+    mem->computeRanges = true;
+    mem->computePoints = false;
+    mem->computeNormals = false;
+    mem->computeFaceIds = false;
+    mem->computeGeomIds = false;
+    mem->computeObjectIds = false;
+
+    // std::cout << "MAKE PROGRAM!" << std::endl;
+    SphereProgramGenericPtr program = std::make_shared<SphereProgramGeneric>(scene, mem[0]);
+
+    quickLaunch(scene, program, mem, pos);
+}
+
+
+void quickLaunch(
+    OptixScenePtr scene,
+    const OptixPipeline& pipeline,
+    const OptixShaderBindingTable& sbt,
+    Memory<OptixSimulationDataGenericSphere, RAM>& mem, // flags
+    Vector pos)
+{
+    Memory<Transform, RAM> Tsb(1);
+    Tsb[0] = Transform::Identity();
+    Memory<Transform, VRAM_CUDA> Tsb_ = Tsb;
+
+    
+    Memory<SphericalModel, RAM> model(1);
+    model[0].phi.size = 1;
+    model[0].phi.min = 0.0;
+    model[0].theta.size = 1;
+    model[0].theta.min = 0.0;
+    model[0].range.min = 0.05;
+    model[0].range.max = 100.0;
+    Memory<SphericalModel, VRAM_CUDA> model_ = model;
+
+    Memory<Transform, RAM> Tbm(1);
+    Tbm[0] = Transform::Identity();
+    Tbm[0].t = pos;
+    Memory<Transform, VRAM_CUDA> Tbm_ = Tbm;
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    Memory<float, VRAM_CUDA> ranges_(1);
+    Memory<Vector3, VRAM_CUDA> normals_(1);
+    Memory<unsigned int, VRAM_CUDA> face_ids_(1);
+    Memory<unsigned int, VRAM_CUDA> geom_ids_(1);
+    Memory<unsigned int, VRAM_CUDA> obj_ids_(1);
+
+    
+    mem->Tsb = Tsb_.raw();
+    mem->model = model_.raw();
+    mem->Tbm = Tbm_.raw();
+    mem->ranges = ranges_.raw();
+
+    if(mem->computeNormals)
+    {
+        mem->normals = normals_.raw();
+    }
+
+    if(mem->computeFaceIds)
+    {
+        mem->face_ids = face_ids_.raw();
+    }
+
+    if(mem->computeGeomIds)
+    {
+        mem->geom_ids = geom_ids_.raw();
+    }
+
+    if(mem->computeObjectIds)
+    {
+        mem->object_ids = obj_ids_.raw();
+    }
+    // mem->normals = normals_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->face_ids = face_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->geom_ids = geom_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // mem->object_ids = obj_ids_.raw();
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    if(!scene->as())
+    {
+        std::cout << "Scene has no AS" << std::endl;
+    }
+    mem->handle = scene->as()->handle;
+    CUDA_CHECK(cudaDeviceSynchronize());
+    
+
+
+    Memory<OptixSimulationDataGenericSphere, VRAM_CUDA> d_mem(1);
+    copy(mem, d_mem, scene->stream()->handle());
+
+
+
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    // std::cout << "LAUNCH!" << std::endl;
+    OPTIX_CHECK( optixLaunch(
+                pipeline,
+                scene->stream()->handle(),
+                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+                sizeof( OptixSimulationDataGenericSphere ),
+                &sbt,
+                1, // width Xdim
+                1, // height Ydim
+                1 // depth Zdim
+                ));
+
+
+    if(mem->computeRanges)
+    {
+        Memory<float, RAM> ranges = ranges_;
+        std::cout << "- range: " << ranges[0] << std::endl;
+    }
+
+    if(mem->computeFaceIds)
+    {
+        Memory<unsigned int, RAM> face_ids = face_ids_;
+        std::cout << "- face_id: " << face_ids[0] << std::endl;
+    }
+
+    if(mem->computeGeomIds)
+    {
+        Memory<unsigned int, RAM> geom_ids = geom_ids_;
+        std::cout << "- geom_id: " << geom_ids[0] << std::endl;
+    }
+
+    if(mem->computeObjectIds)
+    {
+        Memory<unsigned int, RAM> obj_ids = obj_ids_;
+        std::cout << "- obj_id: " << obj_ids[0] << std::endl;
+    }
+
+
+    
+
+
+}
 
 void test_plain_optix()
 {
@@ -740,13 +1013,13 @@ void test_plain_optix()
 
         OptixModuleCompileOptions module_compile_options = {};
         module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
-    #ifndef NDEBUG
+    // #ifndef NDEBUG
         module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
         module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-    #else
-        module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-        module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
-    #endif
+    // #else
+    //     module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+    //     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+    // #endif
         
         OptixPipelineCompileOptions pipeline_compile_options = {};
         pipeline_compile_options.usesMotionBlur        = false;
@@ -1037,260 +1310,52 @@ void test_rm_optix()
     scene1->add(cube2);
     scene1->add(cube3);
 
+    // scene1->commit();
+
+    // scene1->remove(1);
     scene1->commit();
+    
 
 
     OptixContextPtr ctx = scene1->context();
 
 
-    std::cout << "Build pipeline" << std::endl;
+    Memory<OptixSimulationDataGenericSphere, RAM> flags(1);
+    flags->computeHits = false;
+    flags->computeRanges = true;
+    flags->computePoints = false;
+    flags->computeNormals = false;
+    flags->computeFaceIds = false;
+    flags->computeGeomIds = true;
+    flags->computeObjectIds = true;
 
-    // Build pipeline
-    OptixPipeline pipeline = nullptr;
+    SphereProgramGenericPtr program = std::make_shared<SphereProgramGeneric>(scene1, flags[0]);
 
-    // required for SBT
-    OptixProgramGroup hitgroup_prog_group = nullptr;
-    OptixProgramGroup raygen_prog_group   = nullptr;
-    OptixProgramGroup miss_prog_group     = nullptr;
-    {
-        // Create pipeline
-        // independent from 
-
-        const char *kernel =
-        #include "kernels/SphereProgramRangesString.h"
-        ;
-
-        // 1. INIT MODULE
-        char log[2048]; // For error reporting from OptiX creation functions
-        size_t sizeof_log = sizeof( log );
-
-        OptixModuleCompileOptions module_compile_options = {};
-        module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
-    #ifndef NDEBUG
-        module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-        module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-    #else
-        module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-        module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
-    #endif
-        
-        OptixPipelineCompileOptions pipeline_compile_options = {};
-        pipeline_compile_options.usesMotionBlur        = false;
-
-        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
-        pipeline_compile_options.numPayloadValues      = 1;
-        pipeline_compile_options.numAttributeValues    = 2;
-        pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-
-        pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
-        pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
-
-        std::string ptx(kernel);
-
-        if(ptx.empty())
-        {
-            throw std::runtime_error("ScanProgramRanges could not find its PTX part");
-        }
-
-        OptixModule module = nullptr;
-
-        OPTIX_CHECK( optixModuleCreateFromPTX(
-                    ctx->ref(),
-                    &module_compile_options,
-                    &pipeline_compile_options,
-                    ptx.c_str(),
-                    ptx.size(),
-                    log,
-                    &sizeof_log,
-                    &module
-                    ));
-
-        // 2. initProgramGroups
-        OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
-
-        OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
-        raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-        raygen_prog_group_desc.raygen.module            = module;
-        raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
-        sizeof_log = sizeof( log );
-
-        optixProgramGroupCreate(
-                    ctx->ref(),
-                    &raygen_prog_group_desc,
-                    1,   // num program groups
-                    &program_group_options,
-                    log,
-                    &sizeof_log,
-                    &raygen_prog_group
-                    );
-
-        OptixProgramGroupDesc miss_prog_group_desc  = {};
-        miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
-        miss_prog_group_desc.miss.module            = module;
-        miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
-        sizeof_log = sizeof( log );
-        
-        optixProgramGroupCreate(
-                    ctx->ref(),
-                    &miss_prog_group_desc,
-                    1,   // num program groups
-                    &program_group_options,
-                    log,
-                    &sizeof_log,
-                    &miss_prog_group
-                    );
-
-
-        OptixProgramGroupDesc hitgroup_prog_group_desc = {};
-        hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-        hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
-        hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
-        sizeof_log = sizeof( log );
-        
-        optixProgramGroupCreate(
-                    ctx->ref(),
-                    &hitgroup_prog_group_desc,
-                    1,   // num program groups
-                    &program_group_options,
-                    log,
-                    &sizeof_log,
-                    &hitgroup_prog_group
-                    );
-
-        OptixProgramGroup program_groups[] = { 
-            raygen_prog_group, 
-            miss_prog_group, 
-            hitgroup_prog_group 
-        };
-
-        // 3. link pipeline
-        // traverse depth = 2 for ias + gas
-        uint32_t    max_traversable_depth = 3;
-        const uint32_t    max_trace_depth  = 1;
-
-
-        OptixPipelineLinkOptions pipeline_link_options = {};
-        pipeline_link_options.maxTraceDepth          = max_trace_depth;
-        pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-
-        
-        OPTIX_CHECK_LOG( optixPipelineCreate(
-                    ctx->ref(),
-                    &pipeline_compile_options,
-                    &pipeline_link_options,
-                    program_groups,
-                    sizeof( program_groups ) / sizeof( program_groups[0] ),
-                    log,
-                    &sizeof_log,
-                    &pipeline
-                    ) );
-
-
-        OptixStackSizes stack_sizes = {};
-        for( auto& prog_group : program_groups )
-        {
-            OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
-        }
-
-        uint32_t direct_callable_stack_size_from_traversal;
-        uint32_t direct_callable_stack_size_from_state;
-        uint32_t continuation_stack_size;
-        OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
-                                                    0,  // maxCCDepth
-                                                    0,  // maxDCDEpth
-                                                    &direct_callable_stack_size_from_traversal,
-                                                    &direct_callable_stack_size_from_state, &continuation_stack_size ) );
-        OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
-                                                direct_callable_stack_size_from_state, continuation_stack_size,
-                                                max_traversable_depth  // maxTraversableDepth
-                                                ) );
-    }
-
-
-    std::cout << "Build SBT" << std::endl;
-    OptixShaderBindingTable sbt = {};
-    {
-
-        // 4. setup shader binding table
-        typedef SbtRecord<RayGenDataEmpty>     RayGenSbtRecord;
-        typedef SbtRecord<MissDataEmpty>       MissSbtRecord;
-        typedef SbtRecord<HitGroupDataScene>   HitGroupSbtRecord;        
-
-        sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-        sbt.missRecordCount             = 1;
-        // sbt.missRecordCount             = 1000; // works as well
-        sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-        sbt.hitgroupRecordCount         = scene1->geometries().size();
-        // sbt.hitgroupRecordCount         = 1000; // works as well
-
-
-        const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
-        const size_t miss_record_size       = sizeof( MissSbtRecord ) * sbt.missRecordCount;
-        const size_t hitgroup_record_size   = sizeof( HitGroupSbtRecord ) * sbt.hitgroupRecordCount;
-
-
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.raygenRecord ), raygen_record_size) );
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.missRecordBase ), miss_record_size ) );
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), hitgroup_record_size ) );
-
-        {
-            RayGenSbtRecord rg_sbt;
-            OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
-            CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( sbt.raygenRecord ),
-                &rg_sbt,
-                raygen_record_size,
-                cudaMemcpyHostToDevice
-                ) );
-        }
-     
-        {
-            MissSbtRecord ms_sbt[sbt.missRecordCount];
-            for(size_t i=0; i<sbt.missRecordCount; i++)
-            {
-                OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt[i] ) );
-            }
-            CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( sbt.missRecordBase ),
-                &ms_sbt,
-                miss_record_size,
-                cudaMemcpyHostToDevice
-                ) );
-        }
-        
-        {
-            // per primitive geometry?? yes tested
-            // - knowledge of map required?
-            // - and also of program
-            // maybe thats why it called "binding" table
-            HitGroupSbtRecord hg_sbt[sbt.hitgroupRecordCount];
-            for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
-            {
-                OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt[i] ) );
-            }
-            
-            CUDA_CHECK( cudaMemcpy(
-                reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
-                &hg_sbt,
-                hitgroup_record_size,
-                cudaMemcpyHostToDevice
-                ));
-        }
-    }
-
-    
-
-
-    
-    // run
     std::cout << "------ GAS1 - LAUNCH 1/3 -------" << std::endl;
-    quickLaunch(scene1, pipeline, sbt, {-5.0, 0.0, 0.0});
+    quickLaunch(scene1, program, flags, {-5.0, 0.0, 0.0});
 
     std::cout << "------ GAS1 - LAUNCH 2/3 -------" << std::endl;
-    quickLaunch(scene1, pipeline, sbt, {-5.0, 5.0, 0.0});
+    quickLaunch(scene1, program, flags, {-5.0, 5.0, 0.0});
 
     std::cout << "------ GAS1 - LAUNCH 3/3 -------" << std::endl;
-    quickLaunch(scene1, pipeline, sbt, {-5.0, 10.0, 0.0});
+    quickLaunch(scene1, program, flags, {-5.0, 10.0, 0.0});
+
+
+    std::cout << "REMOVE MESH 1!" << std::endl;
+    scene1->remove(1);
+    scene1->commit();
+    
+
+    std::cout << "------ GAS2 - LAUNCH 1/3 -------" << std::endl;
+    quickLaunch(scene1, program, flags, {-5.0, 0.0, 0.0});
+
+    std::cout << "------ GAS2 - LAUNCH 2/3 -------" << std::endl;
+    quickLaunch(scene1, program, flags, {-5.0, 5.0, 0.0});
+
+    std::cout << "------ GAS2 - LAUNCH 3/3 -------" << std::endl;
+    quickLaunch(scene1, program, flags, {-5.0, 10.0, 0.0});
+
+
 
 
     // std::cout << "------ GAS2 - LAUNCH 1/2 -------" << std::endl;
@@ -1329,16 +1394,16 @@ void test_rm_optix()
     //         });
     //     }
     // }
-
-
 }
 
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Optix Multi Root" << std::endl;
 
-    // test_plain_optix();
     test_rm_optix();
+
+
+    // test_plain_optix();
 
     return 0;
 }

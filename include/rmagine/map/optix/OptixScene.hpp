@@ -36,6 +36,11 @@ public:
 
     unsigned int add(OptixGeometryPtr geom);
     unsigned int get(OptixGeometryPtr geom) const;
+    std::optional<unsigned int> getOpt(OptixGeometryPtr geom) const;
+    bool has(OptixGeometryPtr geom) const;
+    bool has(unsigned int geom_id) const;
+    bool remove(OptixGeometryPtr geom);
+    OptixGeometryPtr remove(unsigned int geom_id);
 
     std::map<unsigned int, OptixGeometryPtr> geometries() const;
     std::unordered_map<OptixGeometryPtr, unsigned int> ids() const;
@@ -43,7 +48,11 @@ public:
     void commit();
     unsigned int depth() const;
 
-    Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
+    // Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
+
+
+    SceneData m_scene_data_h;
+    SceneData m_scene_data_d;
 
     inline OptixAccelerationStructurePtr as() const
     {

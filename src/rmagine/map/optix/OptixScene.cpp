@@ -25,22 +25,42 @@ OptixScene::OptixScene(OptixContextPtr context)
 
 OptixScene::~OptixScene()
 {
-    if(m_h_hitgroup_data.size())
+    // if(m_h_hitgroup_data.size())
+    // {
+    //     if(m_h_hitgroup_data[0].mesh_attributes)
+    //     {
+    //         cudaFree(m_h_hitgroup_data[0].mesh_attributes);
+    //     }
+
+    //     if(m_h_hitgroup_data[0].inst_to_mesh)
+    //     {
+    //         cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
+    //     }
+
+    //     if(m_h_hitgroup_data[0].instances_attributes)
+    //     {
+    //         cudaFree(m_h_hitgroup_data[0].instances_attributes);
+    //     }
+    // }
+
+    if(m_scene_data_h.geometries)
     {
-        if(m_h_hitgroup_data[0].mesh_attributes)
-        {
-            cudaFree(m_h_hitgroup_data[0].mesh_attributes);
-        }
+        cudaFreeHost(m_scene_data_h.geometries);
+    }
 
-        if(m_h_hitgroup_data[0].inst_to_mesh)
-        {
-            cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
-        }
+    if(m_scene_data_h.sbtgas_to_geom)
+    {
+        cudaFreeHost(m_scene_data_h.sbtgas_to_geom);
+    }
 
-        if(m_h_hitgroup_data[0].instances_attributes)
-        {
-            cudaFree(m_h_hitgroup_data[0].instances_attributes);
-        }
+    if(m_scene_data_d.geometries)
+    {
+        cudaFree(m_scene_data_d.geometries);
+    }
+
+    if(m_scene_data_d.sbtgas_to_geom)
+    {
+        cudaFree(m_scene_data_d.sbtgas_to_geom);
     }
 
     for(auto elem : m_geometries)
@@ -88,6 +108,66 @@ unsigned int OptixScene::add(OptixGeometryPtr geom)
 unsigned int OptixScene::get(OptixGeometryPtr geom) const
 {
     return m_ids.at(geom);
+}
+
+std::optional<unsigned int> OptixScene::getOpt(OptixGeometryPtr geom) const
+{
+    auto it = m_ids.find(geom);
+    if(it != m_ids.end())
+    {
+        return it->second;
+    }
+
+    return {};
+}
+
+bool OptixScene::has(OptixGeometryPtr geom) const
+{
+    return (m_ids.find(geom) != m_ids.end());
+}
+
+bool OptixScene::has(unsigned int geom_id) const
+{
+    return (m_geometries.find(geom_id) != m_geometries.end());
+}
+
+bool OptixScene::remove(OptixGeometryPtr geom)
+{
+    bool ret = false;
+
+    auto it = m_ids.find(geom);
+    if(it != m_ids.end())
+    {
+        unsigned int geom_id = it->second;
+
+        m_ids.erase(it);
+        m_geometries.erase(geom_id);
+        geom->removeParent(this_shared<OptixScene>());
+        gen.give_back(geom_id);
+    }
+
+    return ret;
+}
+
+OptixGeometryPtr OptixScene::remove(unsigned int geom_id)
+{
+    OptixGeometryPtr ret;
+
+    auto it = m_geometries.find(geom_id);
+    if(it != m_geometries.end())
+    {
+        OptixGeometryPtr geom = it->second;
+
+        
+        m_geometries.erase(it);
+        m_ids.erase(geom);
+        geom->removeParent(this_shared<OptixScene>());
+        gen.give_back(geom_id);
+
+        ret = geom;
+    }
+
+    return ret;
 }
 
 std::map<unsigned int, OptixGeometryPtr> OptixScene::geometries() const
@@ -164,7 +244,20 @@ void OptixScene::buildGAS()
     size_t n_build_inputs = m_geometries.size();
 
     OptixBuildInput build_inputs[n_build_inputs];
-    
+
+
+
+
+    m_scene_data_h.n_geometries = n_build_inputs;
+    m_scene_data_h.type = m_type;
+    cudaMallocHost(&m_scene_data_h.geometries, sizeof(GeomData) * n_build_inputs);
+    cudaMallocHost(&m_scene_data_h.sbtgas_to_geom, sizeof(unsigned int) * n_build_inputs);
+
+    m_scene_data_d.n_geometries = n_build_inputs;
+    m_scene_data_d.type = m_type;
+    cudaMalloc(&m_scene_data_d.geometries, sizeof(GeomData) * n_build_inputs);
+    cudaMalloc(&m_scene_data_d.sbtgas_to_geom, sizeof(unsigned int) * n_build_inputs);
+
     size_t idx = 0;
     for(auto elem : m_geometries)
     {
@@ -190,15 +283,32 @@ void OptixScene::buildGAS()
             triangle_input.triangleArray.flags         = (const uint32_t [1]) { 
                 OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT
             };
+
             // TODO: this is bad. I define the sbt records inside the sensor programs. 
             triangle_input.triangleArray.numSbtRecords = 1;
             build_inputs[idx] = triangle_input;
+
+            // SBT data
+            m_scene_data_h.geometries[idx].mesh_data = mesh->attributes;
+            m_scene_data_h.sbtgas_to_geom[idx] = elem.first;
+            std::cout << "Connect GAS SBT " << idx << " -> Mesh " << elem.first << std::endl;
         } else {
             std::cout << "WARNING COULD NOT FILL GAS INPUTS" << std::endl;
         }
 
         idx ++;
     }
+
+    // copy sbt
+    cudaMemcpyAsync(m_scene_data_d.geometries, 
+        m_scene_data_h.geometries, 
+        sizeof(GeomData) * n_build_inputs, 
+        cudaMemcpyHostToDevice, m_stream->handle());
+
+    cudaMemcpyAsync(m_scene_data_d.sbtgas_to_geom, 
+        m_scene_data_h.sbtgas_to_geom, 
+        sizeof(unsigned int) * n_build_inputs, 
+        cudaMemcpyHostToDevice, m_stream->handle());
 
 
     // Acceleration Options
@@ -260,6 +370,8 @@ void OptixScene::buildGAS()
                 ) );
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
+
+    std::cout << "GAS constructed" << std::endl;
 }
 
 void OptixScene::buildIAS()

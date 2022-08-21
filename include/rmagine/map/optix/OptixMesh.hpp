@@ -20,6 +20,10 @@
 
 #include "optix_definitions.h"
 
+
+#include <rmagine/util/optix/OptixData.hpp>
+
+
 namespace rmagine
 {
 
@@ -68,6 +72,8 @@ public:
     Memory<Vector, VRAM_CUDA>   face_normals_;
     Memory<Vector, VRAM_CUDA>   vertex_normals_;
 
+
+    MeshData attributes;
 private:
     CUdeviceptr m_vertices_ref;
 };

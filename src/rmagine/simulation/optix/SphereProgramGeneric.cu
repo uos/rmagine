@@ -33,7 +33,7 @@ extern "C" __global__ void __raygen__rg()
 
     unsigned int p0, p1, p2, p3, p4, p5, p6, p7;
     
-    printf("ray: %f %f %f - %f %f %f \n", Tsm.t.x, Tsm.t.y, Tsm.t.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
+    // printf("ray: %f %f %f - %f %f %f \n", Tsm.t.x, Tsm.t.y, Tsm.t.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
 
     p0 = glob_id;
     p1 = __float_as_uint(Tsm.R.x);
@@ -148,21 +148,30 @@ void computeNormalSBT()
 
     // Get additional info
     const unsigned int face_id = optixGetPrimitiveIndex();
-    const unsigned int object_id = optixGetInstanceIndex();
+    const unsigned int inst_id = optixGetInstanceId();
+    const unsigned int gas_id = optixGetSbtGASIndex();
     
+
     const float3 dir_m = optixGetWorldRayDirection();
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
     const Vector ray_dir_s = Tms.R * ray_dir_m;
 
-    rmagine::HitGroupDataScene* hg_data  = reinterpret_cast<rmagine::HitGroupDataScene*>( optixGetSbtDataPointer() );
-    
-    const int mesh_id = hg_data->inst_to_mesh[object_id];
-    const MeshAttributes* mesh_attr = &hg_data->mesh_attributes[mesh_id];
+    rmagine::SceneData* scene_data  = reinterpret_cast<rmagine::SceneData*>( optixGetSbtDataPointer() );
+
+    MeshData* mesh_data = nullptr;
+    if(scene_data->type == OptixSceneType::INSTANCES)
+    {
+        // instance hierarchy
+        rmagine::SceneData* inst_scene = scene_data->geometries[inst_id].inst_data.scene;
+        mesh_data = &(inst_scene->geometries[gas_id].mesh_data);
+    } else {
+        mesh_data = &scene_data->geometries[gas_id].mesh_data;
+    }
 
     const float3 normal = make_float3(
-        mesh_attr->face_normals[face_id].x, 
-        mesh_attr->face_normals[face_id].y, 
-        mesh_attr->face_normals[face_id].z);
+        mesh_data->face_normals[face_id].x, 
+        mesh_data->face_normals[face_id].y, 
+        mesh_data->face_normals[face_id].z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
@@ -216,7 +225,6 @@ void computeNormal()
 
     const Vector3 rm_normal = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
 
-    // printf("- Normal: %f %f %f\n", rm_normal.x, rm_normal.y, rm_normal.z);
     const float3 normal = make_float3(rm_normal.x, rm_normal.y, rm_normal.z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
@@ -257,7 +265,7 @@ __forceinline__ __device__
 void computeNoFaceId()
 {
     const unsigned int glob_id = optixGetPayload_0();
-    mem.face_ids[glob_id] = __INT_MAX__ * 2U + 1;
+    mem.face_ids[glob_id] = __UINT_MAX__;
 }
 
 __forceinline__ __device__
@@ -265,31 +273,29 @@ void computeGeomId()
 {
     const unsigned int glob_id = optixGetPayload_0();
 
-    printf("GEOM ID\n");
-
     const unsigned int inst_id = optixGetInstanceId();
-    const unsigned int inst_index = optixGetInstanceIndex();
+    const unsigned int sbt_gas_id = optixGetSbtGASIndex();
 
-    
-    OptixTraversableHandle gas = optixGetGASTraversableHandle();
-    const unsigned int gas_id = optixGetSbtGASIndex();
+    unsigned int geom_id = 0;
+    // printf("Inst %u, SBT GAS %u \n", inst_id, sbt_gas_id);
 
+    rmagine::SceneData* scene_data  = reinterpret_cast<rmagine::SceneData*>( optixGetSbtDataPointer() );
+    if(scene_data->type == OptixSceneType::INSTANCES)
+    {
+        // instance hierarchy
+        geom_id = scene_data->geometries[inst_id].inst_data.scene->sbtgas_to_geom[sbt_gas_id];
+    } else {
+        geom_id = scene_data->sbtgas_to_geom[sbt_gas_id];
+    }
 
-
-    printf("optixGetInstanceId %u\n", inst_id);
-    printf("optixGetInstanceIndex %u\n", inst_index);
-    printf("GasId: %u\n", gas_id);
-    
-
-
-    mem.geom_ids[glob_id] = 0;
+    mem.geom_ids[glob_id] = geom_id;
 }
 
 __forceinline__ __device__
 void computeNoGeomId()
 {
     const unsigned int glob_id = optixGetPayload_0();
-    mem.geom_ids[glob_id] = __INT_MAX__ * 2U + 1;
+    mem.geom_ids[glob_id] = __UINT_MAX__;
 }
 
 __forceinline__ __device__
@@ -303,12 +309,13 @@ __forceinline__ __device__
 void computeNoObjectId()
 {
     const unsigned int glob_id = optixGetPayload_0();
-    mem.object_ids[glob_id] = __INT_MAX__ * 2U + 1;
+    mem.object_ids[glob_id] = __UINT_MAX__;
 }
-
 
 extern "C" __global__ void __miss__ms()
 {
+    // printf("MISS!\n");
+
     if(mem.computeHits)
     {
         computeNoHit();
@@ -347,6 +354,8 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
+    // printf("HIT!\n");
+
     if(mem.computeHits)
     {
         computeHit();
@@ -383,7 +392,3 @@ extern "C" __global__ void __closesthit__ch()
     }
 }
 
-extern "C" __global__ void __anyhit__ah()
-{
-    printf("Anyhit!\n");
-}

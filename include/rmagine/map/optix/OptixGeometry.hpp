@@ -33,8 +33,12 @@ public:
 
     // virtual void apply() = 0 in OptixTransformable
 
+
+    // handle parents
     void cleanupParents();
     std::unordered_set<OptixScenePtr> parents() const;
+    bool removeParent(OptixScenePtr parent);
+    bool hasParent(OptixScenePtr parent) const;
     void addParent(OptixScenePtr parent);
 protected:
     std::unordered_set<OptixSceneWPtr> m_parents;
