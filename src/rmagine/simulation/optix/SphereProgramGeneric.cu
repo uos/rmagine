@@ -283,9 +283,9 @@ void computeGeomId()
     if(scene_data->type == OptixSceneType::INSTANCES)
     {
         // instance hierarchy
-        geom_id = scene_data->geometries[inst_id].inst_data.scene->sbtgas_to_geom[sbt_gas_id];
+        geom_id = scene_data->geometries[inst_id].inst_data.scene->geometries[sbt_gas_id].mesh_data.id;
     } else {
-        geom_id = scene_data->sbtgas_to_geom[sbt_gas_id];
+        geom_id = scene_data->geometries[sbt_gas_id].mesh_data.id;
     }
 
     mem.geom_ids[glob_id] = geom_id;

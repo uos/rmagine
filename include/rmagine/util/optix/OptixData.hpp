@@ -106,7 +106,8 @@ struct InstanceData;
 struct MeshData 
 {
     Vector* vertex_normals;
-    Vector* face_normals;  
+    Vector* face_normals;
+    unsigned int id;
 };
 
 struct InstanceData
@@ -125,7 +126,6 @@ struct SceneData
     OptixSceneType type;
     unsigned int n_geometries = 0;
     GeomData* geometries = nullptr;
-    unsigned int* sbtgas_to_geom = nullptr;
 };
 
 } // namespace rmagine

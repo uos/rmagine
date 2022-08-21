@@ -25,42 +25,14 @@ OptixScene::OptixScene(OptixContextPtr context)
 
 OptixScene::~OptixScene()
 {
-    // if(m_h_hitgroup_data.size())
-    // {
-    //     if(m_h_hitgroup_data[0].mesh_attributes)
-    //     {
-    //         cudaFree(m_h_hitgroup_data[0].mesh_attributes);
-    //     }
-
-    //     if(m_h_hitgroup_data[0].inst_to_mesh)
-    //     {
-    //         cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
-    //     }
-
-    //     if(m_h_hitgroup_data[0].instances_attributes)
-    //     {
-    //         cudaFree(m_h_hitgroup_data[0].instances_attributes);
-    //     }
-    // }
-
     if(m_scene_data_h.geometries)
     {
         cudaFreeHost(m_scene_data_h.geometries);
     }
 
-    if(m_scene_data_h.sbtgas_to_geom)
-    {
-        cudaFreeHost(m_scene_data_h.sbtgas_to_geom);
-    }
-
     if(m_scene_data_d.geometries)
     {
         cudaFree(m_scene_data_d.geometries);
-    }
-
-    if(m_scene_data_d.sbtgas_to_geom)
-    {
-        cudaFree(m_scene_data_d.sbtgas_to_geom);
     }
 
     for(auto elem : m_geometries)
@@ -98,6 +70,8 @@ unsigned int OptixScene::add(OptixGeometryPtr geom)
 
         // add self to geom
         geom->addParent(this_shared<OptixScene>());
+
+        m_geom_added = true;
 
         return id;
     } else {
@@ -144,6 +118,9 @@ bool OptixScene::remove(OptixGeometryPtr geom)
         m_geometries.erase(geom_id);
         geom->removeParent(this_shared<OptixScene>());
         gen.give_back(geom_id);
+
+        m_geom_removed = true;
+        ret = true;
     }
 
     return ret;
@@ -163,6 +140,8 @@ OptixGeometryPtr OptixScene::remove(unsigned int geom_id)
         m_ids.erase(geom);
         geom->removeParent(this_shared<OptixScene>());
         gen.give_back(geom_id);
+
+        m_geom_removed = true;
 
         ret = geom;
     }
@@ -203,6 +182,13 @@ unsigned int OptixScene::depth() const
     return ret + 1;
 }
 
+OptixInstPtr OptixScene::instantiate()
+{
+    OptixInstPtr ret = std::make_shared<OptixInst>();
+    ret->set(this_shared<OptixScene>());
+    return ret;
+}
+
 void OptixScene::cleanupParents()
 {
     for(auto it = m_parents.cbegin(); it != m_parents.cend();)
@@ -241,22 +227,19 @@ void OptixScene::addParent(OptixInstPtr parent)
 void OptixScene::buildGAS()
 {
     std::cout << "SCENE BUILD GAS" << std::endl;
+
     size_t n_build_inputs = m_geometries.size();
 
     OptixBuildInput build_inputs[n_build_inputs];
 
-
-
-
     m_scene_data_h.n_geometries = n_build_inputs;
     m_scene_data_h.type = m_type;
     cudaMallocHost(&m_scene_data_h.geometries, sizeof(GeomData) * n_build_inputs);
-    cudaMallocHost(&m_scene_data_h.sbtgas_to_geom, sizeof(unsigned int) * n_build_inputs);
 
+    // TODO make proper realloc
     m_scene_data_d.n_geometries = n_build_inputs;
     m_scene_data_d.type = m_type;
     cudaMalloc(&m_scene_data_d.geometries, sizeof(GeomData) * n_build_inputs);
-    cudaMalloc(&m_scene_data_d.sbtgas_to_geom, sizeof(unsigned int) * n_build_inputs);
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -280,6 +263,7 @@ void OptixScene::buildGAS()
             triangle_input.triangleArray.indexBuffer         = mesh->getFaceBuffer();
 
             // ADDITIONAL SETTINGS
+            // move them to mesh object
             triangle_input.triangleArray.flags         = (const uint32_t [1]) { 
                 OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT
             };
@@ -290,8 +274,8 @@ void OptixScene::buildGAS()
 
             // SBT data
             m_scene_data_h.geometries[idx].mesh_data = mesh->attributes;
-            m_scene_data_h.sbtgas_to_geom[idx] = elem.first;
-            std::cout << "Connect GAS SBT " << idx << " -> Mesh " << elem.first << std::endl;
+            m_scene_data_h.geometries[idx].mesh_data.id = elem.first;
+            // std::cout << "Connect GAS SBT " << idx << " -> Mesh " << elem.first << std::endl;
         } else {
             std::cout << "WARNING COULD NOT FILL GAS INPUTS" << std::endl;
         }
@@ -305,10 +289,8 @@ void OptixScene::buildGAS()
         sizeof(GeomData) * n_build_inputs, 
         cudaMemcpyHostToDevice, m_stream->handle());
 
-    cudaMemcpyAsync(m_scene_data_d.sbtgas_to_geom, 
-        m_scene_data_h.sbtgas_to_geom, 
-        sizeof(unsigned int) * n_build_inputs, 
-        cudaMemcpyHostToDevice, m_stream->handle());
+
+    
 
 
     // Acceleration Options
@@ -327,6 +309,21 @@ void OptixScene::buildGAS()
     accel_options.buildFlags = build_flags;
     accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
 
+    if(!m_geom_added && !m_geom_removed && m_as)
+    {
+        // UPDATE
+        std::cout << "GAS - UPDATE!" << std::endl;
+        accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
+    } else {
+        // BUILD   
+        std::cout << "GAS - BUILD!" << std::endl;
+        accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+    }
+
+    m_geom_added = false;
+    m_geom_removed = false;
+
+
     OptixAccelBufferSizes gas_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage(
                 m_ctx->ref(),
@@ -344,13 +341,24 @@ void OptixScene::buildGAS()
     
     if(!m_as)
     {
+        // make new
         m_as = std::make_shared<OptixAccelerationStructure>();
-    }
-
-    CUDA_CHECK( cudaMalloc(
+        CUDA_CHECK( cudaMalloc(
                 reinterpret_cast<void**>( &m_as->buffer ),
                 gas_buffer_sizes.outputSizeInBytes
                 ) );
+    } else {
+        if(m_as->buffer_size != gas_buffer_sizes.outputSizeInBytes)
+        {
+            // realloc
+            CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
+            CUDA_CHECK( cudaMalloc(
+                    reinterpret_cast<void**>( &m_as->buffer ),
+                    gas_buffer_sizes.outputSizeInBytes
+                    ) );
+        }
+    }
+    
     m_as->buffer_size = gas_buffer_sizes.outputSizeInBytes;
     m_as->n_elements = n_build_inputs;
 
@@ -372,134 +380,117 @@ void OptixScene::buildGAS()
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 
     std::cout << "GAS constructed" << std::endl;
+
 }
 
 void OptixScene::buildIAS()
 {
+    const size_t n_instances = m_geometries.size();
 
     // fill m_hitgroup_data
+    Memory<OptixInstance, RAM> inst_h(n_instances);
 
-    // { // meshes
-    //     unsigned int n_meshes = m_geometries.rbegin()->first + 1;
-    //     if(!m_h_hitgroup_data.size())
-    //     {
-    //         m_h_hitgroup_data.resize(1);
-    //     }
+    
+    m_scene_data_h.n_geometries = n_instances;
+    m_scene_data_h.type = m_type;
+    cudaMallocHost(&m_scene_data_h.geometries, sizeof(GeomData) * n_instances);
 
-    //     Memory<MeshAttributes, RAM> attr_cpu(n_meshes);
-    //     for(auto elem : m_geometries)
-    //     {
-    //         OptixMeshPtr mesh = std::dynamic_pointer_cast<OptixMesh>(elem.second);
-    //         if(mesh)
-    //         {
-    //             attr_cpu[elem.first].face_normals = mesh->face_normals.raw();
-    //             attr_cpu[elem.first].vertex_normals = mesh->vertex_normals.raw();
-    //         } else {
-    //             std::cout << "NO MESH: how to handle normals?" << std::endl;
-    //         }
-    //     }
+    m_scene_data_d.n_geometries = n_instances;
+    m_scene_data_d.type = m_type;
+    cudaMalloc(&m_scene_data_d.geometries, sizeof(GeomData) * n_instances);
 
-    //     if(m_h_hitgroup_data[0].n_meshes != n_meshes)
-    //     {
-    //         // Number of meshes changed! Recreate
-    //         if(m_h_hitgroup_data[0].mesh_attributes)
-    //         {
-    //             cudaFree(m_h_hitgroup_data[0].mesh_attributes);
-    //         }
 
-    //         // create space for mesh attributes
-    //         cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].mesh_attributes), 
-    //             n_meshes * sizeof(MeshAttributes));
+    size_t idx = 0;
+    for(auto elem : m_geometries)
+    {
+        unsigned int inst_id = elem.first;
+        OptixInstPtr inst = std::dynamic_pointer_cast<OptixInst>(elem.second);
+        inst_h[idx] = inst->data();
+        inst_h[idx].instanceId = elem.first;
+        idx++;
+    }
 
-    //         // std::cout << "HITGROUP DATA: Created space for " << n_meshes << " meshes" << std::endl;
-    //     }
+    CUdeviceptr m_inst_buffer;
+    CUDA_CHECK( cudaMalloc( 
+        reinterpret_cast<void**>( &m_inst_buffer ), 
+        inst_h.size() * sizeof(OptixInstance) ) );
 
-    //     m_h_hitgroup_data[0].n_meshes = n_meshes;
+    CUDA_CHECK( cudaMemcpyAsync(
+                reinterpret_cast<void*>( m_inst_buffer ),
+                inst_h.raw(),
+                inst_h.size() * sizeof(OptixInstance),
+                cudaMemcpyHostToDevice,
+                m_stream->handle()
+                ) );
 
-    //     // copy mesh attributes
-    //     CUDA_CHECK( cudaMemcpy(
-    //                 reinterpret_cast<void*>(m_h_hitgroup_data[0].mesh_attributes),
-    //                 reinterpret_cast<void*>(attr_cpu.raw()),
-    //                 attr_cpu.size() * sizeof(MeshAttributes),
-    //                 cudaMemcpyHostToDevice
-    //                 ) );
+    // BEGIN WITH BUILD INPUT
 
-    //     // std::cout << "HITGROUP DATA: Copied " << n_meshes << " meshes" << std::endl;
-    // } // meshes
+    OptixBuildInput instance_input = {};
+    instance_input.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    instance_input.instanceArray.numInstances = inst_h.size();
+    instance_input.instanceArray.instances = m_inst_buffer;
 
-    // { // connections inst -> mesh + instances
-    //     Memory<unsigned int, RAM> inst_to_mesh;
+    OptixAccelBuildOptions ias_accel_options = {};
+    unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
+    { // BUILD FLAGS
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+        #if OPTIX_VERSION >= 73000
+        build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
+        #endif
+    }
 
-    //     OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(m_root);
+    ias_accel_options.buildFlags = build_flags;
+    ias_accel_options.motionOptions.numKeys = 1;
+    ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
 
-    //     if(insts)
-    //     {
-    //         auto instances = insts->instances();
-    //         size_t Ninstances = instances.rbegin()->first + 1;
 
-    //         inst_to_mesh.resize(Ninstances);
-    //         for(unsigned int i=0; i<inst_to_mesh.size(); i++)
-    //         {
-    //             inst_to_mesh[i] = -1;
-    //         }
+    OptixAccelBufferSizes ias_buffer_sizes;
+    OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+        m_ctx->ref(), 
+        &ias_accel_options,
+        &instance_input, 
+        1, 
+        &ias_buffer_sizes ) );
 
-    //         for(auto elem : instances)
-    //         {
-    //             unsigned int inst_id = elem.first;
-    //             OptixGeometryPtr geom = elem.second->geometry();
-    //             OptixMeshPtr mesh = std::dynamic_pointer_cast<OptixMesh>(geom);
+    
+    CUdeviceptr d_temp_buffer_ias;
+    CUDA_CHECK( cudaMalloc(
+        reinterpret_cast<void**>( &d_temp_buffer_ias ),
+        ias_buffer_sizes.tempSizeInBytes) );
 
-    //             if(mesh)
-    //             {
-    //                 unsigned int mesh_id = get(mesh);
-    //                 inst_to_mesh[inst_id] = mesh_id;
-    //             }
-    //         }
-    //     } else {
-    //         // only one mesh 0 -> 0
-    //         inst_to_mesh.resize(1);
-    //         inst_to_mesh[0] = 0;
-    //     }
+    if(!m_as)
+    {
+        m_as = std::make_shared<OptixAccelerationStructure>();
+    }
 
-    //     unsigned int n_instances = inst_to_mesh.size();
+    CUDA_CHECK( cudaMalloc(
+        reinterpret_cast<void**>( &m_as->buffer ),
+        ias_buffer_sizes.outputSizeInBytes
+    ));
 
-    //     if(m_h_hitgroup_data[0].n_instances != n_instances)
-    //     {
-    //         // Number of instances changed! Recreate
-    //         if(m_h_hitgroup_data[0].inst_to_mesh)
-    //         {
-    //             cudaFree(m_h_hitgroup_data[0].inst_to_mesh);
-    //         }
+    m_as->buffer_size = ias_buffer_sizes.outputSizeInBytes;
 
-    //         if(m_h_hitgroup_data[0].instances_attributes)
-    //         {
-    //             cudaFree(m_h_hitgroup_data[0].instances_attributes);
-    //         }
 
-    //         // create space for mesh attributes
-    //         cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].inst_to_mesh), 
-    //             n_instances * sizeof(int));
+    OPTIX_CHECK(optixAccelBuild( 
+        m_ctx->ref(), 
+        m_stream->handle(), 
+        &ias_accel_options, 
+        &instance_input, 
+        1, // num build inputs
+        d_temp_buffer_ias,
+        ias_buffer_sizes.tempSizeInBytes, 
+        m_as->buffer,
+        ias_buffer_sizes.outputSizeInBytes,
+        &m_as->handle,
+        nullptr, 
+        0 
+    ));
 
-    //         // create space for mesh attributes
-    //         cudaMalloc(reinterpret_cast<void**>(&m_h_hitgroup_data[0].instances_attributes), 
-    //             n_instances * sizeof(InstanceAttributes));
-        
-    //         // std::cout << "HITGROUP DATA: Created space for " << n_instances << " instances" << std::endl;
-    //     }
-    //     m_h_hitgroup_data[0].n_instances = n_instances;
+    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
-    //     CUDA_CHECK( cudaMemcpy(
-    //                 reinterpret_cast<void*>(m_h_hitgroup_data[0].inst_to_mesh),
-    //                 reinterpret_cast<void*>(inst_to_mesh.raw()),
-    //                 inst_to_mesh.size() * sizeof(unsigned int),
-    //                 cudaMemcpyHostToDevice
-    //                 ) );
-
-    //     // std::cout << "HITGROUP DATA: Copied " << n_instances << " instances" << std::endl;
-    // }
-
-    // // std::cout << "UPLOAD HITGROUP DATA" << std::endl;
-    // // m_hitgroup_data = m_h_hitgroup_data;
+    std::cout << "IAS constructed." << std::endl;
+    
 }
 
 OptixScenePtr make_optix_scene(

@@ -347,7 +347,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     OptixModuleCompileOptions module_compile_options = {};
     module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 #ifndef NDEBUG
-    std::cout << "OPTIX_COMPILE_DEBUG_LEVEL_FULL" << std::endl;
+    // std::cout << "OPTIX_COMPILE_DEBUG_LEVEL_FULL" << std::endl;
     module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else
@@ -383,11 +383,11 @@ SphereProgramGeneric::SphereProgramGeneric(
     
     pipeline_compile_options.numPayloadValues      = 8;
     pipeline_compile_options.numAttributeValues    = 2;
-// #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
+#ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-// #else
-//     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
-// #endif
+#else
+    pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
+#endif
     pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
     pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
 
@@ -488,11 +488,11 @@ SphereProgramGeneric::SphereProgramGeneric(
 
     OptixPipelineLinkOptions pipeline_link_options = {};
     pipeline_link_options.maxTraceDepth          = max_trace_depth;
-// #ifndef NDEBUG
+#ifndef NDEBUG
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-// #else
-//     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
-// #endif
+#else
+    pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
+#endif
     sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
                 scene->context()->ref(),

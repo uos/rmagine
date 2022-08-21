@@ -17,6 +17,7 @@
 #include "rmagine/util/optix/OptixData.hpp"
 
 #include <rmagine/map/optix/OptixScene.hpp>
+#include <rmagine/map/optix/OptixInst.hpp>
 #include <rmagine/map/optix/optix_shapes.h>
 #include <rmagine/util/prints.h>
 
@@ -1290,34 +1291,46 @@ void test_plain_optix()
 void test_rm_optix()
 {
     OptixScenePtr scene1 = std::make_shared<OptixScene>();
+    {   // 3 meshes
+        OptixMeshPtr cube1 = std::make_shared<OptixCube>();
+        OptixMeshPtr cube2 = std::make_shared<OptixCube>();
+        OptixMeshPtr cube3 = std::make_shared<OptixCube>();
 
-    // 3 meshes
-    OptixMeshPtr cube1 = std::make_shared<OptixCube>();
-    OptixMeshPtr cube2 = std::make_shared<OptixCube>();
-    OptixMeshPtr cube3 = std::make_shared<OptixCube>();
+        
+        Transform T = Transform::Identity();
+        T.t = {0.0, 5.0, 0.0};
+        cube2->setTransform(T);
+        cube2->apply();
 
-    
-    Transform T = Transform::Identity();
-    T.t = {0.0, 5.0, 0.0};
-    cube2->setTransform(T);
-    cube2->apply();
+        T.t = {0.0, 10.0, 0.0};
+        cube3->setTransform(T);
+        cube3->apply();
 
-    T.t = {0.0, 10.0, 0.0};
-    cube3->setTransform(T);
-    cube3->apply();
-
-    scene1->add(cube1);
-    scene1->add(cube2);
-    scene1->add(cube3);
-
-    // scene1->commit();
-
-    // scene1->remove(1);
+        scene1->add(cube1);
+        scene1->add(cube2);
+        scene1->add(cube3);
+    }
     scene1->commit();
-    
 
 
-    OptixContextPtr ctx = scene1->context();
+
+
+    OptixScenePtr scene2 = std::make_shared<OptixScene>();
+    {
+        for(size_t i=0; i<3; i++)
+        {
+            OptixInstPtr inst = scene1->instantiate();
+            Transform T = Transform::Identity();
+            T.t.z = static_cast<float>(i) * 2.0;
+            inst->setTransform(T);
+            inst->apply();
+            scene2->add(inst);
+        }
+    }
+    scene2->commit();
+
+
+
 
 
     Memory<OptixSimulationDataGenericSphere, RAM> flags(1);
@@ -1329,40 +1342,55 @@ void test_rm_optix()
     flags->computeGeomIds = true;
     flags->computeObjectIds = true;
 
-    SphereProgramGenericPtr program = std::make_shared<SphereProgramGeneric>(scene1, flags[0]);
+    SphereProgramGenericPtr program1 = std::make_shared<SphereProgramGeneric>(scene1, flags[0]);
 
     std::cout << "------ GAS1 - LAUNCH 1/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 0.0, 0.0});
+    quickLaunch(scene1, program1, flags, {-5.0, 0.0, 0.0});
 
     std::cout << "------ GAS1 - LAUNCH 2/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 5.0, 0.0});
+    quickLaunch(scene1, program1, flags, {-5.0, 5.0, 0.0});
 
     std::cout << "------ GAS1 - LAUNCH 3/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 10.0, 0.0});
+    quickLaunch(scene1, program1, flags, {-5.0, 10.0, 0.0});
 
 
     std::cout << "REMOVE MESH 1!" << std::endl;
-    scene1->remove(1);
+    OptixGeometryPtr mesh = scene1->remove(1);
     scene1->commit();
     
 
-    std::cout << "------ GAS2 - LAUNCH 1/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 0.0, 0.0});
+    std::cout << "------ GAS1 - LAUNCH 1/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 0.0, 0.0});
 
-    std::cout << "------ GAS2 - LAUNCH 2/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 5.0, 0.0});
+    std::cout << "------ GAS1 - LAUNCH 2/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 5.0, 0.0});
 
-    std::cout << "------ GAS2 - LAUNCH 3/3 -------" << std::endl;
-    quickLaunch(scene1, program, flags, {-5.0, 10.0, 0.0});
+    std::cout << "------ GAS1 - LAUNCH 3/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 10.0, 0.0});
+
+    std::cout << "ADD MESH 1!" << std::endl;
+    scene1->add(mesh);
+    scene1->commit();
+
+    scene1->commit();
+
+    std::cout << "------ GAS1 - LAUNCH 1/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 0.0, 0.0});
+
+    std::cout << "------ GAS1 - LAUNCH 2/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 5.0, 0.0});
+
+    std::cout << "------ GAS1 - LAUNCH 3/3 -------" << std::endl;
+    quickLaunch(scene1, program1, flags, {-5.0, 10.0, 0.0});
+
+
+    SphereProgramGenericPtr program2 = std::make_shared<SphereProgramGeneric>(scene2, flags[0]);
+
+    std::cout << "------ IAS1 - LAUNCH 1/3 -------" << std::endl;
+    quickLaunch(scene2, program2, flags, {-5.0, 0.0, 0.0});
 
 
 
-
-    // std::cout << "------ GAS2 - LAUNCH 1/2 -------" << std::endl;
-    // quickLaunch(stream, gas2, pipeline, sbt, {-5.0, 0.0, 0.0});
-
-    // std::cout << "------ GAS2 - LAUNCH 2/2 -------" << std::endl;
-    // quickLaunch(stream, gas2, pipeline, sbt, {-5.0, 10.0, 0.0});
 
 
 

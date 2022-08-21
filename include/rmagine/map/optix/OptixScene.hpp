@@ -48,7 +48,7 @@ public:
     void commit();
     unsigned int depth() const;
 
-    // Memory<HitGroupDataScene, RAM> m_h_hitgroup_data;
+    OptixInstPtr instantiate();
 
 
     SceneData m_scene_data_h;
@@ -79,6 +79,7 @@ private:
     void buildGAS();
 
     void buildIAS();
+    
 
     OptixAccelerationStructurePtr m_as;
 
@@ -91,6 +92,9 @@ private:
     std::unordered_map<OptixGeometryPtr, unsigned int> m_ids;
 
     std::unordered_set<OptixInstWPtr> m_parents;
+
+    bool m_geom_added = false;
+    bool m_geom_removed = false;
 };
 
 OptixScenePtr make_optix_scene(const aiScene* ascene, OptixContextPtr context = optix_default_context());

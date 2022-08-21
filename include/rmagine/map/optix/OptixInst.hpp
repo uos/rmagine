@@ -49,6 +49,8 @@ public:
     CUdeviceptr data_gpu() const;
 protected:
     
+    InstanceData m_sbt_data;
+
     OptixInstance m_data;
     // filled after commit
     CUdeviceptr m_data_gpu = 0;
