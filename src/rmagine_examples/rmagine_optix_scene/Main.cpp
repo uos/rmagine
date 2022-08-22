@@ -132,66 +132,28 @@ OptixMeshPtr custom_mesh()
 
 void scene_1()
 {
-    // std::cout << "Make Optix Mesh" << std::endl;
+    std::cout << "Make Optix Mesh" << std::endl;
 
-    // OptixScenePtr scene = std::make_shared<OptixScene>(); 
+    OptixScenePtr scene = std::make_shared<OptixScene>(); 
 
-    // OptixGeometryPtr geom1 = custom_mesh();
-    // geom1->commit();
-    // OptixGeometryPtr geom2 = std::make_shared<OptixSphere>(50, 50);
-    // geom2->commit();
+    OptixGeometryPtr geom1 = custom_mesh();
+    geom1->commit();
+    scene->add(geom1);
 
-    // scene->add(geom1);
-    // scene->add(geom2);
 
-    // OptixInstancesPtr insts = std::make_shared<OptixInstances>();
+    OptixGeometryPtr geom2 = std::make_shared<OptixSphere>(50, 50);
+    Transform T = Transform::Identity();
+    T.t.y = 5.0;
+    geom2->setTransform(T);
+    geom2->apply();
+    geom2->commit();
+    scene->add(geom2);
 
-    // {   // two custom instances (5, 0, 0) and (5, 5, 0)
-    //     OptixInstPtr geom_inst_1 = std::make_shared<OptixInst>();
-    //     geom_inst_1->setGeometry(geom1);
+    scene->commit();
+    std::cout << "Scene committed" << std::endl;
 
-    //     Transform T = Transform::Identity();
-    //     T.t.x = 5.0;
-    //     geom_inst_1->setTransform(T);
-    //     geom_inst_1->apply();
-    //     insts->add(geom_inst_1);
-    //     std::cout << T << std::endl;
-
-    //     OptixInstPtr geom_inst_2 = std::make_shared<OptixInst>();
-    //     geom_inst_2->setGeometry(geom1);
-    //     T.t.x = 10.0;
-    //     geom_inst_2->setTransform(T);
-    //     geom_inst_2->apply();
-    //     insts->add(geom_inst_2);
-    // }
-
-    // { // 10 sphere instances at z = 10 from x=0 to x=10
-    //     for(size_t i=0; i<10; i++)
-    //     {
-    //         OptixInstPtr geom_inst = std::make_shared<OptixInst>();
-
-    //         geom_inst->setGeometry(geom2);
-
-    //         Transform T = Transform::Identity();
-    //         T.t.z = 10.0;
-    //         T.t.x = static_cast<float>(i);
-    //         geom_inst->setTransform(T);
-    //         geom_inst->apply();
-
-    //         unsigned int id = insts->add(geom_inst);
-    //         std::cout << "Created Sphere instance " << id << std::endl;
-    //     }
-    // }
-
-    // std::cout << "Commit Instances" << std::endl;
-    // insts->commit();
-
-    // scene->setRoot(insts);
-    // scene->commit();
-    // std::cout << "Scene committed" << std::endl;
-
-    // printRaycast(scene, {0.0, 0.0, -0.1}, {0.0, 0.0, 0.0});
-    // printRaycast(scene, {0.0, 0.0, 10.0}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {-5.0, 0.0, 0.0}, {0.0, 0.0, 0.0});
+    printRaycast(scene, {-5.0, 5.0, 0.0}, {0.0, 0.0, 0.0});
 }
 
 void scene_2()

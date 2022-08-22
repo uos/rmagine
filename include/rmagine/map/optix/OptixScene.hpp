@@ -67,8 +67,10 @@ public:
     void addParent(OptixInstPtr parent);
 
     OptixSceneSBT sbt_data;
-private:
 
+    unsigned int required_sbt_entries = 0;
+
+private:
     void buildGAS();
 
     void buildIAS();

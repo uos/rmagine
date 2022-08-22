@@ -20,6 +20,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <rmagine/util/StopWatch.hpp>
+
 
 namespace rmagine {
 
@@ -210,7 +212,7 @@ SphereProgramGeneric::SphereProgramGeneric(
                 ));
     }
 
-    std::cout << "SCENE DEPTH: " << scene_depth << std::endl;
+    // std::cout << "SCENE DEPTH: " << scene_depth << std::endl;
 
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
@@ -265,9 +267,19 @@ SphereProgramGeneric::SphereProgramGeneric(
     // std::cout << "Construct SBT ..." << std::endl;
     // 4. setup shader binding table
 
+    // StopWatch sw;
+    // double el;
+    
+    // sw();
+    // const unsigned int max_branching = scene->required_sbt_entries;
+    // el = sw();
+    // std::cout << "BRANCHING: " << max_branching << ", call takes " << el * 1000.0 << "ms" << std::endl;
+
     // must be received from scene
     const size_t n_miss_record = 1;
     const size_t n_hitgroup_records = 100;
+
+    
 
 
     // fill Headers
@@ -302,7 +314,7 @@ void SphereProgramGeneric::updateSBT()
     // const size_t n_hitgroup_records = 100;
 
 
-    size_t n_hitgroups_required = 50;
+    size_t n_hitgroups_required = 120;
 
     
     // sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
@@ -310,14 +322,11 @@ void SphereProgramGeneric::updateSBT()
     // sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
     // sbt.hitgroupRecordCount         = n_hitgroups_required;
 
-
-    
-
     if(n_hitgroups_required > sbt.hitgroupRecordCount)
     {
-        // std::cout << "RESIZE SBT!" << std::endl;
-        cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) );
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), n_hitgroups_required ) );
+        // std::cout << "RESIZE SBT to " << n_hitgroups_required << std::endl;
+        CUDA_CHECK( cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) ) );
+        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), n_hitgroups_required * sbt.hitgroupRecordStrideInBytes ) );
         sbt.hitgroupRecordCount = n_hitgroups_required;
     }
 
@@ -342,7 +351,6 @@ void SphereProgramGeneric::updateSBT()
         hg_sbt[i].data = m_scene->sbt_data;
     }
 
-
     // upload
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( sbt.raygenRecord ),
@@ -358,12 +366,16 @@ void SphereProgramGeneric::updateSBT()
                 cudaMemcpyHostToDevice
                 ) );
     
+    // std::cout << "copy " << sbt.hitgroupRecordCount << ", " << hg_sbt.size() << std::endl;
     CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
                 hg_sbt.raw(),
                 hitgroup_record_size,
                 cudaMemcpyHostToDevice
                 ) );
+    
+    cudaDeviceSynchronize();
+    // std::cout << "done." << std::endl;
 }
 
 

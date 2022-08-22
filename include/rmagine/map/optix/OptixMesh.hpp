@@ -67,10 +67,12 @@ public:
     
 
     // after transform: read here
-    Memory<Point, VRAM_CUDA>    vertices_;
-    Memory<Vector, VRAM_CUDA>   face_normals_;
-    Memory<Vector, VRAM_CUDA>   vertex_normals_;
+    // Memory<Point, VRAM_CUDA>    vertices_;
+    // Memory<Vector, VRAM_CUDA>   face_normals_;
+    // Memory<Vector, VRAM_CUDA>   vertex_normals_;
 
+    float pre_transform_h[12];
+    CUdeviceptr pre_transform = 0;
 
     OptixMeshSBT sbt_data;
 private:

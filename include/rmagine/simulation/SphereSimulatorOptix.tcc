@@ -245,7 +245,7 @@ void SphereSimulatorOptix::simulate(
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
-        program->updateSBT();
+        // program->updateSBT();
     }
 
     // set general data

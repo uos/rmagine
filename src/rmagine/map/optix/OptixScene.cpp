@@ -130,7 +130,6 @@ OptixGeometryPtr OptixScene::remove(unsigned int geom_id)
     {
         OptixGeometryPtr geom = it->second;
 
-        
         m_geometries.erase(it);
         m_ids.erase(geom);
         geom->removeParent(this_shared<OptixScene>());
@@ -162,7 +161,6 @@ void OptixScene::commit()
     } else if(m_type == OptixSceneType::GEOMETRIES ) {
         buildGAS();
     }
-
 }
 
 unsigned int OptixScene::depth() const
@@ -221,7 +219,7 @@ void OptixScene::addParent(OptixInstPtr parent)
 
 void OptixScene::buildGAS()
 {
-    std::cout << "SCENE BUILD GAS" << std::endl;
+    // std::cout << "SCENE BUILD GAS" << std::endl;
 
     size_t n_build_inputs = m_geometries.size();
 
@@ -256,6 +254,13 @@ void OptixScene::buildGAS()
             triangle_input.triangleArray.numIndexTriplets    = mesh->faces.size();
             triangle_input.triangleArray.indexBuffer         = mesh->getFaceBuffer();
 
+            if(mesh->pre_transform)
+            {
+                triangle_input.triangleArray.transformFormat =  OPTIX_TRANSFORM_FORMAT_MATRIX_FLOAT12;
+                triangle_input.triangleArray.preTransform        = mesh->pre_transform;
+            }
+            
+
             // ADDITIONAL SETTINGS
             // move them to mesh object
             triangle_input.triangleArray.flags         = (const uint32_t [1]) { 
@@ -284,10 +289,6 @@ void OptixScene::buildGAS()
         sizeof(OptixGeomSBT) * n_build_inputs, 
         cudaMemcpyHostToDevice, m_stream->handle()) );
 
-
-    
-
-
     // Acceleration Options
     // Use default options for simplicity.  In a real use case we would want to
     // enable compaction, etc
@@ -302,16 +303,15 @@ void OptixScene::buildGAS()
     }
 
     accel_options.buildFlags = build_flags;
-    accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
 
     if(!m_geom_added && !m_geom_removed && m_as)
     {
         // UPDATE
-        std::cout << "GAS - UPDATE!" << std::endl;
+        // std::cout << "GAS - UPDATE!" << std::endl;
         accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
     } else {
         // BUILD   
-        std::cout << "GAS - BUILD!" << std::endl;
+        // std::cout << "GAS - BUILD!" << std::endl;
         accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
     }
 
@@ -374,12 +374,13 @@ void OptixScene::buildGAS()
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 
-    std::cout << "GAS constructed" << std::endl;
+    // std::cout << "GAS constructed" << std::endl;
 
 }
 
 void OptixScene::buildIAS()
 {
+    // std::cout << "[OptixScene::buildIAS()] start." << std::endl;
     const size_t n_instances = m_geometries.size();
 
     // fill m_hitgroup_data
@@ -387,11 +388,6 @@ void OptixScene::buildIAS()
 
     OptixSceneSBT sbt_data_h;
     cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_instances);
-
-    sbt_data.n_geometries = n_instances;
-    sbt_data.type = m_type;
-    CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_instances) );
-
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -406,6 +402,8 @@ void OptixScene::buildIAS()
         idx++;
     }
 
+    // std::cout << "- COPY INSTANCE DATA" << std::endl;
+    
     // COPY INSTANCES DATA
     CUdeviceptr m_inst_buffer;
     CUDA_CHECK( cudaMalloc( 
@@ -420,8 +418,20 @@ void OptixScene::buildIAS()
                 m_stream->handle()
                 ) );
 
-    cudaFreeHost(sbt_data_h.geometries);
+    
 
+    // std::cout << "- COPY SBT DATA" << std::endl;
+
+    
+
+    if(n_instances > sbt_data.n_geometries)
+    {
+        CUDA_CHECK( cudaFree( sbt_data.geometries ) );
+        CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_instances) );
+    }
+
+    sbt_data.n_geometries = n_instances;
+    sbt_data.type = m_type;
 
     // COPY INSTANCES SBT DATA
     CUDA_CHECK( cudaMemcpyAsync(
@@ -432,6 +442,11 @@ void OptixScene::buildIAS()
         m_stream->handle()
     ) );
 
+    // we dont need the host memory anymore
+    cudaFreeHost(sbt_data_h.geometries);
+
+
+    // std::cout << "- MAKE BUILD INPUT" << std::endl;
     // BEGIN WITH BUILD INPUT
 
     OptixBuildInput instance_input = {};
@@ -451,7 +466,21 @@ void OptixScene::buildIAS()
 
     ias_accel_options.buildFlags = build_flags;
     ias_accel_options.motionOptions.numKeys = 1;
-    ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+    
+    if(!m_geom_added && !m_geom_removed && m_as)
+    {
+        // UPDATE
+        // std::cout << "IAS - UPDATE!" << std::endl;
+        ias_accel_options.operation = OPTIX_BUILD_OPERATION_UPDATE;
+    } else {
+        // BUILD   
+        // std::cout << "IAS - BUILD!" << std::endl;
+        ias_accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+    }
+
+    m_geom_added = false;
+    m_geom_removed = false;
+
 
 
     OptixAccelBufferSizes ias_buffer_sizes;
@@ -468,17 +497,29 @@ void OptixScene::buildIAS()
         reinterpret_cast<void**>( &d_temp_buffer_ias ),
         ias_buffer_sizes.tempSizeInBytes) );
 
+    
     if(!m_as)
     {
+        // make new
         m_as = std::make_shared<OptixAccelerationStructure>();
+        CUDA_CHECK( cudaMalloc(
+                reinterpret_cast<void**>( &m_as->buffer ),
+                ias_buffer_sizes.outputSizeInBytes
+                ) );
+    } else {
+        if(m_as->buffer_size != ias_buffer_sizes.outputSizeInBytes)
+        {
+            // realloc
+            CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
+            CUDA_CHECK( cudaMalloc(
+                    reinterpret_cast<void**>( &m_as->buffer ),
+                    ias_buffer_sizes.outputSizeInBytes
+                    ) );
+        }
     }
-
-    CUDA_CHECK( cudaMalloc(
-        reinterpret_cast<void**>( &m_as->buffer ),
-        ias_buffer_sizes.outputSizeInBytes
-    ));
-
+    
     m_as->buffer_size = ias_buffer_sizes.outputSizeInBytes;
+    m_as->n_elements = n_instances;
 
 
     OPTIX_CHECK(optixAccelBuild( 
@@ -498,8 +539,10 @@ void OptixScene::buildIAS()
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
-    std::cout << "IAS constructed." << std::endl;
+    // std::cout << "[OptixScene::buildIAS()] done." << std::endl;
 }
+
+
 
 OptixScenePtr make_optix_scene(
     const aiScene* ascene, 
@@ -509,7 +552,7 @@ OptixScenePtr make_optix_scene(
 
     std::map<unsigned int, OptixMeshPtr> meshes;
     // 1. meshes
-    std::cout << "[make_optix_scene()] Loading Meshes..." << std::endl;
+    // std::cout << "[make_optix_scene()] Loading Meshes..." << std::endl;
 
     for(size_t i=0; i<ascene->mNumMeshes; i++)
     {
@@ -522,9 +565,9 @@ OptixScenePtr make_optix_scene(
             OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh);
             mesh->commit();
             meshes[i] = mesh;
-            std::cout << "Mesh " << i << "(" << mesh->name << ") added." << std::endl;
+            // std::cout << "Mesh " << i << "(" << mesh->name << ") added." << std::endl;
         } else {
-            std::cout << "[ make_embree_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
+            std::cout << "[ make_optix_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
         }
     }
 
@@ -557,14 +600,14 @@ OptixScenePtr make_optix_scene(
                 mesh_scene->add(mesh);
                 mesh_scene->commit();
             } else {
-                std::cout << "[make_embree_scene()] WARNING: could not find mesh_id " 
+                std::cout << "[make_optix_scene()] WARNING: could not find mesh_id " 
                     << mesh_id << " in meshes during instantiation" << std::endl;
             }
         }
 
         mesh_scene->commit();
 
-        std::cout << "--- mesh added to mesh_scene" << std::endl;
+        // std::cout << "--- mesh added to mesh_scene" << std::endl;
         OptixInstPtr mesh_instance = std::make_shared<OptixInst>();
         mesh_instance->set(mesh_scene);
         mesh_instance->name = node->mName.C_Str();
@@ -574,15 +617,15 @@ OptixScenePtr make_optix_scene(
         mesh_instance->commit();
         // std::cout << "--- mesh_instance created" << std::endl;
         unsigned int inst_id = scene->add(mesh_instance);
-        std::cout << "Instance " << inst_id << " (" << mesh_instance->name << ") added" << std::endl;
+        // std::cout << "Instance " << inst_id << " (" << mesh_instance->name << ") added" << std::endl;
     }
 
-    if(scene->type() != OptixSceneType::INSTANCES)
-    {
-        std::cout << "add meshes that are not instanciated as geometry" << std::endl;
-    } else {
-        std::cout << "add meshes that are not instanciated as instance" << std::endl;
-    }
+    // if(scene->type() != OptixSceneType::INSTANCES)
+    // {
+    //     std::cout << "add meshes that are not instanciated as geometry" << std::endl;
+    // } else {
+    //     std::cout << "add meshes that are not instanciated as instance" << std::endl;
+    // }
 
     // ADD MESHES THAT ARE NOT INSTANCIATED
     for(auto elem : meshes)

@@ -71,30 +71,47 @@ OptixMesh::OptixMesh(
 OptixMesh::~OptixMesh()
 {
     // std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
+    if(pre_transform)
+    {
+        cudaFree( reinterpret_cast<void*>( pre_transform ) );
+    }
 }
 
 void OptixMesh::apply()
 {
-    // TODO
-    Memory<Matrix4x4, RAM> M(1);
-    M[0] = matrix();
+    Matrix4x4 M = matrix();
 
-    Memory<Matrix4x4, VRAM_CUDA> M_;
-    M_ = M;
+    pre_transform_h[ 0] = M(0,0); // Rxx
+    pre_transform_h[ 1] = M(0,1); // Rxy
+    pre_transform_h[ 2] = M(0,2); // Rxz
+    pre_transform_h[ 3] = M(0,3); // tx
+    pre_transform_h[ 4] = M(1,0); // Ryx
+    pre_transform_h[ 5] = M(1,1); // Ryy
+    pre_transform_h[ 6] = M(1,2); // Ryz
+    pre_transform_h[ 7] = M(1,3); // ty 
+    pre_transform_h[ 8] = M(2,0); // Rzx
+    pre_transform_h[ 9] = M(2,1); // Rzy
+    pre_transform_h[10] = M(2,2); // Rzz
+    pre_transform_h[11] = M(2,3); // tz
 
-    if(vertices_.size() != vertices.size())
+    if(!pre_transform)
     {
-        vertices_.resize(vertices.size());
+        CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>(&pre_transform), sizeof(float) * 12 ) );
     }
-    
-    mult1xN(M_, vertices, vertices_);
+
+    CUDA_CHECK( cudaMemcpy(
+        reinterpret_cast<void*>(pre_transform),
+        pre_transform_h,
+        sizeof(float) * 12,
+        cudaMemcpyHostToDevice
+    ));
 
     m_changed = true;
 }
 
 void OptixMesh::commit()
 {
-    m_vertices_ref = reinterpret_cast<CUdeviceptr>(vertices_.raw());
+    m_vertices_ref = reinterpret_cast<CUdeviceptr>(vertices.raw());
 
     sbt_data.vertex_normals = vertex_normals.raw();
     sbt_data.face_normals = face_normals.raw();

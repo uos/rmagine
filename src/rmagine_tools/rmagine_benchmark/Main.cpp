@@ -214,28 +214,27 @@ int main(int argc, char** argv)
         Memory<unsigned int, RAM> geom_ids_cpu;
         Memory<unsigned int, RAM> obj_ids_cpu;
         using ResultT = Bundle<
-            Ranges<VRAM_CUDA>,
-            Normals<VRAM_CUDA>,
-            GeomIds<VRAM_CUDA>,
-            ObjectIds<VRAM_CUDA>
+            Ranges<VRAM_CUDA>
+            ,Normals<VRAM_CUDA>
+            // ,GeomIds<VRAM_CUDA>
+            // ,ObjectIds<VRAM_CUDA>
         >;
 
 
         ResultT res;
-        res.ranges.resize(Tbm.size() * model->size());
-        res.normals.resize(Tbm.size() * model->size());
-        res.geom_ids.resize(Tbm.size() * model->size());
-        res.object_ids.resize(Tbm.size() * model->size());
+
+        resizeMemoryBundle<VRAM_CUDA>(res, Tbm.size(), model->phi.size, model->theta.size);
+        
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;
-        geom_ids_cpu = res.geom_ids;
-        obj_ids_cpu = res.object_ids;
+        // geom_ids_cpu = res.geom_ids;
+        // obj_ids_cpu = res.object_ids;
         
         std::cout << "Last Ray:" << std::endl;
         
         std::cout << "- range: " << ranges_cpu[Tbm.size() * model->size() - 1] << std::endl;
-        std::cout << "- geom id: " << geom_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
-        std::cout << "- obj id: " << obj_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
+        // std::cout << "- geom id: " << geom_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
+        // std::cout << "- obj id: " << obj_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
         
         std::cout << "-- Starting Benchmark --" << std::endl;
 
