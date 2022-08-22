@@ -34,8 +34,6 @@ extern "C" __global__ void __raygen__rg()
 
     unsigned int p0, p1, p2, p3, p4, p5, p6, p7;
     
-    // printf("ray: %f %f %f - %f %f %f \n", Tsm.t.x, Tsm.t.y, Tsm.t.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
-
     p0 = glob_id;
     p1 = __float_as_uint(Tsm.R.x);
     p2 = __float_as_uint(Tsm.R.y);
@@ -315,8 +313,6 @@ void computeNoObjectId()
 
 extern "C" __global__ void __miss__ms()
 {
-    // printf("MISS!\n");
-
     if(mem.computeHits)
     {
         computeNoHit();
@@ -355,8 +351,6 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
-    // printf("HIT!\n");
-
     if(mem.computeHits)
     {
         computeHit();

@@ -62,33 +62,4 @@ extern "C" __global__ void __closesthit__ch()
     const float t = optixGetRayTmax();
     const unsigned int glob_id = optixGetPayload_0();
     mem.ranges[glob_id] = t;
-
-
-    // printf("HIT!\n");
-
-    // __UINT32_MAX__
-    // printf("Max uint : %u\n", __UINT_MAX__);
-
-    // const unsigned int inst_id = optixGetInstanceId();
-    // const unsigned int sbt_gas_id = optixGetSbtGASIndex();
-
-
-    // // printf("- inst_id: %u\n", inst_id);
-    // // printf("- sbt_id: %u\n", sbt_gas_id);
-
-    // unsigned int geom_id;
-
-    // rmagine::SceneData* scene_data  = reinterpret_cast<rmagine::SceneData*>( optixGetSbtDataPointer() );
-    // if(scene_data->type == OptixSceneType::INSTANCES)
-    // {
-    //     // instance hierarchy
-    //     geom_id = scene_data->geometries[inst_id].inst_data.scene->sbtgas_to_geom[sbt_gas_id];
-    // } else {
-    //     geom_id = scene_data->sbtgas_to_geom[sbt_gas_id];
-    // }
-
-
-    
-    // printf("- geom_id: %u\n", geom_id);
-
 }

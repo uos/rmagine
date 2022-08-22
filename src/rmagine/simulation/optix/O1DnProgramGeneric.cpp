@@ -25,6 +25,14 @@ namespace rmagine {
 O1DnProgramGeneric::O1DnProgramGeneric(
     OptixMapPtr map,
     const OptixSimulationDataGenericO1Dn& flags)
+:O1DnProgramGeneric(map->scene(), flags)
+{
+
+}
+
+O1DnProgramGeneric::O1DnProgramGeneric(
+    OptixScenePtr scene,
+    const OptixSimulationDataGenericO1Dn& flags)
 {
     const char *kernel =
     #include "kernels/O1DnProgramGenericString.h"
@@ -34,7 +42,7 @@ O1DnProgramGeneric::O1DnProgramGeneric(
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
     
-    OptixModuleCompileBoundValueEntry options[6];
+    OptixModuleCompileBoundValueEntry options[7];
     // computeHits
     options[0] = {};
     options[0].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericO1Dn, computeHits);
@@ -60,11 +68,16 @@ O1DnProgramGeneric::O1DnProgramGeneric(
     options[4].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericO1Dn, computeFaceIds);
     options[4].sizeInBytes = sizeof( OptixSimulationDataGenericO1Dn::computeFaceIds );
     options[4].boundValuePtr = &flags.computeFaceIds;
-    // computeObjectIds
+    // computeGeomIds
     options[5] = {};
-    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericO1Dn, computeObjectIds);
-    options[5].sizeInBytes = sizeof( OptixSimulationDataGenericO1Dn::computeObjectIds );
-    options[5].boundValuePtr = &flags.computeObjectIds;
+    options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericO1Dn, computeGeomIds);
+    options[5].sizeInBytes = sizeof( OptixSimulationDataGenericO1Dn::computeGeomIds );
+    options[5].boundValuePtr = &flags.computeGeomIds;
+    // computeObjectIds
+    options[6] = {};
+    options[6].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericO1Dn, computeObjectIds);
+    options[6].sizeInBytes = sizeof( OptixSimulationDataGenericO1Dn::computeObjectIds );
+    options[6].boundValuePtr = &flags.computeObjectIds;
 
 
     OptixModuleCompileOptions module_compile_options = {};
@@ -77,23 +90,31 @@ O1DnProgramGeneric::O1DnProgramGeneric(
     module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
 #endif
     module_compile_options.boundValues = &options[0];
-    module_compile_options.numBoundValues = 6;
+    module_compile_options.numBoundValues = 7;
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
 
     
-    OptixScenePtr scene = map->scene();
-    OptixGeometryPtr geom = scene->getRoot();
-    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
-    
-    if(insts)
+    OptixSceneType scene_type = scene->type();
+    unsigned int scene_depth = scene->depth();
+
+    if(scene_depth < 1)
     {
+        std::cout << "ERROR: OptixScene is empty" << std::endl; 
+        throw std::runtime_error("OptixScene has not root");
+    } else if(scene_depth < 2) {
+        // 1 Only GAS
+        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+    } else if(scene_depth < 3) {
+        // 2 Only single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
-        std::cout << "OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS" << std::endl;
-        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+        // 3 or more allow any
+        // careful: with two level IAS performance is half as slow as single level IAS
+        pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     }
+    
     pipeline_compile_options.numPayloadValues      = 8;
     pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
@@ -138,7 +159,7 @@ O1DnProgramGeneric::O1DnProgramGeneric(
         
 
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                    geom->context()->ref(),
+                    scene->context()->ref(),
                     &raygen_prog_group_desc,
                     1,   // num program groups
                     &program_group_options,
@@ -174,7 +195,7 @@ O1DnProgramGeneric::O1DnProgramGeneric(
         hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
         hitgroup_prog_group_desc.hitgroup.moduleCH            = module;
         hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
-
+        
         OPTIX_CHECK_LOG( optixProgramGroupCreate(
                 scene->context()->ref(),
                 &hitgroup_prog_group_desc,
@@ -186,14 +207,12 @@ O1DnProgramGeneric::O1DnProgramGeneric(
                 ));
     }
 
+    // std::cout << "SCENE DEPTH: " << scene_depth << std::endl;
+
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
-    uint32_t    max_traversable_depth = 1;
-    if(insts)
-    {
-        max_traversable_depth = 2;
-    }
-    const uint32_t    max_trace_depth  = 1;
+    uint32_t    max_traversable_depth = scene_depth;
+    const uint32_t    max_trace_depth  = 1; // TODO: 31 is maximum. Set this dynamically?
     
     OptixProgramGroup program_groups[] = { 
         raygen_prog_group, 
@@ -210,7 +229,7 @@ O1DnProgramGeneric::O1DnProgramGeneric(
 #endif
     sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
-                geom->context()->ref(),
+                scene->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
                 program_groups,
@@ -233,7 +252,8 @@ O1DnProgramGeneric::O1DnProgramGeneric(
                                                 0,  // maxCCDepth
                                                 0,  // maxDCDEpth
                                                 &direct_callable_stack_size_from_traversal,
-                                                &direct_callable_stack_size_from_state, &continuation_stack_size ) );
+                                                &direct_callable_stack_size_from_state, 
+                                                &continuation_stack_size ) );
     OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
                                             direct_callable_stack_size_from_state, continuation_stack_size,
                                             max_traversable_depth  // maxTraversableDepth
@@ -242,28 +262,26 @@ O1DnProgramGeneric::O1DnProgramGeneric(
     // std::cout << "Construct SBT ..." << std::endl;
     // 4. setup shader binding table
 
-    // fill Headers
-    OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+    m_scene = scene;
 
-    const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
-    const size_t miss_record_size       = sizeof( MissSbtRecord );
-    const size_t hitgroup_record_size   = sizeof( HitGroupSbtRecord );
-
+    // must be received from scene
+    const size_t n_miss_record = 1;
+    const size_t n_hitgroup_records = scene->required_sbt_entries;
+    
 
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-    sbt.missRecordCount             = 1;
+    sbt.missRecordCount             = n_miss_record;
     sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-    sbt.hitgroupRecordCount         = 1;
+    sbt.hitgroupRecordCount         = n_hitgroup_records;
+    
+    const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
+    const size_t miss_record_size       = sbt.missRecordStrideInBytes * sbt.missRecordCount;
+    const size_t hitgroup_record_size   = sbt.hitgroupRecordStrideInBytes * sbt.hitgroupRecordCount;
 
     // malloc
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.raygenRecord ), raygen_record_size ) );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.missRecordBase ), miss_record_size) );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), hitgroup_record_size ) );
-    
-    m_scene = scene;
-    m_map = map;
 
     updateSBT();
 }
@@ -276,37 +294,67 @@ O1DnProgramGeneric::~O1DnProgramGeneric()
 
 void O1DnProgramGeneric::updateSBT()
 {
-    const size_t      raygen_record_size = sizeof( RayGenSbtRecord );
-    const size_t      miss_record_size = sizeof( MissSbtRecord );
-    const size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    
-    if(m_scene->m_h_hitgroup_data.size() == 0)
+    const size_t n_hitgroups_required = m_scene->required_sbt_entries;   
+
+    if(n_hitgroups_required > sbt.hitgroupRecordCount)
     {
-        std::cout << "[SphereProgramGeneric] ERROR no sbt data in scene. Did you call commit() on the scene first?" << std::endl;
+        // std::cout << "RESIZE SBT to " << n_hitgroups_required << std::endl;
+        CUDA_CHECK( cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) ) );
+        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), n_hitgroups_required * sbt.hitgroupRecordStrideInBytes ) );
+        sbt.hitgroupRecordCount = n_hitgroups_required;
     }
 
-    hg_sbt.data = m_scene->m_h_hitgroup_data[0];
+    const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
+    const size_t miss_record_size       = sbt.missRecordStrideInBytes * sbt.missRecordCount;
+    const size_t hitgroup_record_size   = sbt.hitgroupRecordStrideInBytes * sbt.hitgroupRecordCount;
+    
+    rg_sbt.resize(1);
+    OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt[0] ) );
+
+    ms_sbt.resize(sbt.missRecordCount);
+    for(size_t i=0; i<sbt.missRecordCount; i++)
+    {
+        OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt[i] ) );
+    }
+    
+    if(hg_sbt.size() < sbt.hitgroupRecordCount)
+    {
+        hg_sbt.resize(sbt.hitgroupRecordCount);
+        for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
+        {
+            OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt[i] ) );
+            hg_sbt[i].data = m_scene->sbt_data;
+        }
+    } else {
+        for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
+        {
+            hg_sbt[i].data = m_scene->sbt_data;
+        }
+    }
 
     // upload
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.raygenRecord ),
-                &rg_sbt,
+                rg_sbt.raw(),
                 raygen_record_size,
-                cudaMemcpyHostToDevice
-                ) );
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
+                )  );
 
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.missRecordBase ),
-                &ms_sbt,
+                ms_sbt.raw(),
                 miss_record_size,
-                cudaMemcpyHostToDevice
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
                 ) );
     
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
-                &hg_sbt,
+                hg_sbt.raw(),
                 hitgroup_record_size,
-                cudaMemcpyHostToDevice
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
                 ) );
 }
 

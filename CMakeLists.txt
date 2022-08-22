@@ -235,15 +235,15 @@ if(OptiX_FOUND)
         ## Pinhole
         # src/rmagine/simulation/optix/PinholeProgramRanges.cu
         # src/rmagine/simulation/optix/PinholeProgramNormals.cu
-        # src/rmagine/simulation/optix/PinholeProgramGeneric.cu
+        src/rmagine/simulation/optix/PinholeProgramGeneric.cu
         # ## O1Dn
         # src/rmagine/simulation/optix/O1DnProgramRanges.cu
         # src/rmagine/simulation/optix/O1DnProgramNormals.cu
-        # src/rmagine/simulation/optix/O1DnProgramGeneric.cu
+        src/rmagine/simulation/optix/O1DnProgramGeneric.cu
         # ## OnDn
         # src/rmagine/simulation/optix/OnDnProgramRanges.cu
         # src/rmagine/simulation/optix/OnDnProgramNormals.cu
-        # src/rmagine/simulation/optix/OnDnProgramGeneric.cu
+        src/rmagine/simulation/optix/OnDnProgramGeneric.cu
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -298,15 +298,15 @@ if(OptiX_FOUND)
         # ## Pinhole
         # src/rmagine/simulation/optix/PinholeProgramRanges.cpp
         # src/rmagine/simulation/optix/PinholeProgramNormals.cpp
-        # src/rmagine/simulation/optix/PinholeProgramGeneric.cpp
+        src/rmagine/simulation/optix/PinholeProgramGeneric.cpp
         # ## O1Dn
         # src/rmagine/simulation/optix/O1DnProgramRanges.cpp
         # src/rmagine/simulation/optix/O1DnProgramNormals.cpp
-        # src/rmagine/simulation/optix/O1DnProgramGeneric.cpp
+        src/rmagine/simulation/optix/O1DnProgramGeneric.cpp
         # ## OnDn
         # src/rmagine/simulation/optix/OnDnProgramRanges.cpp
         # src/rmagine/simulation/optix/OnDnProgramNormals.cpp
-        # src/rmagine/simulation/optix/OnDnProgramGeneric.cpp
+        src/rmagine/simulation/optix/OnDnProgramGeneric.cpp
     )
 
     target_include_directories(rmagine_optix PUBLIC

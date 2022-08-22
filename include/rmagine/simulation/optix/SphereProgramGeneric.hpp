@@ -7,6 +7,7 @@
 
 #include <rmagine/util/optix/OptixSbtRecord.hpp>
 #include <rmagine/map/optix/optix_definitions.h>
+#include <rmagine/map/optix/optix_sbt.h>
 
 #include <memory>
 
@@ -29,19 +30,15 @@ public:
 
     SphereProgramGeneric(
         OptixScenePtr scene,
-        const OptixSimulationDataGenericSphere& flags
-    );
+        const OptixSimulationDataGenericSphere& flags);
 
     virtual ~SphereProgramGeneric();
 
     void updateSBT();
 
 private:
-    // scene container
-    OptixMapPtr         m_map;
     // currently used scene
     OptixScenePtr       m_scene;
-
 
     Memory<RayGenSbtRecord, RAM> rg_sbt;
     Memory<MissSbtRecord, RAM> ms_sbt;

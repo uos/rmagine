@@ -7,6 +7,9 @@
 
 #include <rmagine/util/optix/OptixSbtRecord.hpp>
 #include <rmagine/map/optix/optix_definitions.h>
+#include <rmagine/map/optix/optix_sbt.h>
+
+#include <memory>
 
 namespace rmagine {
 
@@ -14,7 +17,7 @@ class OnDnProgramGeneric : public OptixProgram
 {
     using RayGenData        = RayGenDataEmpty;
     using MissData          = MissDataEmpty;
-    using HitGroupData      = HitGroupDataScene;
+    using HitGroupData      = OptixSceneSBT;
 
     using RayGenSbtRecord   = SbtRecord<RayGenData>;
     using MissSbtRecord     = SbtRecord<MissData>;
@@ -24,20 +27,24 @@ public:
         OptixMapPtr map,
         const OptixSimulationDataGenericOnDn& flags);
 
+    OnDnProgramGeneric(
+        OptixScenePtr scene,
+        const OptixSimulationDataGenericOnDn& flags);
+
     virtual ~OnDnProgramGeneric();
 
     void updateSBT();
 
 private:
-    // scene container
-    OptixMapPtr         m_map;
     // currently used scene
     OptixScenePtr       m_scene;
 
-    RayGenSbtRecord     rg_sbt;
-    MissSbtRecord       ms_sbt;
-    HitGroupSbtRecord   hg_sbt;
+    Memory<RayGenSbtRecord, RAM> rg_sbt;
+    Memory<MissSbtRecord, RAM> ms_sbt;
+    Memory<HitGroupSbtRecord, RAM> hg_sbt;
 };
+
+using OnDnProgramGenericPtr = std::shared_ptr<OnDnProgramGeneric>;
 
 } // namespace rmagine
 

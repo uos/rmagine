@@ -19,6 +19,10 @@
 #include <rmagine/types/MemoryCuda.hpp>
 #include <unordered_set>
 
+// #include <rmagine/util/optix/OptixSbtRecord.hpp>
+// #include <rmagine/util/optix/OptixData.hpp>
+
+
 namespace rmagine
 {
 
@@ -69,6 +73,7 @@ public:
     OptixSceneSBT sbt_data;
 
     unsigned int required_sbt_entries = 0;
+    
 
 private:
     void buildGAS();

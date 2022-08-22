@@ -195,7 +195,6 @@ void OptixScene::cleanupParents()
     }
 }
 
-
 std::unordered_set<OptixInstPtr> OptixScene::parents() const
 {
     std::unordered_set<OptixInstPtr> ret;
@@ -221,7 +220,9 @@ void OptixScene::buildGAS()
 {
     // std::cout << "SCENE BUILD GAS" << std::endl;
 
+
     size_t n_build_inputs = m_geometries.size();
+    required_sbt_entries = n_build_inputs; 
 
     OptixBuildInput build_inputs[n_build_inputs];
 
@@ -389,6 +390,8 @@ void OptixScene::buildIAS()
     OptixSceneSBT sbt_data_h;
     cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_instances);
 
+    required_sbt_entries = 0;
+
     size_t idx = 0;
     for(auto elem : m_geometries)
     {
@@ -396,6 +399,8 @@ void OptixScene::buildIAS()
         OptixInstPtr inst = std::dynamic_pointer_cast<OptixInst>(elem.second);
         inst_h[idx] = inst->data();
         inst_h[idx].instanceId = elem.first;
+
+        required_sbt_entries = std::max(required_sbt_entries, inst->scene()->required_sbt_entries); 
 
         sbt_data_h.geometries[idx].inst_data = inst->sbt_data;
 
@@ -421,9 +426,6 @@ void OptixScene::buildIAS()
     
 
     // std::cout << "- COPY SBT DATA" << std::endl;
-
-    
-
     if(n_instances > sbt_data.n_geometries)
     {
         CUDA_CHECK( cudaFree( sbt_data.geometries ) );
@@ -481,8 +483,6 @@ void OptixScene::buildIAS()
     m_geom_added = false;
     m_geom_removed = false;
 
-
-
     OptixAccelBufferSizes ias_buffer_sizes;
     OPTIX_CHECK( optixAccelComputeMemoryUsage( 
         m_ctx->ref(), 
@@ -538,6 +538,8 @@ void OptixScene::buildIAS()
     ));
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+
+    
 
     // std::cout << "[OptixScene::buildIAS()] done." << std::endl;
 }

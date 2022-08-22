@@ -71,7 +71,7 @@ SphereProgramGeneric::SphereProgramGeneric(
     options[4].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeFaceIds);
     options[4].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeFaceIds );
     options[4].boundValuePtr = &flags.computeFaceIds;
-    // computeFaceIds
+    // computeGeomIds
     options[5] = {};
     options[5].pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGenericSphere, computeGeomIds);
     options[5].sizeInBytes = sizeof( OptixSimulationDataGenericSphere::computeGeomIds );
@@ -105,7 +105,7 @@ SphereProgramGeneric::SphereProgramGeneric(
 
     if(scene_depth < 1)
     {
-        std::cout << "ERROR: OptixScene has not root" << std::endl; 
+        std::cout << "ERROR: OptixScene is empty" << std::endl; 
         throw std::runtime_error("OptixScene has not root");
     } else if(scene_depth < 2) {
         // 1 Only GAS
@@ -114,7 +114,6 @@ SphereProgramGeneric::SphereProgramGeneric(
         // 2 Only single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
-        std::cout << "ALLOW ANY" << std::endl;
         // 3 or more allow any
         // careful: with two level IAS performance is half as slow as single level IAS
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
@@ -267,23 +266,12 @@ SphereProgramGeneric::SphereProgramGeneric(
     // std::cout << "Construct SBT ..." << std::endl;
     // 4. setup shader binding table
 
-    // StopWatch sw;
-    // double el;
-    
-    // sw();
-    // const unsigned int max_branching = scene->required_sbt_entries;
-    // el = sw();
-    // std::cout << "BRANCHING: " << max_branching << ", call takes " << el * 1000.0 << "ms" << std::endl;
+    m_scene = scene;
 
     // must be received from scene
     const size_t n_miss_record = 1;
-    const size_t n_hitgroup_records = 100;
-
+    const size_t n_hitgroup_records = scene->required_sbt_entries;
     
-
-
-    // fill Headers
-    m_scene = scene;
 
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
     sbt.missRecordCount             = n_miss_record;
@@ -309,18 +297,7 @@ SphereProgramGeneric::~SphereProgramGeneric()
 
 void SphereProgramGeneric::updateSBT()
 {
-    // must be received from scene
-    // const size_t n_miss_record = 1;
-    // const size_t n_hitgroup_records = 100;
-
-
-    size_t n_hitgroups_required = 120;
-
-    
-    // sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
-    // sbt.missRecordCount             = n_miss_record;
-    // sbt.hitgroupRecordStrideInBytes = sizeof( HitGroupSbtRecord );
-    // sbt.hitgroupRecordCount         = n_hitgroups_required;
+    const size_t n_hitgroups_required = m_scene->required_sbt_entries;   
 
     if(n_hitgroups_required > sbt.hitgroupRecordCount)
     {
@@ -329,7 +306,6 @@ void SphereProgramGeneric::updateSBT()
         CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), n_hitgroups_required * sbt.hitgroupRecordStrideInBytes ) );
         sbt.hitgroupRecordCount = n_hitgroups_required;
     }
-
 
     const size_t raygen_record_size     = sizeof( RayGenSbtRecord );
     const size_t miss_record_size       = sbt.missRecordStrideInBytes * sbt.missRecordCount;
@@ -344,39 +320,45 @@ void SphereProgramGeneric::updateSBT()
         OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt[i] ) );
     }
     
-    hg_sbt.resize(sbt.hitgroupRecordCount);
-    for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
+    if(hg_sbt.size() < sbt.hitgroupRecordCount)
     {
-        OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt[i] ) );
-        hg_sbt[i].data = m_scene->sbt_data;
+        hg_sbt.resize(sbt.hitgroupRecordCount);
+        for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
+        {
+            OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt[i] ) );
+            hg_sbt[i].data = m_scene->sbt_data;
+        }
+    } else {
+        for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
+        {
+            hg_sbt[i].data = m_scene->sbt_data;
+        }
     }
 
     // upload
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.raygenRecord ),
                 rg_sbt.raw(),
                 raygen_record_size,
-                cudaMemcpyHostToDevice
-                ) );
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
+                )  );
 
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.missRecordBase ),
                 ms_sbt.raw(),
                 miss_record_size,
-                cudaMemcpyHostToDevice
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
                 ) );
     
-    // std::cout << "copy " << sbt.hitgroupRecordCount << ", " << hg_sbt.size() << std::endl;
-    CUDA_CHECK( cudaMemcpy(
+    CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.hitgroupRecordBase ),
                 hg_sbt.raw(),
                 hitgroup_record_size,
-                cudaMemcpyHostToDevice
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
                 ) );
-    
-    cudaDeviceSynchronize();
-    // std::cout << "done." << std::endl;
 }
-
 
 } // namespace rmagine
