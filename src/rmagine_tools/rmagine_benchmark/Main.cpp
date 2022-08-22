@@ -196,18 +196,10 @@ int main(int argc, char** argv)
         }
 
         OptixScenePtr scene = make_optix_scene(ascene);
-        
-
-        if(!scene->getRoot())
-        {
-            std::cout << "No Root!" << std::endl;
-        }
-
         scene->commit();
 
         // OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
         SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
-        // SphereSimulatorOptixPtr gpu_sim(new SphereSimulatorOptix(scene));
 
         gpu_sim->setTsb(Tsb);
         gpu_sim->setModel(model);
@@ -219,19 +211,32 @@ int main(int argc, char** argv)
         // Define what to simulate
 
         Memory<float, RAM> ranges_cpu;
+        Memory<unsigned int, RAM> geom_ids_cpu;
+        Memory<unsigned int, RAM> obj_ids_cpu;
         using ResultT = Bundle<
             Ranges<VRAM_CUDA>,
-            Normals<VRAM_CUDA>
+            Normals<VRAM_CUDA>,
+            GeomIds<VRAM_CUDA>,
+            ObjectIds<VRAM_CUDA>
         >;
 
 
         ResultT res;
-        res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
+        res.ranges.resize(Tbm.size() * model->size());
         res.normals.resize(Tbm.size() * model->size());
+        res.geom_ids.resize(Tbm.size() * model->size());
+        res.object_ids.resize(Tbm.size() * model->size());
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;
+        geom_ids_cpu = res.geom_ids;
+        obj_ids_cpu = res.object_ids;
         
-        std::cout << "- range of last ray: " << ranges_cpu[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
+        std::cout << "Last Ray:" << std::endl;
+        
+        std::cout << "- range: " << ranges_cpu[Tbm.size() * model->size() - 1] << std::endl;
+        std::cout << "- geom id: " << geom_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
+        std::cout << "- obj id: " << obj_ids_cpu[Tbm.size() * model->size() - 1] << std::endl;
+        
         std::cout << "-- Starting Benchmark --" << std::endl;
 
         double velos_per_second_mean = 0.0;
@@ -245,7 +250,7 @@ int main(int argc, char** argv)
             double n_dbl = static_cast<double>(run) + 1.0;
             // Simulate
             sw();
-            scene->commit();
+            // scene->commit();
             gpu_sim->simulate(Tbm_gpu, res);
             elapsed = sw();
             elapsed_total += elapsed;

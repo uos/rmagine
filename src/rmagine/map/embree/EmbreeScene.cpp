@@ -332,16 +332,6 @@ EmbreeScenePtr make_embree_scene(
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
         const aiNode* node = mesh_nodes[i];
-        // std::cout << "[make_embree_scene()] - " << i << ": " << node->mName.C_Str();
-        // std::cout << ", total path: ";
-
-        // std::vector<std::string> path = path_names(node);
-
-        // for(auto name : path)
-        // {
-        //     std::cout << name << "/";
-        // }
-        // std::cout << std::endl;
         
         Matrix4x4 M = global_transform(node);
         Transform T;
@@ -370,7 +360,6 @@ EmbreeScenePtr make_embree_scene(
         mesh_scene->commit();
 
         // std::cout << "--- mesh added to mesh_scene" << std::endl;
-
         EmbreeInstancePtr mesh_instance = std::make_shared<EmbreeInstance>();
         mesh_instance->set(mesh_scene);
         mesh_instance->name = node->mName.C_Str();

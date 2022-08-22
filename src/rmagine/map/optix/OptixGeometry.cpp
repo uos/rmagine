@@ -3,6 +3,7 @@
 
 #include "rmagine/map/optix/OptixAccelerationStructure.hpp"
 #include "rmagine/map/optix/OptixScene.hpp"
+#include "rmagine/map/optix/OptixInst.hpp"
 
 namespace rmagine
 {
@@ -68,6 +69,24 @@ std::unordered_set<OptixScenePtr> OptixGeometry::parents() const
 void OptixGeometry::addParent(OptixScenePtr parent)
 {
     m_parents.insert(parent);
+}
+
+OptixScenePtr OptixGeometry::makeScene()
+{
+    OptixScenePtr geom_scene = std::make_shared<OptixScene>(m_ctx);
+    geom_scene->add(this_shared<OptixGeometry>());
+    return geom_scene;
+}
+
+OptixInstPtr OptixGeometry::instantiate()
+{
+    OptixScenePtr geom_scene = makeScene();
+    geom_scene->commit();
+
+    OptixInstPtr geom_inst = std::make_shared<OptixInst>(m_ctx);
+    geom_inst->set(geom_scene);
+
+    return geom_inst;
 }
 
 } // namespace rmagine

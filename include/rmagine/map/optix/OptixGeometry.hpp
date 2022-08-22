@@ -40,6 +40,10 @@ public:
     bool removeParent(OptixScenePtr parent);
     bool hasParent(OptixScenePtr parent) const;
     void addParent(OptixScenePtr parent);
+
+    OptixScenePtr makeScene();
+    OptixInstPtr instantiate();
+
 protected:
     std::unordered_set<OptixSceneWPtr> m_parents;
 };

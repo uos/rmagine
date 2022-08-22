@@ -499,7 +499,6 @@ void OptixScene::buildIAS()
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
     std::cout << "IAS constructed." << std::endl;
-    
 }
 
 OptixScenePtr make_optix_scene(
@@ -508,131 +507,102 @@ OptixScenePtr make_optix_scene(
 {
     OptixScenePtr scene = std::make_shared<OptixScene>(context);
 
-    // // 1. meshes
-    // // std::cout << "[make_optix_scene()] Loading Meshes..." << std::endl;
+    std::map<unsigned int, OptixMeshPtr> meshes;
+    // 1. meshes
+    std::cout << "[make_optix_scene()] Loading Meshes..." << std::endl;
 
-    // for(size_t i=0; i<ascene->mNumMeshes; i++)
-    // {
-    //     // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
-    //     const aiMesh* amesh = ascene->mMeshes[i];
+    for(size_t i=0; i<ascene->mNumMeshes; i++)
+    {
+        // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
+        const aiMesh* amesh = ascene->mMeshes[i];
 
-    //     if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
-    //     {
-    //         // triangle mesh
-    //         OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh, context);
-    //         mesh->commit();
-    //         scene->add(mesh);
-    //     } else {
-    //         std::cout << "[ make_optix_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
-    //     }
-    // }
+        if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+        {
+            // triangle mesh
+            OptixMeshPtr mesh = std::make_shared<OptixMesh>(amesh);
+            mesh->commit();
+            meshes[i] = mesh;
+            std::cout << "Mesh " << i << "(" << mesh->name << ") added." << std::endl;
+        } else {
+            std::cout << "[ make_embree_scene(aiScene) ] WARNING: Could not construct geometry " << i << " prim type " << amesh->mPrimitiveTypes << " not supported yet. Skipping." << std::endl;
+        }
+    }
 
-    // // tmp
-    // auto meshes = scene->geometries();
+    // 2. instances (if available)
+    std::unordered_set<OptixGeometryPtr> instanciated_meshes;
+    const aiNode* root_node = ascene->mRootNode;
+    std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
 
-    // // 2. instances (if available)
-    // std::unordered_set<OptixGeometryPtr> instanciated_meshes;
-
-    // const aiNode* root_node = ascene->mRootNode;
-    // std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
-    
-    // // std::cout << "[make_optix_scene()] Loading Instances..." << std::endl;
-
-    // OptixInstancesPtr insts = std::make_shared<OptixInstances>(context);
-
-    // for(size_t i=0; i<mesh_nodes.size(); i++)
-    // {
-    //     const aiNode* node = mesh_nodes[i];
-    //     // std::cout << "[make_optix_scene()] - " << i << ": " << node->mName.C_Str();
-    //     // std::cout << ", total path: ";
-
-    //     // std::vector<std::string> path = path_names(node);   
-    //     // for(auto name : path)
-    //     // {
-    //     //     std::cout << name << "/";
-    //     // }
-    //     // std::cout << std::endl;
-
-    //     Matrix4x4 M = global_transform(node);
-    //     Transform T;
-    //     Vector3 scale;
-    //     decompose(M, T, scale);
-
-    //     std::vector<OptixInstPtr> mesh_insts;
+    // std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
+    for(size_t i=0; i<mesh_nodes.size(); i++)
+    {
+        const aiNode* node = mesh_nodes[i];
         
-        
-    //     if(node->mNumMeshes > 1)
-    //     {
-    //         // std::cout << "[make_optix_scene()] Optix Warning: More than one mesh per instance? TODO make this possible" << std::endl;
-        
-    //         // make flat hierarchy: one instance per mesh
-    //         for(unsigned int i = 0; i < node->mNumMeshes; i++)
-    //         {
-    //             unsigned int mesh_id = node->mMeshes[i];
-    //             auto mesh_it = meshes.find(mesh_id);
-    //             if(mesh_it != meshes.end())
-    //             {
-    //                 OptixGeometryPtr mesh = mesh_it->second;
-    //                 // mark as instanciated
-    //                 instanciated_meshes.insert(mesh);
+        Matrix4x4 M = global_transform(node);
+        Transform T;
+        Vector3 scale;
+        decompose(M, T, scale);
 
-    //                 OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
-    //                 mesh_inst->setGeometry(mesh);
-    //                 mesh_inst->name = std::string(node->mName.C_Str()) + "/" + mesh->name;
-    //                 mesh_insts.push_back(mesh_inst);
-    //             } else {
-    //                 // TODO: warning
-    //                 std::cout << "[make_optix_scene()] WARNING could not find mesh_id " << mesh_id << " in meshes" << std::endl;
-    //             }
-    //         }
-    //     } else {
-    //         unsigned int mesh_id = node->mMeshes[0];
-    //         auto mesh_it = meshes.find(mesh_id);
-    //         if(mesh_it != meshes.end())
-    //         {
-    //             OptixGeometryPtr mesh = mesh_it->second;
-    //             // mark as instanciated
-    //             instanciated_meshes.insert(mesh);
+        OptixScenePtr mesh_scene = std::make_shared<OptixScene>();
 
-    //             OptixInstPtr mesh_inst = std::make_shared<OptixInst>(context);
-    //             mesh_inst->setGeometry(mesh);
-    //             mesh_inst->name = node->mName.C_Str();
-    //             mesh_insts.push_back(mesh_inst);
-    //         } else {
-    //             // TODO: warning
-    //             std::cout << "[make_optix_scene()] WARNING could not find mesh_id " 
-    //                 << mesh_id << " in meshes during instantiation" << std::endl;
-    //         }
-    //     }
+        for(unsigned int i = 0; i<node->mNumMeshes; i++)
+        {
+            unsigned int mesh_id = node->mMeshes[i];
+            auto mesh_it = meshes.find(mesh_id);
+            if(mesh_it != meshes.end())
+            {
+                // mesh found
+                OptixMeshPtr mesh = mesh_it->second;
+                instanciated_meshes.insert(mesh);
+                mesh_scene->add(mesh);
+                mesh_scene->commit();
+            } else {
+                std::cout << "[make_embree_scene()] WARNING: could not find mesh_id " 
+                    << mesh_id << " in meshes during instantiation" << std::endl;
+            }
+        }
 
+        mesh_scene->commit();
 
-    //     for(auto mesh_inst : mesh_insts)
-    //     {
-    //         mesh_inst->setTransform(T);
-    //         mesh_inst->setScale(scale);
-    //         mesh_inst->apply();
-    //         insts->add(mesh_inst);
-    //     }
-    // }
+        std::cout << "--- mesh added to mesh_scene" << std::endl;
+        OptixInstPtr mesh_instance = std::make_shared<OptixInst>();
+        mesh_instance->set(mesh_scene);
+        mesh_instance->name = node->mName.C_Str();
+        mesh_instance->setTransform(T);
+        mesh_instance->setScale(scale);
+        mesh_instance->apply();
+        mesh_instance->commit();
+        // std::cout << "--- mesh_instance created" << std::endl;
+        unsigned int inst_id = scene->add(mesh_instance);
+        std::cout << "Instance " << inst_id << " (" << mesh_instance->name << ") added" << std::endl;
+    }
 
-    // if(instanciated_meshes.size() == 0)
-    // {
-    //     // SINGLE GAS
-    //     if(scene->geometries().size() == 1)
-    //     {
-    //         scene->setRoot(scene->geometries().begin()->second);
-    //     } else {
-    //         std::cout << "[make_optix_scene()] " << scene->geometries().size() << " unconnected meshes!" << std::endl;
-    //     }
-    // } else {
-        
-    //     if(instanciated_meshes.size() != meshes.size())
-    //     {
-    //         std::cout << "[make_optix_scene()] There are some meshes left" << std::endl;
-    //     }
-    //     insts->commit();
-    //     scene->setRoot(insts);
-    // }
+    if(scene->type() != OptixSceneType::INSTANCES)
+    {
+        std::cout << "add meshes that are not instanciated as geometry" << std::endl;
+    } else {
+        std::cout << "add meshes that are not instanciated as instance" << std::endl;
+    }
+
+    // ADD MESHES THAT ARE NOT INSTANCIATED
+    for(auto elem : meshes)
+    {
+        auto mesh = elem.second;
+        if(instanciated_meshes.find(mesh) == instanciated_meshes.end())
+        {
+            // mesh was never instanciated. add to scene
+            if(scene->type() != OptixSceneType::INSTANCES)
+            {
+                scene->add(mesh);
+            } else {
+                // mesh->instantiate();
+                OptixInstPtr geom_inst = mesh->instantiate();
+                geom_inst->apply();
+                geom_inst->commit();
+                scene->add(geom_inst);
+            }
+        }
+    }
 
     return scene;
 }

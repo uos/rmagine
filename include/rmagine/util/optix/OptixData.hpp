@@ -95,40 +95,6 @@ struct HitGroupDataScene {
     MeshAttributes* mesh_attributes = nullptr;
 };
 
-// TODO MOVE TO MAP
-
-// FORWARD DECLARE
-// union OptixGeomSBT;
-// struct OptixSceneSBT;
-// struct OptixMeshSBT;
-// struct OptixInstanceSBT;
-
-
-// struct OptixMeshSBT
-// {
-//     Vector* vertex_normals = nullptr;
-//     Vector* face_normals = nullptr;
-//     unsigned int id = 0;
-// };
-
-// struct OptixInstanceSBT
-// {
-//     OptixSceneSBT* scene = nullptr;
-// };
-
-// union OptixGeomSBT
-// {
-//     OptixMeshSBT mesh_data;
-//     OptixInstanceSBT inst_data;
-// };
-
-// struct OptixSceneSBT
-// {
-//     OptixSceneType type;
-//     unsigned int n_geometries = 0;
-//     OptixGeomSBT* geometries = nullptr;
-// };
-
 } // namespace rmagine
 
 #endif // RMAGINE_OPTIX_DATA_HPP
