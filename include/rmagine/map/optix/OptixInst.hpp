@@ -31,7 +31,7 @@ public:
     OptixScenePtr scene() const;
 
     virtual void apply();
-    // virtual void commit();
+    virtual void commit();
     virtual unsigned int depth() const;
 
     void setId(unsigned int id);
@@ -46,14 +46,13 @@ public:
     }
 
     OptixInstance data() const;
-    CUdeviceptr data_gpu() const;
-protected:
-    
-    InstanceData m_sbt_data;
 
+    OptixInstanceSBT sbt_data;
+protected:
     OptixInstance m_data;
+
     // filled after commit
-    CUdeviceptr m_data_gpu = 0;
+    // CUdeviceptr m_data_gpu = 0;
     // CUdeviceptr m_data_gpu;
 
     OptixScenePtr m_scene;

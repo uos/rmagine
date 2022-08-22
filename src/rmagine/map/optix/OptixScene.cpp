@@ -25,14 +25,9 @@ OptixScene::OptixScene(OptixContextPtr context)
 
 OptixScene::~OptixScene()
 {
-    if(m_scene_data_h.geometries)
+    if(sbt_data.geometries)
     {
-        cudaFreeHost(m_scene_data_h.geometries);
-    }
-
-    if(m_scene_data_d.geometries)
-    {
-        cudaFree(m_scene_data_d.geometries);
+        cudaFree(sbt_data.geometries);
     }
 
     for(auto elem : m_geometries)
@@ -232,14 +227,13 @@ void OptixScene::buildGAS()
 
     OptixBuildInput build_inputs[n_build_inputs];
 
-    m_scene_data_h.n_geometries = n_build_inputs;
-    m_scene_data_h.type = m_type;
-    cudaMallocHost(&m_scene_data_h.geometries, sizeof(GeomData) * n_build_inputs);
+    OptixSceneSBT sbt_data_h;
+    cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_build_inputs);
 
     // TODO make proper realloc
-    m_scene_data_d.n_geometries = n_build_inputs;
-    m_scene_data_d.type = m_type;
-    cudaMalloc(&m_scene_data_d.geometries, sizeof(GeomData) * n_build_inputs);
+    sbt_data.n_geometries = n_build_inputs;
+    sbt_data.type = m_type;
+    CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_build_inputs) );
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -273,8 +267,8 @@ void OptixScene::buildGAS()
             build_inputs[idx] = triangle_input;
 
             // SBT data
-            m_scene_data_h.geometries[idx].mesh_data = mesh->attributes;
-            m_scene_data_h.geometries[idx].mesh_data.id = elem.first;
+            sbt_data_h.geometries[idx].mesh_data = mesh->sbt_data;
+            sbt_data_h.geometries[idx].mesh_data.id = elem.first;
             // std::cout << "Connect GAS SBT " << idx << " -> Mesh " << elem.first << std::endl;
         } else {
             std::cout << "WARNING COULD NOT FILL GAS INPUTS" << std::endl;
@@ -284,10 +278,11 @@ void OptixScene::buildGAS()
     }
 
     // copy sbt
-    cudaMemcpyAsync(m_scene_data_d.geometries, 
-        m_scene_data_h.geometries, 
-        sizeof(GeomData) * n_build_inputs, 
-        cudaMemcpyHostToDevice, m_stream->handle());
+    CUDA_CHECK( cudaMemcpyAsync(
+        sbt_data.geometries, 
+        sbt_data_h.geometries, 
+        sizeof(OptixGeomSBT) * n_build_inputs, 
+        cudaMemcpyHostToDevice, m_stream->handle()) );
 
 
     
@@ -390,14 +385,12 @@ void OptixScene::buildIAS()
     // fill m_hitgroup_data
     Memory<OptixInstance, RAM> inst_h(n_instances);
 
-    
-    m_scene_data_h.n_geometries = n_instances;
-    m_scene_data_h.type = m_type;
-    cudaMallocHost(&m_scene_data_h.geometries, sizeof(GeomData) * n_instances);
+    OptixSceneSBT sbt_data_h;
+    cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_instances);
 
-    m_scene_data_d.n_geometries = n_instances;
-    m_scene_data_d.type = m_type;
-    cudaMalloc(&m_scene_data_d.geometries, sizeof(GeomData) * n_instances);
+    sbt_data.n_geometries = n_instances;
+    sbt_data.type = m_type;
+    CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_instances) );
 
 
     size_t idx = 0;
@@ -407,9 +400,13 @@ void OptixScene::buildIAS()
         OptixInstPtr inst = std::dynamic_pointer_cast<OptixInst>(elem.second);
         inst_h[idx] = inst->data();
         inst_h[idx].instanceId = elem.first;
+
+        sbt_data_h.geometries[idx].inst_data = inst->sbt_data;
+
         idx++;
     }
 
+    // COPY INSTANCES DATA
     CUdeviceptr m_inst_buffer;
     CUDA_CHECK( cudaMalloc( 
         reinterpret_cast<void**>( &m_inst_buffer ), 
@@ -422,6 +419,18 @@ void OptixScene::buildIAS()
                 cudaMemcpyHostToDevice,
                 m_stream->handle()
                 ) );
+
+    cudaFreeHost(sbt_data_h.geometries);
+
+
+    // COPY INSTANCES SBT DATA
+    CUDA_CHECK( cudaMemcpyAsync(
+        sbt_data.geometries,
+        sbt_data_h.geometries,
+        sizeof(OptixGeomSBT) * n_instances,
+        cudaMemcpyHostToDevice,
+        m_stream->handle()
+    ) );
 
     // BEGIN WITH BUILD INPUT
 

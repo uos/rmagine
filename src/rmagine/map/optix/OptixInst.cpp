@@ -19,10 +19,16 @@ OptixInst::OptixInst(OptixContextPtr context)
 
 OptixInst::~OptixInst()
 {
-    if(m_data_gpu)
+    // if(m_data_gpu)
+    // {
+    //     cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
+    // }
+
+    if(sbt_data.scene)
     {
-        cudaFree( reinterpret_cast<void*>( m_data_gpu ) );
+        cudaFree(sbt_data.scene);
     }
+
     if(m_scene)
     {
         m_scene->cleanupParents();
@@ -57,25 +63,23 @@ void OptixInst::apply()
     m_data.transform[10] = M(2,2); // Rzz
     m_data.transform[11] = M(2,3); // tz
 
-    if(m_data_gpu)
-    {
-        // was committed before
-    } else {
-        // first alloc
-        CUDA_CHECK(cudaMalloc(
-            reinterpret_cast<void**>( &m_data_gpu ),
-            sizeof(OptixInstance)
-        ));
-    }
-
-    CUDA_CHECK(cudaMemcpy(
-        reinterpret_cast<void*>(m_data_gpu),
-        &m_data,
-        sizeof(OptixInstance),
-        cudaMemcpyHostToDevice
-    ));
-
     m_changed = true;
+}
+
+void OptixInst::commit()
+{
+    if(m_scene)
+    {
+        if(!sbt_data.scene)
+        {
+            CUDA_CHECK( cudaMalloc(&sbt_data.scene, sizeof(OptixSceneSBT) ) );
+        }
+
+        CUDA_CHECK( cudaMemcpy(
+            sbt_data.scene, 
+            &m_scene->sbt_data, 
+            sizeof(OptixSceneSBT), cudaMemcpyHostToDevice) );
+    }
 }
 
 unsigned int OptixInst::depth() const 
@@ -111,11 +115,6 @@ void OptixInst::enable()
 OptixInstance OptixInst::data() const
 {
     return m_data;
-}
-
-CUdeviceptr OptixInst::data_gpu() const
-{
-    return m_data_gpu;
 }
 
 } // namespace rmagine

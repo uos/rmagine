@@ -1,6 +1,7 @@
 #include <optix.h>
-#include "rmagine/math/math.h"
+#include "rmagine/math/types.h"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/map/optix/optix_sbt.h"
 
 #include <math_constants.h>
 
@@ -156,13 +157,13 @@ void computeNormalSBT()
     const Vector ray_dir_m{dir_m.x, dir_m.y, dir_m.z};
     const Vector ray_dir_s = Tms.R * ray_dir_m;
 
-    rmagine::SceneData* scene_data  = reinterpret_cast<rmagine::SceneData*>( optixGetSbtDataPointer() );
+    OptixSceneSBT* scene_data  = reinterpret_cast<OptixSceneSBT*>( optixGetSbtDataPointer() );
 
-    MeshData* mesh_data = nullptr;
+    OptixMeshSBT* mesh_data = nullptr;
     if(scene_data->type == OptixSceneType::INSTANCES)
     {
         // instance hierarchy
-        rmagine::SceneData* inst_scene = scene_data->geometries[inst_id].inst_data.scene;
+        OptixSceneSBT* inst_scene = scene_data->geometries[inst_id].inst_data.scene;
         mesh_data = &(inst_scene->geometries[gas_id].mesh_data);
     } else {
         mesh_data = &scene_data->geometries[gas_id].mesh_data;
@@ -279,7 +280,7 @@ void computeGeomId()
     unsigned int geom_id = 0;
     // printf("Inst %u, SBT GAS %u \n", inst_id, sbt_gas_id);
 
-    rmagine::SceneData* scene_data  = reinterpret_cast<rmagine::SceneData*>( optixGetSbtDataPointer() );
+    OptixSceneSBT* scene_data  = reinterpret_cast<OptixSceneSBT*>( optixGetSbtDataPointer() );
     if(scene_data->type == OptixSceneType::INSTANCES)
     {
         // instance hierarchy

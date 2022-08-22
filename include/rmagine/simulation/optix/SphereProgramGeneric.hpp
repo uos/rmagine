@@ -16,7 +16,7 @@ class SphereProgramGeneric : public OptixProgram
 {
     using RayGenData        = RayGenDataEmpty;
     using MissData          = MissDataEmpty;
-    using HitGroupData      = SceneData;
+    using HitGroupData      = OptixSceneSBT;
 
     using RayGenSbtRecord   = SbtRecord<RayGenData>;
     using MissSbtRecord     = SbtRecord<MissData>;

@@ -89,127 +89,16 @@ void OptixMesh::apply()
     
     mult1xN(M_, vertices, vertices_);
 
-    m_vertices_ref = reinterpret_cast<CUdeviceptr>(vertices_.raw());
-
-    attributes.vertex_normals = vertex_normals.raw();
-    attributes.face_normals = face_normals.raw();
+    m_changed = true;
 }
 
-// void OptixMesh::commit()
-// {
-//     // build/update acceleration structure
-//     if(vertices.size() != vertices_.size())
-//     {
-//         std::cout << "[OptixMesh::commit()] WARNING: transformation was not applied" << std::endl;
-//     }
+void OptixMesh::commit()
+{
+    m_vertices_ref = reinterpret_cast<CUdeviceptr>(vertices_.raw());
 
-    
-
-    // const uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT };
-    // OptixBuildInput triangle_input = {};
-    // triangle_input.type                        = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
-
-    // CUdeviceptr tmp = reinterpret_cast<CUdeviceptr>(vertices_.raw());
-
-    // // VERTICES
-    // triangle_input.triangleArray.vertexFormat  = OPTIX_VERTEX_FORMAT_FLOAT3;
-    // triangle_input.triangleArray.vertexStrideInBytes = sizeof(Point);
-    // triangle_input.triangleArray.numVertices   = vertices_.size();
-    // triangle_input.triangleArray.vertexBuffers = &tmp;
-
-    // // FACES
-    // // std::cout << "- define faces" << std::endl;
-    // triangle_input.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-    // triangle_input.triangleArray.indexStrideInBytes  = sizeof(Face);
-    // triangle_input.triangleArray.numIndexTriplets    = faces.size();
-    // triangle_input.triangleArray.indexBuffer         = reinterpret_cast<CUdeviceptr>(faces.raw());
-
-    // // ADDITIONAL SETTINGS
-    // triangle_input.triangleArray.flags         = triangle_input_flags;
-    // // TODO: this is bad. I define the sbt records inside the sensor programs. 
-    // triangle_input.triangleArray.numSbtRecords = 1;
-
-    // // Acceleration Options
-    // // Use default options for simplicity.  In a real use case we would want to
-    // // enable compaction, etc
-    // OptixAccelBuildOptions accel_options = {};
-
-    // unsigned int build_flags = OPTIX_BUILD_FLAG_NONE;
-
-    // { // BUILD FLAGS
-    //     build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
-    //     build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
-    //     build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_VERTEX_ACCESS;
-    // }
-
-    // accel_options.buildFlags = build_flags;
-
-    // if(m_as)
-    // {
-    //     // update existing structure
-    //     accel_options.operation  = OPTIX_BUILD_OPERATION_UPDATE;
-    // } else {
-    //     // No acceleration structure exists yet!
-    //     m_as = std::make_shared<OptixAccelerationStructure>();
-    //     accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
-    // }
-
-    // OptixAccelBufferSizes gas_buffer_sizes;
-    // OPTIX_CHECK( optixAccelComputeMemoryUsage(
-    //             m_ctx->ref(),
-    //             &accel_options,
-    //             &triangle_input,
-    //             1, // Number of build inputs
-    //             &gas_buffer_sizes
-    //             ) );
-    
-    // CUdeviceptr d_temp_buffer_gas;
-    // CUDA_CHECK( cudaMalloc(
-    //     reinterpret_cast<void**>( &d_temp_buffer_gas ),
-    //     gas_buffer_sizes.tempSizeInBytes) );
-
-    // if(m_as->buffer && (m_as->buffer_size != gas_buffer_sizes.outputSizeInBytes ) )
-    // {
-    //     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
-    //     m_as->buffer = 0;
-    //     m_as->buffer_size = 0;
-    // }
-
-    // if(!m_as->buffer)
-    // {
-    //     CUDA_CHECK( cudaMalloc(
-    //             reinterpret_cast<void**>( &m_as->buffer ),
-    //             gas_buffer_sizes.outputSizeInBytes
-    //             ) );
-    //     m_as->buffer_size = gas_buffer_sizes.outputSizeInBytes;
-    // }
-
-    // if(!m_stream->context()->isActive())
-    // {
-    //     m_stream->context()->use();
-    // }
-
-    // OPTIX_CHECK( optixAccelBuild(
-    //             m_ctx->ref(),
-    //             m_stream->handle(),                  // CUDA stream
-    //             &accel_options,
-    //             &triangle_input,
-    //             1,                  // num build inputs
-    //             d_temp_buffer_gas,
-    //             gas_buffer_sizes.tempSizeInBytes,
-    //             m_as->buffer,
-    //             gas_buffer_sizes.outputSizeInBytes,
-    //             &m_as->handle,
-    //             nullptr,            // emitted property list
-    //             0                   // num emitted properties
-    //             ) );
-    
-    // // TODO: Compact
-
-    // // // We can now free the scratch space buffer used during build and the vertex
-    // // // inputs, since they are not needed by our trivial shading method
-    // CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
-// }
+    sbt_data.vertex_normals = vertex_normals.raw();
+    sbt_data.face_normals = face_normals.raw();
+}
 
 unsigned int OptixMesh::depth() const
 {

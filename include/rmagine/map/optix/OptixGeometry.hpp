@@ -32,7 +32,7 @@ public:
     virtual unsigned int depth() const = 0;
 
     // virtual void apply() = 0 in OptixTransformable
-
+    virtual void commit() = 0;
 
     // handle parents
     void cleanupParents();

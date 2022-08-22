@@ -20,8 +20,7 @@
 
 #include "optix_definitions.h"
 
-
-#include <rmagine/util/optix/OptixData.hpp>
+#include "optix_sbt.h"
 
 
 namespace rmagine
@@ -45,7 +44,7 @@ public:
     virtual ~OptixMesh();
 
     virtual void apply();
-    // virtual void commit();
+    virtual void commit();
 
     virtual unsigned int depth() const;
 
@@ -73,7 +72,7 @@ public:
     Memory<Vector, VRAM_CUDA>   vertex_normals_;
 
 
-    MeshData attributes;
+    OptixMeshSBT sbt_data;
 private:
     CUdeviceptr m_vertices_ref;
 };

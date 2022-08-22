@@ -578,7 +578,7 @@ void SphereProgramGeneric::updateSBT()
 
     if(n_hitgroups_required > sbt.hitgroupRecordCount)
     {
-        std::cout << "RESIZE SBT!" << std::endl;
+        // std::cout << "RESIZE SBT!" << std::endl;
         cudaFree( reinterpret_cast<void*>( sbt.hitgroupRecordBase ) );
         CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), n_hitgroups_required ) );
         sbt.hitgroupRecordCount = n_hitgroups_required;
@@ -602,7 +602,7 @@ void SphereProgramGeneric::updateSBT()
     for(size_t i=0; i<sbt.hitgroupRecordCount; i++)
     {
         OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt[i] ) );
-        hg_sbt[i].data = m_scene->m_scene_data_d;
+        hg_sbt[i].data = m_scene->sbt_data;
     }
 
 

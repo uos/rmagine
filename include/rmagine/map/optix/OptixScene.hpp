@@ -7,6 +7,7 @@
 #include <optix.h>
 
 #include "optix_definitions.h"
+#include "optix_sbt.h"
 
 #include "OptixEntity.hpp"
 
@@ -15,12 +16,7 @@
 
 #include <assimp/scene.h>
 
-#include <rmagine/util/optix/OptixData.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
-
-#include "rmagine/util/optix/OptixSbtRecord.hpp"
-
-
 #include <unordered_set>
 
 namespace rmagine
@@ -50,10 +46,6 @@ public:
 
     OptixInstPtr instantiate();
 
-
-    SceneData m_scene_data_h;
-    SceneData m_scene_data_d;
-
     inline OptixAccelerationStructurePtr as() const
     {
         return m_as;
@@ -74,12 +66,12 @@ public:
     std::unordered_set<OptixInstPtr> parents() const;
     void addParent(OptixInstPtr parent);
 
+    OptixSceneSBT sbt_data;
 private:
 
     void buildGAS();
 
     void buildIAS();
-    
 
     OptixAccelerationStructurePtr m_as;
 

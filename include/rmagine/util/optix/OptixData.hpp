@@ -95,38 +95,39 @@ struct HitGroupDataScene {
     MeshAttributes* mesh_attributes = nullptr;
 };
 
+// TODO MOVE TO MAP
 
 // FORWARD DECLARE
-union GeomData;
-struct SceneData;
-struct MeshData;
-struct InstanceData;
+// union OptixGeomSBT;
+// struct OptixSceneSBT;
+// struct OptixMeshSBT;
+// struct OptixInstanceSBT;
 
 
-struct MeshData 
-{
-    Vector* vertex_normals;
-    Vector* face_normals;
-    unsigned int id;
-};
+// struct OptixMeshSBT
+// {
+//     Vector* vertex_normals = nullptr;
+//     Vector* face_normals = nullptr;
+//     unsigned int id = 0;
+// };
 
-struct InstanceData
-{
-    SceneData* scene = nullptr;
-};
+// struct OptixInstanceSBT
+// {
+//     OptixSceneSBT* scene = nullptr;
+// };
 
-union GeomData
-{
-    MeshData mesh_data;
-    InstanceData inst_data;
-};
+// union OptixGeomSBT
+// {
+//     OptixMeshSBT mesh_data;
+//     OptixInstanceSBT inst_data;
+// };
 
-struct SceneData
-{
-    OptixSceneType type;
-    unsigned int n_geometries = 0;
-    GeomData* geometries = nullptr;
-};
+// struct OptixSceneSBT
+// {
+//     OptixSceneType type;
+//     unsigned int n_geometries = 0;
+//     OptixGeomSBT* geometries = nullptr;
+// };
 
 } // namespace rmagine
 
