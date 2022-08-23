@@ -4,7 +4,6 @@
 #include "rmagine/util/optix/OptixDebug.hpp"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
-#include "rmagine/map/optix/OptixInstances.hpp"
 #include "rmagine/map/optix/OptixScene.hpp"
 #include "rmagine/map/optix/OptixInst.hpp"
 

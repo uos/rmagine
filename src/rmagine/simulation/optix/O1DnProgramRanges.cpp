@@ -5,7 +5,6 @@
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
 
-#include "rmagine/map/optix/OptixInstances.hpp"
 
 // use own lib instead
 #include "rmagine/util/optix/OptixUtil.hpp"

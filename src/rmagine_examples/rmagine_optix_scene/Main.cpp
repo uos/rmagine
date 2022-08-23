@@ -9,8 +9,6 @@
 // #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/map/optix/OptixMesh.hpp>
 #include <rmagine/map/optix/OptixBoxes.hpp>
-#include <rmagine/map/optix/OptixInst.hpp>
-#include <rmagine/map/optix/OptixInstances.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
 
 #include <rmagine/util/prints.h>

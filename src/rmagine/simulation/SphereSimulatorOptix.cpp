@@ -8,8 +8,6 @@
 
 #include <cuda_runtime.h>
 
-#include <rmagine/map/optix/OptixInstances.hpp>
-
 // Scan Programs
 #include <rmagine/simulation/optix/SphereProgramRanges.hpp>
 // #include <rmagine/simulation/optix/SphereProgramNormals.hpp>

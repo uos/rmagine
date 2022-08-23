@@ -132,16 +132,6 @@ private:
 
 
     // filled after commit and first sensor usage
-
-    // using RayGenData        = RayGenDataEmpty;
-    // using MissData          = MissDataEmpty;
-    // using HitGroupData      = OptixSceneSBT;
-
-    // using RayGenSbtRecord   = SbtRecord<RayGenData>;
-    // using MissSbtRecord     = SbtRecord<MissData>;
-    // using HitGroupSbtRecord = SbtRecord<HitGroupData>;
-
-
     OptixPipelineCompileOptions m_pipeline_compile_options;
     OptixProgramGroupOptions m_program_group_options;
     
