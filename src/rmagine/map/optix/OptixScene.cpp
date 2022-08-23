@@ -307,7 +307,14 @@ void OptixScene::commit()
     {
         // TODO: need to update pipelines (nearly everything)
 
+        if(m_pipelines.size() > 0)
+        {
+            std::cout << "[OptixScene::commit()] NEED TO UPDATE PIPELINES! Not implemented." << std::endl;
+        }
+
         m_pipeline_compile_options.traversableGraphFlags = m_traversable_graph_flags;
+    } else {
+        updateSBT();
     }
 }
 
@@ -523,8 +530,8 @@ void OptixScene::buildIAS()
     OptixSceneSBT sbt_data_h;
     cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_instances);
 
-    m_required_sbt_entries = 0;
-    m_depth = 0;
+    unsigned int required_sbt_entries = 0;
+    unsigned int depth_ = 0;
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -534,8 +541,8 @@ void OptixScene::buildIAS()
         inst_h[idx] = inst->data();
         inst_h[idx].instanceId = elem.first;
 
-        m_required_sbt_entries = std::max(m_required_sbt_entries, inst->scene()->requiredSBTEntries()); 
-        m_depth = std::max(m_depth, inst->scene()->depth() + 1);
+        required_sbt_entries = std::max(required_sbt_entries, inst->scene()->requiredSBTEntries()); 
+        depth_ = std::max(depth_, inst->scene()->depth() + 1);
 
         sbt_data_h.geometries[idx].inst_data = inst->sbt_data;
 
@@ -674,12 +681,27 @@ void OptixScene::buildIAS()
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
-    if(m_depth < 3)
+    if(depth_ < 3)
     {
         m_traversable_graph_flags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
         m_traversable_graph_flags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     }
+
+    // if(depth_ != m_depth)
+    // {
+    //     std::cout << "DEPTH CHANGED! " << m_depth << " -> " << depth_ << std::endl;
+    // }
+
+    // if(m_required_sbt_entries != required_sbt_entries)
+    // {
+    //     std::cout << "SBT CHANGED! " << m_required_sbt_entries << " -> " << required_sbt_entries << std::endl;
+    // }
+
+
+    m_required_sbt_entries = required_sbt_entries;
+    m_depth = depth_;
+
 }
 
 OptixSensorProgram OptixScene::registerSensorProgram(const OptixSimulationDataGeneric& flags)
@@ -1018,6 +1040,61 @@ OptixSensorProgram OptixScene::registerSensorProgram(const OptixSimulationDataGe
 
     // std::cout << "REGISTER SENSOR PROGRAM - finished." << std::endl;
     return program;
+}
+
+void OptixScene::updateSBT()
+{
+    const size_t n_hitgroups_required = requiredSBTEntries();
+
+    for(auto elem : m_sbts)
+    {
+        unsigned int bounding_id = boundingId(elem.first);
+        OptixSBTPtr sbt = elem.second;
+        
+        auto hit_it = m_hit_modules.find(bounding_id);
+
+        if(hit_it != m_hit_modules.end())
+        {
+            HitModulePtr hit_module = hit_it->second;
+
+            if(n_hitgroups_required > hit_module->record_hit_count)
+            {
+                // std::cout << "UPDATE SBT SIZE!" << std::endl;
+                CUDA_CHECK( cudaFreeHost( hit_module->record_hit_h ) );
+                CUDA_CHECK( cudaMallocHost( &hit_module->record_hit_h, n_hitgroups_required * hit_module->record_hit_stride ) );
+
+                for(size_t i=0; i<n_hitgroups_required; i++)
+                {
+                    OPTIX_CHECK( optixSbtRecordPackHeader( hit_module->prog_group_hit, &hit_module->record_hit_h[i] ) );
+                }
+
+                CUDA_CHECK( cudaFree( reinterpret_cast<void*>( hit_module->record_hit ) ) );
+                CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hit_module->record_hit ), n_hitgroups_required * hit_module->record_hit_stride ) );
+                
+                hit_module->record_hit_count = n_hitgroups_required;
+            }
+
+            for(size_t i=0; i<hit_module->record_hit_count; i++)
+            {
+                hit_module->record_hit_h[i].data = sbt_data;
+            }
+
+            CUDA_CHECK( cudaMemcpyAsync(
+                    reinterpret_cast<void*>( hit_module->record_hit ),
+                    hit_module->record_hit_h,
+                    hit_module->record_hit_count * hit_module->record_hit_stride,
+                    cudaMemcpyHostToDevice,
+                    m_stream->handle()
+                    ) );
+
+            sbt->sbt.hitgroupRecordBase = hit_module->record_hit;
+            sbt->sbt.hitgroupRecordStrideInBytes = hit_module->record_hit_stride;
+            sbt->sbt.hitgroupRecordCount = hit_module->record_hit_count;
+
+        } else {
+            std::cout << "[OptixScene::updateSBT()] ERROR - cannot find hit module of sbt" << std::endl;
+        }
+    }
 }
 
 OptixScenePtr make_optix_scene(

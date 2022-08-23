@@ -77,7 +77,7 @@ void SphereSimulatorOptix::simulate(
     
     if(program.pipeline)
     {
-        std::cout << "LAUNCH!" << std::endl;
+        // std::cout << "LAUNCH!" << std::endl;
         // sw();
         OPTIX_CHECK( optixLaunch(
                 program.pipeline->pipeline,
@@ -89,7 +89,7 @@ void SphereSimulatorOptix::simulate(
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
                 ));
-        std::cout << "LAUNCH! -done" << std::endl;
+        // std::cout << "LAUNCH! -done" << std::endl;
         // el = sw();
         // std::cout << "Raycast took " << el * 1000.0 << "ms" << std::endl;
     } else {

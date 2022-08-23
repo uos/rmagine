@@ -112,6 +112,8 @@ private:
 
     void buildIAS();
 
+    void updateSBT();
+
     OptixAccelerationStructurePtr m_as;
 
     OptixSceneType m_type = OptixSceneType::NONE;
