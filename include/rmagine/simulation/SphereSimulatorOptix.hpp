@@ -124,9 +124,7 @@ class SphereSimulatorOptix {
 public:
     SphereSimulatorOptix();
     SphereSimulatorOptix(OptixMapPtr map);
-    // SphereSimulatorOptix(OptixGeometryPtr geom);
     SphereSimulatorOptix(OptixScenePtr scene);
-    
 
     ~SphereSimulatorOptix();
 
@@ -183,9 +181,6 @@ public:
 
 protected:
     OptixMapPtr m_map;
-
-    // cudaStream_t m_stream;
-
     CudaStreamPtr m_stream;
 
     uint32_t m_width;

@@ -233,15 +233,15 @@ if(OptiX_FOUND)
         # src/rmagine/simulation/optix/SphereProgramNormals.cu
         src/rmagine/simulation/optix/SphereProgramGeneric.cu
         ## Pinhole
-        # src/rmagine/simulation/optix/PinholeProgramRanges.cu
+        src/rmagine/simulation/optix/PinholeProgramRanges.cu
         # src/rmagine/simulation/optix/PinholeProgramNormals.cu
         src/rmagine/simulation/optix/PinholeProgramGeneric.cu
         # ## O1Dn
-        # src/rmagine/simulation/optix/O1DnProgramRanges.cu
+        src/rmagine/simulation/optix/O1DnProgramRanges.cu
         # src/rmagine/simulation/optix/O1DnProgramNormals.cu
         src/rmagine/simulation/optix/O1DnProgramGeneric.cu
         # ## OnDn
-        # src/rmagine/simulation/optix/OnDnProgramRanges.cu
+        src/rmagine/simulation/optix/OnDnProgramRanges.cu
         # src/rmagine/simulation/optix/OnDnProgramNormals.cu
         src/rmagine/simulation/optix/OnDnProgramGeneric.cu
     )
@@ -287,7 +287,7 @@ if(OptiX_FOUND)
         
         # Simulation
         src/rmagine/simulation/SphereSimulatorOptix.cpp
-        # src/rmagine/simulation/PinholeSimulatorOptix.cpp
+        src/rmagine/simulation/PinholeSimulatorOptix.cpp
         # src/rmagine/simulation/O1DnSimulatorOptix.cpp
         # src/rmagine/simulation/OnDnSimulatorOptix.cpp
         # Simulation Programs

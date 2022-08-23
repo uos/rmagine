@@ -57,6 +57,8 @@
 
 #include <unordered_map>
 
+#include <rmagine/util/cuda/cuda_definitions.h>
+
 
 namespace rmagine {
 
@@ -173,9 +175,8 @@ public:
     // member
 
 protected:
-
     OptixMapPtr m_map;
-    cudaStream_t m_stream;
+    CudaStreamPtr m_stream;
 
     uint32_t m_width;
     uint32_t m_height;

@@ -57,17 +57,13 @@ void SphereSimulatorOptix::simulate(
     }
 
     Memory<OptixSimulationDataGenericSphere, RAM> mem(1);
-
     setGenericFlags(res, mem[0]);
 
     auto it = m_generic_programs.find(mem[0]);
     OptixProgramPtr program;
     if(it == m_generic_programs.end())
     {
-        if(m_map)
-        {
-            program = std::make_shared<SphereProgramGeneric>(m_map, mem[0]);
-        }
+        program = std::make_shared<SphereProgramGeneric>(m_map, mem[0]);
         m_generic_programs[mem[0]] = program;
     } else {
         program = it->second;
@@ -82,7 +78,6 @@ void SphereSimulatorOptix::simulate(
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-
     mem->handle = m_map->scene()->as()->handle;
     
     // set generic data

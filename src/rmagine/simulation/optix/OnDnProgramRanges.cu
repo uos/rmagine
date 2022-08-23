@@ -1,5 +1,5 @@
 #include <optix.h>
-#include "rmagine/math/math.h"
+#include "rmagine/math/types.h"
 #include "rmagine/simulation/optix/OptixSimulationData.hpp"
 
 using namespace rmagine;

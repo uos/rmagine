@@ -55,6 +55,9 @@
 
 #include <cuda_runtime.h>
 
+#include <rmagine/util/cuda/cuda_definitions.h>
+
+
 namespace rmagine {
 
 /**
@@ -172,11 +175,9 @@ public:
     // member
 
 protected:
-
     OptixMapPtr m_map;
-    cudaStream_t m_stream;
+    CudaStreamPtr m_stream;
 
-    
     Memory<Transform, VRAM_CUDA> m_Tsb;
 
     uint32_t m_width;
@@ -185,7 +186,6 @@ protected:
 
 private:
     std::vector<OptixProgramPtr> m_programs;
-
     std::unordered_map<OptixSimulationDataGenericO1Dn, OptixProgramPtr> m_generic_programs;
 };
 
