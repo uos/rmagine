@@ -34,7 +34,6 @@ PinholeSimulatorOptix::PinholeSimulatorOptix(OptixMapPtr map)
 PinholeSimulatorOptix::~PinholeSimulatorOptix()
 {
     m_programs.resize(0);
-    m_generic_programs.clear();
 }
 
 void PinholeSimulatorOptix::setMap(const OptixMapPtr map)
@@ -66,6 +65,10 @@ void PinholeSimulatorOptix::setModel(const Memory<PinholeModel, RAM>& model)
     m_width = model->width;
     m_height = model->height;
     m_model = model;
+
+    Memory<SensorModelUnion, RAM> model_union(1);
+    model_union->pinhole = m_model.raw();
+    m_model_union = model_union;
 }
 
 void PinholeSimulatorOptix::setModel(const PinholeModel& model)

@@ -183,10 +183,10 @@ protected:
     Memory<Transform, VRAM_CUDA> m_Tsb;
     Memory<PinholeModel, VRAM_CUDA> m_model;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+
 private:
     std::vector<OptixProgramPtr> m_programs;
-
-    std::unordered_map<OptixSimulationDataGenericPinhole, OptixProgramPtr> m_generic_programs;
 };
 
 using PinholeSimulatorOptixPtr = std::shared_ptr<PinholeSimulatorOptix>;

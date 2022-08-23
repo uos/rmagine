@@ -20,27 +20,23 @@ namespace rmagine
 
 
 OnDnSimulatorOptix::OnDnSimulatorOptix()
-:m_Tsb(1)
+:m_model(1)
+,m_Tsb(1)
 {
-
+    Memory<Transform, RAM_CUDA> I(1);
+    I->setIdentity();
+    m_Tsb = I;
 }
 
 OnDnSimulatorOptix::OnDnSimulatorOptix(OptixMapPtr map)
 :OnDnSimulatorOptix()
 {
     setMap(map);
-
-    Memory<Transform, RAM_CUDA> Tsb(1);
-    Tsb->setIdentity();
-    copy(Tsb, m_Tsb, m_stream);
 }
 
 OnDnSimulatorOptix::~OnDnSimulatorOptix()
 {
     m_programs.resize(0);
-    m_generic_programs.clear();
-
-    cudaStreamDestroy(m_stream);
 }
 
 void OnDnSimulatorOptix::setMap(OptixMapPtr map)
@@ -49,10 +45,10 @@ void OnDnSimulatorOptix::setMap(OptixMapPtr map)
 
     m_programs.resize(2);
     m_programs[0].reset(new OnDnProgramRanges(map));
-    m_programs[1].reset(new OnDnProgramNormals(map));
+    // m_programs[1].reset(new OnDnProgramNormals(map));
 
     // need to create stream after map was created: cuda device api context is required
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+    m_stream = m_map->stream();
 }
 
 void OnDnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
@@ -74,6 +70,10 @@ void OnDnSimulatorOptix::setModel(const OnDnModel_<VRAM_CUDA>& model)
 
     m_model.resize(1);
     m_model[0] = model;
+
+    Memory<SensorModelUnion, RAM> model_union(1);
+    model_union->ondn = m_model.raw();
+    m_model_union = model_union;
 }
 
 void OnDnSimulatorOptix::setModel(const OnDnModel_<RAM>& model)

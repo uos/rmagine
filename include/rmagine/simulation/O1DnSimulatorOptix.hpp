@@ -184,9 +184,10 @@ protected:
     uint32_t m_height;
     Memory<O1DnModel_<VRAM_CUDA>, RAM> m_model;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+
 private:
     std::vector<OptixProgramPtr> m_programs;
-    std::unordered_map<OptixSimulationDataGenericO1Dn, OptixProgramPtr> m_generic_programs;
 };
 
 using O1DnSimulatorOptixPtr = std::shared_ptr<O1DnSimulatorOptix>;

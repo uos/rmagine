@@ -371,7 +371,6 @@ add_subdirectory(src/rmagine_tests/svd)
 if(OptiX_FOUND)
 add_subdirectory(src/rmagine_tests/optix_sim)
 add_subdirectory(src/rmagine_tests/generic_sim)
-add_subdirectory(src/rmagine_tests/optix_multi_root)
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)

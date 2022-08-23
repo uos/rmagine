@@ -191,10 +191,9 @@ protected:
 
     Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
     std::vector<OptixProgramPtr> m_programs;
-
-    std::unordered_map<OptixSimulationDataGenericOnDn, OptixProgramPtr> m_generic_programs;
 };
 
 using OnDnSimulatorOptixPtr = std::shared_ptr<OnDnSimulatorOptix>;

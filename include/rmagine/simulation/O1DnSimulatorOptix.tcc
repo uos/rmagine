@@ -16,14 +16,10 @@ void O1DnSimulatorOptix::preBuildProgram()
         throw std::runtime_error("[O1DnSimulatorOptix] preBuildProgram(): No Map available!");
     }
 
-    OptixSimulationDataGenericO1Dn flags;
+    OptixSimulationDataGeneric flags;
+    flags.model_type = 2;
     setGenericFlags<BundleT>(flags);
-    auto it = m_generic_programs.find(flags);
-    
-    if(it == m_generic_programs.end())
-    {
-        m_generic_programs[flags] = std::make_shared<O1DnProgramGeneric>(m_map, flags);
-    }
+    m_map->scene()->registerSensorProgram(flags);
 }
 
 template<typename BundleT>
@@ -35,20 +31,21 @@ void O1DnSimulatorOptix::simulate(
     {
         throw std::runtime_error("[O1DnSimulatorOptix] simulate(): No Map available!");
     }
+
+    auto optix_ctx = m_map->context();
+    auto cuda_ctx = optix_ctx->getCudaContext();
+    if(!cuda_ctx->isActive())
+    {
+        std::cout << "[SphereSimulatorOptix::simulate() Need to activate map context" << std::endl;
+        cuda_ctx->use();
+    }
+
     
-    Memory<OptixSimulationDataGenericO1Dn, RAM> mem(1);
+    Memory<OptixSimulationDataGeneric, RAM> mem(1);
+    mem[0].model_type = 2;
     setGenericFlags(res, mem[0]);
 
-    auto it = m_generic_programs.find(mem[0]);
-    OptixProgramPtr program;
-    if(it == m_generic_programs.end())
-    {
-        program = std::make_shared<O1DnProgramGeneric>(m_map, mem[0]);
-        m_generic_programs[mem[0]] = program;
-    } else {
-        program = it->second;
-        program->updateSBT();
-    }
+    OptixSensorProgram program = m_map->scene()->registerSensorProgram(mem[0]);
 
     // set general data
 
@@ -67,17 +64,17 @@ void O1DnSimulatorOptix::simulate(
     // - upload Params: 0.000602865s
     // - launch: 5.9642e-05s
     // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGenericO1Dn, VRAM_CUDA> d_mem(1);
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
 
-    if(program)
+    if(program.pipeline)
     {
         OPTIX_CHECK( optixLaunch(
-                program->pipeline,
+                program.pipeline->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGenericO1Dn ),
-                &program->sbt,
+                sizeof( OptixSimulationDataGeneric ),
+                &program.sbt->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
