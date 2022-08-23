@@ -268,7 +268,7 @@ OnDnProgramGeneric::OnDnProgramGeneric(
 
     // must be received from scene
     const size_t n_miss_record = 1;
-    const size_t n_hitgroup_records = scene->required_sbt_entries;
+    const size_t n_hitgroup_records = scene->requiredSBTEntries();
     
 
     sbt.missRecordStrideInBytes     = sizeof( MissSbtRecord );
@@ -296,7 +296,7 @@ OnDnProgramGeneric::~OnDnProgramGeneric()
 
 void OnDnProgramGeneric::updateSBT()
 {
-    const size_t n_hitgroups_required = m_scene->required_sbt_entries;   
+    const size_t n_hitgroups_required = m_scene->requiredSBTEntries();   
 
     if(n_hitgroups_required > sbt.hitgroupRecordCount)
     {

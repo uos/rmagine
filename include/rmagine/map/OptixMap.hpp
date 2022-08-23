@@ -62,6 +62,8 @@
 
 #include "optix/OptixScene.hpp"
 
+
+
 namespace rmagine {
 
 class OptixMap 

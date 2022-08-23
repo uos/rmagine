@@ -46,7 +46,6 @@ SphereSimulatorOptix::~SphereSimulatorOptix()
 {
     // std::cout << "[SphereSimulatorOptix] ~SphereSimulatorOptix" << std::endl;
     m_programs.resize(0);
-    m_generic_programs.clear();
 }
 
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
@@ -77,6 +76,10 @@ void SphereSimulatorOptix::setModel(const Memory<SphericalModel, RAM>& model)
     m_width = model->getWidth();
     m_height = model->getHeight();
     m_model = model;
+
+    Memory<SensorModelUnion, RAM> model_union(1);
+    model_union->spherical = m_model.raw();
+    m_model_union = model_union;
 }
 
 void SphereSimulatorOptix::setModel(const SphericalModel& model)

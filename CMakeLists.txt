@@ -244,6 +244,12 @@ if(OptiX_FOUND)
         src/rmagine/simulation/optix/OnDnProgramRanges.cu
         # src/rmagine/simulation/optix/OnDnProgramNormals.cu
         src/rmagine/simulation/optix/OnDnProgramGeneric.cu
+        ## NEW
+        src/rmagine/simulation/optix/SphereProgramGen.cu
+        src/rmagine/simulation/optix/PinholeProgramGen.cu
+        src/rmagine/simulation/optix/O1DnProgramGen.cu
+        src/rmagine/simulation/optix/OnDnProgramGen.cu
+        src/rmagine/simulation/optix/ProgramHit.cu
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -307,6 +313,8 @@ if(OptiX_FOUND)
         # src/rmagine/simulation/optix/OnDnProgramRanges.cpp
         # src/rmagine/simulation/optix/OnDnProgramNormals.cpp
         src/rmagine/simulation/optix/OnDnProgramGeneric.cpp
+        # NEW
+        src/rmagine/simulation/optix/SensorProgramGeneric.cpp
     )
 
     target_include_directories(rmagine_optix PUBLIC

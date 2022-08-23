@@ -188,10 +188,9 @@ protected:
     Memory<Transform, VRAM_CUDA> m_Tsb;
     Memory<SphericalModel, VRAM_CUDA> m_model;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
     std::vector<OptixProgramPtr> m_programs;
-
-    std::unordered_map<OptixSimulationDataGenericSphere, OptixProgramPtr> m_generic_programs;
 };
 
 using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;

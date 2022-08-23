@@ -13,14 +13,155 @@
 #include <rmagine/util/assimp/helper.h>
 #include <rmagine/math/linalg.h>
 
+// use own lib instead
+#include "rmagine/util/optix/OptixUtil.hpp"
+#include "rmagine/util/optix/OptixSbtRecord.hpp"
+#include "rmagine/util/optix/OptixData.hpp"
+
+
 
 namespace rmagine
 {
 
+static std::string hit_ptx()
+{
+    static const char* kernel = 
+    #include "kernels/ProgramHitString.h"
+    ;
+    return std::string(kernel);
+}
+
+static std::string raygen_ptx_from_model_type(unsigned int model_type)
+{
+    std::string ptx;
+
+    if(model_type == 0)
+    {
+        static const char* kernel =
+        #include "kernels/SphereProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 1) {
+        const char *kernel =
+        #include "kernels/PinholeProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 2) {
+        const char *kernel =
+        #include "kernels/O1DnProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 3) {
+        const char *kernel =
+        #include "kernels/OnDnProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else {
+        std::cout << "[OptixScene::raygen_ptx_from_model_type] ERROR model_type " << model_type << " not supported!" << std::endl;
+        throw std::runtime_error("[OptixScene::raygen_ptx_from_model_type] ERROR loading ptx");
+    }
+
+    return ptx;
+}
+
+
+static std::vector<OptixModuleCompileBoundValueEntry> make_bounds(
+    const OptixSimulationDataGeneric& flags)
+{
+    std::vector<OptixModuleCompileBoundValueEntry> options;
+        
+    { // computeHits
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeHits);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeHits );
+        option.boundValuePtr = &flags.computeHits;
+        options.push_back(option);
+    }
+    
+    { // computeRanges
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeRanges);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeRanges );
+        option.boundValuePtr = &flags.computeRanges;
+        options.push_back(option);
+    }
+
+    { // computePoints
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computePoints);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computePoints );
+        option.boundValuePtr = &flags.computePoints;
+        options.push_back(option);
+    }
+
+    { // computeNormals
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeNormals);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeNormals );
+        option.boundValuePtr = &flags.computeNormals;
+        options.push_back(option);
+    }
+
+    { // computeFaceIds
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeFaceIds);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeFaceIds );
+        option.boundValuePtr = &flags.computeFaceIds;
+        options.push_back(option);
+    }
+
+    { // computeGeomIds
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeGeomIds);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeGeomIds );
+        option.boundValuePtr = &flags.computeGeomIds;
+        options.push_back(option);
+    }
+
+    { // computeObjectIds
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeObjectIds);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeObjectIds );
+        option.boundValuePtr = &flags.computeObjectIds;
+        options.push_back(option);
+    }
+
+    return options;
+}
+
+
+
+
 OptixScene::OptixScene(OptixContextPtr context)
 :OptixEntity(context)
 {
+    m_pipeline_compile_options = {};
+    m_pipeline_compile_options.usesMotionBlur        = false;
+
+
+    m_pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
     
+    // max payload values: 32
+    m_pipeline_compile_options.numPayloadValues      = 0;
+    // if dont use module payloads:
+    // pipeline_compile_options.numPayloadValues      = 8;
+    m_pipeline_compile_options.numAttributeValues    = 2;
+#ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
+    m_pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+#else
+    m_pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
+#endif
+    m_pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
+    m_pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
+
+    m_payload_type.numPayloadValues = 8;
+    m_payload_type.payloadSemantics = m_semantics;
+
+
+
+    m_program_group_options = {};
+    m_program_group_options.payloadType = &m_payload_type;
+
 }
 
 OptixScene::~OptixScene()
@@ -161,18 +302,13 @@ void OptixScene::commit()
     } else if(m_type == OptixSceneType::GEOMETRIES ) {
         buildGAS();
     }
-}
 
-unsigned int OptixScene::depth() const
-{
-    unsigned int ret = 0;
-
-    for(auto elem : m_geometries)
+    if(m_pipeline_compile_options.traversableGraphFlags != m_traversable_graph_flags)
     {
-        ret = std::max(ret, elem.second->depth());
-    }
+        // TODO: need to update pipelines (nearly everything)
 
-    return ret + 1;
+        m_pipeline_compile_options.traversableGraphFlags = m_traversable_graph_flags;
+    }
 }
 
 OptixInstPtr OptixScene::instantiate()
@@ -215,14 +351,10 @@ void OptixScene::addParent(OptixInstPtr parent)
     m_parents.insert(parent);
 }
 
-
 void OptixScene::buildGAS()
 {
     // std::cout << "SCENE BUILD GAS" << std::endl;
-
-
     size_t n_build_inputs = m_geometries.size();
-    required_sbt_entries = n_build_inputs; 
 
     OptixBuildInput build_inputs[n_build_inputs];
 
@@ -375,8 +507,9 @@ void OptixScene::buildGAS()
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 
-    // std::cout << "GAS constructed" << std::endl;
-
+    m_traversable_graph_flags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+    m_depth = 1;
+    m_required_sbt_entries = n_build_inputs;
 }
 
 void OptixScene::buildIAS()
@@ -390,7 +523,8 @@ void OptixScene::buildIAS()
     OptixSceneSBT sbt_data_h;
     cudaMallocHost(&sbt_data_h.geometries, sizeof(OptixGeomSBT) * n_instances);
 
-    required_sbt_entries = 0;
+    m_required_sbt_entries = 0;
+    m_depth = 0;
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -400,7 +534,8 @@ void OptixScene::buildIAS()
         inst_h[idx] = inst->data();
         inst_h[idx].instanceId = elem.first;
 
-        required_sbt_entries = std::max(required_sbt_entries, inst->scene()->required_sbt_entries); 
+        m_required_sbt_entries = std::max(m_required_sbt_entries, inst->scene()->requiredSBTEntries()); 
+        m_depth = std::max(m_depth, inst->scene()->depth() + 1);
 
         sbt_data_h.geometries[idx].inst_data = inst->sbt_data;
 
@@ -539,12 +674,351 @@ void OptixScene::buildIAS()
 
     CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
-    
-
-    // std::cout << "[OptixScene::buildIAS()] done." << std::endl;
+    if(m_depth < 3)
+    {
+        m_traversable_graph_flags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+    } else {
+        m_traversable_graph_flags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+    }
 }
 
+OptixSensorProgram OptixScene::registerSensorProgram(const OptixSimulationDataGeneric& flags)
+{
+    // std::cout << "REGISTER SENSOR PROGRAM" << std::endl;
+    OptixSensorProgram program;
+    
+    // see if pipeline already exists
+    auto pipe_it = m_pipelines.find(flags);
+    auto sbt_it = m_sbts.find(flags);
 
+    if(pipe_it != m_pipelines.end() && sbt_it != m_sbts.end())
+    {
+        program.pipeline = pipe_it->second;
+        program.sbt = sbt_it->second;
+    } else {
+
+        std::cout << "[OptixScene::registerSensorProgram() Register new sensor program" << std::endl;
+        auto cuda_ctx = m_ctx->getCudaContext();
+        if(!cuda_ctx->isActive())
+        {
+            std::cout << "[OptixScene::registerSensorProgram() Need to activate map context" << std::endl;
+            cuda_ctx->use();
+        }
+
+        // no pipeline found
+        char log[2048]; // For error reporting from OptiX creation functions
+        size_t sizeof_log = sizeof( log );
+
+        // 1. see if raygen module already exists
+
+        RayGenModulePtr raygen_module;
+        auto raygen_it = m_sensor_raygen_modules.find(flags.model_type);
+        if(raygen_it != m_sensor_raygen_modules.end())
+        {
+            raygen_module = raygen_it->second;
+        } else {
+            // std::cout << "1. make new raygen module" << std::endl;
+            // make new raygen module
+            raygen_module = std::make_shared<RayGenModule>();
+            
+            // std::cout << "- raygen_ptx_from_model_type " << std::endl;
+            std::string ptx = raygen_ptx_from_model_type(flags.model_type);
+
+            
+            if(ptx.empty())
+            {
+                throw std::runtime_error("OptixScene could not find its PTX part");
+            }
+
+            // std::cout << "- raygen_ptx_from_model_type - done." << std::endl;
+
+            OptixModuleCompileOptions module_compile_options = {};
+            module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+    #ifndef NDEBUG
+            module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+            module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    #else
+            module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+            module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+    #endif
+
+            module_compile_options.numPayloadTypes = 1;
+            module_compile_options.payloadTypes = &m_payload_type;
+
+            // std::cout << "- optixModuleCreateFromPTX " << std::endl;
+
+            OPTIX_CHECK( optixModuleCreateFromPTX(
+                    m_ctx->ref(),
+                    &module_compile_options,
+                    &m_pipeline_compile_options,
+                    ptx.c_str(),
+                    ptx.size(),
+                    log,
+                    &sizeof_log,
+                    &raygen_module->module
+                    ));
+
+            // std::cout << "- optixModuleCreateFromPTX - done." << std::endl;
+
+            
+            // MAKE PROGRAM GROUPS
+            // 1.1. Raygen programs
+            OptixProgramGroupDesc raygen_prog_group_desc    = {}; //
+            raygen_prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+            raygen_prog_group_desc.raygen.module            = raygen_module->module;
+            raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
+
+            // std::cout << "- optixProgramGroupCreate " << std::endl;
+
+            OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                        m_ctx->ref(),
+                        &raygen_prog_group_desc,
+                        1,   // num program groups
+                        &m_program_group_options,
+                        log,
+                        &sizeof_log,
+                        &raygen_module->prog_group
+                        ) );
+
+            // std::cout << "- optixProgramGroupCreate - done." << std::endl;
+
+            const size_t raygen_record_size     = sizeof( RayGenModule::RayGenSbtRecord );
+            CUDA_CHECK( cudaMallocHost( &raygen_module->record_h, raygen_record_size ) );
+            OPTIX_CHECK( optixSbtRecordPackHeader( raygen_module->prog_group, &raygen_module->record_h[0] ) );
+            CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_module->record ), raygen_record_size ) );
+
+            CUDA_CHECK( cudaMemcpyAsync(
+                reinterpret_cast<void*>( raygen_module->record ),
+                raygen_module->record_h,
+                raygen_record_size,
+                cudaMemcpyHostToDevice,
+                m_stream->handle()
+                ) );
+
+            m_sensor_raygen_modules[flags.model_type] = raygen_module;
+            // std::cout << "1. make new raygen module - done." << std::endl;
+        }
+
+        // 2. see if hit module already exists
+        unsigned int bounding_id = boundingId(flags);
+
+        HitModulePtr hit_module;
+        auto hit_it = m_hit_modules.find(bounding_id);
+        if(hit_it != m_hit_modules.end())
+        {
+            hit_module = hit_it->second;
+        } else {
+            // std::cout << "2. make new hit module" << std::endl;
+            // need to make new hit module
+            hit_module = std::make_shared<HitModule>();
+
+            std::vector<OptixModuleCompileBoundValueEntry> options = make_bounds(flags);
+
+
+            OptixModuleCompileOptions module_compile_options = {};
+            module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+        #ifndef NDEBUG
+            // std::cout << "OPTIX_COMPILE_DEBUG_LEVEL_FULL" << std::endl;
+            module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+            module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+        #else
+            module_compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+            module_compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+        #endif
+            module_compile_options.boundValues = &options[0];
+            module_compile_options.numBoundValues = options.size();
+
+            module_compile_options.numPayloadTypes = 1;
+            module_compile_options.payloadTypes = &m_payload_type;
+
+            std::string ptx = hit_ptx();
+
+            OPTIX_CHECK( optixModuleCreateFromPTX(
+                    m_ctx->ref(),
+                    &module_compile_options,
+                    &m_pipeline_compile_options,
+                    ptx.c_str(),
+                    ptx.size(),
+                    log,
+                    &sizeof_log,
+                    &hit_module->module
+                    ));
+
+            // MAKE PROGRAM GROUPS
+            { // 2.1. Miss programs
+                OptixProgramGroupDesc miss_prog_group_desc = {};
+
+                miss_prog_group_desc.kind                   = OPTIX_PROGRAM_GROUP_KIND_MISS;
+                miss_prog_group_desc.miss.module            = hit_module->module;
+                miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
+
+                OPTIX_CHECK_LOG(optixProgramGroupCreate(
+                        m_ctx->ref(),
+                        &miss_prog_group_desc,
+                        1,   // num program groups
+                        &m_program_group_options,
+                        log,
+                        &sizeof_log,
+                        &hit_module->prog_group_miss
+                        ));
+            }
+
+            { // 2.2. Closest Hit programs
+                OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+
+                hitgroup_prog_group_desc.kind                         = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+                hitgroup_prog_group_desc.hitgroup.moduleCH            = hit_module->module;
+                hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
+                
+                OPTIX_CHECK_LOG( optixProgramGroupCreate(
+                        m_ctx->ref(),
+                        &hitgroup_prog_group_desc,
+                        1,   // num program groups
+                        &m_program_group_options,
+                        log,
+                        &sizeof_log,
+                        &hit_module->prog_group_hit
+                        ));
+            }
+
+
+            // make sbt records
+            { // MISS RECORDS
+                const size_t n_miss_record = 1;
+                hit_module->record_miss_stride = sizeof( HitModule::MissSbtRecord );
+                hit_module->record_miss_count  = n_miss_record;
+                const size_t miss_record_size  = hit_module->record_miss_stride * hit_module->record_miss_count;
+                
+                CUDA_CHECK( cudaMallocHost( &hit_module->record_miss_h, miss_record_size ) );
+                for(size_t i=0; i<n_miss_record; i++)
+                {
+                    OPTIX_CHECK( optixSbtRecordPackHeader( hit_module->prog_group_miss, &hit_module->record_miss_h[i] ) );
+                }
+                CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hit_module->record_miss ), miss_record_size ) );
+
+                CUDA_CHECK( cudaMemcpyAsync(
+                    reinterpret_cast<void*>( hit_module->record_miss ),
+                    hit_module->record_miss_h,
+                    miss_record_size,
+                    cudaMemcpyHostToDevice,
+                    m_stream->handle()
+                    ) );
+            }
+
+            { // HIT RECORDS
+                const size_t n_hitgroup_records = requiredSBTEntries();   
+                hit_module->record_hit_stride  = sizeof( HitModule::HitGroupSbtRecord );
+                hit_module->record_hit_count   = n_hitgroup_records;
+                const size_t hitgroup_record_size   = hit_module->record_hit_stride * hit_module->record_hit_count;
+
+                CUDA_CHECK( cudaMallocHost( &hit_module->record_hit_h, hitgroup_record_size ) );
+                for(size_t i=0; i<n_hitgroup_records; i++)
+                {
+                    OPTIX_CHECK( optixSbtRecordPackHeader( hit_module->prog_group_hit, &hit_module->record_hit_h[i] ) );
+                    hit_module->record_hit_h[i].data = sbt_data;
+                }
+                
+                CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hit_module->record_hit ), hitgroup_record_size ) );
+
+                CUDA_CHECK( cudaMemcpyAsync(
+                    reinterpret_cast<void*>( hit_module->record_hit ),
+                    hit_module->record_hit_h,
+                    hitgroup_record_size,
+                    cudaMemcpyHostToDevice,
+                    m_stream->handle()
+                    ) );
+
+            }
+
+            m_hit_modules[bounding_id] = hit_module;
+            // std::cout << "2. make new hit module - done." << std::endl;
+        }
+
+        // 3. make sbt
+        auto sbt_it = m_sbts.find(flags);
+        OptixSBTPtr sbt_;
+        if(sbt_it != m_sbts.end())
+        {
+            sbt_ = sbt_it->second;
+        } else {
+            sbt_ = std::make_shared<OptixSBT>();
+            OptixShaderBindingTable& sbt = sbt_->sbt;
+
+            sbt.raygenRecord = raygen_module->record;
+            
+            sbt.missRecordBase = hit_module->record_miss;
+            sbt.missRecordStrideInBytes = hit_module->record_miss_stride;
+            sbt.missRecordCount = hit_module->record_miss_count;
+
+            sbt.hitgroupRecordBase = hit_module->record_hit;
+            sbt.hitgroupRecordStrideInBytes = hit_module->record_hit_stride;
+            sbt.hitgroupRecordCount = hit_module->record_hit_count;
+
+            m_sbts[flags] = sbt_;
+        }
+        program.sbt = sbt_;
+
+        
+        { // 4. link pipeline. independend of SBT
+            OptixSensorPipelinePtr pipeline_ = std::make_shared<OptixSensorPipeline>();
+
+            // traverse depth = 2 for ias + gas
+            uint32_t          max_traversable_depth = m_depth;
+            const uint32_t    max_trace_depth  = 1; // TODO: 31 is maximum. Set this dynamically?
+
+            OptixProgramGroup program_groups[] = { 
+                raygen_module->prog_group, 
+                hit_module->prog_group_miss, 
+                hit_module->prog_group_hit
+            };
+
+            OptixPipelineLinkOptions pipeline_link_options = {};
+            pipeline_link_options.maxTraceDepth          = max_trace_depth;
+            #ifndef NDEBUG
+                pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+            #else
+                pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
+            #endif
+            OPTIX_CHECK_LOG( optixPipelineCreate(
+                m_ctx->ref(),
+                    &m_pipeline_compile_options,
+                    &pipeline_link_options,
+                    program_groups,
+                    sizeof(program_groups) / sizeof(program_groups[0]),
+                    log,
+                    &sizeof_log,
+                    &pipeline_->pipeline
+                    ) );
+
+            
+            OptixStackSizes stack_sizes = {};
+            for( auto& prog_group : program_groups )
+            {
+                OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
+            }
+
+            uint32_t direct_callable_stack_size_from_traversal;
+            uint32_t direct_callable_stack_size_from_state;
+            uint32_t continuation_stack_size;
+            OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
+                                                        0,  // maxCCDepth
+                                                        0,  // maxDCDEpth
+                                                        &direct_callable_stack_size_from_traversal,
+                                                        &direct_callable_stack_size_from_state, 
+                                                        &continuation_stack_size ) );
+            OPTIX_CHECK( optixPipelineSetStackSize( pipeline_->pipeline, direct_callable_stack_size_from_traversal,
+                                                    direct_callable_stack_size_from_state, continuation_stack_size,
+                                                    max_traversable_depth  // maxTraversableDepth
+                                                    ) );
+
+            m_pipelines[flags] = pipeline_;
+            program.pipeline = pipeline_;
+        }
+    }
+
+    // std::cout << "REGISTER SENSOR PROGRAM - finished." << std::endl;
+    return program;
+}
 
 OptixScenePtr make_optix_scene(
     const aiScene* ascene, 
@@ -651,7 +1125,6 @@ OptixScenePtr make_optix_scene(
 
     return scene;
 }
-
 
 
 

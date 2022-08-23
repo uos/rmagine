@@ -198,6 +198,8 @@ int main(int argc, char** argv)
         OptixScenePtr scene = make_optix_scene(ascene);
         scene->commit();
 
+        std::cout << "Top Level geometries: " << scene->geometries().size() << std::endl;
+
         // OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
         SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
 
@@ -213,17 +215,19 @@ int main(int argc, char** argv)
         Memory<float, RAM> ranges_cpu;
         Memory<unsigned int, RAM> geom_ids_cpu;
         Memory<unsigned int, RAM> obj_ids_cpu;
-        using ResultT = Bundle<
-            Ranges<VRAM_CUDA>
-            ,Normals<VRAM_CUDA>
-            // ,GeomIds<VRAM_CUDA>
-            // ,ObjectIds<VRAM_CUDA>
-        >;
 
+        using ResultT = IntAttrAny<VRAM_CUDA>;
+        // using ResultT = Bundle<
+        //     Ranges<VRAM_CUDA>
+        //     ,Normals<VRAM_CUDA>
+        //     // ,GeomIds<VRAM_CUDA>
+        //     // ,ObjectIds<VRAM_CUDA>
+        // >;
 
         ResultT res;
 
-        resizeMemoryBundle<VRAM_CUDA>(res, Tbm.size(), model->phi.size, model->theta.size);
+        res.ranges.resize(Tbm.size() * model->size());
+        // resizeMemoryBundle<VRAM_CUDA>(res, Tbm.size(), model->phi.size, model->theta.size);
         
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;

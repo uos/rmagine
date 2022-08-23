@@ -32,21 +32,86 @@
  *      Author: Alexander Mock
  */
 
-#ifndef RMAGINE_OPTIX_PROGRAM_HPP
-#define RMAGINE_OPTIX_PROGRAM_HPP
+#ifndef RMAGINE_OPTIX_UTIL_OPTIX_PROGRAM_HPP
+#define RMAGINE_OPTIX_UTIL_OPTIX_PROGRAM_HPP
 
 #include <optix.h>
 #include <memory>
-#include "rmagine/map/OptixMap.hpp"
+
+#include "OptixSbtRecord.hpp"
+#include "OptixData.hpp"
+#include <rmagine/map/optix/optix_sbt.h>
+
 
 namespace rmagine {
+
+struct RayGenModule
+{
+    using RayGenData        = RayGenDataEmpty;
+    using RayGenSbtRecord   = SbtRecord<RayGenData>;
+
+    OptixModule       module       = nullptr;
+    OptixProgramGroup prog_group   = nullptr;
+
+    // TODO SBT RECORD
+    RayGenSbtRecord*    record_h      = nullptr;
+    CUdeviceptr 	    record        = 0;
+    
+
+    ~RayGenModule();
+};
+
+using RayGenModulePtr = std::shared_ptr<RayGenModule>;
+
+struct HitModule
+{
+    using MissData          = MissDataEmpty;
+    using HitGroupData      = OptixSceneSBT;
+    using MissSbtRecord     = SbtRecord<MissData>;
+    using HitGroupSbtRecord = SbtRecord<HitGroupData>;
+
+    OptixModule         module              = nullptr;
+    OptixProgramGroup   prog_group_hit      = nullptr;
+    OptixProgramGroup   prog_group_miss     = nullptr;
+
+    MissSbtRecord*      record_miss_h       = nullptr;
+    CUdeviceptr 	    record_miss         = 0;
+    unsigned int 	    record_miss_stride  = 0;
+    unsigned int 	    record_miss_count   = 0;
+
+    HitGroupSbtRecord*  record_hit_h        = nullptr;
+    CUdeviceptr 	    record_hit          = 0;
+    unsigned int 	    record_hit_stride   = 0;
+    unsigned int 	    record_hit_count    = 0;
+
+    ~HitModule();
+};
+
+using HitModulePtr = std::shared_ptr<HitModule>;
+
+struct OptixSBT 
+{
+    OptixShaderBindingTable sbt = {};
+    
+    ~OptixSBT();
+};
+
+using OptixSBTPtr = std::shared_ptr<OptixSBT>;
+
+struct OptixSensorPipeline
+{
+    OptixPipeline pipeline = nullptr;
+
+    ~OptixSensorPipeline();
+};
+
+using OptixSensorPipelinePtr = std::shared_ptr<OptixSensorPipeline>;
+
 
 class OptixProgram
 {
 public:
     virtual ~OptixProgram();
-
-    virtual void update(MapPtr map){}
     
     virtual void updateSBT() {};
 
@@ -62,4 +127,4 @@ using OptixProgramPtr = std::shared_ptr<OptixProgram>;
 
 } // namespace rmagine
 
-#endif // RMAGINE_OPTIX_PROGRAM_HPP
+#endif // RMAGINE_OPTIX_UTIL_OPTIX_PROGRAM_HPP

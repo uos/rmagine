@@ -1,4 +1,4 @@
-#include "rmagine/simulation/optix/SphereProgramGeneric.hpp"
+#include "rmagine/simulation/optix/SensorProgramGeneric.hpp"
 
 #include "rmagine/util/GenericAlign.hpp"
 #include "rmagine/util/optix/OptixDebug.hpp"
@@ -89,15 +89,48 @@ static std::vector<OptixModuleCompileBoundValueEntry> make_bounds(
     return options;
 }
 
-SphereProgramGeneric::SphereProgramGeneric(
-    OptixMapPtr map,
-    const OptixSimulationDataGeneric& flags)
-:SphereProgramGeneric(map->scene(), flags)
+static std::string raygen_ptx_from_model_type(unsigned int model_type)
 {
+    std::string ptx;
 
+    if(model_type == 0)
+    {
+        const char *kernel =
+        #include "kernels/SphereProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 1) {
+        const char *kernel =
+        #include "kernels/PinholeProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 2) {
+        const char *kernel =
+        #include "kernels/O1DnProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else if(model_type == 3) {
+        const char *kernel =
+        #include "kernels/OnDnProgramGenString.h"
+        ;
+        ptx = std::string(kernel);
+    } else {
+        std::cout << "[SensorProgramGeneric::raygen_ptx_from_model_type] ERROR model_type " << model_type << " not supported!" << std::endl;
+        throw std::runtime_error("[SensorProgramGeneric::raygen_ptx_from_model_type] ERROR loading ptx");
+    }
+
+    return ptx;
 }
 
-SphereProgramGeneric::SphereProgramGeneric(
+SensorProgramGeneric::SensorProgramGeneric(
+    OptixMapPtr map,
+    const OptixSimulationDataGeneric& flags)
+:SensorProgramGeneric(map->scene(), flags)
+{
+    
+}
+
+SensorProgramGeneric::SensorProgramGeneric(
     OptixScenePtr scene,
     const OptixSimulationDataGeneric& flags)
 {
@@ -146,9 +179,12 @@ SphereProgramGeneric::SphereProgramGeneric(
 
 
     { // GEN MODULE
-        const char *kernel =
-        #include "kernels/SphereProgramGenString.h"
-        ;
+        std::string ptx = raygen_ptx_from_model_type(flags.model_type);
+
+        if(ptx.empty())
+        {
+            throw std::runtime_error("ScanProgramRanges could not find its PTX part");
+        }
 
         OptixModuleCompileOptions module_compile_options = {};
         module_compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
@@ -162,13 +198,6 @@ SphereProgramGeneric::SphereProgramGeneric(
 
         module_compile_options.numPayloadTypes = 1;
         module_compile_options.payloadTypes = &payloadType;
-
-        std::string ptx(kernel);
-
-        if(ptx.empty())
-        {
-            throw std::runtime_error("ScanProgramRanges could not find its PTX part");
-        }
 
         OPTIX_CHECK( optixModuleCreateFromPTX(
                 scene->context()->ref(),
@@ -257,7 +286,7 @@ SphereProgramGeneric::SphereProgramGeneric(
                 log,
                 &sizeof_log,
                 &miss_prog_group
-                ));  
+                ));
     }
     
     // 2.3 Closest Hit programs
@@ -356,16 +385,31 @@ SphereProgramGeneric::SphereProgramGeneric(
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.missRecordBase ), miss_record_size) );
     CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &sbt.hitgroupRecordBase ), hitgroup_record_size ) );
 
+    if(rg_sbt.size() < 1)
+    {
+        rg_sbt.resize(1);
+        OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt[0] ) );
+    }
+
+    CUDA_CHECK( cudaMemcpyAsync(
+                reinterpret_cast<void*>( sbt.raygenRecord ),
+                rg_sbt.raw(),
+                raygen_record_size,
+                cudaMemcpyHostToDevice,
+                m_scene->stream()->handle()
+                ) );
     
     updateSBT();
 }
 
-SphereProgramGeneric::~SphereProgramGeneric()
+SensorProgramGeneric::~SensorProgramGeneric()
 {
-    // std::cout << "Destruct SphereProgramGeneric" << std::endl;
+    // std::cout << "Destruct SensorProgramGeneric" << std::endl;
+    optixModuleDestroy( module_gen );
+    optixModuleDestroy( module_hit );
 }
 
-void SphereProgramGeneric::updateSBT()
+void SensorProgramGeneric::updateSBT()
 {
     const size_t n_hitgroups_required = m_scene->requiredSBTEntries(); 
 
@@ -381,11 +425,7 @@ void SphereProgramGeneric::updateSBT()
     const size_t hitgroup_record_size   = sbt.hitgroupRecordStrideInBytes * sbt.hitgroupRecordCount;
     
 
-    if(rg_sbt.size() < 1)
-    {
-        rg_sbt.resize(1);
-        OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt[0] ) );
-    }
+    
 
     if(ms_sbt.size() < sbt.missRecordCount)
     {
@@ -411,13 +451,7 @@ void SphereProgramGeneric::updateSBT()
     }
 
     // upload
-    CUDA_CHECK( cudaMemcpyAsync(
-                reinterpret_cast<void*>( sbt.raygenRecord ),
-                rg_sbt.raw(),
-                raygen_record_size,
-                cudaMemcpyHostToDevice,
-                m_scene->stream()->handle()
-                ) );
+    
 
     CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( sbt.missRecordBase ),

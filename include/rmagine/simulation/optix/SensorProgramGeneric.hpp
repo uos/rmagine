@@ -1,5 +1,5 @@
-#ifndef RMAGINE_SIMULATION_OPTIX_SPHERE_PROGRAM_GENERIC_HPP
-#define RMAGINE_SIMULATION_OPTIX_SPHERE_PROGRAM_GENERIC_HPP
+#ifndef RMAGINE_SIMULATION_OPTIX_SENSOR_PROGRAM_GENERIC_HPP
+#define RMAGINE_SIMULATION_OPTIX_SENSOR_PROGRAM_GENERIC_HPP
 
 #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/util/optix/OptixProgram.hpp>
@@ -11,9 +11,11 @@
 
 #include <memory>
 
+#include "OptixProgramMap.hpp"
+
 namespace rmagine {
 
-class SphereProgramGeneric : public OptixProgram
+class SensorProgramGeneric : public OptixProgram
 {
     using RayGenData        = RayGenDataEmpty;
     using MissData          = MissDataEmpty;
@@ -24,32 +26,48 @@ class SphereProgramGeneric : public OptixProgram
     using HitGroupSbtRecord = SbtRecord<HitGroupData>;
 
 public:
-    SphereProgramGeneric(
+    SensorProgramGeneric(
         OptixMapPtr map,
         const OptixSimulationDataGeneric& flags);
 
-    SphereProgramGeneric(
+    SensorProgramGeneric(
         OptixScenePtr scene,
         const OptixSimulationDataGeneric& flags);
 
-    virtual ~SphereProgramGeneric();
+    virtual ~SensorProgramGeneric();
 
     void updateSBT();
+
+    OptixSimulationDataGeneric flags;
 
 private:
     // currently used scene
     OptixScenePtr       m_scene;
 
-    OptixModule module_gen;
-    OptixModule module_hit;
+    OptixModule         module_gen;
+    OptixModule         module_hit;
 
     Memory<RayGenSbtRecord, RAM> rg_sbt;
     Memory<MissSbtRecord, RAM> ms_sbt;
     Memory<HitGroupSbtRecord, RAM> hg_sbt;
 };
 
-using SphereProgramGenericPtr = std::shared_ptr<SphereProgramGeneric>;
+using SensorProgramGenericPtr = std::shared_ptr<SensorProgramGeneric>;
 
 } // namespace rmagine
 
-#endif // RMAGINE_SIMULATION_OPTIX_SPHERE_PROGRAM_GENERIC_HPP
+namespace std
+{
+
+template<>
+struct hash<rmagine::SensorProgramGenericPtr >
+{
+    std::size_t operator()(const rmagine::SensorProgramGenericPtr& k) const
+    {
+        return hash<rmagine::OptixSimulationDataGeneric>()(k->flags);
+    }
+};
+
+} // namespace std
+
+#endif // RMAGINE_SIMULATION_OPTIX_SENSOR_PROGRAM_GENERIC_HPP

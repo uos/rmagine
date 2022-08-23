@@ -338,6 +338,7 @@ struct OnDnModel_ {
 
 using OnDnModel = OnDnModel_<RAM>;
 
+
 } // namespace rmagine
 
 #endif // RMAGINE_TYPES_SENSOR_MODELS_H
