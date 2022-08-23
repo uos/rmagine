@@ -8,6 +8,7 @@
 
 #include "optix_definitions.h"
 #include "optix_sbt.h"
+#include "optix_modules.h"
 
 #include "OptixEntity.hpp"
 
@@ -20,19 +21,12 @@
 
 
 #include <rmagine/simulation/optix/OptixProgramMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
 
-#include <rmagine/util/optix/OptixSbtRecord.hpp>
+
 
 
 namespace rmagine
 {
-
-struct OptixSensorProgram
-{
-    OptixSensorPipelinePtr pipeline;
-    OptixSBTPtr            sbt;
-};
 
 class OptixScene 
 : public OptixEntity
@@ -139,13 +133,13 @@ private:
 
     // filled after commit and first sensor usage
 
-    using RayGenData        = RayGenDataEmpty;
-    using MissData          = MissDataEmpty;
-    using HitGroupData      = OptixSceneSBT;
+    // using RayGenData        = RayGenDataEmpty;
+    // using MissData          = MissDataEmpty;
+    // using HitGroupData      = OptixSceneSBT;
 
-    using RayGenSbtRecord   = SbtRecord<RayGenData>;
-    using MissSbtRecord     = SbtRecord<MissData>;
-    using HitGroupSbtRecord = SbtRecord<HitGroupData>;
+    // using RayGenSbtRecord   = SbtRecord<RayGenData>;
+    // using MissSbtRecord     = SbtRecord<MissData>;
+    // using HitGroupSbtRecord = SbtRecord<HitGroupData>;
 
 
     OptixPipelineCompileOptions m_pipeline_compile_options;
