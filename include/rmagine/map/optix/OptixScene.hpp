@@ -8,7 +8,6 @@
 
 #include "optix_definitions.h"
 #include "optix_sbt.h"
-#include "optix_modules.h"
 
 #include "OptixEntity.hpp"
 
@@ -20,18 +19,21 @@
 #include <unordered_set>
 
 
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
-
-
-
-
 namespace rmagine
 {
+
+struct OptixSceneCommitResult
+{
+    bool depth_changed = false;
+    bool sbt_size_changed = false;
+};
 
 class OptixScene 
 : public OptixEntity
 {
 public:
+    
+
     OptixScene(OptixContextPtr context = optix_default_context());
 
     virtual ~OptixScene();
@@ -71,7 +73,7 @@ public:
      * - only after commit it is possible to raytrace
      * 
      */
-    void commit();
+    OptixSceneCommitResult commit();
 
     // ACCASSIBLE AFTER COMMIT
     inline OptixAccelerationStructurePtr as() const
@@ -96,17 +98,16 @@ public:
 
     OptixSceneSBT sbt_data;
 
-    // 
-    OptixSensorProgram registerSensorProgram(const OptixSimulationDataGeneric& flags);
-
-
+    void addEventReceiver(OptixSceneEventReceiverPtr rec);
+    void removeEventReceiver(OptixSceneEventReceiverPtr rec);
 
 private:
-    void buildGAS();
+    OptixSceneCommitResult buildGAS();
 
-    void buildIAS();
+    OptixSceneCommitResult buildIAS();
 
-    void updateSBT();
+    void notifyEventReceivers(const OptixSceneCommitResult& info);
+    
 
     OptixAccelerationStructurePtr m_as;
 
@@ -120,6 +121,8 @@ private:
 
     std::unordered_set<OptixInstWPtr> m_parents;
 
+    std::unordered_set<OptixSceneEventReceiverWPtr> m_event_rec;
+
     bool m_geom_added = false;
     bool m_geom_removed = false;
 
@@ -127,42 +130,11 @@ private:
     unsigned int m_traversable_graph_flags = 0;
     unsigned int m_depth = 0;
     unsigned int m_required_sbt_entries = 0;
-
-
-
-
-    // filled after commit and first sensor usage
-    OptixPipelineCompileOptions m_pipeline_compile_options;
-    OptixProgramGroupOptions m_program_group_options;
-    
-
-    // sensor model type id -> RayGenModule
-    std::unordered_map<unsigned int, RayGenModulePtr>  m_sensor_raygen_modules;
-    // bounding bools key -> hit module
-    std::unordered_map<unsigned int, HitModulePtr>     m_hit_modules;
-
-    std::unordered_map<OptixSimulationDataGeneric, OptixSensorPipelinePtr> m_pipelines;
-    // bounding bools key -> sbt
-    std::unordered_map<OptixSimulationDataGeneric, OptixSBTPtr> m_sbts;
-
-
-
-
-    const unsigned int m_semantics[8] = {
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ
-    };
-
-    OptixPayloadType m_payload_type;
 };
 
-OptixScenePtr make_optix_scene(const aiScene* ascene, OptixContextPtr context = optix_default_context());
+OptixScenePtr make_optix_scene(
+    const aiScene* ascene, 
+    OptixContextPtr context = optix_default_context());
 
 } // namespace rmagine
 

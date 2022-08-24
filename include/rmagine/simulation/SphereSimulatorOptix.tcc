@@ -1,6 +1,5 @@
+#include <rmagine/simulation/optix/sim_modules.h>
 
-// #include <rmagine/simulation/optix/SphereProgramGeneric.hpp>
-#include <rmagine/simulation/optix/SensorProgramGeneric.hpp>
 #include <rmagine/util/optix/OptixDebug.hpp>
 #include <optix.h>
 #include <optix_stubs.h>
@@ -11,6 +10,8 @@
 #include <rmagine/util/StopWatch.hpp>
 
 #include <rmagine/simulation/optix/common.h>
+
+
 
 namespace rmagine
 {
@@ -27,7 +28,7 @@ void SphereSimulatorOptix::preBuildProgram()
     OptixSimulationDataGeneric flags;
     flags.model_type = 0;
     setGenericFlags<BundleT>(flags);
-    m_map->scene()->registerSensorProgram(flags);
+    make_pipeline_sim(m_map->scene(), flags);
 }
 
 template<typename BundleT>
@@ -57,7 +58,7 @@ void SphereSimulatorOptix::simulate(
     mem[0].model_type = 0;
     setGenericFlags(res, mem[0]);
 
-    OptixSensorProgram program = m_map->scene()->registerSensorProgram(mem[0]);
+    SimPipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
 
     // set general data
     mem->Tsb = m_Tsb.raw();
@@ -75,14 +76,14 @@ void SphereSimulatorOptix::simulate(
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
     
-    if(program.pipeline)
+    if(program)
     {
         OPTIX_CHECK( optixLaunch(
-                program.pipeline->pipeline,
+                program->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
                 sizeof( OptixSimulationDataGeneric ),
-                &program.sbt->sbt,
+                &program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim

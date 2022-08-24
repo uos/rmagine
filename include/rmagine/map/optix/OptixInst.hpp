@@ -2,22 +2,16 @@
 #define RMAGINE_MAP_OPTIX_INSTANCE_HPP
 
 
-#include <optix_types.h>
-
 #include "optix_definitions.h"
 
 #include "OptixGeometry.hpp"
 #include "OptixScene.hpp"
 
-// #include <optix_types.h>
-
-// #include <cuda.h>
-// #include <cuda_runtime.h>
 
 namespace rmagine
 {
 
-class OptixInst 
+class OptixInst
 : public OptixGeometry
 {
 public:
@@ -45,11 +39,12 @@ public:
         return OptixGeometryType::INSTANCE;
     }
 
-    OptixInstance data() const;
+    const OptixInstance* data() const;
 
     OptixInstanceSBT sbt_data;
 protected:
-    OptixInstance m_data;
+    // TODO hide this from header
+    OptixInstance* m_data;
 
     // filled after commit
     // CUdeviceptr m_data_gpu = 0;

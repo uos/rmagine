@@ -32,10 +32,9 @@
  *      Author: Alexander Mock
  */
 
-#ifndef OPTIX_DEBUG_HPP
-#define OPTIX_DEBUG_HPP
+#ifndef RMAGINE_UTIL_OPTIX_DEBUG_HPP
+#define RMAGINE_UTIL_OPTIX_DEBUG_HPP
 
-#include <optix.h>
 #include <cuda_runtime.h>
 
 
@@ -43,31 +42,21 @@
 #include <sstream>
 #include <iostream>
 
+#include <optix.h>
 
-namespace sutil
+namespace rmagine
 {
 
-class Exception : public std::runtime_error
+
+
+class OptixException 
+: public std::runtime_error
 {
- public:
-     Exception( const char* msg )
-         : std::runtime_error( msg )
-     { }
-
-     Exception( OptixResult res, const char* msg )
-         : std::runtime_error( createMessage( res, msg ).c_str() )
-     { }
-
- private:
-     std::string createMessage( OptixResult res, const char* msg )
-     {
-         std::ostringstream out;
-         out << optixGetErrorName( res ) << ": " << msg;
-         return out.str();
-     }
+public:
+    OptixException( const char* msg );
 };
 
-} // namespace sutil
+} // namespace rmagine
 
 //------------------------------------------------------------------------------
 //
@@ -82,9 +71,10 @@ class Exception : public std::runtime_error
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
             std::stringstream ss;                                              \
-            ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
+            ss << optixGetErrorName( res ) << ": "                             \
+            << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\n";                                           \
-            throw sutil::Exception( res, ss.str().c_str() );                   \
+            throw rmagine::OptixException( ss.str().c_str() );                   \
         }                                                                      \
     } while( 0 )
 
@@ -98,11 +88,12 @@ class Exception : public std::runtime_error
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
             std::stringstream ss;                                              \
-            ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
+            ss << optixGetErrorName( res ) << ": "                             \
+               << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\nLog:\n" << log                               \
                << ( sizeof_log_returned > sizeof( log ) ? "<TRUNCATED>" : "" ) \
                << "\n";                                                        \
-            throw sutil::Exception( res, ss.str().c_str() );                   \
+            throw rmagine::OptixException( ss.str().c_str() );                   \
         }                                                                      \
     } while( 0 )
 
@@ -123,12 +114,13 @@ class Exception : public std::runtime_error
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
-            std::stringstream ss;                                              \
-            ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
+            std::stringstream ss;                                             \
+            ss << optixGetErrorName( res ) << ": " \
+               << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\nLog:\n" << LOG                               \
                << ( LOG_SIZE > sizeof( LOG ) ? "<TRUNCATED>" : "" )            \
                << "\n";                                                        \
-            throw sutil::Exception( res, ss.str().c_str() );                   \
+            throw rmagine::OptixException( ss.str().c_str() );                   \
         }                                                                      \
     } while( 0 )
 
@@ -162,7 +154,7 @@ class Exception : public std::runtime_error
             ss << "CUDA call (" << #call << " ) failed with error: '"          \
                << cudaGetErrorString( error )                                  \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
-            throw sutil::Exception( ss.str().c_str() );                        \
+            throw rmagine::OptixException( ss.str().c_str() );                        \
         }                                                                      \
     } while( 0 )
 
@@ -178,7 +170,7 @@ class Exception : public std::runtime_error
             ss << "CUDA error on synchronize with error '"                     \
                << cudaGetErrorString( error )                                  \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
-            throw sutil::Exception( ss.str().c_str() );                        \
+            throw sutil::OptixException( ss.str().c_str() );                        \
         }                                                                      \
     } while( 0 )
 
@@ -198,4 +190,4 @@ class Exception : public std::runtime_error
         }                                                                      \
     } while( 0 )
 
-#endif // OPTIX_DEBUG_HPP
+#endif // RMAGINE_UTIL_OPTIX_DEBUG_HPP

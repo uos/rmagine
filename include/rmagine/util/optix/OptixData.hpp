@@ -49,50 +49,12 @@ struct RayGenDataEmpty {
 
 };
 
-// For fixed spherical model
-// struct RayGenDataSpherical {
-//     SphericalModel model;
-// };
-
 struct MissDataEmpty {
 
 };
 
 struct HitGroupDataEmpty {
 
-};
-
-struct HitGroupDataNormals {
-    // instance -> normals
-    Vector** normals;
-};
-
-struct MeshAttributes 
-{
-    Vector* vertex_normals;
-    Vector* face_normals;
-};
-
-
-struct InstanceAttributes
-{
-    // one instance can have multiple geometries
-    int* geom_ids;
-    // global mesh ids
-    int* mesh_ids;
-};
-
-struct HitGroupDataScene {
-    // instance attributes
-    unsigned int n_instances = 0;
-    InstanceAttributes* instances_attributes = nullptr;
-
-    // link from instance id to mesh id
-    // int* inst_to_mesh = nullptr;
-
-    // mesh attributes
-    unsigned int n_meshes = 0;
-    MeshAttributes* mesh_attributes = nullptr;
 };
 
 } // namespace rmagine

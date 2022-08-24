@@ -2,10 +2,11 @@
 #define RMAGINE_OPTIX_CONTEXT_HPP
 
 #include <rmagine/util/cuda/CudaContext.hpp>
-#include <optix.h>
-#include <optix_types.h>
-
 #include <memory>
+
+// Optix Forward declarations
+struct OptixDeviceContext_t;
+typedef struct OptixDeviceContext_t* OptixDeviceContext;
 
 namespace rmagine
 {

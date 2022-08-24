@@ -11,7 +11,6 @@
 // Scan Programs
 #include <rmagine/simulation/optix/PinholeProgramRanges.hpp>
 // #include <rmagine/simulation/optix/PinholeProgramNormals.hpp>
-#include <rmagine/simulation/optix/PinholeProgramGeneric.hpp>
 
 namespace rmagine
 {

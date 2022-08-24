@@ -38,8 +38,6 @@ public:
     using Base = OptixGeometry;
 
     OptixMesh(OptixContextPtr context = optix_default_context());
-    OptixMesh(const aiMesh* amesh, OptixContextPtr context = optix_default_context());
-
 
     virtual ~OptixMesh();
 
@@ -64,12 +62,6 @@ public:
     Memory<Face, VRAM_CUDA>     faces;
     Memory<Vector, VRAM_CUDA>   face_normals;
     Memory<Vector, VRAM_CUDA>   vertex_normals;
-    
-
-    // after transform: read here
-    // Memory<Point, VRAM_CUDA>    vertices_;
-    // Memory<Vector, VRAM_CUDA>   face_normals_;
-    // Memory<Vector, VRAM_CUDA>   vertex_normals_;
 
     float pre_transform_h[12];
     CUdeviceptr pre_transform = 0;
@@ -81,7 +73,12 @@ private:
 
 using OptixMeshPtr = std::shared_ptr<OptixMesh>;
 
-OptixMeshPtr make_optix_mesh(const aiMesh* amesh);
+
+
+// 
+OptixMeshPtr make_optix_mesh(
+    const aiMesh* amesh,
+    OptixContextPtr context = optix_default_context());
 
 } // namespace rmagine
 

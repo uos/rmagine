@@ -231,25 +231,25 @@ if(OptiX_FOUND)
         ## Spherical
         src/rmagine/simulation/optix/SphereProgramRanges.cu
         # src/rmagine/simulation/optix/SphereProgramNormals.cu
-        src/rmagine/simulation/optix/SphereProgramGeneric.cu
+        # src/rmagine/simulation/optix/SphereProgramGeneric.cu
         ## Pinhole
         src/rmagine/simulation/optix/PinholeProgramRanges.cu
         # src/rmagine/simulation/optix/PinholeProgramNormals.cu
-        src/rmagine/simulation/optix/PinholeProgramGeneric.cu
+        # src/rmagine/simulation/optix/PinholeProgramGeneric.cu
         # ## O1Dn
         src/rmagine/simulation/optix/O1DnProgramRanges.cu
         # src/rmagine/simulation/optix/O1DnProgramNormals.cu
-        src/rmagine/simulation/optix/O1DnProgramGeneric.cu
+        # src/rmagine/simulation/optix/O1DnProgramGeneric.cu
         # ## OnDn
         src/rmagine/simulation/optix/OnDnProgramRanges.cu
         # src/rmagine/simulation/optix/OnDnProgramNormals.cu
-        src/rmagine/simulation/optix/OnDnProgramGeneric.cu
+        # src/rmagine/simulation/optix/OnDnProgramGeneric.cu
         ## NEW
         src/rmagine/simulation/optix/SphereProgramGen.cu
         src/rmagine/simulation/optix/PinholeProgramGen.cu
         src/rmagine/simulation/optix/O1DnProgramGen.cu
         src/rmagine/simulation/optix/OnDnProgramGen.cu
-        src/rmagine/simulation/optix/ProgramHit.cu
+        src/rmagine/simulation/optix/SensorProgramHit.cu
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -278,7 +278,9 @@ if(OptiX_FOUND)
         src/rmagine/util/optix/OptixFunctionTable.cpp
         src/rmagine/util/optix/OptixProgram.cpp
         src/rmagine/util/optix/OptixUtil.cpp
+        src/rmagine/util/optix/OptixDebug.cpp
         src/rmagine/util/optix/OptixContext.cpp
+        src/rmagine/util/optix/optix_modules.cpp
         # Maps
         src/rmagine/map/optix/OptixAccelerationStructure.cpp
         src/rmagine/map/optix/OptixGeometry.cpp
@@ -287,8 +289,8 @@ if(OptiX_FOUND)
         src/rmagine/map/optix/OptixScene.cpp
         src/rmagine/map/optix/OptixTransformable.cpp
         src/rmagine/map/optix/OptixEntity.cpp
+        src/rmagine/map/optix/OptixSceneEventReceiver.cpp
         src/rmagine/map/optix/optix_shapes.cpp
-        src/rmagine/map/optix/optix_modules.cpp
         src/rmagine/map/OptixMap.cpp
         
         # Simulation
@@ -300,21 +302,18 @@ if(OptiX_FOUND)
         ## Spherical
         src/rmagine/simulation/optix/SphereProgramRanges.cpp
         # src/rmagine/simulation/optix/SphereProgramNormals.cpp
-        src/rmagine/simulation/optix/SphereProgramGeneric.cpp
         # ## Pinhole
         # src/rmagine/simulation/optix/PinholeProgramRanges.cpp
         # src/rmagine/simulation/optix/PinholeProgramNormals.cpp
-        src/rmagine/simulation/optix/PinholeProgramGeneric.cpp
         # ## O1Dn
         # src/rmagine/simulation/optix/O1DnProgramRanges.cpp
         # src/rmagine/simulation/optix/O1DnProgramNormals.cpp
-        src/rmagine/simulation/optix/O1DnProgramGeneric.cpp
         # ## OnDn
         # src/rmagine/simulation/optix/OnDnProgramRanges.cpp
         # src/rmagine/simulation/optix/OnDnProgramNormals.cpp
-        src/rmagine/simulation/optix/OnDnProgramGeneric.cpp
         # NEW
-        src/rmagine/simulation/optix/SensorProgramGeneric.cpp
+        src/rmagine/simulation/optix/sim_modules.cpp
+        
     )
 
     target_include_directories(rmagine_optix PUBLIC

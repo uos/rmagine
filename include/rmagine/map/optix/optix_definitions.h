@@ -30,6 +30,10 @@ class OptixAccelerationStructure;
 class OptixGeometry;
 class OptixInst;
 class OptixScene;
+struct OptixSceneCommitResult;
+class OptixSceneEventReceiver;
+struct OptixInstanceData;
+
 
 using OptixEntityPtr = std::shared_ptr<OptixEntity>;
 using OptixTransformablePtr = std::shared_ptr<OptixTransformable>;
@@ -37,6 +41,7 @@ using OptixAccelerationStructurePtr = std::shared_ptr<OptixAccelerationStructure
 using OptixGeometryPtr = std::shared_ptr<OptixGeometry>;
 using OptixInstPtr = std::shared_ptr<OptixInst>;
 using OptixScenePtr = std::shared_ptr<OptixScene>;
+using OptixSceneEventReceiverPtr = std::shared_ptr<OptixSceneEventReceiver>;
 
 using OptixEntityWPtr = std::weak_ptr<OptixEntity>;
 using OptixTransformableWPtr = std::weak_ptr<OptixTransformable>;
@@ -44,6 +49,7 @@ using OptixAccelerationStructureWPtr = std::weak_ptr<OptixAccelerationStructure>
 using OptixGeometryWPtr = std::weak_ptr<OptixGeometry>;
 using OptixInstWPtr = std::weak_ptr<OptixInst>;
 using OptixSceneWPtr = std::weak_ptr<OptixScene>;
+using OptixSceneEventReceiverWPtr = std::weak_ptr<OptixSceneEventReceiver>;
 
 
 
@@ -85,6 +91,24 @@ struct equal_to<rmagine::OptixSceneWPtr>
 template<>
 struct less<rmagine::OptixSceneWPtr> 
     : public rmagine::weak_less<rmagine::OptixScene>
+{};
+
+
+
+// SCENE EVENT RECEIVER
+template<>
+struct hash<rmagine::OptixSceneEventReceiverWPtr> 
+    : public rmagine::weak_hash<rmagine::OptixSceneEventReceiver>
+{};
+
+template<>
+struct equal_to<rmagine::OptixSceneEventReceiverWPtr> 
+    : public rmagine::weak_equal_to<rmagine::OptixSceneEventReceiver>
+{};
+
+template<>
+struct less<rmagine::OptixSceneEventReceiverWPtr> 
+    : public rmagine::weak_less<rmagine::OptixSceneEventReceiver>
 {};
 
 

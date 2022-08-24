@@ -47,7 +47,7 @@ void OnDnSimulatorOptix::simulate(
     mem[0].model_type = 3;
     setGenericFlags(res, mem[0]);
 
-    OptixSensorProgram program = m_map->scene()->registerSensorProgram(mem[0]);
+    OptixSimulationProgram program = m_map->scene()->registerSensorProgram(mem[0]);
 
     // set general data
 

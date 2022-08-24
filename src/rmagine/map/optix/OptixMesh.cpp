@@ -28,46 +28,6 @@ OptixMesh::OptixMesh(OptixContextPtr context)
     // std::cout << "[OptixMesh::OptixMesh()] constructed." << std::endl;
 }
 
-OptixMesh::OptixMesh(
-    const aiMesh* amesh, 
-    OptixContextPtr context)
-:OptixMesh(context)
-{
-    const aiVector3D* avertices = amesh->mVertices;
-    unsigned int num_vertices = amesh->mNumVertices;
-    const aiFace* afaces = amesh->mFaces;
-    unsigned int num_faces = amesh->mNumFaces;
-
-    name = amesh->mName.C_Str();
-
-    vertices.resize(num_vertices);
-    faces.resize(num_faces);
-
-    Memory<Point, RAM> vertices_cpu(num_vertices);
-    Memory<Face, RAM> faces_cpu(num_faces);
-
-    // convert
-    for(size_t i=0; i<num_vertices; i++)
-    {
-        vertices_cpu[i] = {
-                avertices[i].x,
-                avertices[i].y,
-                avertices[i].z};
-    }
-
-    for(size_t i=0; i<num_faces; i++)
-    {
-        faces_cpu[i].v0 = afaces[i].mIndices[0];
-        faces_cpu[i].v1 = afaces[i].mIndices[1];
-        faces_cpu[i].v2 = afaces[i].mIndices[2];
-    }
-
-    vertices = vertices_cpu;
-    faces = faces_cpu;
-    computeFaceNormals();
-    apply();
-}
-
 OptixMesh::~OptixMesh()
 {
     // std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
@@ -142,9 +102,11 @@ CUdeviceptr OptixMesh::getFaceBuffer()
     return reinterpret_cast<CUdeviceptr>(faces.raw());
 }
 
-OptixMeshPtr make_optix_mesh(const aiMesh* amesh)
+OptixMeshPtr make_optix_mesh(
+    const aiMesh* amesh,
+    OptixContextPtr context)
 {
-    OptixMeshPtr ret = std::make_shared<OptixMesh>();
+    OptixMeshPtr ret = std::make_shared<OptixMesh>(context);
 
     const aiVector3D* ai_vertices = amesh->mVertices;
     unsigned int num_vertices = amesh->mNumVertices;
@@ -172,26 +134,8 @@ OptixMeshPtr make_optix_mesh(const aiMesh* amesh)
         faces_cpu[i].v2 = ai_faces[i].mIndices[2];
     }
     ret->faces = faces_cpu;
-    
-    for(size_t i=0; i<num_faces; i++)
-    {
-        unsigned int v0_id = ai_faces[i].mIndices[0];
-        unsigned int v1_id = ai_faces[i].mIndices[1];
-        unsigned int v2_id = ai_faces[i].mIndices[2];
 
-        const Vector v0{ai_vertices[v0_id].x, ai_vertices[v0_id].y, ai_vertices[v0_id].z};
-        const Vector v1{ai_vertices[v1_id].x, ai_vertices[v1_id].y, ai_vertices[v1_id].z};
-        const Vector v2{ai_vertices[v2_id].x, ai_vertices[v2_id].y, ai_vertices[v2_id].z};
-        
-        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized());
-        n.normalize();
-
-        face_normals_cpu[i] = {
-            n.x,
-            n.y,
-            n.z};
-    }
-    ret->face_normals = face_normals_cpu;
+    ret->computeFaceNormals();
 
     if(amesh->HasNormals())
     {
@@ -205,6 +149,8 @@ OptixMeshPtr make_optix_mesh(const aiMesh* amesh)
         // upload
         ret->vertex_normals = vertex_normals_cpu;
     }
+
+    ret->apply();
 
     return ret;
 }
