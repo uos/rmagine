@@ -56,7 +56,6 @@ int main(int argc, char** argv)
         sim.setModel(model);
     }
 
-
     using ResultT = IntAttrAny<VRAM_CUDA>;
 
     // using ResultT = Bundle<

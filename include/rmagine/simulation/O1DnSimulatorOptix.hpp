@@ -41,7 +41,8 @@
 #define RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
+#include <rmagine/util/optix/optix_modules.h>
+
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
@@ -136,13 +137,6 @@ public:
     Memory<float, VRAM_CUDA> simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 
@@ -181,11 +175,14 @@ protected:
     uint32_t m_width;
     uint32_t m_height;
     Memory<O1DnModel_<VRAM_CUDA>, RAM> m_model;
+    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
 
     Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
-
 private:
-    std::vector<OptixProgramPtr> m_programs;
+    // ADD LAUNCH
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program);
 };
 
 using O1DnSimulatorOptixPtr = std::shared_ptr<O1DnSimulatorOptix>;

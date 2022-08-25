@@ -9,11 +9,12 @@
 #include <cuda_runtime.h>
 
 // Scan Programs
-#include <rmagine/simulation/optix/O1DnProgramRanges.hpp>
-#include <rmagine/simulation/optix/O1DnProgramNormals.hpp>
-#include <rmagine/simulation/optix/O1DnProgramGeneric.hpp>
+// #include <rmagine/simulation/optix/O1DnProgramRanges.hpp>
+// #include <rmagine/simulation/optix/O1DnProgramNormals.hpp>
 
 #include <rmagine/util/Debug.hpp>
+
+#include <rmagine/util/cuda/CudaStream.hpp>
 
 namespace rmagine
 {
@@ -35,16 +36,16 @@ O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
 
 O1DnSimulatorOptix::~O1DnSimulatorOptix()
 {
-    m_programs.clear();
+    // m_programs.clear();
 }
 
 void O1DnSimulatorOptix::setMap(OptixMapPtr map)
 {
     m_map = map;
 
-    m_programs.resize(2);
+    // m_programs.resize(2);
     
-    m_programs[0].reset(new O1DnProgramRanges(map));
+    // m_programs[0].reset(new O1DnProgramRanges(map));
     // m_programs[1].reset(new O1DnProgramNormals(map));
 
     m_stream = m_map->stream();
@@ -70,8 +71,11 @@ void O1DnSimulatorOptix::setModel(const O1DnModel_<VRAM_CUDA>& model)
     m_model.resize(1);
     m_model[0] = model;
 
+    m_model_d.resize(1);
+    copy(m_model, m_model_d, m_stream->handle());
+
     Memory<SensorModelUnion, RAM> model_union(1);
-    model_union->o1dn = m_model.raw();
+    model_union->o1dn = m_model_d.raw();
     m_model_union = model_union;
 }
 
@@ -108,41 +112,42 @@ void O1DnSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
-    if(!m_map)
-    {
-        throw std::runtime_error("[O1DnSimulatorOptix] simulateRanges(): No Map available!");
-    }
+    TODO_NOT_IMPLEMENTED
+    // if(!m_map)
+    // {
+    //     throw std::runtime_error("[O1DnSimulatorOptix] simulateRanges(): No Map available!");
+    // }
 
-    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
-    copy(m_model, model, m_stream);
+    // Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
+    // copy(m_model, model, m_stream);
 
-    Memory<OptixSimulationDataRangesO1Dn, RAM> mem(1);
-    mem->Tsb = m_Tsb.raw();
-    mem->model = model.raw();
-    mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->as()->handle;
-    mem->ranges = ranges.raw();
+    // Memory<OptixSimulationDataRangesO1Dn, RAM> mem(1);
+    // mem->Tsb = m_Tsb.raw();
+    // mem->model = model.raw();
+    // mem->Tbm = Tbm.raw();
+    // mem->handle = m_map->scene()->as()->handle;
+    // mem->ranges = ranges.raw();
 
-    Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
+    // Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem(1);
+    // copy(mem, d_mem, m_stream->handle());
 
-    OptixProgramPtr program = m_programs[0];
+    // OptixProgramPtr program = m_programs[0];
 
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
-                program->pipeline,
-                m_stream,
-                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataRangesO1Dn ),
-                &program->sbt,
-                m_width, // width Xdim
-                m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
+    // if(program)
+    // {
+    //     OPTIX_CHECK( optixLaunch(
+    //             program->pipeline,
+    //             m_stream,
+    //             reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+    //             sizeof( OptixSimulationDataRangesO1Dn ),
+    //             &program->sbt,
+    //             m_width, // width Xdim
+    //             m_height, // height Ydim
+    //             Tbm.size() // depth Zdim
+    //             ));
+    // } else {
+    //     throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
+    // }
 }
 
 Memory<float, VRAM_CUDA> O1DnSimulatorOptix::simulateRanges(
@@ -153,49 +158,23 @@ Memory<float, VRAM_CUDA> O1DnSimulatorOptix::simulateRanges(
     return res;
 }
 
-void O1DnSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm, 
-    Memory<Vector, VRAM_CUDA>& normals) const
+void O1DnSimulatorOptix::launch(
+    const Memory<OptixSimulationDataGeneric, RAM>& mem,
+    PipelinePtr program)
 {
-    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
-    copy(m_model, model, m_stream);
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
+    copy(mem, d_mem, m_stream->handle());
 
-    Memory<OptixSimulationDataNormalsO1Dn, RAM> mem(1);
-    mem->Tsb = m_Tsb.raw();
-    mem->model = model.raw();
-    mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->as()->handle;
-    mem->normals = normals.raw();
-
-    Memory<OptixSimulationDataNormalsO1Dn, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
-
-    OptixProgramPtr program = m_programs[1];
-
-    if(program)
-    {
-        program->updateSBT();
-        OPTIX_CHECK( optixLaunch(
+    OPTIX_CHECK( optixLaunch(
                 program->pipeline,
-                m_stream,
+                m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataNormalsO1Dn ),
-                &program->sbt,
+                sizeof( OptixSimulationDataGeneric ),
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
-}
-
-Memory<Vector, VRAM_CUDA> O1DnSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm) const
-{
-    Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());
-    simulateNormals(Tbm, res);
-    return res;
+                mem->Nposes // depth Zdim
+                ) );
 }
 
 } // rmagine

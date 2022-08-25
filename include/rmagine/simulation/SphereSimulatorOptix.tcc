@@ -1,14 +1,10 @@
 
 
 #include <rmagine/util/optix/OptixDebug.hpp>
-
-
-// #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
 #include <rmagine/util/cuda/CudaStream.hpp>
-#include <rmagine/util/StopWatch.hpp>
-
 #include <rmagine/simulation/optix/common.h>
+#include <rmagine/simulation/optix/sim_pipelines.h>
 
 namespace rmagine
 {

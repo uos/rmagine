@@ -58,7 +58,7 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
-#include <rmagine/simulation/optix/sim_pipelines.h>
+#include <rmagine/util/optix/optix_modules.h>
 
 
 namespace rmagine {
