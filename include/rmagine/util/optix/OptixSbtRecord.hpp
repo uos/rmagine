@@ -36,6 +36,7 @@
 #define RMAGINE_UTIL_OPTIX_OPTIX_SBT_RECORD_HPP
 
 #include <rmagine/util/GenericAlign.hpp>
+#include <optix.h> // for OPTIX_SBT_RECORD_HEADER_SIZE
 
 namespace rmagine {
 

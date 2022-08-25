@@ -1,4 +1,4 @@
-#include <rmagine/simulation/optix/sim_modules.h>
+#include <rmagine/simulation/optix/sim_pipelines.h>
 #include <rmagine/util/optix/OptixDebug.hpp>
 
 // #include <rmagine/util/StopWatch.hpp>

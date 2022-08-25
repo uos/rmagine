@@ -203,4 +203,23 @@ Memory<Vector, VRAM_CUDA> SphereSimulatorOptix::simulateNormals(
     return res;
 }
 
+void SphereSimulatorOptix::launch(
+    const Memory<OptixSimulationDataGeneric, RAM>& mem,
+    SimPipelinePtr program)
+{
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
+    copy(mem, d_mem, m_stream->handle());
+
+    OPTIX_CHECK( optixLaunch(
+                program->pipeline,
+                m_stream->handle(),
+                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+                sizeof( OptixSimulationDataGeneric ),
+                program->sbt,
+                m_width, // width Xdim
+                m_height, // height Ydim
+                mem->Nposes // depth Zdim
+                ) );
+}
+
 } // rmagine

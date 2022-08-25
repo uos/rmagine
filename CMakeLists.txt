@@ -309,18 +309,16 @@ if(OptiX_FOUND)
         # Simulation Programs
         ## Spherical
         src/rmagine/simulation/optix/SphereProgramRanges.cpp
-        # src/rmagine/simulation/optix/SphereProgramNormals.cpp
         # ## Pinhole
         # src/rmagine/simulation/optix/PinholeProgramRanges.cpp
-        # src/rmagine/simulation/optix/PinholeProgramNormals.cpp
         # ## O1Dn
         # src/rmagine/simulation/optix/O1DnProgramRanges.cpp
-        # src/rmagine/simulation/optix/O1DnProgramNormals.cpp
         # ## OnDn
         # src/rmagine/simulation/optix/OnDnProgramRanges.cpp
-        # src/rmagine/simulation/optix/OnDnProgramNormals.cpp
         # NEW
         src/rmagine/simulation/optix/sim_modules.cpp
+        src/rmagine/simulation/optix/sim_program_groups.cpp
+        src/rmagine/simulation/optix/sim_pipelines.cpp
         
     )
 

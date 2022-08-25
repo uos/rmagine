@@ -47,7 +47,6 @@
 namespace rmagine
 {
 
-
 class OptixException 
 : public std::runtime_error
 {

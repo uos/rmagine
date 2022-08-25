@@ -60,6 +60,8 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
+#include <rmagine/simulation/optix/sim_pipelines.h>
+
 
 namespace rmagine {
 
@@ -188,6 +190,13 @@ protected:
 
     Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
+
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        SimPipelinePtr program
+    );
+
+
     std::vector<OptixProgramPtr> m_programs;
 };
 
