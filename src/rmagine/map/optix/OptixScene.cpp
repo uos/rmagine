@@ -588,6 +588,9 @@ void OptixScene::removeEventReceiver(OptixSceneEventReceiverPtr rec)
 
 void OptixScene::notifyEventReceivers(const OptixSceneCommitResult& info)
 {
+
+    // std::cout << "OptixScene - notifyEventReceivers " << m_event_rec.size() << std::endl;
+
     if(info.depth_changed)
     {
         for(auto rec_it = m_event_rec.begin(); rec_it != m_event_rec.end();)
@@ -626,6 +629,8 @@ void OptixScene::notifyEventReceivers(const OptixSceneCommitResult& info)
             m_event_rec.erase(rec_it);
         }
     }
+
+    // std::cout << "OptixScene - notifyEventReceivers - done." << std::endl;
 }
 
 OptixScenePtr make_optix_scene(

@@ -23,7 +23,6 @@ SimMissProgramGroup::~SimMissProgramGroup()
     {
         cudaFreeHost(record_h);
     }
-    // std::cout << "[SimMissProgramGroup::~SimMissProgramGroup()] destroyed." << std::endl;
 }
 
 SimHitProgramGroup::~SimHitProgramGroup()
@@ -32,7 +31,6 @@ SimHitProgramGroup::~SimHitProgramGroup()
     {
         cudaFreeHost(record_h);
     }
-    // std::cout << "[SimHitProgramGroup::~SimHitProgramGroup()] destroyed." << std::endl;
 }
 
 
@@ -49,6 +47,7 @@ void SimHitProgramGroup::onSBTUpdated(
 
             if(n_hitgroups_required > record_count)
             {
+                // std::cout << "HitGroup update number of records: " << record_count << " -> " << n_hitgroups_required << std::endl;
                 if(record_h)
                 {
                     CUDA_CHECK( cudaFreeHost( record_h ) );
@@ -88,7 +87,6 @@ void SimHitProgramGroup::onSBTUpdated(
     
 }
 
-
 std::unordered_map<OptixSceneWPtr, 
     std::unordered_map<ProgramModuleWPtr, SimRayGenProgramGroupPtr>
 > m_program_group_sim_gen_cache;
@@ -126,7 +124,6 @@ SimRayGenProgramGroupPtr make_program_group_sim_gen(
     ret->module = module;
 
     ret->create();
-
 
     { // init SBT Records
         const size_t raygen_record_size     = sizeof( SimRayGenProgramGroup::SbtRecordData );

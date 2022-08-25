@@ -25,7 +25,15 @@ void SimPipeline::onCommitDone(
     const OptixSceneCommitResult& info)
 {
     // std::cout << "[SimPipeline::onCommitDone]" << std::endl;
-    // TODO
+    
+    // connect changed sbt data
+    if(prog_groups.size() > 0)
+    {
+        ProgramGroupPtr hit = prog_groups[2];
+        sbt->hitgroupRecordBase          = hit->record;
+        sbt->hitgroupRecordStrideInBytes = hit->record_stride;
+        sbt->hitgroupRecordCount         = hit->record_count;
+    }
 }
 
 // cache
