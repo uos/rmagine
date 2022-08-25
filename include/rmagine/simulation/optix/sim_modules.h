@@ -25,6 +25,13 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     OptixScenePtr scene,
     const OptixSimulationDataGeneric& flags);
 
+
+// Ranges Standalone
+ProgramModulePtr make_program_module_sim_ranges(
+    OptixScenePtr scene,
+    unsigned int sensor_id
+);
+
 } // namespace rmagine
 
 #endif // RMAGINE_SIMULATION_OPTIX_SIM_MODULES_H

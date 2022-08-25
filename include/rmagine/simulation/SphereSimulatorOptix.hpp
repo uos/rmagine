@@ -180,7 +180,6 @@ protected:
 
     Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
-
     void launch(
         const Memory<OptixSimulationDataGeneric, RAM>& mem,
         PipelinePtr program

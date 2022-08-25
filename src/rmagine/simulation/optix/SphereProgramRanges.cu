@@ -33,9 +33,6 @@ extern "C" __global__ void __raygen__rg()
 
     unsigned int p0 = glob_id;
 
-    // printf("ID: %u\n", pid);
-    // printf("shoot ray: origin [%f, %f, %f] dir [%f, %f, %f]\n", Tsm.t.x, Tsm.t.y, Tsm.t.z, ray_dir_m.x, ray_dir_m.y, ray_dir_m.z);
-
     optixTrace(
             mem.handle,
             make_float3(Tsm.t.x, Tsm.t.y, Tsm.t.z ),
