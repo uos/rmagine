@@ -112,27 +112,21 @@ SimRayGenProgramGroupPtr make_program_group_sim_gen(
 
     SimRayGenProgramGroupPtr ret = std::make_shared<SimRayGenProgramGroup>();
 
-    OptixProgramGroupDesc prog_group_desc    = {}; //
-    prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-    prog_group_desc.raygen.module            = module->module;
-    prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
+    // set description
+    ret->description->kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    ret->description->raygen.module = module->module;
+    ret->description->raygen.entryFunctionName = "__raygen__rg";
 
+    // set options
     #if OPTIX_VERSION >= 70400
     ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
+
+    // set module
     ret->module = module;
 
-    char log[2048]; // For error reporting from OptiX creation functions
-    size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                        scene->context()->ref(),
-                        &prog_group_desc,
-                        1,   // num program groups
-                        ret->options,
-                        log,
-                        &sizeof_log,
-                        &ret->prog_group
-                        ) );
+    ret->create();
+
 
     { // init SBT Records
         const size_t raygen_record_size     = sizeof( SimRayGenProgramGroup::SbtRecordData );
@@ -195,27 +189,16 @@ SimMissProgramGroupPtr make_program_group_sim_miss(
 
     SimMissProgramGroupPtr ret = std::make_shared<SimMissProgramGroup>();
 
-    OptixProgramGroupDesc prog_group_desc    = {}; //
-    prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_MISS;
-    prog_group_desc.raygen.module            = module->module;
-    prog_group_desc.raygen.entryFunctionName = "__miss__ms";
+    ret->description->kind                     = OPTIX_PROGRAM_GROUP_KIND_MISS;
+    ret->description->raygen.module            = module->module;
+    ret->description->raygen.entryFunctionName = "__miss__ms";
 
     #if OPTIX_VERSION >= 70400
     ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
     ret->module = module;
 
-    char log[2048]; // For error reporting from OptiX creation functions
-    size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                        scene->context()->ref(),
-                        &prog_group_desc,
-                        1,   // num program groups
-                        ret->options,
-                        log,
-                        &sizeof_log,
-                        &ret->prog_group
-                        ) );
+    ret->create();
 
     { // init SBT Records
         const size_t miss_record_size     = sizeof( SimMissProgramGroup::SbtRecordData );
@@ -278,27 +261,16 @@ SimHitProgramGroupPtr make_program_group_sim_hit(
 
     SimHitProgramGroupPtr ret = std::make_shared<SimHitProgramGroup>();
 
-    OptixProgramGroupDesc prog_group_desc    = {}; //
-    prog_group_desc.kind                     = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    prog_group_desc.raygen.module            = module->module;
-    prog_group_desc.raygen.entryFunctionName = "__closesthit__ch";
+    ret->description->kind                     = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    ret->description->raygen.module            = module->module;
+    ret->description->raygen.entryFunctionName = "__closesthit__ch";
 
     #if OPTIX_VERSION >= 70400
     ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
     ret->module = module;
 
-    char log[2048]; // For error reporting from OptiX creation functions
-    size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixProgramGroupCreate(
-                        scene->context()->ref(),
-                        &prog_group_desc,
-                        1,   // num program groups
-                        ret->options,
-                        log,
-                        &sizeof_log,
-                        &ret->prog_group
-                        ) );
+    ret->create();
 
     { // init SBT Records
         const size_t n_hitgroup_records = scene->requiredSBTEntries();   

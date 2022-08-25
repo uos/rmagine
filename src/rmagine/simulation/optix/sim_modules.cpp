@@ -133,37 +133,30 @@ ProgramModulePtr make_program_module_sim_gen(
     
     ProgramModulePtr module = std::make_shared<ProgramModule>();
 
-    std::string ptx;
-
     if(sensor_id == 0)
     {
         static const char* kernel =
         #include "kernels/SphereProgramGenString.h"
         ;
-        ptx = std::string(kernel);
+        ret->ptx = std::string(kernel);
     } else if(sensor_id == 1) {
         const char *kernel =
         #include "kernels/PinholeProgramGenString.h"
         ;
-        ptx = std::string(kernel);
+        ret->ptx = std::string(kernel);
     } else if(sensor_id == 2) {
         const char *kernel =
         #include "kernels/O1DnProgramGenString.h"
         ;
-        ptx = std::string(kernel);
+        ret->ptx = std::string(kernel);
     } else if(sensor_id == 3) {
         const char *kernel =
         #include "kernels/OnDnProgramGenString.h"
         ;
-        ptx = std::string(kernel);
+        ret->ptx = std::string(kernel);
     } else {
         std::cout << "[OptixScene::raygen_ptx_from_model_type] ERROR model_type " << sensor_id << " not supported!" << std::endl;
         throw std::runtime_error("[OptixScene::raygen_ptx_from_model_type] ERROR loading ptx");
-    }
-
-    if(ptx.empty())
-    {
-        throw std::runtime_error("OptixScene could not find its PTX part");
     }
 
     // TODO: share this between nearly any module?
@@ -198,19 +191,7 @@ ProgramModulePtr make_program_module_sim_gen(
         pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
     }
 
-    char log[2048]; // For error reporting from OptiX creation functions
-    size_t sizeof_log = sizeof( log );
-
-    OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
-                    scene->context()->ref(),
-                    ret->compile_options,
-                    &pipeline_compile_options,
-                    ptx.c_str(),
-                    ptx.size(),
-                    log,
-                    &sizeof_log,
-                    &ret->module
-                    ));
+    ret->compile(&pipeline_compile_options, scene->context());
 
     // cache
     sim_module_gen_cache[traversable_graph_flags][sensor_id] = ret; 
@@ -283,11 +264,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     };
     #endif
 
-    std::string ptx(kernel);
-    if(ptx.empty())
-    {
-        throw std::runtime_error("OptixScene could not find its PTX part");
-    }
+    ret->ptx = std::string(kernel);
 
     // TODO: share this between nearly any module?
     // depends on:
@@ -300,10 +277,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     OptixPipelineCompileOptions pipeline_compile_options = {};
     {
         pipeline_compile_options.usesMotionBlur        = false;
-
-
         pipeline_compile_options.traversableGraphFlags = traversable_graph_flags;
-        
         
         #if OPTIX_VERSION >= 70400
             // use module payloads: can specify semantics more accurately
@@ -328,16 +302,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
 
-    OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
-                    scene->context()->ref(),
-                    ret->compile_options,
-                    &pipeline_compile_options,
-                    ptx.c_str(),
-                    ptx.size(),
-                    log,
-                    &sizeof_log,
-                    &ret->module
-                    ));
+    ret->compile(&pipeline_compile_options, scene->context());
 
     sim_module_hit_miss_cache[traversable_graph_flags][bid] = ret;
 

@@ -17,10 +17,6 @@ struct SimPipeline
 : public Pipeline
 , public OptixSceneEventReceiver
 {
-    ProgramGroupPtr raygen;
-    ProgramGroupPtr miss;
-    ProgramGroupPtr hit;
-
     virtual void onDepthChanged() override;
 
     virtual void onCommitDone(const OptixSceneCommitResult& info) override;

@@ -55,41 +55,38 @@ SimPipelinePtr make_pipeline_sim(
 
     SimPipelinePtr ret = std::make_shared<SimPipeline>();
 
-    ret->raygen = make_program_group_sim_gen(scene, flags.model_type);
-    ret->miss = make_program_group_sim_miss(scene, flags);
-    ret->hit = make_program_group_sim_hit(scene, flags);
+    ProgramGroupPtr raygen = make_program_group_sim_gen(scene, flags.model_type);
+    ProgramGroupPtr miss = make_program_group_sim_miss(scene, flags);
+    ProgramGroupPtr hit = make_program_group_sim_hit(scene, flags);
 
-    ret->sbt->raygenRecord                = ret->raygen->record;
+    ret->sbt->raygenRecord                = raygen->record;
 
-    ret->sbt->missRecordBase              = ret->miss->record;
-    ret->sbt->missRecordStrideInBytes     = ret->miss->record_stride;
-    ret->sbt->missRecordCount             = ret->miss->record_count;
+    ret->sbt->missRecordBase              = miss->record;
+    ret->sbt->missRecordStrideInBytes     = miss->record_stride;
+    ret->sbt->missRecordCount             = miss->record_count;
 
-    ret->sbt->hitgroupRecordBase          = ret->hit->record;
-    ret->sbt->hitgroupRecordStrideInBytes = ret->hit->record_stride;
-    ret->sbt->hitgroupRecordCount         = ret->hit->record_count;
-
-    // scene->
+    ret->sbt->hitgroupRecordBase          = hit->record;
+    ret->sbt->hitgroupRecordStrideInBytes = hit->record_stride;
+    ret->sbt->hitgroupRecordCount         = hit->record_count;
 
     uint32_t          max_traversable_depth = scene->depth();
     const uint32_t    max_trace_depth  = 1; // TODO: 31 is maximum. Set this dynamically?
 
-    OptixProgramGroup program_groups[] = { 
-        ret->raygen->prog_group, 
-        ret->miss->prog_group, 
-        ret->hit->prog_group
+    ret->prog_groups = {
+        raygen,
+        miss,
+        hit
     };
 
-
-    OptixPipelineLinkOptions pipeline_link_options = {};
-    pipeline_link_options.maxTraceDepth          = max_trace_depth;
+    // LINK OPTIONS
+    ret->link_options->maxTraceDepth          = max_trace_depth;
     #ifndef NDEBUG
-        pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+        ret->link_options->debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
     #else
-        pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
+        ret->link_options->debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
     #endif
 
-    {
+    { // COMPILE OPTIONS
         ret->compile_options->usesMotionBlur        = false;
 
         ret->compile_options->traversableGraphFlags = traversable_graph_flags;
@@ -114,18 +111,7 @@ SimPipelinePtr make_pipeline_sim(
         ret->compile_options->usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
     }
 
-    char log[2048]; // For error reporting from OptiX creation functions
-    size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixPipelineCreate(
-        scene->context()->ref(),
-        ret->compile_options,
-        &pipeline_link_options,
-        program_groups,
-        sizeof(program_groups) / sizeof(program_groups[0]),
-        log,
-        &sizeof_log,
-        &ret->pipeline
-        ) );
+    ret->create(scene->context());
 
     scene->addEventReceiver(ret);
 

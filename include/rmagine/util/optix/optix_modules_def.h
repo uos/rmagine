@@ -11,10 +11,13 @@ struct OptixPipeline_t;
 struct OptixDenoiser_t;
 struct OptixShaderBindingTable;
 
+
 // Options
 struct OptixModuleCompileOptions;
 struct OptixProgramGroupOptions;
+struct OptixProgramGroupDesc;
 struct OptixPipelineCompileOptions;
+struct OptixPipelineLinkOptions;
 
 
 

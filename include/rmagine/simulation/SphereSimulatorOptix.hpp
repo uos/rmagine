@@ -43,8 +43,6 @@
 #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/map/optix/optix_definitions.h>
 
-
-#include <rmagine/util/optix/OptixProgram.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
@@ -142,14 +140,6 @@ public:
 
     Memory<float, VRAM_CUDA> simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 
@@ -193,11 +183,10 @@ private:
 
     void launch(
         const Memory<OptixSimulationDataGeneric, RAM>& mem,
-        SimPipelinePtr program
+        PipelinePtr program
     );
 
-
-    std::vector<OptixProgramPtr> m_programs;
+    std::vector<PipelinePtr> m_programs;
 };
 
 using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;

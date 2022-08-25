@@ -284,7 +284,6 @@ if(OptiX_FOUND)
     add_library(rmagine_optix SHARED
         # Util 
         src/rmagine/util/optix/OptixFunctionTable.cpp
-        src/rmagine/util/optix/OptixProgram.cpp
         src/rmagine/util/optix/OptixUtil.cpp
         src/rmagine/util/optix/OptixDebug.cpp
         src/rmagine/util/optix/OptixContext.cpp
@@ -303,12 +302,12 @@ if(OptiX_FOUND)
         
         # Simulation
         src/rmagine/simulation/SphereSimulatorOptix.cpp
-        src/rmagine/simulation/PinholeSimulatorOptix.cpp
+        # src/rmagine/simulation/PinholeSimulatorOptix.cpp
         # src/rmagine/simulation/O1DnSimulatorOptix.cpp
         # src/rmagine/simulation/OnDnSimulatorOptix.cpp
         # Simulation Programs
         ## Spherical
-        src/rmagine/simulation/optix/SphereProgramRanges.cpp
+        # src/rmagine/simulation/optix/SphereProgramRanges.cpp
         # ## Pinhole
         # src/rmagine/simulation/optix/PinholeProgramRanges.cpp
         # ## O1Dn
