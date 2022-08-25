@@ -41,7 +41,6 @@
 #include "OptixSbtRecord.hpp"
 #include "OptixData.hpp"
 
-
 namespace rmagine {
 
 class OptixProgram

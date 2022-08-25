@@ -37,12 +37,9 @@
 
 #include <cuda_runtime.h>
 
-
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
-
-#include <optix.h>
 
 namespace rmagine
 {

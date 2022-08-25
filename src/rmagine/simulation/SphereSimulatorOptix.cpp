@@ -10,7 +10,6 @@
 
 // Scan Programs
 #include <rmagine/simulation/optix/SphereProgramRanges.hpp>
-// #include <rmagine/simulation/optix/SphereProgramNormals.hpp>
 #include <rmagine/simulation/optix/SphereProgramGeneric.hpp>
 
 #include <rmagine/util/cuda/CudaStream.hpp>
@@ -42,7 +41,6 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixScenePtr scene)
 
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
-    // std::cout << "[SphereSimulatorOptix] ~SphereSimulatorOptix" << std::endl;
     m_programs.resize(0);
 }
 
@@ -52,7 +50,6 @@ void SphereSimulatorOptix::setMap(const OptixMapPtr map)
     // none generic version
     m_programs.resize(2);
     m_programs[0] = std::make_shared<SphereProgramRanges>(map);
-    // m_programs[1] = std::make_shared<SphereProgramNormals>(map);
 
     m_stream = m_map->stream();
 }
