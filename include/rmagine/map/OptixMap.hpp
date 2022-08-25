@@ -38,8 +38,6 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <optix.h>
-#include <optix_types.h>
 #include <cuda_runtime.h>
 #include "AssimpMap.hpp"
 #include "Map.hpp"
@@ -61,8 +59,6 @@
 #include "optix/OptixMesh.hpp"
 
 #include "optix/OptixScene.hpp"
-
-
 
 namespace rmagine {
 

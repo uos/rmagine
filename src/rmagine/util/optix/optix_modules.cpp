@@ -8,9 +8,17 @@
 
 #include <rmagine/map/optix/OptixScene.hpp>
 
+#include <optix.h>
+
 
 namespace rmagine {
 
+
+ProgramModule::ProgramModule()
+:compile_options(new OptixModuleCompileOptions({}))
+{
+
+}
 
 ProgramModule::~ProgramModule()
 {
@@ -25,6 +33,15 @@ ProgramModule::~ProgramModule()
     {
         optixModuleDestroy( module );
     }
+
+    delete compile_options;
+}
+
+
+ProgramGroup::ProgramGroup()
+:options(new OptixProgramGroupOptions({}))
+{
+
 }
 
 ProgramGroup::~ProgramGroup()
@@ -38,8 +55,17 @@ ProgramGroup::~ProgramGroup()
     {
         optixProgramGroupDestroy( prog_group );
     }
+
+    delete options;
 }
 
+
+Pipeline::Pipeline()
+:sbt(new OptixShaderBindingTable({}))
+,compile_options(new OptixPipelineCompileOptions({}))
+{
+    
+}
 
 Pipeline::~Pipeline()
 {
@@ -47,6 +73,9 @@ Pipeline::~Pipeline()
     {
         optixPipelineDestroy( pipeline );
     }
+
+    delete compile_options;
+    delete sbt;
 }
 
 // IMPLEMENTATIONS - TODO Move to simulation

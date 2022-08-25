@@ -1,8 +1,7 @@
 #include <rmagine/simulation/optix/sim_modules.h>
 
 #include <rmagine/util/optix/OptixDebug.hpp>
-#include <optix.h>
-#include <optix_stubs.h>
+
 
 // #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
@@ -11,6 +10,8 @@
 
 #include <rmagine/simulation/optix/common.h>
 
+#include <optix.h>
+#include <optix_stubs.h>
 
 
 namespace rmagine
@@ -83,11 +84,11 @@ void SphereSimulatorOptix::simulate(
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
                 sizeof( OptixSimulationDataGeneric ),
-                &program->sbt,
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
-                ));
+                ) );
     } else {
         throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
     }

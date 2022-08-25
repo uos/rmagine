@@ -1,5 +1,7 @@
 #include "rmagine/map/optix/OptixInst.hpp"
 
+#include <optix_types.h>
+
 #include "rmagine/map/optix/OptixAccelerationStructure.hpp"
 #include "rmagine/map/optix/OptixGeometry.hpp"
 

@@ -6,7 +6,6 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/MemoryCuda.hpp>
 
-#include <optix.h>
 #include <cuda_runtime.h>
 
 namespace rmagine

@@ -1,9 +1,5 @@
 #include <rmagine/simulation/optix/O1DnProgramGeneric.hpp>
 #include <rmagine/util/optix/OptixDebug.hpp>
-#include <optix.h>
-#include <optix_stubs.h>
-
-// #include <rmagine/util/StopWatch.hpp>
 
 namespace rmagine
 {

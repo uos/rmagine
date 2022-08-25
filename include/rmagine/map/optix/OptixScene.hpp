@@ -4,8 +4,6 @@
 #include <rmagine/util/optix/OptixContext.hpp>
 #include <rmagine/util/IDGen.hpp>
 
-#include <optix.h>
-
 #include "optix_definitions.h"
 #include "optix_sbt.h"
 

@@ -1,7 +1,6 @@
 #include <rmagine/simulation/optix/OnDnProgramGeneric.hpp>
 #include <rmagine/util/optix/OptixDebug.hpp>
-#include <optix.h>
-#include <optix_stubs.h>
+
 
 // #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/simulation/optix/common.h>

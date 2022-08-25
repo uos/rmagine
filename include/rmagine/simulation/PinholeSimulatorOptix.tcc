@@ -1,7 +1,5 @@
 #include <rmagine/simulation/optix/sim_modules.h>
 #include <rmagine/util/optix/OptixDebug.hpp>
-#include <optix.h>
-#include <optix_stubs.h>
 
 // #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/simulation/optix/common.h>
@@ -74,7 +72,7 @@ void PinholeSimulatorOptix::simulate(
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
                 sizeof( OptixSimulationDataGeneric ),
-                &program->sbt,
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim

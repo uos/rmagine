@@ -8,6 +8,8 @@
 #include "OptixScene.hpp"
 
 
+struct OptixInstance;
+
 namespace rmagine
 {
 

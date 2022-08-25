@@ -1,8 +1,6 @@
 #ifndef RMAGINE_MAP_OPTIX_MESH_HPP
 #define RMAGINE_MAP_OPTIX_MESH_HPP
 
-#include <optix.h>
-#include <optix_types.h>
 #include <cuda_runtime.h>
 
 #include <rmagine/types/MemoryCuda.hpp>

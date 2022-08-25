@@ -2,6 +2,8 @@
 #define RMAGINE_SIMULATION_OPTIX_SIM_MODULES_H
 
 
+#include <optix.h>
+
 // rmagine optix module interface
 #include <rmagine/util/optix/optix_modules.h>
 #include <rmagine/util/optix/OptixData.hpp>

@@ -40,8 +40,6 @@
 #ifndef RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 #define RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 
-#include <optix.h>
-
 #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/map/optix/optix_definitions.h>
 

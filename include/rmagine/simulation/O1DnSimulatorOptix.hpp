@@ -40,8 +40,6 @@
 #ifndef RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 #define RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 
-#include <optix.h>
-
 #include <rmagine/map/OptixMap.hpp>
 #include <rmagine/util/optix/OptixProgram.hpp>
 #include <rmagine/types/MemoryCuda.hpp>

@@ -203,26 +203,26 @@ ProgramModulePtr make_program_module_sim_gen(
 
     ProgramModulePtr ret = std::make_shared<ProgramModule>();
 
-    ret->compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+    ret->compile_options->maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 #ifndef NDEBUG
-    ret->compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else
-    ret->compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+    ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     #if OPTIX_VERSION >= 70400
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
     #else
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #endif
 #endif
 
 
     #if OPTIX_VERSION >= 70400
-    ret->compile_options.numPayloadTypes = 1;
-    CUDA_CHECK(cudaMallocHost(&ret->compile_options.payloadTypes, sizeof(OptixPayloadType) ) );
+    ret->compile_options->numPayloadTypes = 1;
+    CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
-    ret->compile_options.payloadTypes[0].numPayloadValues = 8;
-    ret->compile_options.payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
+    ret->compile_options->payloadTypes[0].numPayloadValues = 8;
+    ret->compile_options->payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
@@ -306,7 +306,7 @@ ProgramModulePtr make_program_module_sim_gen(
 
     OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
                     scene->context()->ref(),
-                    &ret->compile_options,
+                    ret->compile_options,
                     &pipeline_compile_options,
                     ptx.c_str(),
                     ptx.size(),
@@ -353,28 +353,28 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     #include "kernels/SensorProgramHitString.h"
     ;
 
-    ret->compile_options.maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+    ret->compile_options->maxRegisterCount     = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 
 #ifndef NDEBUG
-    ret->compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else
-    ret->compile_options.optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+    ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     #if OPTIX_VERSION >= 70400
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
     #else
-    ret->compile_options.debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #endif
 #endif
-    ret->compile_options.boundValues = &bounds[0];
-    ret->compile_options.numBoundValues = bounds.size();
+    ret->compile_options->boundValues = &bounds[0];
+    ret->compile_options->numBoundValues = bounds.size();
 
     #if OPTIX_VERSION >= 70400
-    ret->compile_options.numPayloadTypes = 1;
-    CUDA_CHECK(cudaMallocHost(&ret->compile_options.payloadTypes, sizeof(OptixPayloadType) ) );
+    ret->compile_options->numPayloadTypes = 1;
+    CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
-    ret->compile_options.payloadTypes[0].numPayloadValues = 8;
-    ret->compile_options.payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
+    ret->compile_options->payloadTypes[0]->numPayloadValues = 8;
+    ret->compile_options->payloadTypes[0]->payloadSemantics = (const unsigned int[8]) {
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
         OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
@@ -433,7 +433,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
 
     OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
                     scene->context()->ref(),
-                    &ret->compile_options,
+                    ret->compile_options,
                     &pipeline_compile_options,
                     ptx.c_str(),
                     ptx.size(),
@@ -476,7 +476,7 @@ SimRayGenProgramGroupPtr make_program_group_sim_gen(
     prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
 
     #if OPTIX_VERSION >= 70400
-    ret->options.payloadType = &module->compile_options.payloadTypes[0];
+    ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
     ret->module = module;
 
@@ -486,7 +486,7 @@ SimRayGenProgramGroupPtr make_program_group_sim_gen(
                         scene->context()->ref(),
                         &prog_group_desc,
                         1,   // num program groups
-                        &ret->options,
+                        ret->options,
                         log,
                         &sizeof_log,
                         &ret->prog_group
@@ -559,7 +559,7 @@ SimMissProgramGroupPtr make_program_group_sim_miss(
     prog_group_desc.raygen.entryFunctionName = "__miss__ms";
 
     #if OPTIX_VERSION >= 70400
-    ret->options.payloadType = &module->compile_options.payloadTypes[0];
+    ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
     ret->module = module;
 
@@ -569,7 +569,7 @@ SimMissProgramGroupPtr make_program_group_sim_miss(
                         scene->context()->ref(),
                         &prog_group_desc,
                         1,   // num program groups
-                        &ret->options,
+                        ret->options,
                         log,
                         &sizeof_log,
                         &ret->prog_group
@@ -642,7 +642,7 @@ SimHitProgramGroupPtr make_program_group_sim_hit(
     prog_group_desc.raygen.entryFunctionName = "__closesthit__ch";
 
     #if OPTIX_VERSION >= 70400
-    ret->options.payloadType = &module->compile_options.payloadTypes[0];
+    ret->options->payloadType = &module->compile_options->payloadTypes[0];
     #endif
     ret->module = module;
 
@@ -652,7 +652,7 @@ SimHitProgramGroupPtr make_program_group_sim_hit(
                         scene->context()->ref(),
                         &prog_group_desc,
                         1,   // num program groups
-                        &ret->options,
+                        ret->options,
                         log,
                         &sizeof_log,
                         &ret->prog_group
@@ -734,15 +734,15 @@ SimPipelinePtr make_pipeline_sim(
     ret->miss = make_program_group_sim_miss(scene, flags);
     ret->hit = make_program_group_sim_hit(scene, flags);
 
-    ret->sbt.raygenRecord                = ret->raygen->record;
+    ret->sbt->raygenRecord                = ret->raygen->record;
 
-    ret->sbt.missRecordBase              = ret->miss->record;
-    ret->sbt.missRecordStrideInBytes     = ret->miss->record_stride;
-    ret->sbt.missRecordCount             = ret->miss->record_count;
+    ret->sbt->missRecordBase              = ret->miss->record;
+    ret->sbt->missRecordStrideInBytes     = ret->miss->record_stride;
+    ret->sbt->missRecordCount             = ret->miss->record_count;
 
-    ret->sbt.hitgroupRecordBase          = ret->hit->record;
-    ret->sbt.hitgroupRecordStrideInBytes = ret->hit->record_stride;
-    ret->sbt.hitgroupRecordCount         = ret->hit->record_count;
+    ret->sbt->hitgroupRecordBase          = ret->hit->record;
+    ret->sbt->hitgroupRecordStrideInBytes = ret->hit->record_stride;
+    ret->sbt->hitgroupRecordCount         = ret->hit->record_count;
 
     // scene->
 
@@ -765,35 +765,35 @@ SimPipelinePtr make_pipeline_sim(
     #endif
 
     {
-        ret->pipeline_compile_options.usesMotionBlur        = false;
+        ret->compile_options->usesMotionBlur        = false;
 
-        ret->pipeline_compile_options.traversableGraphFlags = traversable_graph_flags;
+        ret->compile_options->traversableGraphFlags = traversable_graph_flags;
         
         // max payload values: 32
         #if OPTIX_VERSION >= 70400
-        ret->pipeline_compile_options.numPayloadValues      = 0;
+        ret->compile_options->numPayloadValues      = 0;
         #else
         // if dont use module payloads: cannot use module paypload for Optix < 7.4
-        ret->pipeline_compile_options.numPayloadValues      = 8;
+        ret->compile_options->numPayloadValues      = 8;
         #endif
         
 
         // pipeline_compile_options.numPayloadValues      = 8;
-        ret->pipeline_compile_options.numAttributeValues    = 2;
+        ret->compile_options->numAttributeValues    = 2;
     #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
-        ret->pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+        ret->compile_options->exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
     #else
-        ret->pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
+        ret->compile_options->exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
     #endif
-        ret->pipeline_compile_options.pipelineLaunchParamsVariableName = "mem";
-        ret->pipeline_compile_options.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
+        ret->compile_options->pipelineLaunchParamsVariableName = "mem";
+        ret->compile_options->usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
     }
 
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
     OPTIX_CHECK_LOG( optixPipelineCreate(
         scene->context()->ref(),
-        &ret->pipeline_compile_options,
+        ret->compile_options,
         &pipeline_link_options,
         program_groups,
         sizeof(program_groups) / sizeof(program_groups[0]),
