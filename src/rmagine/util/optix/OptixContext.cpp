@@ -3,6 +3,16 @@
 #include <optix.h>
 #include <optix_stubs.h>
 #include <iomanip>
+#include <map>
+#include <utility>
+
+
+std::map<unsigned int, unsigned int> optix_driver_map = {
+    {70200, 45671},
+    {70300, 46584},
+    {70400, 49589},
+    {70500, 49589}
+};
 
 static void context_log_cb( unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {
@@ -23,7 +33,28 @@ void optix_initialize()
 {
     std::stringstream optix_version_str;
     optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
-    std::cout << "[OptixContext] Init Optix (" << optix_version_str.str() << ") context on latest CUDA context " << std::endl;
+
+
+    auto driver_it = optix_driver_map.upper_bound(OPTIX_VERSION);
+    unsigned int required_driver_version = 0;
+    if(driver_it == optix_driver_map.begin())
+    {
+        required_driver_version = 45671;
+    } else {
+        --driver_it;
+    }
+    
+    
+    required_driver_version = driver_it->second;
+    
+    std::cout << "[RMagine - OptixContext] Init Optix (" << optix_version_str.str() << "). Required GPU driver >= " << driver_it->second / 100 << "." << driver_it->second % 100;
+    
+    if(driver_it->first != OPTIX_VERSION)
+    {
+        std::cout << " for Optix " << driver_it->first / 10000 << "." << (driver_it->first % 10000) / 100 << "." << driver_it->first % 100;
+    }
+
+    std::cout << std::endl;
     OPTIX_CHECK( optixInit() );
     optix_initialized_ = true;
 }

@@ -22,12 +22,13 @@ CudaContext::CudaContext(int device_id)
 {
     if(!cuda_initialized())
     {
-        std::cout << "[CudaContext] Init Cuda" << std::endl;
+        // std::cout << "[RMagine - CudaContext] Init Cuda" << std::endl;
+        printCudaInfo();
         cuda_initialize();
     }
 
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
-    std::cout << "[CudaContext] Construct context on device " << device_id << " " << info.name << " " << info.luid << std::endl;
+    std::cout << "[RMagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 
     cuCtxCreate(&m_context, 0, device_id);
 }
@@ -41,7 +42,7 @@ CudaContext::CudaContext(CUcontext ctx)
 CudaContext::~CudaContext()
 {
     cuCtxDestroy(m_context);
-    std::cout << "[CudaContext::~CudaContext()] destroyed." << std::endl;
+    // std::cout << "[CudaContext::~CudaContext()] destroyed." << std::endl;
 }
 
 int CudaContext::getDeviceId() const

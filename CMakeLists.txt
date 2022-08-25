@@ -252,6 +252,14 @@ if(OptiX_FOUND)
         src/rmagine/simulation/optix/SensorProgramHit.cu
     )
 
+    # if(OptiX_VERSION GREATER_EQUAL 70400)
+    #     message(STATUS "OptiX >= 7.4")
+    # endif()
+
+    # if(OptiX_VERSION GREATER_EQUAL 70300)
+    #     message(STATUS "OptiX >= 7.3")
+    # endif()
+
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
         ${OPTIX_KERNEL_FILES}
     )

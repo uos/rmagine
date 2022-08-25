@@ -465,7 +465,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
     { // BUILD FLAGS
         build_flags |= OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
         build_flags |= OPTIX_BUILD_FLAG_ALLOW_UPDATE;
-        #if OPTIX_VERSION >= 73000
+        #if OPTIX_VERSION >= 70300
         build_flags |= OPTIX_BUILD_FLAG_ALLOW_RANDOM_INSTANCE_ACCESS;
         #endif
     }

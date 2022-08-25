@@ -263,7 +263,9 @@ void computeNoObjectId()
 
 extern "C" __global__ void __miss__ms()
 {
+    #if OPTIX_VERSION >= 70400
     optixSetPayloadTypes(OPTIX_PAYLOAD_TYPE_ID_0);
+    #endif
 
     if(mem.computeHits)
     {
@@ -303,8 +305,10 @@ extern "C" __global__ void __miss__ms()
 
 extern "C" __global__ void __closesthit__ch()
 {
+    #if OPTIX_VERSION >= 70400
     optixSetPayloadTypes(OPTIX_PAYLOAD_TYPE_ID_0);
-
+    #endif
+    
     if(mem.computeHits)
     {
         computeHit();

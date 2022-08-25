@@ -3,20 +3,23 @@
 # Pure Optix:
 # - OptiX_INCLUDE_DIR
 # - OptiX_LIBRARY
+# - OptiX_VERSION
 # - OptiX_FOUND
 # Additional:
 # - OptiX_INCLUDE_DIRS
 # - Optix_LIBRARIES
+# Aliases:
+# example: OPTIX_INCLUDE_DIR = OptiX_INCLUDE_DIR
+
 find_package(PkgConfig)
 pkg_check_modules(OptiX QUIET optix)
 
+set(OptiX_ROOT_DIR "" CACHE PATH "Root of Optix installation")
 
 # INCLUDE
-
-
 find_path(OptiX_INCLUDE_DIR
   NAMES optix.h
-  PATHS "${OptiX_INSTALL_DIR}/include"
+  PATHS "${OptiX_ROOT_DIR}/include"
   NO_DEFAULT_PATH
 )
 
@@ -24,6 +27,10 @@ if(NOT OptiX_INCLUDE_DIR)
 find_path(OptiX_INCLUDE_DIR
   NAMES optix.h
 )
+if(OptiX_INCLUDE_DIR)
+  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
+  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
+endif()
 endif()
 
 if(NOT OptiX_INCLUDE_DIR)
@@ -32,6 +39,10 @@ find_path(OptiX_INCLUDE_DIR
   PATHS "/opt/optix/include"
   NO_DEFAULT_PATH
 )
+if(OptiX_INCLUDE_DIR)
+  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
+  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
+endif()
 endif()
 
 if(NOT OptiX_INCLUDE_DIR)
@@ -40,6 +51,19 @@ find_path(OptiX_INCLUDE_DIR
   PATHS "~/optix/include"
   NO_DEFAULT_PATH
 )
+if(OptiX_INCLUDE_DIR)
+  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
+  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
+endif()
+endif()
+
+
+
+# VERSION
+if(OptiX_INCLUDE_DIR)
+  file(READ "${OptiX_INCLUDE_DIR}/optix.h" OPTIX_H)
+  string(REGEX MATCH "OPTIX_VERSION[ \t\r\n\\]+([0-9]+)" _ ${OPTIX_H})
+  set(OptiX_VERSION ${CMAKE_MATCH_1})
 endif()
 
 # LIBRARY
@@ -63,10 +87,10 @@ find_library(OptiX_LIBRARY
 endif()
 
 if(NOT OptiX_LIBRARY)
-  message(WARNING "optix library not found.  Please locate before proceeding." TRUE)
+  message(WARNING "optix library not found" TRUE)
 endif()
 if(NOT OptiX_INCLUDE_DIR)
-  message(WARNING "OptiX headers (optix.h and friends) not found.  Please locate before proceeding." TRUE)
+  message(WARNING "OptiX headers not found" TRUE)
 endif()
 
 if(OptiX_LIBRARY AND OptiX_INCLUDE_DIR)
@@ -76,10 +100,18 @@ else()
 endif()
 
 message(STATUS "Include: ${OptiX_INCLUDE_DIR}")
-set(OptiX_VERSION ${optix_VERSION})
 
 if(OptiX_FOUND)
   set(OptiX_LIBRARIES ${OptiX_LIBRARY})
   set(OptiX_INCLUDE_DIRS ${OptiX_INCLUDE_DIR})
-  # set(OptiX_DEFINITIONS ${PC_Foo_CFLAGS_OTHER})
 endif()
+
+
+
+# aliases
+set(OPTIX_FOUND ${OptiX_FOUND})
+set(OPTIX_LIBRARY ${OptiX_LIBRARY})
+set(OPTIX_INCLUDE_DIR ${OptiX_INCLUDE_DIR})
+set(OPTIX_INCLUDE_DIRS ${OptiX_INCLUDE_DIRS})
+set(OPTIX_VERSION ${OptiX_VERSION})
+set(OPTIX_LIBRARIES ${OptiX_LIBRARIES})
