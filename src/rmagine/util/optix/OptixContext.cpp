@@ -34,7 +34,6 @@ void optix_initialize()
     std::stringstream optix_version_str;
     optix_version_str << OPTIX_VERSION / 10000 << "." << (OPTIX_VERSION % 10000) / 100 << "." << OPTIX_VERSION % 100;
 
-
     auto driver_it = optix_driver_map.upper_bound(OPTIX_VERSION);
     unsigned int required_driver_version = 0;
     if(driver_it == optix_driver_map.begin())
@@ -43,7 +42,6 @@ void optix_initialize()
     } else {
         --driver_it;
     }
-    
     
     required_driver_version = driver_it->second;
     

@@ -20,7 +20,7 @@ struct OptixSimulationDataRanges {
     const Transform*            Tbm; // Poses
     uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle      handle;
+    unsigned long long      handle;
     // Result
     float*                      ranges;
 };
@@ -38,7 +38,7 @@ struct OptixSimulationDataNormals {
     const Transform*            Tbm; // Poses
     uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle      handle;
+    unsigned long long      handle;
     // Result
     Vector*                     normals;
 };
@@ -57,7 +57,7 @@ struct OptixSimulationDataGeneric_ {
     const Transform*            Tbm; // Poses
     uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle      handle;
+    unsigned long long      handle;
     // Generic Options
     bool                        computeHits;
     bool                        computeRanges;
@@ -99,7 +99,7 @@ struct OptixSimulationDataGeneric {
     const Transform*            Tbm; // Poses
     uint32_t                    Nposes;
     // Handle
-    OptixTraversableHandle      handle;
+    unsigned long long      handle;
     // Generic Options
     bool                        computeHits;
     bool                        computeRanges;
