@@ -9,7 +9,7 @@
 #include <cuda_runtime.h>
 
 // Scan Programs
-#include <rmagine/simulation/optix/PinholeProgramRanges.hpp>
+// #include <rmagine/simulation/optix/PinholeProgramRanges.hpp>
 // #include <rmagine/simulation/optix/PinholeProgramNormals.hpp>
 
 namespace rmagine
@@ -32,14 +32,14 @@ PinholeSimulatorOptix::PinholeSimulatorOptix(OptixMapPtr map)
 
 PinholeSimulatorOptix::~PinholeSimulatorOptix()
 {
-    m_programs.resize(0);
+    // m_programs.resize(0);
 }
 
 void PinholeSimulatorOptix::setMap(const OptixMapPtr map)
 {
     m_map = map;
     // none generic version
-    m_programs.resize(2);
+    // m_programs.resize(2);
     // m_programs[0] = std::make_shared<PinholeProgramRanges>(map);
     // m_programs[1] = std::make_shared<PinholeProgramNormals>(map);
 
@@ -106,24 +106,24 @@ void PinholeSimulatorOptix::simulateRanges(
     Memory<OptixSimulationDataRangesPinhole, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
 
-    OptixProgramPtr program = m_programs[0];
+    PipelinePtr program;// = m_programs[0];
 
-    if(program)
-    {
-        program->updateSBT();
-        OPTIX_CHECK( optixLaunch(
-                program->pipeline,
-                m_stream->handle(),
-                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataRangesPinhole ),
-                &program->sbt,
-                m_width, // width Xdim
-                m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
+    // if(program)
+    // {
+    //     program->updateSBT();
+    //     OPTIX_CHECK( optixLaunch(
+    //             program->pipeline,
+    //             m_stream->handle(),
+    //             reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
+    //             sizeof( OptixSimulationDataRangesPinhole ),
+    //             &program->sbt,
+    //             m_width, // width Xdim
+    //             m_height, // height Ydim
+    //             Tbm.size() // depth Zdim
+    //             ));
+    // } else {
+    //     throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
+    // }
 }
 
 Memory<float, VRAM_CUDA> PinholeSimulatorOptix::simulateRanges(
@@ -134,62 +134,23 @@ Memory<float, VRAM_CUDA> PinholeSimulatorOptix::simulateRanges(
     return res;
 }
 
-void PinholeSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm, 
-    Memory<Vector, VRAM_CUDA>& normals) const
+void PinholeSimulatorOptix::launch(
+    const Memory<OptixSimulationDataGeneric, RAM>& mem,
+    PipelinePtr program)
 {
-    if(!m_map)
-    {
-        // no map set
-        throw std::runtime_error("[PinholeSimulatorOptix] simulateNormals(): No Map available!");
-        return;
-    }
-
-    auto optix_ctx = m_map->context();
-    auto cuda_ctx = optix_ctx->getCudaContext();
-    if(!cuda_ctx->isActive())
-    {
-        std::cout << "[SphereSimulatorOptix::simulateRanges() Need to activate map context" << std::endl;
-        cuda_ctx->use();
-    }
-
-    Memory<OptixSimulationDataNormalsPinhole, RAM> mem(1);
-    mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
-    mem->Tbm = Tbm.raw();
-    mem->handle = m_map->scene()->as()->handle;
-    mem->normals = normals.raw();
-
-    Memory<OptixSimulationDataNormalsPinhole, VRAM_CUDA> d_mem(1);
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
 
-    OptixProgramPtr program = m_programs[1];
-
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
+    OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataNormalsPinhole ),
-                &program->sbt,
+                sizeof( OptixSimulationDataGeneric ),
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
+                mem->Nposes // depth Zdim
+                ) );
 }
-
-Memory<Vector, VRAM_CUDA> PinholeSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm) const
-{
-    Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());
-    simulateNormals(Tbm, res);
-    return res;
-}
-
-
 
 } // rmagine

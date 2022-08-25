@@ -10,7 +10,7 @@ add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_TOOLS "Build tools" ON)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
@@ -302,7 +302,7 @@ if(OptiX_FOUND)
         
         # Simulation
         src/rmagine/simulation/SphereSimulatorOptix.cpp
-        # src/rmagine/simulation/PinholeSimulatorOptix.cpp
+        src/rmagine/simulation/PinholeSimulatorOptix.cpp
         # src/rmagine/simulation/O1DnSimulatorOptix.cpp
         # src/rmagine/simulation/OnDnSimulatorOptix.cpp
         # Simulation Programs
@@ -344,41 +344,46 @@ endif(CUDA_FOUND)
 #### TESTS
 if(BUILD_TESTS)
 
-## ADDITIONAL DEPS FOR TESTS
-if(Eigen3_FOUND)
-    include_directories(${EIGEN3_INCLUDE_DIR})
-endif(Eigen3_FOUND)
+enable_testing()
+add_subdirectory(tests)
 
-add_subdirectory(src/rmagine_tests/memory)
-add_subdirectory(src/rmagine_tests/memory_slicing)
-add_subdirectory(src/rmagine_tests/embree_sim)
-
-if(${embree_FOUND})
-add_subdirectory(src/rmagine_tests/assimp_to_embree)
-endif()
-
-if(Eigen3_FOUND)
-    add_subdirectory(src/rmagine_tests/basic_math)
-endif(Eigen3_FOUND)
-
-add_subdirectory(src/rmagine_tests/generic_model_sim)
-add_subdirectory(src/rmagine_tests/synthetic)
-
-if(CUDA_FOUND)
-
-add_subdirectory(src/rmagine_tests/memory_cuda)
-add_subdirectory(src/rmagine_tests/memory_slicing_cuda)
-add_subdirectory(src/rmagine_tests/cuda_math)
-add_subdirectory(src/rmagine_tests/svd)
-
-
-if(OptiX_FOUND)
-add_subdirectory(src/rmagine_tests/optix_sim)
-add_subdirectory(src/rmagine_tests/generic_sim)
-endif(OptiX_FOUND)
-
-endif(CUDA_FOUND)
 endif(BUILD_TESTS)
+
+# ## ADDITIONAL DEPS FOR TESTS
+# if(Eigen3_FOUND)
+#     include_directories(${EIGEN3_INCLUDE_DIR})
+# endif(Eigen3_FOUND)
+
+# add_subdirectory(src/rmagine_tests/memory)
+# add_subdirectory(src/rmagine_tests/memory_slicing)
+# add_subdirectory(src/rmagine_tests/embree_sim)
+
+# if(${embree_FOUND})
+# add_subdirectory(src/rmagine_tests/assimp_to_embree)
+# endif()
+
+# if(Eigen3_FOUND)
+#     add_subdirectory(src/rmagine_tests/basic_math)
+# endif(Eigen3_FOUND)
+
+# add_subdirectory(src/rmagine_tests/generic_model_sim)
+# add_subdirectory(src/rmagine_tests/synthetic)
+
+# if(CUDA_FOUND)
+
+# add_subdirectory(src/rmagine_tests/memory_cuda)
+# add_subdirectory(src/rmagine_tests/memory_slicing_cuda)
+# add_subdirectory(src/rmagine_tests/cuda_math)
+# add_subdirectory(src/rmagine_tests/svd)
+
+
+# if(OptiX_FOUND)
+# add_subdirectory(src/rmagine_tests/optix_sim)
+# add_subdirectory(src/rmagine_tests/generic_sim)
+# endif(OptiX_FOUND)
+
+# endif(CUDA_FOUND)
+# endif(BUILD_TESTS)
 
 #### TOOLS
 if(BUILD_TOOLS)

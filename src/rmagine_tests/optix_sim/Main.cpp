@@ -6,30 +6,29 @@
 
 using namespace rmagine;
 
-struct MyMesh
+SphericalModel velodyne_model()
 {
-    unsigned int id;
-};
+    SphericalModel model;
+    model.theta.min = -M_PI;
+    model.theta.inc = 0.4 * M_PI / 180.0;
+    model.theta.size = 900;
 
-struct MyInstance
-{
-    unsigned int id;
-};
-
-Memory<LiDARModel, RAM> velodyne_model()
-{
-    Memory<LiDARModel, RAM> model(1);
-    model->theta.min = -M_PI;
-    model->theta.inc = 0.4 * M_PI / 180.0;
-    model->theta.size = 900;
-
-    model->phi.min = -15.0 * M_PI / 180.0;
-    model->phi.inc = 2.0 * M_PI / 180.0;
-    model->phi.size = 16;
+    model.phi.min = -15.0 * M_PI / 180.0;
+    model.phi.inc = 2.0 * M_PI / 180.0;
+    model.phi.size = 16;
     
-    model->range.min = 0.5;
-    model->range.max = 130.0;
+    model.range.min = 0.5;
+    model.range.max = 130.0;
     return model;
+}
+
+bool spherical_model_test()
+{
+    bool ret = true;
+
+
+
+    return ret;
 }
 
 int main(int argc, char** argv)
@@ -42,97 +41,97 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    StopWatch sw;
-    double el;
+    // StopWatch sw;
+    // double el;
 
-    sw();
-    OptixMapPtr map = importOptixMap(argv[1]);
-    el = sw();
-    std::cout << argv[1] << ": loaded in " << el << "s" << std::endl;
+    // sw();
+    // OptixMapPtr map = importOptixMap(argv[1]);
+    // el = sw();
+    // std::cout << argv[1] << ": loaded in " << el << "s" << std::endl;
 
     
-    SphereSimulatorOptix sim(map);
+    // SphereSimulatorOptix sim(map);
 
-    // Define and set Scanner Model
-    auto model = velodyne_model();
+    // // Define and set Scanner Model
+    // auto model = velodyne_model();
 
-    sim.setModel(model);
+    // sim.setModel(model);
 
-    // Define and set Transformation between sensor and base 
-    // (sensor offset to poses)
-    Memory<Transform, RAM> Tsb(1);
-    Tsb->R.x = 0.0;
-    Tsb->R.y = 0.0;
-    Tsb->R.z = 0.0;
-    Tsb->R.w = 1.0;
-    Tsb->t.x = 0.01;
-    Tsb->t.y = 0.0;
-    Tsb->t.z = 0.0; // offset on z axis
+    // // Define and set Transformation between sensor and base 
+    // // (sensor offset to poses)
+    // Memory<Transform, RAM> Tsb(1);
+    // Tsb->R.x = 0.0;
+    // Tsb->R.y = 0.0;
+    // Tsb->R.z = 0.0;
+    // Tsb->R.w = 1.0;
+    // Tsb->t.x = 0.01;
+    // Tsb->t.y = 0.0;
+    // Tsb->t.z = 0.0; // offset on z axis
 
-    sim.setTsb(Tsb);
-
-
-    // Define and set poses to transform from
-    // Transformations between base and map
-    size_t Nposes = 10000;
+    // sim.setTsb(Tsb);
 
 
+    // // Define and set poses to transform from
+    // // Transformations between base and map
+    // size_t Nposes = 10000;
 
-    size_t Nrays = Nposes * model->theta.size * model->phi.size;
 
-    Memory<Transform, RAM> Tbm(Nposes);
-    for(size_t i=0; i<Nposes; i++)
-    {
-        Tbm[i].R.x = 0.0;
-        Tbm[i].R.y = 0.0;
-        Tbm[i].R.z = 0.0;
-        Tbm[i].R.w = 1.0;
-        Tbm[i].t.x = 0.1;
-        Tbm[i].t.y = 0.0;
-        Tbm[i].t.z = 0.0;
-    }
 
-    Memory<Transform, VRAM_CUDA> Tbm_gpu;
-    Tbm_gpu = Tbm;
+    // size_t Nrays = Nposes * model->theta.size * model->phi.size;
 
-    // predefine memory
-    Memory<float, VRAM_CUDA> ranges_gpu(Nrays);
-    Memory<Vector, VRAM_CUDA> normals_gpu(Nrays);
+    // Memory<Transform, RAM> Tbm(Nposes);
+    // for(size_t i=0; i<Nposes; i++)
+    // {
+    //     Tbm[i].R.x = 0.0;
+    //     Tbm[i].R.y = 0.0;
+    //     Tbm[i].R.z = 0.0;
+    //     Tbm[i].R.w = 1.0;
+    //     Tbm[i].t.x = 0.1;
+    //     Tbm[i].t.y = 0.0;
+    //     Tbm[i].t.z = 0.0;
+    // }
 
-    sim.simulateRanges(Tbm_gpu, ranges_gpu);
+    // Memory<Transform, VRAM_CUDA> Tbm_gpu;
+    // Tbm_gpu = Tbm;
 
-    using ResultT = Bundle<Ranges<VRAM_CUDA> >;
+    // // predefine memory
+    // Memory<float, VRAM_CUDA> ranges_gpu(Nrays);
+    // Memory<Vector, VRAM_CUDA> normals_gpu(Nrays);
 
-    ResultT res;
-    res.ranges.resize(Nrays);
+    // sim.simulateRanges(Tbm_gpu, ranges_gpu);
 
-    sim.preBuildProgram<ResultT>();
+    // using ResultT = Bundle<Ranges<VRAM_CUDA> >;
 
-    double el1, el2;
+    // ResultT res;
+    // res.ranges.resize(Nrays);
 
-    std::vector<double> runtimes;
+    // sim.preBuildProgram<ResultT>();
 
-    for(size_t i=0; i<10; i++)
-    {
-        // sw();
-        // sim.simulateRanges(Tbm_gpu, ranges_gpu);
-        // cudaDeviceSynchronize();
-        // el1 = sw();
+    // double el1, el2;
+
+    // std::vector<double> runtimes;
+
+    // for(size_t i=0; i<10; i++)
+    // {
+    //     // sw();
+    //     // sim.simulateRanges(Tbm_gpu, ranges_gpu);
+    //     // cudaDeviceSynchronize();
+    //     // el1 = sw();
         
-        sw();
-        sim.simulate<ResultT>(Tbm_gpu, res);
-        cudaDeviceSynchronize();
-        el2 = sw();
+    //     sw();
+    //     sim.simulate<ResultT>(Tbm_gpu, res);
+    //     cudaDeviceSynchronize();
+    //     el2 = sw();
 
-        runtimes.push_back(el2);
-    }
+    //     runtimes.push_back(el2);
+    // }
     
 
-    Memory<float, RAM> ranges;
-    ranges = ranges_gpu;
+    // Memory<float, RAM> ranges;
+    // ranges = ranges_gpu;
 
-    // std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
-    std::cout << "Result: " << ranges[0] << std::endl;
+    // // std::cout << "Simulated " << Tbm.size() << " poses / " << ranges.size() << " ranges in " << el << "s" << std::endl;
+    // std::cout << "Result: " << ranges[0] << std::endl;
 
     return 0;
 }

@@ -13,7 +13,6 @@
 
 namespace rmagine {
 
-
 ProgramModule::ProgramModule()
 :compile_options(new OptixModuleCompileOptions({}))
 {

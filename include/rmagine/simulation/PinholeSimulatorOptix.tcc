@@ -47,40 +47,19 @@ void PinholeSimulatorOptix::simulate(
     mem[0].model_type = 1;
     setGenericFlags(res, mem[0]);
 
-    SimPipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
+    PipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
 
     // set general data
     mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
+    mem->model = m_model_union.raw();
     mem->Tbm = Tbm.raw();
+    mem->Nposes = Tbm.size();
     mem->handle = m_map->scene()->as()->handle;
 
     // set generic data
     setGenericData(res, mem[0]);
 
-    // 10000 velodynes 
-    // - upload Params: 0.000602865s
-    // - launch: 5.9642e-05s
-    // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream->handle());
-
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
-                program->pipeline,
-                m_stream->handle(),
-                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGeneric ),
-                program->sbt,
-                m_width, // width Xdim
-                m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
-
+    launch(mem, program);
 }
 
 template<typename BundleT>

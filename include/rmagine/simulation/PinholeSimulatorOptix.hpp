@@ -41,9 +41,10 @@
 #define RMAGINE_PINHOLE_SIMULATOR_OPTIX_HPP
 
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
+
+#include <rmagine/util/optix/optix_modules.h>
 
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
@@ -136,13 +137,6 @@ public:
     Memory<float, VRAM_CUDA> simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 
@@ -184,7 +178,10 @@ protected:
     Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 
 private:
-    std::vector<OptixProgramPtr> m_programs;
+
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program);
 };
 
 using PinholeSimulatorOptixPtr = std::shared_ptr<PinholeSimulatorOptix>;
