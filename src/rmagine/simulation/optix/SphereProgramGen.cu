@@ -58,7 +58,6 @@ extern "C" __global__ void __raygen__rg()
             1,          // SBT stride
             0,          // missSBTIndex
             p0, p1, p2, p3, p4, p5, p6, p7 );
-
     #else
     optixTrace(
             mem.handle,

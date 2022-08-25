@@ -36,6 +36,15 @@ void SphereSimulatorOptix::simulate(
         return;
     }
 
+    if(m_map->scene()->type() == OptixSceneType::NONE)
+    {
+        // SCENE EMPTY
+        // fill values with invalid values
+        return;
+    }
+
+
+
     auto optix_ctx = m_map->context();
     auto cuda_ctx = optix_ctx->getCudaContext();
     if(!cuda_ctx->isActive())

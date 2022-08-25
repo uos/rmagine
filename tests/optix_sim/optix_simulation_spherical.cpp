@@ -47,18 +47,18 @@ OptixMapPtr make_map()
     return std::make_shared<OptixMap>(scene);
 }   
 
-int main(int argc, char** argv)
+void test_basic()
 {
+    SphereSimulatorOptix sim;
+
+
     // make synthetic map
     OptixMapPtr map = make_map();
+    sim.setMap(map);
     
     auto model = sensor_model();
-    SphereSimulatorOptix sim;
-    {
-        
-        sim.setMap(map);
-        sim.setModel(model);
-    }
+    sim.setModel(model);
+
 
     IntAttrAny<VRAM_CUDA> result;
     resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
@@ -94,6 +94,55 @@ int main(int argc, char** argv)
     }
 
     std::cout << "Done simulating." << std::endl;
+}
+
+void test_empty_scene()
+{
+
+    
+
+    OptixScenePtr scene = std::make_shared<OptixScene>();
+    scene->commit();
+    OptixMapPtr map = std::make_shared<OptixMap>(scene);
+
+    
+    // s
+
+    auto model = sensor_model();
+    
+    Memory<Transform, RAM> T(100);
+    for(size_t i=0; i<T.size(); i++)
+    {
+        T[i] = Transform::Identity();
+    }
+
+    Memory<Transform, VRAM_CUDA> T_ = T;
+
+
+    SphereSimulatorOptix sim;
+    {
+        sim.setMap(map);
+        sim.setModel(model);
+    }
+    
+
+    IntAttrAny<VRAM_CUDA> result;
+    resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 1);
+    
+    // emptry scene. the results should be invalid. example: range must be range_max + 1
+    sim.simulate(T_, result);
+
+
+
+
+}
+
+int main(int argc, char** argv)
+{
+    test_basic();
+    test_empty_scene();
+
+
 
     return 0;
 }

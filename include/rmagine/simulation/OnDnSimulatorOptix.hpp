@@ -42,7 +42,7 @@
 #define RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
 
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
+#include <rmagine/util/optix/optix_modules.h>
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
@@ -189,9 +189,15 @@ protected:
 
     Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
 
+    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
+
     Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+
 private:
-    std::vector<OptixProgramPtr> m_programs;
+
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program);
 };
 
 using OnDnSimulatorOptixPtr = std::shared_ptr<OnDnSimulatorOptix>;

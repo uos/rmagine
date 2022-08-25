@@ -304,7 +304,7 @@ if(OptiX_FOUND)
         src/rmagine/simulation/SphereSimulatorOptix.cpp
         src/rmagine/simulation/PinholeSimulatorOptix.cpp
         src/rmagine/simulation/O1DnSimulatorOptix.cpp
-        # src/rmagine/simulation/OnDnSimulatorOptix.cpp
+        src/rmagine/simulation/OnDnSimulatorOptix.cpp
         # Simulation Programs
         ## Spherical
         # src/rmagine/simulation/optix/SphereProgramRanges.cpp
