@@ -3,6 +3,7 @@
 #include <rmagine/simulation/SphereSimulatorOptix.hpp>
 #include <rmagine/map/optix/optix_shapes.h>
 #include <rmagine/map/OptixMap.hpp>
+#include <rmagine/types/sensors.h>
 
 #include <stdexcept>
 #include <cassert>
@@ -17,31 +18,13 @@ using namespace rmagine;
     + std::string( " in " )               \
     + std::string( __PRETTY_FUNCTION__ ) 
 
-SphericalModel sensor_model()
-{
-    SphericalModel model;
-    model.theta.min = -M_PI;
-    model.theta.inc = 0.4 * M_PI / 180.0;
-    model.theta.size = 900;
-
-    model.phi.min = -0.0 * M_PI / 180.0;
-    model.phi.inc = 2.0 * M_PI / 180.0;
-    model.phi.size = 16;
-    
-    model.range.min = 0.0;
-    model.range.max = 100.0;
-    return model;
-}
-
 OptixMapPtr make_map()
 {
     OptixScenePtr scene = std::make_shared<OptixScene>();
 
     OptixGeometryPtr mesh = std::make_shared<OptixCube>();
     mesh->commit();
-
     scene->add(mesh);
-
     scene->commit();
 
     return std::make_shared<OptixMap>(scene);
@@ -51,14 +34,12 @@ void test_basic()
 {
     SphereSimulatorOptix sim;
 
-
     // make synthetic map
     OptixMapPtr map = make_map();
     sim.setMap(map);
     
-    auto model = sensor_model();
+    auto model = example_spherical();
     sim.setModel(model);
-
 
     IntAttrAny<VRAM_CUDA> result;
     resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
@@ -83,13 +64,14 @@ void test_basic()
             model.size() * 100
         );
 
-        float error = std::fabs(last_scan[0] - 0.5);
+        float range = last_scan[model.getBufferId((model.phi.size) / 2, 0)];
+        float error = std::fabs(range - 0.5);
                                                         
         if(error > 0.0001)                                              
         {                                                           
             std::stringstream ss;
             ss << LOC_STRING() << ": Simulated scan error is too high: " << error;  
-            throw std::runtime_error( ss.str() );                                                              
+            throw std::runtime_error( ss.str() );
         }
     }
 
@@ -98,9 +80,6 @@ void test_basic()
 
 void test_empty_scene()
 {
-
-    
-
     OptixScenePtr scene = std::make_shared<OptixScene>();
     scene->commit();
     OptixMapPtr map = std::make_shared<OptixMap>(scene);
@@ -108,7 +87,7 @@ void test_empty_scene()
     
     // s
 
-    auto model = sensor_model();
+    auto model = example_spherical();
     
     Memory<Transform, RAM> T(100);
     for(size_t i=0; i<T.size(); i++)
@@ -131,18 +110,12 @@ void test_empty_scene()
     
     // emptry scene. the results should be invalid. example: range must be range_max + 1
     sim.simulate(T_, result);
-
-
-
-
 }
 
 int main(int argc, char** argv)
 {
     test_basic();
     test_empty_scene();
-
-
 
     return 0;
 }

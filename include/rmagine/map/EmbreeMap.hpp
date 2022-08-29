@@ -43,12 +43,6 @@
 
 #include <embree3/rtcore.h>
 
-#include "AssimpMap.hpp"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include <iostream>
 #include <vector>
 #include <set>
@@ -128,7 +122,7 @@ static EmbreeMapPtr importEmbreeMap(
     AssimpIO io;
 
     // aiProcess_GenNormals does not work!
-    const aiScene* ascene = io.ReadFile( meshfile, 0);
+    const aiScene* ascene = io.ReadFile(meshfile, 0);
 
     if(!ascene)
     {

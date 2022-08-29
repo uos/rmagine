@@ -112,7 +112,6 @@ set(RMAGINE_LIBRARIES rmagine)
 
 add_library(rmagine SHARED
     # Maps
-    src/rmagine/map/AssimpMap.cpp
     src/rmagine/map/AssimpIO.cpp
     # # Math
     src/rmagine/math/math.cpp

@@ -39,8 +39,6 @@
 #include <memory>
 #include <vector>
 #include <cuda_runtime.h>
-#include "AssimpMap.hpp"
-#include "Map.hpp"
 
 
 #include <rmagine/types/MemoryCuda.hpp>
