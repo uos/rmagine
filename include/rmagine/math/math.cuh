@@ -228,6 +228,27 @@ inline Memory<Vector, VRAM_CUDA> operator+(
     return addNxN(A, B);
 }
 
+
+
+void addNxN(
+    const MemoryView<float, VRAM_CUDA>& a,
+    const MemoryView<float, VRAM_CUDA>& b,
+    MemoryView<float, VRAM_CUDA>& c);
+
+Memory<float, VRAM_CUDA> addNxN(
+    const MemoryView<float, VRAM_CUDA>& a,
+    const MemoryView<float, VRAM_CUDA>& b);
+
+inline Memory<float, VRAM_CUDA> operator+(
+    const MemoryView<float, VRAM_CUDA>& A,
+    const MemoryView<float, VRAM_CUDA>& B)
+{
+    return addNxN(A, B);
+}
+
+
+
+
 //////
 // #sub
 void subNxN(

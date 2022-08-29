@@ -911,6 +911,26 @@ Memory<Vector, VRAM_CUDA> addNxN(
     return C;
 }
 
+void addNxN(
+    const MemoryView<float, VRAM_CUDA>& A,
+    const MemoryView<float, VRAM_CUDA>& B,
+    MemoryView<float, VRAM_CUDA>& C)
+{
+    constexpr unsigned int blockSize = 64;
+    const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
+    addNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+}
+
+Memory<float, VRAM_CUDA> addNxN(
+    const MemoryView<float, VRAM_CUDA>& A,
+    const MemoryView<float, VRAM_CUDA>& B)
+{
+    Memory<float, VRAM_CUDA> C(A.size());
+    addNxN(A, B, C);
+    return C;
+}
+
+
 ////////
 // #sub
 void subNxN(

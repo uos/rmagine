@@ -2489,4 +2489,5 @@ void AABB::expand(const AABB& o)
 
 } // namespace rmagine 
 
+
 #endif // RMAGINE_MATH_TYPES_H

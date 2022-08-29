@@ -496,38 +496,6 @@ void math_cuda_batched()
         std::cout << "- runtime: " << M.size() << " in " << el << "s" << std::endl;
         std::cout << "- res: " << sums[sums.size() - 1] << std::endl;
     }
-
-    // mean
-
-    // { // VECTOR
-    //     Memory<Vector, RAM> v(10000000);
-
-    //     for(size_t i=0; i<v.size(); i++)
-    //     {
-    //         float i_f = static_cast<float>(i);
-    //         v[i] = {i_f, i_f*2, i_f*3}; 
-    //     }
-
-    //     Memory<Vector, VRAM_CUDA> v_d;
-    //     v_d = v;
-
-    //     std::cout << "Mean: " << std::endl;
-    //     StopWatch sw;
-    //     double el;
-
-    //     sw();
-    //     auto m_d = mean(v_d);
-    //     el = sw();
-
-
-    //     Memory<Vector, RAM> m;
-    //     m = m_d;
-
-    //     std::cout << m[0] << std::endl;
-    //     std::cout << "Runtime: " << v.size() << " in " << el << "s" << std::endl;
-    // }
-
-
 }
 
 int main(int argc, char** argv)

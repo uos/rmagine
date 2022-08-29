@@ -5,8 +5,7 @@
 message(STATUS "Building tests for Rmagine core")
 
 
-
-
+add_subdirectory(core)
 
 if(embree_FOUND)
 message(STATUS "Building tests for Embree backend")
@@ -15,6 +14,11 @@ message(STATUS "Building tests for Embree backend")
 add_subdirectory(embree_sim)
 
 endif(embree_FOUND)
+
+if(CUDA_FOUND)
+add_subdirectory(cuda)
+endif(CUDA_FOUND)
+
 
 
 if(OptiX_FOUND)

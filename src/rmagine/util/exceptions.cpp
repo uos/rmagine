@@ -6,7 +6,7 @@ namespace rmagine
 Exception::Exception(const std::string& msg)
 : std::runtime_error(msg.c_str())
 {
-
+    m_msg = msg;
 }
 
 Exception::Exception(

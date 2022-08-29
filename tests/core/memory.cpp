@@ -2,7 +2,6 @@
 #include <memory>
 #include <type_traits>
 #include <rmagine/types/Memory.hpp>
-#include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
 
@@ -35,55 +34,27 @@ void test_cpu()
 }
 
 
-void test_gpu()
-{
-    Memory<float, RAM_CUDA> arr_cpu(10000);
+// void test_gpu()
+// {
+//     Memory<float, RAM_CUDA> arr_cpu(10000);
 
-    for(size_t i=0; i<10000; i++)
-    {
-        arr_cpu[i] = i;
-    }
+//     for(size_t i=0; i<10000; i++)
+//     {
+//         arr_cpu[i] = i;
+//     }
 
-    Memory<float, VRAM_CUDA> arr;
-    arr.resize(5);
-    arr = arr_cpu;
+//     Memory<float, VRAM_CUDA> arr;
+//     arr.resize(5);
+//     arr = arr_cpu;
 
 
-    Memory<float, RAM> dest;
-    dest = arr;
+//     Memory<float, RAM> dest;
+//     dest = arr;
 
-    std::cout << dest[8] << std::endl;
+//     std::cout << dest[8] << std::endl;
 
-}
+// }
 
-class TestClass 
-{
-public:
-    TestClass()
-    :mem(1)
-    {
-
-    }
-
-    ~TestClass()
-    {
-        
-    }
-
-    void setMem(const Memory<O1DnModel_<RAM>, RAM>& bla)
-    {
-        mem = bla;
-    }
-
-    void printSomething()
-    {
-        std::cout << mem->getHeight() << std::endl;
-    }
-    
-private:
-    Memory<O1DnModel_<RAM>, RAM> mem;
-
-};
 
 void test_sensor_models()
 {
@@ -92,12 +63,7 @@ void test_sensor_models()
 
     Memory<O1DnModel_<RAM>, RAM> model_mem(1);
     model_mem[0] = model;
-
-    TestClass bla;
-    bla.setMem(model_mem);
-    bla.printSomething();
 }
-
 
 void init(MemView<float>& a)
 {
@@ -274,23 +240,6 @@ void test_slicing_large()
     }
 }
 
-void test_slicing_gpu()
-{
-    Memory<float, RAM> a_h(10);
-    init(a_h);
-    // upload
-    Memory<float, VRAM_CUDA> a_d;
-    a_d = a_h;
-
-    // slicing operations on gpu buffers
-    a_d(0,5) = a_d(5,10);
-
-    // download
-    a_h = a_d;
-
-    print(a_h);
-}
-
 MemoryView<float> func()
 {
     // this should not work
@@ -303,13 +252,10 @@ int main(int argc, char** argv)
     std::cout << "Rmagine Tests: Memory" << std::endl;
 
     test_cpu();
-    test_gpu();
     test_sensor_models();
 
     test_slicing_small();
     test_slicing_large();
-
-    test_slicing_gpu();
 
     return 0;
 }
