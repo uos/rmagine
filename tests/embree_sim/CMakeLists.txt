@@ -24,10 +24,10 @@ target_link_libraries(rmagine_tests_embree_simulation_o1dn
 add_test(NAME embree_simulation_o1dn COMMAND rmagine_tests_embree_simulation_o1dn)
 
 
-# # 4. ONDN
-# add_executable(rmagine_tests_embree_simulation_ondn embree_simulation_ondn.cpp)
-# target_link_libraries(rmagine_tests_embree_simulation_ondn
-#     rmagine_embree
-# )
+# 4. ONDN
+add_executable(rmagine_tests_embree_simulation_ondn embree_simulation_ondn.cpp)
+target_link_libraries(rmagine_tests_embree_simulation_ondn
+    rmagine_embree
+)
 
-# add_test(NAME embree_simulation_ondn COMMAND rmagine_tests_embree_simulation_ondn)
+add_test(NAME embree_simulation_ondn COMMAND rmagine_tests_embree_simulation_ondn)

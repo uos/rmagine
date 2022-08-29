@@ -12,14 +12,6 @@
 
 using namespace rmagine;
 
-
-#define LOC_STRING() \
-    std::string( __FILE__ )             \
-    + std::string( ":" )                  \
-    + std::to_string( __LINE__ )          \
-    + std::string( " in " )               \
-    + std::string( __PRETTY_FUNCTION__ ) 
-
 OptixMapPtr make_map()
 {
     OptixScenePtr scene = std::make_shared<OptixScene>();
@@ -45,10 +37,6 @@ int main(int argc, char** argv)
     }
 
     using ResultT = IntAttrAny<VRAM_CUDA>;
-
-    // using ResultT = Bundle<
-    //     Ranges<VRAM_CUDA>
-    // >;
 
     ResultT result;
     resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
@@ -83,8 +71,8 @@ int main(int argc, char** argv)
         if(error > 0.0001)                                              
         {                                                           
             std::stringstream ss;
-            ss << LOC_STRING() << ": Simulated scan error is too high: " << error;  
-            throw std::runtime_error( ss.str() );                                                              
+            ss << "Simulated scan error is too high: " << error;
+            RM_THROW(OptixException, ss.str());                                                            
         }
     }
 

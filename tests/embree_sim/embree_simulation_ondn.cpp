@@ -1,10 +1,9 @@
 #include <iostream>
 
-#include <rmagine/simulation/O1DnSimulatorEmbree.hpp>
+#include <rmagine/simulation/OnDnSimulatorEmbree.hpp>
 #include <rmagine/map/embree/embree_shapes.h>
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/sensors.h>
-#include <rmagine/util/prints.h>
 #include <rmagine/util/exceptions.h>
 
 
@@ -28,17 +27,22 @@ int main(int argc, char** argv)
     // make synthetic map
     EmbreeMapPtr map = make_map();
     
-    auto model = example_o1dn();
-    O1DnSimulatorEmbree sim;
+    auto model = example_ondn();
+    OnDnSimulatorEmbree sim;
     {
+        
         sim.setMap(map);
         sim.setModel(model);
     }
 
-    IntAttrAny<RAM> result;
-    resizeMemoryBundle<RAM>(result, model.getWidth(), model.getHeight(), 100);
+    size_t Nposes = 100;
+    size_t Nsteps = 1000;
 
-    Memory<Transform, RAM> T(100);
+
+    IntAttrAny<RAM> result;
+    resizeMemoryBundle<RAM>(result, model.getWidth(), model.getHeight(), Nposes);
+
+    Memory<Transform, RAM> T(Nposes);
     for(size_t i=0; i<T.size(); i++)
     {
         T[i] = Transform::Identity();
@@ -46,8 +50,8 @@ int main(int argc, char** argv)
 
     std::cout << "Simulate!" << std::endl;
     
-    // Memory<float, RAM> last_scan(1);
-    for(size_t i=0; i<1000; i++)
+    
+    for(size_t i=0; i<Nsteps; i++)
     {
         sim.simulate(T, result);
 
@@ -56,19 +60,13 @@ int main(int argc, char** argv)
             model.size() * 100
         );
 
-        float range = last_scan[model.getBufferId(0,0)];
-        Vector3 dir = model.getDirection(0,0);
-        Vector3 orig = model.getOrigin(0,0);
-        Vector3 point = orig + dir * range;
-
-        Vector3 diff = point - Vector3{0.256732, 0.5, -0.1};
-
-        float error = std::fabs(diff.x) + std::fabs(diff.y) + std::fabs(diff.z);
+        float error = std::fabs(last_scan[0] - 0.5);
+                                                        
         if(error > 0.0001)                                              
-        {                                                           
+        {                   
             std::stringstream ss;
             ss << "Simulated scan error is too high: " << error;
-            RM_THROW(EmbreeException, ss.str());                                                           
+            RM_THROW(EmbreeException, ss.str());
         }
     }
 

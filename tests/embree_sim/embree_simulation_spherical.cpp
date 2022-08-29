@@ -4,22 +4,11 @@
 #include <rmagine/map/embree/embree_shapes.h>
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/sensors.h>
-
-#include <stdexcept>
-#include <cassert>
-
-#include <sstream>
+#include <rmagine/util/exceptions.h>
+#include <rmagine/util/prints.h>
 
 
 using namespace rmagine;
-
-
-#define LOC_STRING() \
-    std::string( __FILE__ )             \
-    + std::string( ":" )                  \
-    + std::to_string( __LINE__ )          \
-    + std::string( " in " )               \
-    + std::string( __PRETTY_FUNCTION__ ) 
 
 
 EmbreeMapPtr make_map()
@@ -72,8 +61,8 @@ int main(int argc, char** argv)
         if(error > 0.0001)                                              
         {                                                           
             std::stringstream ss;
-            ss << LOC_STRING() << ": Simulated scan error is too high: " << error;  
-            throw std::runtime_error( ss.str() );
+            ss << "Simulated scan error is too high: " << error;
+            RM_THROW(EmbreeException, ss.str());
         }
     }
 

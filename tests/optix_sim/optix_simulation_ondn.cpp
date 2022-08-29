@@ -10,29 +10,19 @@
 
 using namespace rmagine;
 
-
-#define LOC_STRING() \
-    std::string( __FILE__ )             \
-    + std::string( ":" )                  \
-    + std::to_string( __LINE__ )          \
-    + std::string( " in " )               \
-    + std::string( __PRETTY_FUNCTION__ ) 
-
 OptixMapPtr make_map()
 {
     OptixScenePtr scene = std::make_shared<OptixScene>();
 
     OptixGeometryPtr mesh = std::make_shared<OptixCube>();
     mesh->commit();
-
     scene->add(mesh);
-
     scene->commit();
 
     return std::make_shared<OptixMap>(scene);
 }   
 
-void test1()
+int main(int argc, char** argv)
 {
     // make synthetic map
     OptixMapPtr map = make_map();
@@ -75,36 +65,14 @@ void test1()
         float error = std::fabs(last_scan[0] - 0.5);
                                                         
         if(error > 0.0001)                                              
-        {                                                           
+        {                   
             std::stringstream ss;
-            ss << LOC_STRING() << ": Simulated scan error is too high: " << error;  
-            throw std::runtime_error( ss.str() );                                                              
+            ss << "Simulated scan error is too high: " << error;
+            RM_THROW(OptixException, ss.str());
         }
     }
 
     std::cout << "Done simulating." << std::endl;
-}
-
-void test2()
-{
-    OptixScenePtr scene = std::make_shared<OptixScene>();
-    scene->commit();
-    OptixMapPtr map = std::make_shared<OptixMap>(scene);
-
-
-    // s
-
-    // auto model = sensor_model();
-    
-    // IntAttrAny<VRAM_CUDA> result;
-    // resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), Nposes);
-    
-}
-
-int main(int argc, char** argv)
-{
-    test1();
-    test2();
 
     return 0;
 }

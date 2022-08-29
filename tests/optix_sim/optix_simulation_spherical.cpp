@@ -48,9 +48,6 @@ int main(int argc, char** argv)
 
     std::cout << "Simulate!" << std::endl;
 
-    // pretty_throw<Exception>("bla");
-    std::string bla = "Hello";
-    RM_THROW(OptixException, bla);
     
     for(size_t i=0; i<100; i++)
     {
@@ -67,8 +64,8 @@ int main(int argc, char** argv)
         if(error > 0.0001)                                              
         {                             
             std::stringstream ss;
-            ss << "Simulated scan error is too high: " << error;            
-            // pretty_throw<OptixException>(ss.str());  
+            ss << "Simulated scan error is too high: " << error;
+            RM_THROW(OptixException, ss.str());
         }
     }
 
