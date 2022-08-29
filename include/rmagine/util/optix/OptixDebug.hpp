@@ -46,37 +46,107 @@
 #include <rmagine/util/cuda/CudaDebug.hpp>
 
 
+#if !defined(NDEBUG)
+// DEBUG
+
 #define RM_OPTIX_CHECK( call )                                                              \
 {                                                                                           \
     OptixResult res = call;                                                                 \
     if( res != OPTIX_SUCCESS )                                                              \
     {                                                                                       \
         std::stringstream ss;                                                               \
-        ss << "Optix call '" << #call << "' failed."                                        \
+        ss << "OptiX call '" << #call << "' failed."                                        \
+            << " Error Name: " << optixGetErrorName(res)                                    \
+            << ", Error Msg: " << optixGetErrorString(res);                                 \
+        throw rmagine::OptixException(ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__);   \
+    }                                                                                       \
+    cudaDeviceSynchronize();                                                                \
+    cudaError_t cuda_res = cudaFree(NULL);                                                  \
+    if(cuda_res != cudaSuccess)                                                             \
+    {                                                                                       \
+        std::stringstream ss;                                                               \
+        ss << "CUDA Error in OptiX call '" << #call << "'."                                 \
+            << " Error Name: " << cudaGetErrorName(cuda_res)                                \
+            << ", Error Msg: " << cudaGetErrorString(cuda_res);                             \
+        throw rmagine::CudaException(ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__);    \
+    }                                                                                       \
+}
+
+// DEBUG END
+#else
+// RELEASE
+
+#define RM_OPTIX_CHECK( call )                                                              \
+{                                                                                           \
+    OptixResult res = call;                                                                 \
+    if( res != OPTIX_SUCCESS )                                                              \
+    {                                                                                       \
+        std::stringstream ss;                                                               \
+        ss << "OptiX call '" << #call << "' failed."                                        \
             << " Error Name: " << optixGetErrorName(res)                                    \
             << ", Error Msg: " << optixGetErrorString(res);                                 \
         throw rmagine::OptixException(ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__);   \
     }                                                                                       \
 }
 
+// RELEASE END
+#endif // DEBUG
 
-#define RM_OPTIX_CHECK_LOG( call )                                                \
-{                                                                          \
-    OptixResult res = call;                                                \
-    const size_t sizeof_log_returned = sizeof_log;                         \
-    sizeof_log = sizeof( log ); /* reset sizeof_log for future calls */    \
-    if( res != OPTIX_SUCCESS )                                             \
-    {                                                                      \
-        std::stringstream ss;                                              \
-        ss << "Optix call '" << #call << "' failed. "               \
+
+#if !defined(NDEBUG)
+// DEBUG
+
+#define RM_OPTIX_CHECK_LOG( call )                                                          \
+{                                                                                           \
+    OptixResult res = call;                                                                 \
+    const size_t sizeof_log_returned = sizeof_log;                                          \
+    sizeof_log = sizeof( log ); /* reset sizeof_log for future calls */                     \
+    if( res != OPTIX_SUCCESS )                                                              \
+    {                                                                                       \
+        std::stringstream ss;                                                               \
+        ss << "Optix call '" << #call << "' failed. "                                       \
             << " Error Name: " << optixGetErrorName(res)                                    \
-            << ", Error Msg: " << optixGetErrorString(res)       \
-            << "\nLog:\n" << log                               \
-            << ( sizeof_log_returned > sizeof( log ) ? "<TRUNCATED>" : "" ) \
-            << "\n";                                                        \
+            << ", Error Msg: " << optixGetErrorString(res)                                  \
+            << "\nLog:\n" << log                                                            \
+            << ( sizeof_log_returned > sizeof( log ) ? "<TRUNCATED>" : "" )                 \
+            << "\n";                                                                        \
         throw rmagine::OptixException( ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__ ); \
-    }                                                                      \
+    }                                                                                       \
+    cudaDeviceSynchronize();                                                                \
+    cudaError_t cuda_res = cudaFree(NULL);                                                  \
+    if(cuda_res != cudaSuccess)                                                             \
+    {                                                                                       \
+        std::stringstream ss;                                                               \
+        ss << "CUDA Error in OptiX call '" << #call << "'."                                 \
+            << " Error Name: " << cudaGetErrorName(cuda_res)                                \
+            << ", Error Msg: " << cudaGetErrorString(cuda_res);                             \
+        throw rmagine::CudaException(ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__);    \
+    }                                                                                       \
 }
+
+// DEBUG END
+#else
+// RELEASE
+#define RM_OPTIX_CHECK_LOG( call )                                                          \
+{                                                                                           \
+    OptixResult res = call;                                                                 \
+    const size_t sizeof_log_returned = sizeof_log;                                          \
+    sizeof_log = sizeof( log ); /* reset sizeof_log for future calls */                     \
+    if( res != OPTIX_SUCCESS )                                                              \
+    {                                                                                       \
+        std::stringstream ss;                                                               \
+        ss << "Optix call '" << #call << "' failed. "                                       \
+            << " Error Name: " << optixGetErrorName(res)                                    \
+            << ", Error Msg: " << optixGetErrorString(res)                                  \
+            << "\nLog:\n" << log                                                            \
+            << ( sizeof_log_returned > sizeof( log ) ? "<TRUNCATED>" : "" )                 \
+            << "\n";                                                                        \
+        throw rmagine::OptixException( ss.str(), __FILE__, __PRETTY_FUNCTION__, __LINE__ ); \
+    }                                                                                       \
+}
+
+// RELEASE END
+#endif
 
 
 #endif // RMAGINE_UTIL_OPTIX_DEBUG_HPP

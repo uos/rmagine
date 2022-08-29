@@ -47,14 +47,13 @@
    cudaAssert(code, __FILE__, __PRETTY_FUNCTION__, __LINE__);  \
 }
 
-
 inline void cudaAssert(
    cudaError_t code, 
    const char* file, 
    const char* func,
    int line)
 {
-   if (code != cudaSuccess)
+   if(code != cudaSuccess)
    {
       std::stringstream ss;
       ss << "CUDA Error! Name: " << cudaGetErrorName(code) << ", Message: " << cudaGetErrorString(code) << "\n";
