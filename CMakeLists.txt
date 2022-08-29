@@ -121,6 +121,7 @@ add_library(rmagine SHARED
     # Types
     src/rmagine/types/Memory.cpp
     src/rmagine/types/conversions.cpp
+    src/rmagine/types/sensors.cpp
     # Util
     src/rmagine/util/StopWatch.cpp
     src/rmagine/util/synthetic.cpp

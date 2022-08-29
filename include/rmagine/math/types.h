@@ -6,12 +6,21 @@
 #include <float.h>
 #include <stdint.h>
 
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/shared_functions.h>
 
-#define __UINT_MAX__ (__INT_MAX__ * 2U + 1U)
+
+
 
 namespace rmagine
 {
+
+#define __UINT_MAX__ (__INT_MAX__ * 2U + 1U)
+
+#define DEG_TO_RAD      0.017453292519943295
+#define DEG_TO_RAD_F    0.017453292519943295f
+#define RAD_TO_DEG      57.29577951308232
+#define RAD_TO_DEG_F    57.29577951308232f
+
 
 // Forward declarations
 struct Vector2;

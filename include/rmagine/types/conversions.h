@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <math.h>
 
-#include <rmagine/types/SharedFunctions.hpp>
 #include <rmagine/types/Memory.hpp>
 
 #include "sensor_models.h"

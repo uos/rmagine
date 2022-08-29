@@ -40,7 +40,7 @@
 #include <cstring>
 #include <type_traits>
 
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine {
 

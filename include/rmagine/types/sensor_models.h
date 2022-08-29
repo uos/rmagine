@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <math.h>
 
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/shared_functions.h>
 #include <rmagine/types/Memory.hpp>
 
 namespace rmagine
