@@ -14,7 +14,7 @@
 find_package(PkgConfig)
 pkg_check_modules(OptiX QUIET optix)
 
-set(OptiX_ROOT_DIR "" CACHE PATH "Root of Optix installation")
+# set(OptiX_ROOT_DIR "" CACHE PATH "Root of Optix installation")
 
 # INCLUDE
 find_path(OptiX_INCLUDE_DIR
@@ -27,10 +27,6 @@ if(NOT OptiX_INCLUDE_DIR)
 find_path(OptiX_INCLUDE_DIR
   NAMES optix.h
 )
-if(OptiX_INCLUDE_DIR)
-  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
-  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
-endif()
 endif()
 
 if(NOT OptiX_INCLUDE_DIR)
@@ -39,10 +35,6 @@ find_path(OptiX_INCLUDE_DIR
   PATHS "/opt/optix/include"
   NO_DEFAULT_PATH
 )
-if(OptiX_INCLUDE_DIR)
-  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
-  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
-endif()
 endif()
 
 if(NOT OptiX_INCLUDE_DIR)
@@ -51,19 +43,30 @@ find_path(OptiX_INCLUDE_DIR
   PATHS "~/optix/include"
   NO_DEFAULT_PATH
 )
-if(OptiX_INCLUDE_DIR)
-  get_filename_component(tmp "${OptiX_INCLUDE_DIR}" PATH)
-  set(OptiX_ROOT_DIR "${tmp}" CACHE PATH "Root of Optix installation" FORCE)
-endif()
 endif()
 
 
 
 # VERSION
 if(OptiX_INCLUDE_DIR)
+
   file(READ "${OptiX_INCLUDE_DIR}/optix.h" OPTIX_H)
   string(REGEX MATCH "OPTIX_VERSION[ \t\r\n\\]+([0-9]+)" _ ${OPTIX_H})
-  set(OptiX_VERSION ${CMAKE_MATCH_1})
+  set(OptiX_VERSION_RAW ${CMAKE_MATCH_1})
+
+
+  if(OptiX_VERSION_RAW)
+    message(STATUS "FOUND OPTIX VERSION STRING!")
+    math(EXPR OptiX_VERSION_MAJOR "${OptiX_VERSION_RAW} / 10000")
+    math(EXPR OptiX_VERSION_MINOR "(${OptiX_VERSION_RAW} % 10000) / 100")
+    math(EXPR OptiX_VERSION_MICRO "${OptiX_VERSION_RAW} % 100")
+
+    set(OptiX_VERSION "${OptiX_VERSION_MAJOR}.${OptiX_VERSION_MINOR}.${OptiX_VERSION_MICRO}")
+  else()
+    message(WARNING "Could not find Optix version define in optix.h")
+  endif()
+
+  
 endif()
 
 # LIBRARY

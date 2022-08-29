@@ -143,6 +143,8 @@ target_compile_features(rmagine PRIVATE cxx_std_17)
 
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)
+message(STATUS "Building Embree backend. Embree version: ${embree_VERSION}")
+
 add_library(rmagine_embree SHARED
     # Maps
     
@@ -215,6 +217,9 @@ add_dependencies(rmagine_cuda
 list(APPEND RMAGINE_LIBRARIES rmagine_cuda)
 
 if(OptiX_FOUND)
+
+    message(STATUS "Building OptiX backend. OptiX version: ${OptiX_VERSION}")
+
     # Optix Kernels
     set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
     set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
@@ -375,7 +380,6 @@ endif(BUILD_TESTS)
 # add_subdirectory(src/rmagine_tests/memory_slicing_cuda)
 # add_subdirectory(src/rmagine_tests/cuda_math)
 # add_subdirectory(src/rmagine_tests/svd)
-
 
 # if(OptiX_FOUND)
 # add_subdirectory(src/rmagine_tests/optix_sim)
