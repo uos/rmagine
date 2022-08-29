@@ -349,46 +349,9 @@ message(STATUS "RMAGINE_LIBRARIES: ${RMAGINE_LIBRARIES}")
 
 #### TESTS
 if(BUILD_TESTS)
-
-enable_testing()
-add_subdirectory(tests)
-
+    enable_testing()
+    add_subdirectory(tests)
 endif(BUILD_TESTS)
-
-# ## ADDITIONAL DEPS FOR TESTS
-# if(Eigen3_FOUND)
-#     include_directories(${EIGEN3_INCLUDE_DIR})
-# endif(Eigen3_FOUND)
-
-# add_subdirectory(src/rmagine_tests/memory)
-# add_subdirectory(src/rmagine_tests/memory_slicing)
-# add_subdirectory(src/rmagine_tests/embree_sim)
-
-# if(${embree_FOUND})
-# add_subdirectory(src/rmagine_tests/assimp_to_embree)
-# endif()
-
-# if(Eigen3_FOUND)
-#     add_subdirectory(src/rmagine_tests/basic_math)
-# endif(Eigen3_FOUND)
-
-# add_subdirectory(src/rmagine_tests/generic_model_sim)
-# add_subdirectory(src/rmagine_tests/synthetic)
-
-# if(CUDA_FOUND)
-
-# add_subdirectory(src/rmagine_tests/memory_cuda)
-# add_subdirectory(src/rmagine_tests/memory_slicing_cuda)
-# add_subdirectory(src/rmagine_tests/cuda_math)
-# add_subdirectory(src/rmagine_tests/svd)
-
-# if(OptiX_FOUND)
-# add_subdirectory(src/rmagine_tests/optix_sim)
-# add_subdirectory(src/rmagine_tests/generic_sim)
-# endif(OptiX_FOUND)
-
-# endif(CUDA_FOUND)
-# endif(BUILD_TESTS)
 
 #### TOOLS
 if(BUILD_TOOLS)
