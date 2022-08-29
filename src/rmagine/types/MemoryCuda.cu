@@ -9,25 +9,25 @@ namespace cuda {
 
 void* memcpyHostToDevice(void* dest, const void* src, std::size_t count)
 {
-    CUDA_DEBUG( cudaMemcpy(dest, src, count, cudaMemcpyHostToDevice) );
+    RM_CUDA_CHECK( cudaMemcpy(dest, src, count, cudaMemcpyHostToDevice) );
     return dest;
 }
 
 void* memcpyDeviceToHost(void* dest, const void* src, std::size_t count)
 {
-    CUDA_DEBUG( cudaMemcpy(dest, src, count, cudaMemcpyDeviceToHost) );
+    RM_CUDA_CHECK( cudaMemcpy(dest, src, count, cudaMemcpyDeviceToHost) );
     return dest;
 }
 
 void* memcpyDeviceToDevice(void* dest, const void* src, std::size_t count)
 {
-    CUDA_DEBUG( cudaMemcpy(dest, src, count, cudaMemcpyDeviceToDevice) );
+    RM_CUDA_CHECK( cudaMemcpy(dest, src, count, cudaMemcpyDeviceToDevice) );
     return dest;
 }
 
 void* memcpyHostToHost(void* dest, const void* src, std::size_t count)
 {
-    CUDA_DEBUG( cudaMemcpy(dest, src, count, cudaMemcpyHostToHost) );
+    RM_CUDA_CHECK( cudaMemcpy(dest, src, count, cudaMemcpyHostToHost) );
     return dest;
 }
 

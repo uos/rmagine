@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.4)
 project(rmagine 
     LANGUAGES CXX C
     VERSION 1)
@@ -84,6 +84,10 @@ endif(OPENMP_FOUND)
 ######################################
 ## CUDA: For Optix                  ##
 ######################################
+
+include(CheckLanguage)
+
+
 find_package(CUDA)
 if(CUDA_FOUND)
     enable_language(CUDA)
@@ -110,6 +114,8 @@ include_directories(
 
 set(RMAGINE_LIBRARIES rmagine)
 
+message(STATUS "Building Core. Library: rmagine")
+
 add_library(rmagine SHARED
     # Maps
     src/rmagine/map/AssimpIO.cpp
@@ -126,6 +132,7 @@ add_library(rmagine SHARED
     src/rmagine/util/synthetic.cpp
     src/rmagine/util/assimp/helper.cpp
     src/rmagine/util/IDGen.cpp
+    src/rmagine/util/exceptions.cpp
     # # Noise
     # src/rmagine/noise/noise.cpp
     src/rmagine/noise/Noise.cpp
@@ -143,7 +150,7 @@ target_compile_features(rmagine PRIVATE cxx_std_17)
 
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)
-message(STATUS "Building Embree backend. Embree version: ${embree_VERSION}")
+message(STATUS "Building Embree (${embree_VERSION}) backend. Library: rmagine_embree")
 
 add_library(rmagine_embree SHARED
     # Maps
@@ -183,6 +190,8 @@ endif(embree_FOUND)
 
 if(CUDA_FOUND)
 
+message(STATUS "Building Cuda dependend code. Library: rmagine_cuda")
+
 add_library(rmagine_cuda SHARED
     src/rmagine/types/MemoryCuda.cu
     # math
@@ -202,12 +211,14 @@ add_library(rmagine_cuda SHARED
     src/rmagine/map/mesh_preprocessing.cu
 )
 
+# TODO: use CUDA language instead of find_package
 target_link_libraries(rmagine_cuda
     rmagine
     ${CUDA_LIBRARIES}
     ${CUDA_cusolver_LIBRARY}
     ${CUDA_cublas_LIBRARY}
-    ${CUDA_CUDA_LIBRARY}
+    # ${CUDA_CUDA_LIBRARY}
+    cuda
 )
 
 add_dependencies(rmagine_cuda
@@ -218,7 +229,7 @@ list(APPEND RMAGINE_LIBRARIES rmagine_cuda)
 
 if(OptiX_FOUND)
 
-    message(STATUS "Building OptiX backend. OptiX version: ${OptiX_VERSION}")
+    message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine_optix")
 
     # Optix Kernels
     set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
@@ -229,7 +240,7 @@ if(OptiX_FOUND)
     add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
     add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
 
-    message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
+    # message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
 
     set(OPTIX_KERNEL_FILES
         # Simulation
@@ -257,14 +268,6 @@ if(OptiX_FOUND)
         src/rmagine/simulation/optix/SensorProgramHit.cu
     )
 
-    # if(OptiX_VERSION GREATER_EQUAL 70400)
-    #     message(STATUS "OptiX >= 7.4")
-    # endif()
-
-    # if(OptiX_VERSION GREATER_EQUAL 70300)
-    #     message(STATUS "OptiX >= 7.3")
-    # endif()
-
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
         ${OPTIX_KERNEL_FILES}
     )
@@ -273,8 +276,6 @@ if(OptiX_FOUND)
         DEPENDS ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
         SOURCES ${OPTIX_KERNEL_FILES}
         VERBATIM)
-
-    message(STATUS "CMAKE_SOURCE_DIR: ${rmagine_SOURCE_DIR}")
 
     add_custom_command(
         TARGET rmagine_optix_ptx POST_BUILD
@@ -290,7 +291,6 @@ if(OptiX_FOUND)
         # Util 
         src/rmagine/util/optix/OptixFunctionTable.cpp
         src/rmagine/util/optix/OptixUtil.cpp
-        src/rmagine/util/optix/OptixDebug.cpp
         src/rmagine/util/optix/OptixContext.cpp
         src/rmagine/util/optix/optix_modules.cpp
         # Maps
@@ -323,7 +323,6 @@ if(OptiX_FOUND)
         src/rmagine/simulation/optix/sim_modules.cpp
         src/rmagine/simulation/optix/sim_program_groups.cpp
         src/rmagine/simulation/optix/sim_pipelines.cpp
-        
     )
 
     target_include_directories(rmagine_optix PUBLIC
@@ -345,6 +344,8 @@ if(OptiX_FOUND)
 endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
+
+message(STATUS "RMAGINE_LIBRARIES: ${RMAGINE_LIBRARIES}")
 
 #### TESTS
 if(BUILD_TESTS)
@@ -423,7 +424,6 @@ install(TARGETS ${RMAGINE_LIBRARIES})
 # # Install Tools
 # install(TARGETS rmagine_benchmark
 #     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 # endif(BUILD_TOOLS)
 
 

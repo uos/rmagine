@@ -50,22 +50,22 @@ void SimHitProgramGroup::onSBTUpdated(
                 // std::cout << "HitGroup update number of records: " << record_count << " -> " << n_hitgroups_required << std::endl;
                 if(record_h)
                 {
-                    CUDA_CHECK( cudaFreeHost( record_h ) );
+                    RM_CUDA_CHECK( cudaFreeHost( record_h ) );
                 }
                 
-                CUDA_CHECK( cudaMallocHost( &record_h, n_hitgroups_required * record_stride ) );
+                RM_CUDA_CHECK( cudaMallocHost( &record_h, n_hitgroups_required * record_stride ) );
 
                 for(size_t i=0; i<n_hitgroups_required; i++)
                 {
-                    OPTIX_CHECK( optixSbtRecordPackHeader( prog_group, &record_h[i] ) );
+                    RM_OPTIX_CHECK( optixSbtRecordPackHeader( prog_group, &record_h[i] ) );
                 }
 
                 if( record )
                 {
-                    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( record ) ) );
+                    RM_CUDA_CHECK( cudaFree( reinterpret_cast<void*>( record ) ) );
                 }
                 
-                CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &record ), n_hitgroups_required * record_stride ) );
+                RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &record ), n_hitgroups_required * record_stride ) );
 
                 record_count = n_hitgroups_required;
             }
@@ -76,7 +76,7 @@ void SimHitProgramGroup::onSBTUpdated(
             record_h[i].data = scene->sbt_data;
         }
 
-        CUDA_CHECK( cudaMemcpyAsync(
+        RM_CUDA_CHECK( cudaMemcpyAsync(
                     reinterpret_cast<void*>( record ),
                     record_h,
                     record_count * record_stride,
@@ -128,17 +128,17 @@ SimRayGenProgramGroupPtr make_program_group_sim_gen(
     { // init SBT Records
         const size_t raygen_record_size     = sizeof( SimRayGenProgramGroup::SbtRecordData );
         
-        CUDA_CHECK( cudaMallocHost( 
+        RM_CUDA_CHECK( cudaMallocHost( 
             &ret->record_h, 
             raygen_record_size ) );
 
-        OPTIX_CHECK( optixSbtRecordPackHeader( 
+        RM_OPTIX_CHECK( optixSbtRecordPackHeader( 
             ret->prog_group,
             &ret->record_h[0] ) );
 
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), raygen_record_size ) );
+        RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), raygen_record_size ) );
 
-        CUDA_CHECK( cudaMemcpyAsync(
+        RM_CUDA_CHECK( cudaMemcpyAsync(
                     reinterpret_cast<void*>( ret->record ),
                     ret->record_h,
                     raygen_record_size,
@@ -200,17 +200,17 @@ SimMissProgramGroupPtr make_program_group_sim_miss(
     { // init SBT Records
         const size_t miss_record_size     = sizeof( SimMissProgramGroup::SbtRecordData );
         
-        CUDA_CHECK( cudaMallocHost( 
+        RM_CUDA_CHECK( cudaMallocHost( 
             &ret->record_h, 
             miss_record_size ) );
 
-        OPTIX_CHECK( optixSbtRecordPackHeader( 
+        RM_OPTIX_CHECK( optixSbtRecordPackHeader( 
             ret->prog_group,
             &ret->record_h[0] ) );
 
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), miss_record_size ) );
+        RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), miss_record_size ) );
 
-        CUDA_CHECK( cudaMemcpyAsync(
+        RM_CUDA_CHECK( cudaMemcpyAsync(
                     reinterpret_cast<void*>( ret->record ),
                     ret->record_h,
                     miss_record_size,
@@ -273,21 +273,21 @@ SimHitProgramGroupPtr make_program_group_sim_hit(
         const size_t n_hitgroup_records = scene->requiredSBTEntries();   
         const size_t hitgroup_record_size     = sizeof( SimMissProgramGroup::SbtRecordData ) * n_hitgroup_records;
         
-        CUDA_CHECK( cudaMallocHost( 
+        RM_CUDA_CHECK( cudaMallocHost( 
             &ret->record_h, 
             hitgroup_record_size ) );
 
         for(size_t i=0; i<n_hitgroup_records; i++)
         {
-            OPTIX_CHECK( optixSbtRecordPackHeader( 
+            RM_OPTIX_CHECK( optixSbtRecordPackHeader( 
                 ret->prog_group,
                 &ret->record_h[i] ) );
             ret->record_h[i].data = scene->sbt_data;
         }
         
-        CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), hitgroup_record_size ) );
+        RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &ret->record ), hitgroup_record_size ) );
 
-        CUDA_CHECK( cudaMemcpyAsync(
+        RM_CUDA_CHECK( cudaMemcpyAsync(
                     reinterpret_cast<void*>( ret->record ),
                     ret->record_h,
                     hitgroup_record_size,

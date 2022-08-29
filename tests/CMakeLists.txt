@@ -12,6 +12,7 @@ if(embree_FOUND)
 message(STATUS "Building tests for Embree backend")
 
 # ADD TESTS FOR EMBREE HERE
+add_subdirectory(embree_sim)
 
 endif(embree_FOUND)
 

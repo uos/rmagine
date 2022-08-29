@@ -229,7 +229,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
     // TODO make proper realloc
     sbt_data.n_geometries = n_build_inputs;
     sbt_data.type = m_type;
-    CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_build_inputs) );
+    RM_CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_build_inputs) );
 
     size_t idx = 0;
     for(auto elem : m_geometries)
@@ -281,7 +281,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
     }
 
     // copy sbt
-    CUDA_CHECK( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
         sbt_data.geometries, 
         sbt_data_h.geometries, 
         sizeof(OptixGeomSBT) * n_build_inputs, 
@@ -318,7 +318,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
 
 
     OptixAccelBufferSizes gas_buffer_sizes;
-    OPTIX_CHECK( optixAccelComputeMemoryUsage(
+    RM_OPTIX_CHECK( optixAccelComputeMemoryUsage(
                 m_ctx->ref(),
                 &accel_options,
                 build_inputs,
@@ -328,7 +328,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
 
     
     CUdeviceptr d_temp_buffer_gas;
-    CUDA_CHECK( cudaMalloc(
+    RM_CUDA_CHECK( cudaMalloc(
         reinterpret_cast<void**>( &d_temp_buffer_gas ),
         gas_buffer_sizes.tempSizeInBytes) );
     
@@ -336,7 +336,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
     {
         // make new
         m_as = std::make_shared<OptixAccelerationStructure>();
-        CUDA_CHECK( cudaMalloc(
+        RM_CUDA_CHECK( cudaMalloc(
                 reinterpret_cast<void**>( &m_as->buffer ),
                 gas_buffer_sizes.outputSizeInBytes
                 ) );
@@ -344,8 +344,8 @@ OptixSceneCommitResult OptixScene::buildGAS()
         if(m_as->buffer_size != gas_buffer_sizes.outputSizeInBytes)
         {
             // realloc
-            CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
-            CUDA_CHECK( cudaMalloc(
+            RM_CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
+            RM_CUDA_CHECK( cudaMalloc(
                     reinterpret_cast<void**>( &m_as->buffer ),
                     gas_buffer_sizes.outputSizeInBytes
                     ) );
@@ -355,7 +355,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
     m_as->buffer_size = gas_buffer_sizes.outputSizeInBytes;
     m_as->n_elements = n_build_inputs;
 
-    OPTIX_CHECK( optixAccelBuild(
+    RM_OPTIX_CHECK( optixAccelBuild(
                 m_ctx->ref(),
                 m_stream->handle(),                  // CUDA stream
                 &accel_options,
@@ -370,7 +370,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
                 0                   // num emitted properties
                 ) );
 
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
+    RM_CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_gas ) ) );
 
     res.depth_changed = (1 != m_depth);
     res.sbt_size_changed = (m_required_sbt_entries != n_build_inputs);
@@ -417,11 +417,11 @@ OptixSceneCommitResult OptixScene::buildIAS()
     
     // COPY INSTANCES DATA
     CUdeviceptr m_inst_buffer;
-    CUDA_CHECK( cudaMalloc( 
+    RM_CUDA_CHECK( cudaMalloc( 
         reinterpret_cast<void**>( &m_inst_buffer ), 
         inst_h.size() * sizeof(OptixInstance) ) );
 
-    CUDA_CHECK( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
                 reinterpret_cast<void*>( m_inst_buffer ),
                 inst_h.raw(),
                 inst_h.size() * sizeof(OptixInstance),
@@ -432,15 +432,15 @@ OptixSceneCommitResult OptixScene::buildIAS()
     // std::cout << "- COPY SBT DATA" << std::endl;
     if(n_instances > sbt_data.n_geometries)
     {
-        CUDA_CHECK( cudaFree( sbt_data.geometries ) );
-        CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_instances) );
+        RM_CUDA_CHECK( cudaFree( sbt_data.geometries ) );
+        RM_CUDA_CHECK( cudaMalloc(&sbt_data.geometries, sizeof(OptixGeomSBT) * n_instances) );
     }
 
     sbt_data.n_geometries = n_instances;
     sbt_data.type = m_type;
 
     // COPY INSTANCES SBT DATA
-    CUDA_CHECK( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
         sbt_data.geometries,
         sbt_data_h.geometries,
         sizeof(OptixGeomSBT) * n_instances,
@@ -488,7 +488,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
     m_geom_removed = false;
 
     OptixAccelBufferSizes ias_buffer_sizes;
-    OPTIX_CHECK( optixAccelComputeMemoryUsage( 
+    RM_OPTIX_CHECK( optixAccelComputeMemoryUsage( 
         m_ctx->ref(), 
         &ias_accel_options,
         &instance_input, 
@@ -497,7 +497,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
 
     
     CUdeviceptr d_temp_buffer_ias;
-    CUDA_CHECK( cudaMalloc(
+    RM_CUDA_CHECK( cudaMalloc(
         reinterpret_cast<void**>( &d_temp_buffer_ias ),
         ias_buffer_sizes.tempSizeInBytes) );
 
@@ -506,7 +506,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
     {
         // make new
         m_as = std::make_shared<OptixAccelerationStructure>();
-        CUDA_CHECK( cudaMalloc(
+        RM_CUDA_CHECK( cudaMalloc(
                 reinterpret_cast<void**>( &m_as->buffer ),
                 ias_buffer_sizes.outputSizeInBytes
                 ) );
@@ -514,8 +514,8 @@ OptixSceneCommitResult OptixScene::buildIAS()
         if(m_as->buffer_size != ias_buffer_sizes.outputSizeInBytes)
         {
             // realloc
-            CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
-            CUDA_CHECK( cudaMalloc(
+            RM_CUDA_CHECK( cudaFree( reinterpret_cast<void*>( m_as->buffer ) ) );
+            RM_CUDA_CHECK( cudaMalloc(
                     reinterpret_cast<void**>( &m_as->buffer ),
                     ias_buffer_sizes.outputSizeInBytes
                     ) );
@@ -526,7 +526,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
     m_as->n_elements = n_instances;
 
 
-    OPTIX_CHECK(optixAccelBuild( 
+    RM_OPTIX_CHECK(optixAccelBuild( 
         m_ctx->ref(), 
         m_stream->handle(), 
         &ias_accel_options, 
@@ -541,7 +541,7 @@ OptixSceneCommitResult OptixScene::buildIAS()
         0 
     ));
 
-    CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
+    RM_CUDA_CHECK( cudaFree( reinterpret_cast<void*>( d_temp_buffer_ias ) ) );
 
     if(depth_ < 3)
     {

@@ -53,7 +53,7 @@ void optix_initialize()
     }
 
     std::cout << std::endl;
-    OPTIX_CHECK( optixInit() );
+    RM_OPTIX_CHECK( optixInit() );
     optix_initialized_ = true;
 }
 
@@ -92,7 +92,7 @@ void OptixContext::init(CudaContextPtr cuda_context)
     options.logCallbackFunction       = &context_log_cb;
     options.logCallbackLevel          = 3;
 
-    OPTIX_CHECK( optixDeviceContextCreate( cuda_context->ref(), &options, &m_optix_context ) );
+    RM_OPTIX_CHECK( optixDeviceContextCreate( cuda_context->ref(), &options, &m_optix_context ) );
 }
 
 OptixContextPtr optix_def_ctx(new OptixContext(cuda_current_context()) );

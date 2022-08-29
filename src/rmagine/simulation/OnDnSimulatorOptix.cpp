@@ -133,7 +133,7 @@ void OnDnSimulatorOptix::simulateRanges(
 
     // if(program)
     // {
-    //     OPTIX_CHECK( optixLaunch(
+    //     RM_OPTIX_CHECK( optixLaunch(
     //             program->pipeline,
     //             m_stream,
     //             reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
@@ -163,7 +163,7 @@ void OnDnSimulatorOptix::launch(
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
 
-    OPTIX_CHECK( optixLaunch(
+    RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 

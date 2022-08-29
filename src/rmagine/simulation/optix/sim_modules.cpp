@@ -116,7 +116,7 @@ ProgramModulePtr make_program_module_sim_gen(
 
     #if OPTIX_VERSION >= 70400
     ret->compile_options->numPayloadTypes = 1;
-    CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
+    RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
     ret->compile_options->payloadTypes[0].numPayloadValues = 8;
     ret->compile_options->payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
@@ -249,7 +249,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
 
     #if OPTIX_VERSION >= 70400
     ret->compile_options->numPayloadTypes = 1;
-    CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
+    RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
     ret->compile_options->payloadTypes[0]->numPayloadValues = 8;
     ret->compile_options->payloadTypes[0]->payloadSemantics = (const unsigned int[8]) {

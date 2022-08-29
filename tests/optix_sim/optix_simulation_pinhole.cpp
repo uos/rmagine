@@ -3,9 +3,12 @@
 #include <rmagine/simulation/PinholeSimulatorOptix.hpp>
 #include <rmagine/map/optix/optix_shapes.h>
 #include <rmagine/map/OptixMap.hpp>
+#include <rmagine/types/sensors.h>
+#include <rmagine/util/prints.h>
 
 #include <stdexcept>
 #include <cassert>
+
 
 using namespace rmagine;
 
@@ -16,21 +19,6 @@ using namespace rmagine;
     + std::to_string( __LINE__ )          \
     + std::string( " in " )               \
     + std::string( __PRETTY_FUNCTION__ ) 
-
-
-PinholeModel sensor_model()
-{
-    PinholeModel model;
-    model.width = 400;
-    model.height = 300;
-    model.c[0] = 200.0;
-    model.c[1] = 150.0;
-    model.f[0] = 1000.0;
-    model.f[1] = 1000.0;
-    model.range.min = 0.0;
-    model.range.max = 100.0;
-    return model;
-}
 
 OptixMapPtr make_map()
 {
@@ -49,7 +37,7 @@ int main(int argc, char** argv)
     // make synthetic map
     OptixMapPtr map = make_map();
     
-    auto model = sensor_model();
+    auto model = example_pinhole();
     PinholeSimulatorOptix sim;
     {
         sim.setMap(map);
@@ -85,7 +73,12 @@ int main(int argc, char** argv)
             model.size() * 100
         );
 
-        float error = std::fabs(last_scan[0] - 0.515388);
+        float range = last_scan[model.getBufferId(0,0)];
+        Vector dir = model.getDirection(0,0);
+        Vector3 point = dir * range;
+        Vector3 diff = point - Vector3{0.5, 0.5, 0.375};
+
+        float error = std::fabs(diff.x) + std::fabs(diff.y) + std::fabs(diff.z);
                                                         
         if(error > 0.0001)                                              
         {                                                           

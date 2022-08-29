@@ -119,7 +119,7 @@ void SphereSimulatorOptix::simulateRanges(
     if(program)
     {
         // std::cout << "Simulating " << Tbm.size() << " SphericalSensors " << m_width << "x" << m_height << std::endl;
-        OPTIX_CHECK( optixLaunch(
+        RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
@@ -149,7 +149,7 @@ void SphereSimulatorOptix::launch(
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream->handle());
 
-    OPTIX_CHECK( optixLaunch(
+    RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
                 m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 

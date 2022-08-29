@@ -48,7 +48,7 @@ void ProgramModule::compile(
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
 
-    OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
+    RM_OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
                     ctx->ref(),
                     compile_options,
                     pipeline_compile_options,
@@ -88,7 +88,7 @@ void ProgramGroup::create(OptixContextPtr ctx)
 {
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixProgramGroupCreate(
+    RM_OPTIX_CHECK_LOG( optixProgramGroupCreate(
                         ctx->ref(),
                         description,
                         1,   // num program groups
@@ -131,7 +131,7 @@ void Pipeline::create(
 
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixPipelineCreate(
+    RM_OPTIX_CHECK_LOG( optixPipelineCreate(
         ctx->ref(),
         compile_options,
         link_options,

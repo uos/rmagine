@@ -71,10 +71,10 @@ void OptixInst::commit()
     {
         if(!sbt_data.scene)
         {
-            CUDA_CHECK( cudaMalloc(&sbt_data.scene, sizeof(OptixSceneSBT) ) );
+            RM_CUDA_CHECK( cudaMalloc(&sbt_data.scene, sizeof(OptixSceneSBT) ) );
         }
 
-        CUDA_CHECK( cudaMemcpy(
+        RM_CUDA_CHECK( cudaMemcpy(
             sbt_data.scene, 
             &m_scene->sbt_data, 
             sizeof(OptixSceneSBT), cudaMemcpyHostToDevice) );

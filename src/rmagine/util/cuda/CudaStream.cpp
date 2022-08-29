@@ -13,7 +13,7 @@ CudaStream::CudaStream(CudaContextPtr ctx)
     cuCtxGetCurrent(&old);
 
     ctx->use();
-    CUDA_DEBUG( cudaStreamCreate(&m_stream) );
+    RM_CUDA_CHECK( cudaStreamCreate(&m_stream) );
 
     // restore old
     cuCtxSetCurrent(old);
@@ -26,7 +26,7 @@ CudaStream::CudaStream(unsigned int flags, CudaContextPtr ctx)
     cuCtxGetCurrent(&old);
 
     ctx->use();
-    CUDA_DEBUG( cudaStreamCreateWithFlags(&m_stream, flags) );
+    RM_CUDA_CHECK( cudaStreamCreateWithFlags(&m_stream, flags) );
 
     // restore old
     cuCtxSetCurrent(old);

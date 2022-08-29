@@ -37,14 +37,28 @@
 
 #include <cuda_runtime.h>
 #include <stdio.h>
+#include <sstream>
+#include <rmagine/util/exceptions.h>
 
-#define CUDA_DEBUG(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+
+#define RM_CUDA_CHECK(call)    \
+{                 \
+   cudaError_t code = call; \
+   cudaAssert(code, __FILE__, __PRETTY_FUNCTION__, __LINE__);  \
+}
+
+
+inline void cudaAssert(
+   cudaError_t code, 
+   const char* file, 
+   const char* func,
+   int line)
 {
-   if (code != cudaSuccess) 
+   if (code != cudaSuccess)
    {
-      fprintf(stderr,"CUDA error! %s: %s %s %d\n", cudaGetErrorName(code), cudaGetErrorString(code), file, line);
-      if (abort) exit(code);
+      std::stringstream ss;
+      ss << "CUDA Error! Name: " << cudaGetErrorName(code) << ", Message: " << cudaGetErrorString(code) << "\n";
+      throw rmagine::CudaException(ss.str(), file, func, line);
    }
 }
 

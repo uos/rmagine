@@ -56,10 +56,10 @@ void OptixMesh::apply()
 
     if(!pre_transform)
     {
-        CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>(&pre_transform), sizeof(float) * 12 ) );
+        RM_CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>(&pre_transform), sizeof(float) * 12 ) );
     }
 
-    CUDA_CHECK( cudaMemcpy(
+    RM_CUDA_CHECK( cudaMemcpy(
         reinterpret_cast<void*>(pre_transform),
         pre_transform_h,
         sizeof(float) * 12,

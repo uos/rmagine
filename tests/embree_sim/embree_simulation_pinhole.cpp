@@ -1,15 +1,19 @@
 #include <iostream>
 
-#include <rmagine/simulation/O1DnSimulatorOptix.hpp>
-#include <rmagine/map/optix/optix_shapes.h>
-#include <rmagine/map/OptixMap.hpp>
+#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
+#include <rmagine/map/embree/embree_shapes.h>
+#include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/sensors.h>
 #include <rmagine/util/prints.h>
 
 #include <stdexcept>
 #include <cassert>
 
+#include <sstream>
+
+
 using namespace rmagine;
+
 
 #define LOC_STRING() \
     std::string( __FILE__ )             \
@@ -18,32 +22,35 @@ using namespace rmagine;
     + std::string( " in " )               \
     + std::string( __PRETTY_FUNCTION__ ) 
 
-OptixMapPtr make_map()
-{
-    OptixScenePtr scene = std::make_shared<OptixScene>();
 
-    OptixGeometryPtr mesh = std::make_shared<OptixCube>();
+EmbreeMapPtr make_map()
+{
+    EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
+
+    EmbreeGeometryPtr mesh = std::make_shared<EmbreeCube>();
     mesh->commit();
     scene->add(mesh);
     scene->commit();
 
-    return std::make_shared<OptixMap>(scene);
+    return std::make_shared<EmbreeMap>(scene);
 }   
 
 int main(int argc, char** argv)
 {
     // make synthetic map
-    OptixMapPtr map = make_map();
+    EmbreeMapPtr map = make_map();
     
-    auto model = example_o1dn();
-    O1DnSimulatorOptix sim;
+    auto model = example_pinhole();
+    PinholeSimulatorEmbree sim;
     {
         sim.setMap(map);
         sim.setModel(model);
     }
 
-    IntAttrAny<VRAM_CUDA> result;
-    resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
+    using ResultT = IntAttrAny<RAM>;
+
+    ResultT result;
+    resizeMemoryBundle<RAM>(result, model.getWidth(), model.getHeight(), 100);
 
     Memory<Transform, RAM> T(100);
     for(size_t i=0; i<T.size(); i++)
@@ -51,28 +58,25 @@ int main(int argc, char** argv)
         T[i] = Transform::Identity();
     }
 
-    Memory<Transform, VRAM_CUDA> T_ = T;
-
     std::cout << "Simulate!" << std::endl;
     
-    // Memory<float, RAM> last_scan(1);
-    for(size_t i=0; i<1000; i++)
+    for(size_t i=0; i<10; i++)
     {
-        sim.simulate(T_, result);
+        sim.simulate(T, result);
 
+        // std::cout << "bla" << std::endl;
         Memory<float, RAM> last_scan = result.ranges(
             model.size() * 99,
             model.size() * 100
         );
 
         float range = last_scan[model.getBufferId(0,0)];
-        Vector3 dir = model.getDirection(0,0);
-        Vector3 orig = model.getOrigin(0,0);
-        Vector3 point = orig + dir * range;
-
-        Vector3 diff = point - Vector3{0.256732, 0.5, -0.1};
+        Vector dir = model.getDirection(0,0);
+        Vector3 point = dir * range;
+        Vector3 diff = point - Vector3{0.5, 0.5, 0.375};
 
         float error = std::fabs(diff.x) + std::fabs(diff.y) + std::fabs(diff.z);
+                                                        
         if(error > 0.0001)                                              
         {                                                           
             std::stringstream ss;

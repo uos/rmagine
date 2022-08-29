@@ -93,7 +93,7 @@ void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>&
 template<typename DataT>
 void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
-    CUDA_DEBUG( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
                 to.raw(),
                 from.raw(), sizeof( DataT ) * from.size(),
                 cudaMemcpyHostToDevice, stream
@@ -103,7 +103,7 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VRAM_CUDA>& to, 
 template<typename DataT>
 void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
-    CUDA_DEBUG( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
                 to.raw(),
                 from.raw(), sizeof( DataT ) * from.size(),
                 cudaMemcpyHostToDevice, stream
@@ -113,7 +113,7 @@ void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>&
 template<typename DataT>
 void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
 {
-    CUDA_DEBUG( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
                 to.raw(),
                 from.raw(), sizeof( DataT ) * from.size(),
                 cudaMemcpyDeviceToDevice, stream
@@ -123,7 +123,7 @@ void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>
 template<typename DataT>
 void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, RAM_CUDA>& to, const cudaStream_t& stream)
 {
-    CUDA_DEBUG( cudaMemcpyAsync(
+    RM_CUDA_CHECK( cudaMemcpyAsync(
                 to.raw(),
                 from.raw(), sizeof( DataT ) * from.size(),
                 cudaMemcpyDeviceToHost, stream

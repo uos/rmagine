@@ -75,7 +75,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
         throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
-    OPTIX_CHECK( optixModuleCreateFromPTX(
+    RM_OPTIX_CHECK( optixModuleCreateFromPTX(
                 map->context()->ref(),
                 &module_compile_options,
                 &pipeline_compile_options,
@@ -158,7 +158,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
 #endif
     sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixPipelineCreate(
+    RM_OPTIX_CHECK_LOG( optixPipelineCreate(
                 map->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
@@ -172,19 +172,19 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     OptixStackSizes stack_sizes = {};
     for( auto& prog_group : program_groups )
     {
-        OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
+        RM_OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
     }
 
 
     uint32_t direct_callable_stack_size_from_traversal;
     uint32_t direct_callable_stack_size_from_state;
     uint32_t continuation_stack_size;
-    OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
+    RM_OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
                                                 0,  // maxCCDepth
                                                 0,  // maxDCDEpth
                                                 &direct_callable_stack_size_from_traversal,
                                                 &direct_callable_stack_size_from_state, &continuation_stack_size ) );
-    OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
+    RM_OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
                                             direct_callable_stack_size_from_state, continuation_stack_size,
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
@@ -192,10 +192,10 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
     // 4. setup shader binding table
     CUdeviceptr  raygen_record;
     const size_t raygen_record_size = sizeof( RayGenSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
     RayGenSbtRecord rg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( raygen_record ),
                 &rg_sbt,
                 raygen_record_size,
@@ -204,11 +204,11 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
 
     CUdeviceptr miss_record;
     size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
     MissSbtRecord ms_sbt;
     
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( miss_record ),
                 &ms_sbt,
                 miss_record_size,
@@ -217,10 +217,10 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
 
     CUdeviceptr hitgroup_record;
     size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
                 &hg_sbt,
                 hitgroup_record_size,
