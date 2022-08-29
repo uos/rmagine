@@ -49,8 +49,7 @@
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <rmagine/types/Bundle.hpp>
-#include <rmagine/simulation/optix/OptixSimulationData.hpp>
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
+#include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
 

@@ -2,7 +2,7 @@
 
 #include "rmagine/util/GenericAlign.hpp"
 #include "rmagine/util/optix/OptixDebug.hpp"
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/simulation/optix/sim_program_data.h"
 
 
 

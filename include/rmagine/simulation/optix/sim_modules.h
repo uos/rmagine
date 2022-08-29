@@ -9,7 +9,7 @@
 #include <rmagine/map/optix/optix_definitions.h>
 
 // sensor connection
-#include "OptixSimulationData.hpp"
+#include "sim_program_data.h"
 
 namespace rmagine
 {

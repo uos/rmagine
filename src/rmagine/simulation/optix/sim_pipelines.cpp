@@ -5,7 +5,7 @@
 #include <optix_stubs.h>
 #include <cuda_runtime.h>
 #include <rmagine/map/optix/OptixScene.hpp>
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
+#include <rmagine/simulation/optix/common.h>
 
 namespace rmagine
 {

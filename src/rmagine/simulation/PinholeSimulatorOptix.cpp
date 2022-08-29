@@ -1,6 +1,6 @@
 #include "rmagine/simulation/PinholeSimulatorOptix.hpp"
 
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/simulation/optix/sim_program_data.h"
 #include "rmagine/util/optix/OptixDebug.hpp"
 
 #include <optix.h>

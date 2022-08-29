@@ -1,6 +1,6 @@
 #include <optix.h>
 #include "rmagine/math/types.h"
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/simulation/optix/sim_program_data.h"
 
 
 
