@@ -5,7 +5,7 @@
 
 #include <math_constants.h>
 
-#include "rmagine/simulation/optix/mem.cuh"
+#include "rmagine/simulation/optix/sim_program_mem.cuh"
 
 using namespace rmagine;
 

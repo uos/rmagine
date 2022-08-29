@@ -1,5 +1,5 @@
-#ifndef RMAGINE_SIMULATION_OPTIX_MEM_H
-#define RMAGINE_SIMULATION_OPTIX_MEM_H
+#ifndef RMAGINE_SIMULATION_OPTIX_SIM_MEM_H
+#define RMAGINE_SIMULATION_OPTIX_SIM_MEM_H
 
 #include <rmagine/simulation/optix/sim_program_data.h>
 
