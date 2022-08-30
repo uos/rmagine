@@ -7,67 +7,14 @@
 namespace rmagine {
 
 SVDCuda::SVDCuda()
+:SVDCuda(std::make_shared<CudaStream>(cudaStreamNonBlocking))
 {
-    // StopWatch sw;
-    // double el;
-
-    cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
-    cudaError_t cuda_status = cudaSuccess;
-
-    // sw();
-    /* step 1: create cusolver handle, bind a stream  */
-    status = cusolverDnCreate(&cusolverH);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
-    // el = sw();
-    // std::cout << "[SVD_cuda] cusolverDnCreate " << el << "s" << std::endl;
-
-    // sw();
-    cuda_status = cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking);
-    assert(cudaSuccess == cuda_status);
-    // el = sw();
-    // std::cout << "[SVD_cuda] cudaStreamCreateWithFlags " << el << "s" << std::endl;
-
-
-    // sw();
-    status = cusolverDnSetStream(cusolverH, stream);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
-    // el = sw();
-    // std::cout << "[SVD_cuda] cusolverDnSetStream " << el << "s" << std::endl;
-
-    /* step 2: configuration of gesvdj */
-
-    // sw();
-    status = cusolverDnCreateGesvdjInfo(&gesvdj_params);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
-    // el = sw();
-    // std::cout << "[SVD_cuda] cusolverDnCreateGesvdjInfo " << el << "s" << std::endl;
-
-    const double tol = 1.e-6;
-    const int max_sweeps = 15;
-    const int sort_svd  = 0;   /* don't sort singular values */
-
-    /* default value of tolerance is machine zero */
-    status = cusolverDnXgesvdjSetTolerance(
-        gesvdj_params,
-        tol);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
-
-    /* default value of max. sweeps is 100 */
-    status = cusolverDnXgesvdjSetMaxSweeps(
-        gesvdj_params,
-        max_sweeps);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
-
-    /* disable sorting */
-    status = cusolverDnXgesvdjSetSortEig(
-        gesvdj_params,
-        sort_svd);
-    assert(CUSOLVER_STATUS_SUCCESS == status);
+    
 }
 
-SVDCuda::SVDCuda(cudaStream_t stream)
+SVDCuda::SVDCuda(CudaStreamPtr stream)
 {
-    this->stream = stream;
+    m_stream = stream;
 
     cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
     cudaError_t cuda_status = cudaSuccess;
@@ -76,7 +23,7 @@ SVDCuda::SVDCuda(cudaStream_t stream)
     status = cusolverDnCreate(&cusolverH);
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
-    status = cusolverDnSetStream(cusolverH, stream);
+    status = cusolverDnSetStream(cusolverH, m_stream->handle());
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
     /* step 2: configuration of gesvdj */
@@ -109,9 +56,6 @@ SVDCuda::SVDCuda(cudaStream_t stream)
 SVDCuda::~SVDCuda()
 {
     if (cusolverH) cusolverDnDestroy(cusolverH);
-    // what if stream comes from external?
-    // make shared pointer of stream
-    if (stream      ) cudaStreamDestroy(stream);
     if (gesvdj_params) cusolverDnDestroyGesvdjInfo(gesvdj_params);
 }
 

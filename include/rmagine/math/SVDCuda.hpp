@@ -14,7 +14,7 @@ class SVDCuda
 {
 public:
     SVDCuda();
-    SVDCuda(cudaStream_t stream);
+    SVDCuda(CudaStreamPtr stream);
 
     ~SVDCuda();
 
@@ -31,9 +31,9 @@ public:
 
 private:
     // global parameters
-    cusolverDnHandle_t cusolverH = NULL;
-    cudaStream_t stream = NULL;
-    gesvdjInfo_t gesvdj_params = NULL;
+    CudaStreamPtr       m_stream;
+    cusolverDnHandle_t  cusolverH = NULL;
+    gesvdjInfo_t        gesvdj_params = NULL;
 };
 
 using SVDCudaPtr = std::shared_ptr<SVDCuda>;

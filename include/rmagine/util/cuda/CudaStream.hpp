@@ -19,6 +19,8 @@ public:
 
     cudaStream_t handle() const;
     CudaContextPtr context() const;
+    void synchronize();
+
 private:
     cudaStream_t m_stream = NULL;
     // weak connection to context

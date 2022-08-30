@@ -47,4 +47,9 @@ CudaContextPtr CudaStream::context() const
     return m_ctx;
 }
 
+void CudaStream::synchronize()
+{
+    RM_CUDA_CHECK(cudaStreamSynchronize(m_stream));
+}
+
 } // namespace rmagine
