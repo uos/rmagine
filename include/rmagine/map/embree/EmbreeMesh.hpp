@@ -46,14 +46,12 @@ public:
     void init(const aiMesh* amesh);
 
     // PUBLIC ATTRIBUTES
-    Memory<Vector, RAM> vertices;
-
-    unsigned int Nfaces;
-    Face* faces;
+    MemoryView<Face, RAM> faces() const;
+    MemoryView<Vertex, RAM> vertices() const;
     
-    // vertex and face normals
-    Memory<Vector, RAM> vertex_normals;
-    Memory<Vector, RAM> face_normals;
+    MemoryView<const Vertex, RAM> verticesTransformed() const;
+    
+    
 
     void computeFaceNormals();
 
@@ -68,13 +66,24 @@ public:
         return EmbreeGeometryType::MESH;
     }
 
-private:
-    // embree constructed buffers
-    unsigned int Nvertices;
-    Vertex* vertices_transformed;
 
-    Memory<Vector, RAM> face_normals_transformed;
-    Memory<Vector, RAM> vertex_normals_transformed;
+    // embree constructed buffers
+protected:
+    unsigned int m_num_vertices = 0;
+    unsigned int m_num_faces = 0;
+
+    Memory<Vertex, RAM> m_vertices;
+    Face* m_faces;
+    // vertex and face normals
+    Memory<Vector, RAM> m_vertex_normals;
+    Memory<Vector, RAM> m_face_normals;
+
+private:
+
+    // after transform
+    Vertex* m_vertices_transformed;
+    Memory<Vector, RAM> m_face_normals_transformed;
+    Memory<Vector, RAM> m_vertex_normals_transformed;
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;

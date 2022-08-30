@@ -106,11 +106,11 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     const EmbreeMesh& mesh_part = userData->parts->at(geomID);
 
     // Triangle const& t = triangle_mesh->triangles[primID];
-    Face face = mesh_part.faces[primID];
+    Face face = mesh_part.faces()[primID];
 
-    Vertex v0 = mesh_part.vertices[face.v0];
-    Vertex v1 = mesh_part.vertices[face.v1];
-    Vertex v2 = mesh_part.vertices[face.v2];
+    Vertex v0 = mesh_part.vertices()[face.v0];
+    Vertex v1 = mesh_part.vertices()[face.v1];
+    Vertex v2 = mesh_part.vertices()[face.v2];
 
     const Vector p = closestPointTriangle(q, v0, v1, v2);
 
@@ -130,14 +130,6 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     }
 
     return false;
-}
-
-void print(const aiMatrix4x4& T)
-{
-    std::cout << T.a1 << " " << T.a2 << " " << T.a3 << " " << T.a4 << std::endl;
-    std::cout << T.b1 << " " << T.b2 << " " << T.b3 << " " << T.b4 << std::endl;
-    std::cout << T.c1 << " " << T.c2 << " " << T.c3 << " " << T.c4 << std::endl;
-    std::cout << T.d1 << " " << T.d2 << " " << T.d3 << " " << T.d4 << std::endl;
 }
 
 EmbreeMap::EmbreeMap(EmbreeDevicePtr device)
@@ -181,83 +173,6 @@ Point EmbreeMap::closestPoint(const Point& qp)
     }
 
     return result.p;
-}
-
-std::vector<EmbreeMeshPtr> EmbreeMap::loadMeshes(const aiScene* ascene)
-{
-    std::vector<EmbreeMeshPtr> meshes;
-    for(unsigned int mesh_id = 0; mesh_id < ascene->mNumMeshes; mesh_id++)
-    {
-        const aiMesh* amesh = ascene->mMeshes[mesh_id];
-        EmbreeMeshPtr mesh(new EmbreeMesh(amesh, device));
-        mesh->name = amesh->mName.C_Str();
-        mesh->commit();
-        meshes.push_back(mesh);
-    }
-
-    return meshes;
-}
-
-
-std::vector<EmbreeInstancePtr> EmbreeMap::loadInstances(
-    const aiNode* root_node,
-    std::vector<EmbreeMeshPtr>& meshes)
-{
-    std::vector<EmbreeInstancePtr> instances;
-    std::vector<EmbreeScenePtr> mesh_scenes;
-
-    for(EmbreeMeshPtr mesh : meshes)
-    {
-        EmbreeScenePtr mesh_scene(new EmbreeScene({},device));
-        mesh_scene->add(mesh);
-        mesh_scene->commit();
-        mesh_scenes.push_back(mesh_scene);
-    }
-
-    for(unsigned int i=0; i<root_node->mNumChildren; i++)
-    {
-        const aiNode* n = root_node->mChildren[i];
-        if(n->mNumChildren == 0)
-        {
-            // Leaf
-            if(n->mNumMeshes > 0)
-            {
-                EmbreeInstancePtr instance(new EmbreeInstance(device));
-                
-                // convert assimp matrix to internal type
-                instance->name = n->mName.C_Str();
-
-                Matrix4x4 M = convert(n->mTransformation);
-                Transform T;
-                Vector3 scale;
-                decompose(M, T, scale);
-
-                instance->setTransform(T);
-                instance->setScale(scale);
-                unsigned int mesh_id = n->mMeshes[0];
-                // instance.
-
-                // get mesh to be instanced
-                auto mesh_scene = mesh_scenes[mesh_id];
-                instance->set(mesh_scene);
-
-                // commit
-                instance->apply();
-                instance->commit();
-
-                // attach to scene
-                // instance->setScene(scene);
-                instances.push_back(instance);
-            }
-
-        } else {
-            // TODO: handle deeper tree. concatenate transformations
-            std::cout << "Found instance tree in map. Currently not supported." << std::endl;
-            std::cout << "- Children: " << n->mNumChildren << std::endl;
-        }
-    }
-
-    return instances;
 }
 
 } // namespace rmagine

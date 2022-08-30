@@ -100,17 +100,11 @@ public:
 
     // container for storing meshes for faster access
     // - meshes are also shared referenced somewhere in scene
+    // - filling is not mandatory
     // TODO: not only meshes here. Every geometry
     std::unordered_set<EmbreeMeshPtr> meshes;
 
     RTCPointQueryContext pq_context;
-
-protected:
-    std::vector<EmbreeMeshPtr> loadMeshes(const aiScene* ascene);
-
-    std::vector<EmbreeInstancePtr> loadInstances(
-        const aiNode* root_node,
-        std::vector<EmbreeMeshPtr>& meshes);
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;

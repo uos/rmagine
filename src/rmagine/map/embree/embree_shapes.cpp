@@ -16,8 +16,8 @@ EmbreeSphere::EmbreeSphere(
     genSphere(_vertices, _faces, num_long, num_lat);
     init(_vertices.size(), _faces.size());
 
-    std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
-    std::copy(_faces.begin(), _faces.end(), faces);
+    std::copy(_vertices.begin(), _vertices.end(), m_vertices.raw());
+    std::copy(_faces.begin(), _faces.end(), m_faces);
 
     computeFaceNormals();
 
@@ -35,8 +35,8 @@ EmbreeCube::EmbreeCube(
     genCube(_vertices, _faces, side_triangles_exp);
     init(_vertices.size(), _faces.size());
 
-    std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
-    std::copy(_faces.begin(), _faces.end(), faces);
+    std::copy(_vertices.begin(), _vertices.end(), m_vertices.raw());
+    std::copy(_faces.begin(), _faces.end(), m_faces);
 
     computeFaceNormals();
 
@@ -54,8 +54,8 @@ EmbreePlane::EmbreePlane(
     genPlane(_vertices, _faces, side_triangles_exp);
     init(_vertices.size(), _faces.size());
 
-    std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
-    std::copy(_faces.begin(), _faces.end(), faces);
+    std::copy(_vertices.begin(), _vertices.end(), m_vertices.raw());
+    std::copy(_faces.begin(), _faces.end(), m_faces);
 
     computeFaceNormals();
 
@@ -73,8 +73,8 @@ EmbreeCylinder::EmbreeCylinder(
     genCylinder(_vertices, _faces, side_faces);
     init(_vertices.size(), _faces.size());
 
-    std::copy(_vertices.begin(), _vertices.end(), vertices.raw());
-    std::copy(_faces.begin(), _faces.end(), faces);
+    std::copy(_vertices.begin(), _vertices.end(), m_vertices.raw());
+    std::copy(_faces.begin(), _faces.end(), m_faces);
 
     computeFaceNormals();
 
