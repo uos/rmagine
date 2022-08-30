@@ -101,6 +101,7 @@ static OptixMapPtr importOptixMap(
     }
 
     OptixScenePtr scene = make_optix_scene(ascene, optix_ctx);
+    scene->commit();
     return std::make_shared<OptixMap>(scene);
 }
 
