@@ -74,8 +74,6 @@ void EmbreeMesh::init(
 
     name = amesh->mName.C_Str();
 
-    
-
     if(!(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE) )
     {
         std::cout << "[EmbreeMesh::init()] WARNING: aiMesh* has no triangles. prim type: " << amesh->mPrimitiveTypes << std::endl; 
@@ -110,6 +108,12 @@ void EmbreeMesh::init(
     apply();
 }
 
+void EmbreeMesh::initVertexNormals()
+{
+    m_vertex_normals.resize(m_num_vertices);
+    m_vertex_normals_transformed.resize(m_num_vertices);
+}
+
 MemoryView<Face, RAM> EmbreeMesh::faces() const
 {
     return MemoryView<Face, RAM>(m_faces, m_num_faces);
@@ -118,6 +122,16 @@ MemoryView<Face, RAM> EmbreeMesh::faces() const
 MemoryView<Vertex, RAM> EmbreeMesh::vertices() const
 {
     return m_vertices;
+}
+
+MemoryView<Vector, RAM> EmbreeMesh::vertexNormals() const
+{
+    return m_vertex_normals;
+}
+
+MemoryView<Vector, RAM> EmbreeMesh::faceNormals() const
+{
+    return m_face_normals;
 }
 
 MemoryView<const Vertex, RAM> EmbreeMesh::verticesTransformed() const

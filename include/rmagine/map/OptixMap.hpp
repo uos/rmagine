@@ -105,6 +105,7 @@ static OptixMapPtr importOptixMap(
     return std::make_shared<OptixMap>(scene);
 }
 
+
 } // namespace rmagine
 
 #endif // RMAGINE_OPTIX_MAP_HPP

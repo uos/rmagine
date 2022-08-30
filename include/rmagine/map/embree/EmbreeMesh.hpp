@@ -45,11 +45,16 @@ public:
     void init(unsigned int Nvertices, unsigned int Nfaces);
     void init(const aiMesh* amesh);
 
+    void initVertexNormals();
+
     // PUBLIC ATTRIBUTES
     MemoryView<Face, RAM> faces() const;
     MemoryView<Vertex, RAM> vertices() const;
+    MemoryView<Vector, RAM> vertexNormals() const;
+    MemoryView<Vector, RAM> faceNormals() const;
     
     MemoryView<const Vertex, RAM> verticesTransformed() const;
+    
     
     
 
