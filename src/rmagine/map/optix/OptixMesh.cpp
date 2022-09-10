@@ -30,11 +30,13 @@ OptixMesh::OptixMesh(OptixContextPtr context)
 
 OptixMesh::~OptixMesh()
 {
-    // std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
+    std::cout << "[OptixMesh::~OptixMesh()]" << std::endl;
     if(pre_transform)
     {
         cudaFree( reinterpret_cast<void*>( pre_transform ) );
     }
+
+    std::cout << "[OptixMesh::~OptixMesh()] destroyed." << std::endl;
 }
 
 void OptixMesh::apply()

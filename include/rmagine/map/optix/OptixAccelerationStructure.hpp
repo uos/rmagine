@@ -17,8 +17,6 @@ public:
     CUdeviceptr                 buffer = 0;
     size_t                      buffer_size = 0;
     size_t                      n_elements = 0;
-
-    
 };
 
 using OptixAccelerationStructurePtr = std::shared_ptr<OptixAccelerationStructure>;

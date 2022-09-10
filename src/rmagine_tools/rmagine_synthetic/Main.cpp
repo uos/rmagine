@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
     gen_map["plane"] = []() { return genPlane(); };
     gen_map["cube"] = []() { return genCube(); };
-    gen_map["sphere"] = []() { return genSphere(); };
+    gen_map["sphere"] = []() { return genSphere(75, 75); };
     gen_map["cylinder"] = []() {return genCylinder(); };
     
 
