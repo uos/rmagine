@@ -1,20 +1,48 @@
 #include "rmagine/util/cuda/CudaContext.hpp"
 #include <iostream>
 
+#include "rmagine/util/cuda/CudaStream.hpp"
+
 namespace rmagine {
+
+bool cuda_initialized_ = false;
+
+bool cuda_initialized()
+{
+    return cuda_initialized_;
+}
+
+void cuda_initialize()
+{
+    cuInit(0);
+    cuda_initialized_ = true;
+}
 
 CudaContext::CudaContext(int device_id)
 {
-    std::cout << "[CudaContext] Construct" << std::endl;
+    if(!cuda_initialized())
+    {
+        // std::cout << "[RMagine - CudaContext] Init Cuda" << std::endl;
+        printCudaInfo();
+        cuda_initialize();
+    }
+
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
-    std::cout << "[CudaContext] Construct context on device " << device_id << " " << info.name << " " << info.luid << std::endl;
+    std::cout << "[RMagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 
     cuCtxCreate(&m_context, 0, device_id);
 }
 
+CudaContext::CudaContext(CUcontext ctx)
+:m_context(ctx)
+{
+    
+}
+
 CudaContext::~CudaContext()
 {
-    std::cout << "[CudaContext] Destruct" << std::endl;
+    cuCtxDestroy(m_context);
+    // std::cout << "[CudaContext::~CudaContext()] destroyed." << std::endl;
 }
 
 int CudaContext::getDeviceId() const
@@ -51,6 +79,19 @@ bool CudaContext::isActive() const
     CUcontext old;
     cuCtxGetCurrent(&old);
     return (old == m_context);
+}
+
+CudaStreamPtr CudaContext::createStream(unsigned int flags) const
+{
+    CUcontext old;
+    cuCtxGetCurrent(&old);
+    cuCtxSetCurrent(m_context);
+
+    CudaStreamPtr ret = std::make_shared<CudaStream>(flags);
+
+    // restore old
+    cuCtxSetCurrent(old);
+    return ret;
 }
 
 void CudaContext::setSharedMemBankSize(unsigned int bytes)
@@ -114,6 +155,11 @@ void CudaContext::synchronize()
     cuCtxSetCurrent(old);
 }
 
+CUcontext CudaContext::ref()
+{
+    return m_context;
+}
+
 std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
 {
     
@@ -124,9 +170,22 @@ std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
     os << "- Device: " << info.name << "\n";
     os << "- SMemSize: " << ctx.getSharedMemBankSize() << "B\n";
     os << "- Active: " << (ctx.isActive()? "true" : "false") << "\n";
-    
 
     return os;
+}
+
+CudaContextPtr cuda_def_ctx(new CudaContext(0));
+
+CudaContextPtr cuda_current_context()
+{
+    // if(!cuda_def_ctx->defaultStream())
+    // {
+    //     std::cout << "initDefaultStream" << std::endl;
+    //     cuda_def_ctx->initDefaultStream();
+    //     std::cout << "initDefaultStream done." << std::endl;
+    // }
+    
+    return cuda_def_ctx;
 }
 
 } // namespace rmagine

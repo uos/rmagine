@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <math.h>
 
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/shared_functions.h>
 #include <rmagine/types/Memory.hpp>
 
 namespace rmagine
@@ -48,6 +48,12 @@ struct DiscreteInterval
     float getValue(uint32_t id) const
     {
         return min + static_cast<float>(id) * inc;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    float operator[](uint32_t id) const 
+    {
+        return getValue(id);
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -132,8 +138,6 @@ struct SphericalModel
     {
         return phi_id * theta.size + theta_id;
     }
-
-    
 };
 
 using LiDARModel = SphericalModel;
@@ -229,6 +233,8 @@ struct CylindricModel {
 
 template<typename MemT>
 struct O1DnModel_ {
+    static constexpr char name[] = "O1Dn";
+
     uint32_t width;
     uint32_t height;
 
@@ -279,6 +285,8 @@ using O1DnModel = O1DnModel_<RAM>;
 
 template<typename MemT>
 struct OnDnModel_ {
+    static constexpr char name[] = "OnDn";
+
     uint32_t width;
     uint32_t height;
 
@@ -329,6 +337,7 @@ struct OnDnModel_ {
 };
 
 using OnDnModel = OnDnModel_<RAM>;
+
 
 } // namespace rmagine
 

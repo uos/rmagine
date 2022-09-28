@@ -26,23 +26,39 @@ set(rmagine_INCLUDE_DIRS @CMAKE_INSTALL_INCLUDEDIR@)
 ### LIBRARY
 ###########
 
-# CORE LIB
+# RMAGINE CORE LIB
 set(rmagine_LIBRARY rmagine)
 set(rmagine_LIBRARIES rmagine)
 
-# CUDA LIB
+# RMAGINE EMBREE LIB
+if(@embree_FOUND@)
+    list(APPEND rmagine_LIBRARIES rmagine_embree)
+    set(rmagine_embree_LIBRARY rmagine_embree)
+    set(rmagine_embree_FOUND 1)
+else(@embree_FOUND@)
+    set(rmagine_embree_FOUND 0)
+endif(@embree_FOUND@)
+
+# RMAGINE CUDA LIB
 if(@CUDA_FOUND@)
-list(APPEND rmagine_LIBRARIES rmagine_cuda)
-set(rmagine_cuda_LIBRARY rmagine_cuda)
+    list(APPEND rmagine_LIBRARIES rmagine_cuda)
+    set(rmagine_cuda_LIBRARY rmagine_cuda)
+    set(rmagine_cuda_FOUND 1)
+else(@CUDA_FOUND@)
+    set(rmagine_cuda_FOUND 0)
 endif(@CUDA_FOUND@)
 
-# OptiX LIB
+# RMAGINE OptiX LIB
 if(@OptiX_FOUND@)
-list(APPEND rmagine_LIBRARIES rmagine_optix)
-set(rmagine_optix_LIBRARY rmagine_optix)
-endif(@CUDA_FOUND@)
+    list(APPEND rmagine_LIBRARIES rmagine_optix)
+    set(rmagine_optix_LIBRARY rmagine_optix)
+    set(rmagine_optix_FOUND 1)
+else(@OptiX_FOUND@)
+    set(rmagine_optix_FOUND 0)
+endif(@OptiX_FOUND@)
 
-set(rmagine_DEFINITIONS @rmagine_DEFINITIONS@)
+# Use this?
+# set(rmagine_DEFINITIONS @rmagine_DEFINITIONS@)
 
 ############
 ### EXTERNAL
@@ -59,25 +75,15 @@ if(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # Assimp
-find_package(assimp REQUIRED)
-list(APPEND rmagine_INCLUDE_DIRS ${ASSIMP_INCLUDE_DIRS})
-list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
-list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
+list(APPEND rmagine_INCLUDE_DIRS @ASSIMP_INCLUDE_DIRS@)
+list(APPEND rmagine_LIBRARIES @ASSIMP_LIBRARIES@)
+list(APPEND rmagine_ext_LIBRARIES @ASSIMP_LIBRARIES@)
 
 # Embree
-find_package(embree 3 REQUIRED)
-if(NOT embree_LIBRARY)
-    if(EMBREE_LIBRARY)
-        set(embree_LIBRARY ${EMBREE_LIBRARY})
-    elseif(Embree_LIBRARY)
-        set(embree_LIBRARY ${Embree_LIBRARY})
-    else()
-        set(embree_LIBRARY embree)
-    endif()
-endif()
-
-list(APPEND rmagine_LIBRARIES @embree_LIBRARY@)
-list(APPEND rmagine_ext_LIBRARIES @embree_LIBRARY@)
+if(@embree_FOUND@)
+    list(APPEND rmagine_LIBRARIES @embree_LIBRARY@)
+    list(APPEND rmagine_ext_LIBRARIES @embree_LIBRARY@)
+endif(@embree_FOUND@)
 
 # CUDA
 if(@CUDA_FOUND@)
@@ -86,12 +92,12 @@ if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES @CUDA_CUDA_LIBRARY@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_LIBRARIES@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_CUDA_LIBRARY@)
-endif()
+endif(@CUDA_FOUND@)
 
 if(@OptiX_FOUND@)
     list(APPEND rmagine_INCLUDE_DIRS @OptiX_INCLUDE_DIRS@)
     list(APPEND rmagine_LIBRARIES @OptiX_LIBRARIES@)
     list(APPEND rmagine_ext_LIBRARIES @OptiX_LIBRARIES@)
-endif()
+endif(@OptiX_FOUND@)
 
 set(rmagine_FOUND TRUE)

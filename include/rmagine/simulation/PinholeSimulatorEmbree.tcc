@@ -6,7 +6,8 @@ namespace rmagine
 {
 
 template<typename BundleT>
-void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void PinholeSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
     #pragma omp parallel for
@@ -44,7 +45,7 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -134,7 +135,8 @@ void PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT PinholeSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT PinholeSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

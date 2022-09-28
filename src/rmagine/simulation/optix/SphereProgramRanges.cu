@@ -1,6 +1,8 @@
 #include <optix.h>
-#include "rmagine/math/math.h"
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/math/types.h"
+#include "rmagine/simulation/optix/sim_program_data.h"
+
+
 
 using namespace rmagine;
 
@@ -30,6 +32,7 @@ extern "C" __global__ void __raygen__rg()
     const Vector ray_dir_m = Tsm.R * ray_dir_s;
 
     unsigned int p0 = glob_id;
+
     optixTrace(
             mem.handle,
             make_float3(Tsm.t.x, Tsm.t.y, Tsm.t.z ),

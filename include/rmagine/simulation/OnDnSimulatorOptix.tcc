@@ -1,103 +1,24 @@
-#include <rmagine/simulation/optix/OnDnProgramGeneric.hpp>
 #include <rmagine/util/optix/OptixDebug.hpp>
-#include <optix.h>
-#include <optix_stubs.h>
-
-// #include <rmagine/util/StopWatch.hpp>
+#include <rmagine/map/optix/OptixScene.hpp>
+#include <rmagine/util/cuda/CudaStream.hpp>
+#include <rmagine/simulation/optix/common.h>
+#include <rmagine/simulation/optix/sim_pipelines.h>
 
 namespace rmagine
 {
 
 template<typename BundleT>
-void setGenericData(
-    BundleT& res, 
-    OptixSimulationDataGenericOnDn& mem)
-{
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
-    {
-        mem.hits = res.Hits<VRAM_CUDA>::hits.raw();
-    }
-
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
-    {
-        mem.ranges = res.Ranges<VRAM_CUDA>::ranges.raw();
-    }
-
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
-    {
-        mem.points = res.Points<VRAM_CUDA>::points.raw();
-    }
-
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
-    {
-        mem.normals = res.Normals<VRAM_CUDA>::normals.raw();
-    }
-
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
-    {
-        mem.face_ids = res.FaceIds<VRAM_CUDA>::face_ids.raw();
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
-    {
-        mem.object_ids = res.ObjectIds<VRAM_CUDA>::object_ids.raw();
-    }
-}
-
-template<typename BundleT>
-void setGenericFlags(
-    OptixSimulationDataGenericOnDn& flags)
-{
-    flags.computeHits = false;
-    flags.computeRanges = false;
-    flags.computePoints = false;
-    flags.computeNormals = false;
-    flags.computeFaceIds = false;
-    flags.computeObjectIds = false;
-
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
-    {
-        flags.computeHits = true;
-    }
-
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
-    {
-        flags.computeRanges = true;
-    }
-
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
-    {
-        flags.computePoints = true;
-    }
-
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
-    {
-        flags.computeNormals = true;
-    }
-
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
-    {
-        flags.computeFaceIds = true;
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
-    {
-        flags.computeObjectIds = true;
-    }
-}
-
-template<typename BundleT>
 void OnDnSimulatorOptix::preBuildProgram()
 {
-    OptixSimulationDataGenericOnDn flags;
-    setGenericFlags<BundleT>(flags);
-    auto it = m_generic_programs.find(flags);
-    
-    if(it == m_generic_programs.end())
+    if(!m_map)
     {
-        OptixProgramPtr program(new OnDnProgramGeneric(m_map, flags ) );
-        m_generic_programs[flags] = program;
+        throw std::runtime_error("[OnDnSimulatorOptix] preBuildProgram(): No Map available!");
     }
+
+    OptixSimulationDataGeneric flags;
+    flags.model_type = 3;
+    setGenericFlags<BundleT>(flags);
+    make_pipeline_sim(m_map->scene(), flags);
 }
 
 template<typename BundleT>
@@ -105,56 +26,42 @@ void OnDnSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
     BundleT& res)
 {
-
-    Memory<OptixSimulationDataGenericOnDn, RAM> mem(1);
-    setGenericFlags<BundleT>(mem[0]);
-
-    auto it = m_generic_programs.find(mem[0]);
-    OptixProgramPtr program;
-    if(it == m_generic_programs.end())
+    if(!m_map)
     {
-        program.reset(new OnDnProgramGeneric(m_map, mem[0] ) );
-        m_generic_programs[mem[0]] = program;
-    } else {
-        program = it->second;
+        // no map set
+        throw std::runtime_error("[OnDnSimulatorOptix] simulate(): No Map available!");
+        return;
     }
+
+    auto optix_ctx = m_map->context();
+    auto cuda_ctx = optix_ctx->getCudaContext();
+    if(!cuda_ctx->isActive())
+    {
+        std::cout << "[OnDnSimulatorOptix::simulate() Need to activate map context" << std::endl;
+        cuda_ctx->use();
+    }
+
+    Memory<OptixSimulationDataGeneric, RAM> mem(1);
+    mem[0].model_type = 3;
+    setGenericFlags(res, mem[0]);
+
+    SimPipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
 
     // set general data
 
-    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
-    copy(m_model, model, m_stream);
+    // Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> model(1);
+    // copy(m_model, model, m_stream->handle());
 
     mem->Tsb = m_Tsb.raw();
-    mem->model = model.raw();
+    mem->model = m_model_union.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
+    mem->Nposes = Tbm.size();
+    mem->handle = m_map->scene()->as()->handle;
 
     // set generic data
     setGenericData(res, mem[0]);
 
-    // 10000 velodynes 
-    // - upload Params: 0.000602865s
-    // - launch: 5.9642e-05s
-    // => this takes too long. Can we somehow preupload stuff?
-    Memory<OptixSimulationDataGenericOnDn, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
-
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
-                program->pipeline,
-                m_stream,
-                reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataGenericOnDn ),
-                &program->sbt,
-                m_width, // width Xdim
-                m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
-
+    launch(mem, program);
 }
 
 template<typename BundleT>

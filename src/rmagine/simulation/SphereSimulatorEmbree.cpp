@@ -2,6 +2,10 @@
 
 #include <rmagine/util/prints.h>
 
+#include <rmagine/util/StopWatch.hpp>
+
+
+
 namespace rmagine
 {
 
@@ -9,16 +13,15 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
 :m_model(1)
 ,m_Tsb(1)
 {
-    rtcInitIntersectContext(&m_context);
-}
-
-SphereSimulatorEmbree::SphereSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
-,m_Tsb(1)
-{
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
+    // std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
+}
+
+SphereSimulatorEmbree::SphereSimulatorEmbree(EmbreeMapPtr map)
+:SphereSimulatorEmbree()
+{
+    setMap(map);
 }
 
 SphereSimulatorEmbree::~SphereSimulatorEmbree()
@@ -26,37 +29,44 @@ SphereSimulatorEmbree::~SphereSimulatorEmbree()
     
 }
 
-void SphereSimulatorEmbree::setMap(const EmbreeMapPtr map)
+void SphereSimulatorEmbree::setMap(
+    EmbreeMapPtr map)
 {
     m_map = map;
 }
 
-void SphereSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void SphereSimulatorEmbree::setTsb(
+    const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void SphereSimulatorEmbree::setTsb(const Transform& Tsb)
+void SphereSimulatorEmbree::setTsb(
+    const Transform& Tsb)
 {
     m_Tsb.resize(1);
     m_Tsb[0] = Tsb;
 }
 
-void SphereSimulatorEmbree::setModel(const Memory<SphericalModel, RAM>& model)
+void SphereSimulatorEmbree::setModel(
+    const MemoryView<SphericalModel, RAM>& model)
 {
     m_model = model;
 }
 
-void SphereSimulatorEmbree::setModel(const SphericalModel& model)
+void SphereSimulatorEmbree::setModel(
+    const SphericalModel& model)
 {
     m_model.resize(1);
     m_model[0] = model;
 }
 
 void SphereSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
+    auto handle = m_map->scene->handle();
+
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
@@ -89,10 +99,10 @@ void SphereSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(handle, &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-                {    
+                {
                     ranges[glob_id] = rayhit.ray.tfar;
                 } else {
                     ranges[glob_id] = m_model->range.max + 1.0;
@@ -103,7 +113,7 @@ void SphereSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateRanges(Tbm, res);
@@ -111,8 +121,8 @@ Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
 }
 
 void SphereSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -146,7 +156,7 @@ void SphereSimulatorEmbree::simulateHits(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -160,7 +170,7 @@ void SphereSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> SphereSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateHits(Tbm, res);

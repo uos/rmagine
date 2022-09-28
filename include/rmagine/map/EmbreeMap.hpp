@@ -43,44 +43,28 @@
 
 #include <embree3/rtcore.h>
 
-#include "Map.hpp"
-#include "AssimpMap.hpp"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include <iostream>
 #include <vector>
+#include <set>
+#include <unordered_set>
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/math.h>
+#include <rmagine/types/mesh_types.h>
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
+#include <rmagine/math/assimp_conversions.h>
+#include "AssimpIO.hpp"
+
+#include "embree/EmbreeDevice.hpp"
+#include "embree/EmbreeScene.hpp"
+#include "embree/EmbreeMesh.hpp"
+#include "embree/EmbreeInstance.hpp"
 
 
-namespace rmagine {
-
-struct EmbreeMesh {
-    RTCGeometry handle;
-    unsigned int Nvertices;
-    float* vertices;
-    unsigned int Nfaces;
-    unsigned int* faces;
-    Memory<float, RAM> normals;
-    
-    
-    // Box bb;
-    // Matrix4x4 T;
-};
-
-// struct EmbreeInstance {
-//     RTCGeometry handle;
-//     unsigned int id;
-//     std::vector<EmbreeMesh> meshes;
-//     Matrix4x4 T;
-// };
+namespace rmagine 
+{
 
 struct ClosestPointResult
 {
@@ -96,51 +80,58 @@ struct ClosestPointResult
     unsigned int geomID;
 };
 
-struct PointQueryUserData {
+struct PointQueryUserData 
+{
     std::vector<EmbreeMesh>* parts;
     ClosestPointResult* result;
 };
 
-class EmbreeMap : public Map {
+class EmbreeMap {
 public:
-    EmbreeMap(const aiScene* ascene);
+    EmbreeMap(EmbreeDevicePtr device = embree_default_device());
+    EmbreeMap(EmbreeScenePtr scene);
+
     ~EmbreeMap();
 
     Point closestPoint(const Point& qp);
 
-    RTCDevice device;
-    RTCScene scene;
-    
-    // TODO:
-    // std::vector<EmbreeInstance> instances;
-    std::vector<EmbreeMesh> meshes;
+    EmbreeDevicePtr device;
+    EmbreeScenePtr scene;
+
+    // container for storing meshes for faster access
+    // - meshes are also shared referenced somewhere in scene
+    // - filling is not mandatory
+    // TODO: not only meshes here. Every geometry
+    std::unordered_set<EmbreeMeshPtr> meshes;
 
     RTCPointQueryContext pq_context;
-
-protected:
-    void initializeDevice();
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
 
-static EmbreeMapPtr importEmbreeMap(const std::string& meshfile)
+static EmbreeMapPtr importEmbreeMap(
+    const std::string& meshfile,
+    EmbreeDevicePtr device = embree_default_device())
 {
-    Assimp::Importer importer;
+    AssimpIO io;
+
     // aiProcess_GenNormals does not work!
-    const aiScene* scene = importer.ReadFile( meshfile, 0);
+    const aiScene* ascene = io.ReadFile(meshfile, 0);
 
-    if(!scene)
+    if(!ascene)
     {
-        std::cerr << importer.GetErrorString() << std::endl;
+        std::cerr << io.Importer::GetErrorString() << std::endl;
     }
 
-    if(!scene->HasMeshes())
+    if(!ascene->HasMeshes())
     {
-        std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
+        std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
     }
 
-    EmbreeMapPtr map(new EmbreeMap(scene) );
-    return map;
+    EmbreeScenePtr scene = make_embree_scene(ascene, device);
+    scene->freeze();
+    scene->commit();
+    return std::make_shared<EmbreeMap>(scene);
 }
 
 } // namespace rmagine

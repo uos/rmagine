@@ -1,4 +1,5 @@
 #include "rmagine/util/synthetic.h"
+#include <iostream>
 
 namespace rmagine {
 
@@ -182,6 +183,12 @@ void genCube(std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
     unsigned int side_triangles_exp)
 {
+
+    if(side_triangles_exp > 1)
+    {
+        std::cout << "WARNING: side_triangles_exp other than default is not yet supported. Setting to default = 1 instead." << std::endl;
+    }
+
     vertices.resize(0);
     faces.resize(0);
 
@@ -201,8 +208,6 @@ void genCube(std::vector<Vector3>& vertices,
     faces.push_back({0+4, 1+4, 2+4});
     faces.push_back({2+4, 3+4, 0+4});
 
-
-
     faces.push_back({0, 7, 1});
     faces.push_back({1, 7, 6});
     faces.push_back({1, 6, 5});
@@ -221,5 +226,127 @@ aiScene genCube(unsigned int side_triangles_exp)
     genCube(vertices, faces, side_triangles_exp);
     return createAiScene(vertices, faces);
 }
+
+
+void genPlane(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_triangles_exp)
+{
+    if(side_triangles_exp > 1)
+    {
+        std::cout << "WARNING: side_triangles_exp other than default is not yet supported. Setting to default = 1 instead." << std::endl;
+    }
+
+    vertices.resize(4);
+    vertices[0] = {-0.5, 0.5, 0.0};
+    vertices[1] = { 0.5, 0.5, 0.0};
+    vertices[2] = { 0.5, -0.5, 0.0};
+    vertices[3] = {-0.5, -0.5, 0.0};
+
+    faces.resize(2);
+    faces[0] = {1, 0, 3};
+    faces[1] = {3, 2, 1};
+}
+
+aiScene genPlane(unsigned int side_triangles_exp)
+{
+    std::vector<Vector3> vertices;
+    std::vector<Face> faces;
+    genPlane(vertices, faces, side_triangles_exp);
+    return createAiScene(vertices, faces);
+}
+
+
+void genCylinder(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_faces)
+{
+
+    // parameters
+    float diameter = 1.0;
+    float height = 1.0;
+
+
+
+    float increment = 2.f * M_PI / static_cast<float>(side_faces);
+    float radius = diameter / 2.f;
+
+    // make vertices
+    vertices.reserve(side_faces * 2 + 2);
+    for(size_t i=0; i<side_faces; i++)
+    {
+        float angle = static_cast<float>(i) * increment;
+        Vertex v_up = {cos(angle) * radius, sin(angle) * radius, height / 2.f};
+        Vertex v_bottom = {cos(angle) * radius, sin(angle) * radius, - height / 2.f};
+        vertices.push_back(v_up);
+        vertices.push_back(v_bottom);
+    }
+
+    // add top and bottom vertices
+    vertices.push_back({0.0, 0.0, height / 2.f});
+    vertices.push_back({0.0, 0.0, - height / 2.f});
+
+    unsigned int vid_top = vertices.size() - 2;
+    unsigned int vid_bottom = vertices.size() - 1; 
+
+    // connect vertices
+    faces.resize(0);
+
+    // side
+    unsigned int n_side_triangles = side_faces * 2;
+    for(size_t i=0; i<side_faces; i++)
+    {
+        unsigned int vid_lt = i * 2;
+        unsigned int vid_lb = i * 2 + 1;
+        unsigned int vid_rt = i * 2 + 2;
+        unsigned int vid_rb = i * 2 + 3;
+
+        if(vid_rt >= n_side_triangles)
+        {
+            vid_rt %= n_side_triangles;
+            vid_rb %= n_side_triangles;
+        }
+
+        faces.push_back({vid_rt, vid_lt, vid_lb});
+        faces.push_back({vid_lb, vid_rb, vid_rt});
+    }
+
+    // top
+    for(size_t i=0; i<side_faces; i++)
+    {
+        unsigned int vid_lt = i * 2;
+        unsigned int vid_rt = i * 2 + 2;
+        if(vid_rt >= n_side_triangles)
+        {
+            vid_rt %= n_side_triangles;
+        }
+
+        faces.push_back({vid_rt, vid_top, vid_lt});
+    }
+
+    // bottom
+    for(size_t i=0; i<side_faces; i++)
+    {
+        unsigned int vid_lb = i * 2 + 1;
+        unsigned int vid_rb = i * 2 + 3;
+        if(vid_rb >= n_side_triangles)
+        {
+            vid_rb %= n_side_triangles;
+        }
+
+        faces.push_back({vid_lb, vid_bottom, vid_rb});
+    }
+}
+
+aiScene genCylinder(unsigned int side_faces)
+{
+    std::vector<Vector3> vertices;
+    std::vector<Face> faces;
+    genCylinder(vertices, faces, side_faces);
+    return createAiScene(vertices, faces);
+}
+
 
 } // namespace rmagine

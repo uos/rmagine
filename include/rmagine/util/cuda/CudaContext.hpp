@@ -39,14 +39,37 @@
 #include <cuda.h>
 #include <memory>
 #include <iostream>
+#include <sstream>
+#include <unordered_map>
 
 #include "CudaHelper.hpp"
 
+#include "cuda_definitions.h"
+
 namespace rmagine {
 
-class CudaContext {
+static void printCudaInfo()
+{
+    int driver;
+    cudaDriverGetVersion(&driver);
+    int cuda_version;
+    cudaRuntimeGetVersion(&cuda_version);
+
+    std::stringstream driver_version_str, cuda_version_str;
+    driver_version_str << driver / 1000 << "." << (driver % 1000) / 10 << "." << driver % 10;
+    cuda_version_str << cuda_version / 1000 << "." << (cuda_version % 1000) / 10 << "." << cuda_version % 10;
+
+    std::cout << "[RMagine - CudaContext] CUDA Driver Version / Runtime Version: " << driver_version_str.str() << " / " << cuda_version_str.str() << std::endl;
+}
+
+bool cuda_initialized();
+void cuda_initialize();
+
+class CudaContext : std::enable_shared_from_this<CudaContext>
+{
 public:
     CudaContext(int device_id = 0);
+    CudaContext(CUcontext ctx);
     ~CudaContext();
 
     int getDeviceId() const;
@@ -55,12 +78,16 @@ public:
     void enqueue();
     bool isActive() const;
 
+    CudaStreamPtr createStream(unsigned int flags = 0) const;
+
     // Only 4 and 8 Bytes are supported yet
     void setSharedMemBankSize(unsigned int bytes);
     
     unsigned int getSharedMemBankSize() const;
 
     void synchronize();
+
+    CUcontext ref();
 
     friend std::ostream& operator<<(std::ostream& os, const CudaContext& dt);
 
@@ -69,6 +96,8 @@ private:
 };
 
 using CudaContextPtr = std::shared_ptr<CudaContext>;
+
+CudaContextPtr cuda_current_context();
 
 } // namespace rmagine
 

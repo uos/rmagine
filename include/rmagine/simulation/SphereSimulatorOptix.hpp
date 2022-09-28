@@ -40,22 +40,24 @@
 #ifndef RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 #define RMAGINE_SPHERE_SIMULATOR_OPTIX_HPP
 
-#include <optix.h>
-
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
+#include <rmagine/map/optix/optix_definitions.h>
+
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <rmagine/types/Bundle.hpp>
-#include <rmagine/simulation/optix/OptixSimulationData.hpp>
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
+#include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
 
 #include <unordered_map>
+
+#include <rmagine/util/cuda/cuda_definitions.h>
+
+#include <rmagine/util/optix/optix_modules.h>
 
 
 namespace rmagine {
@@ -119,6 +121,7 @@ class SphereSimulatorOptix {
 public:
     SphereSimulatorOptix();
     SphereSimulatorOptix(OptixMapPtr map);
+    SphereSimulatorOptix(OptixScenePtr scene);
 
     ~SphereSimulatorOptix();
 
@@ -136,14 +139,6 @@ public:
 
     Memory<float, VRAM_CUDA> simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
      * 
@@ -174,19 +169,22 @@ public:
     // member
 
 protected:
-
     OptixMapPtr m_map;
-    cudaStream_t m_stream;
+    CudaStreamPtr m_stream;
 
     uint32_t m_width;
     uint32_t m_height;
     Memory<Transform, VRAM_CUDA> m_Tsb;
     Memory<SphericalModel, VRAM_CUDA> m_model;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
-    std::vector<OptixProgramPtr> m_programs;
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program
+    );
 
-    std::unordered_map<OptixSimulationDataGenericSphere, OptixProgramPtr> m_generic_programs;
+    std::vector<PipelinePtr> m_programs;
 };
 
 using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;

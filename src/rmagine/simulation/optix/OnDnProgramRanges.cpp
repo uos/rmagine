@@ -2,12 +2,14 @@
 
 #include "rmagine/util/GenericAlign.hpp"
 #include "rmagine/util/optix/OptixDebug.hpp"
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/simulation/optix/sim_program_data.h"
+
 
 // use own lib instead
 #include "rmagine/util/optix/OptixUtil.hpp"
 #include "rmagine/util/optix/OptixSbtRecord.hpp"
 #include "rmagine/util/optix/OptixData.hpp"
+
 
 #include <optix_stubs.h>
 
@@ -44,7 +46,13 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     
     OptixPipelineCompileOptions pipeline_compile_options = {};
     pipeline_compile_options.usesMotionBlur        = false;
-    if(map->ias())
+
+
+    OptixScenePtr scene = map->scene();
+    OptixGeometryPtr geom = scene->getRoot();
+    OptixInstancesPtr insts = std::dynamic_pointer_cast<OptixInstances>(geom);
+
+    if(insts)
     {
         pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
     } else {
@@ -67,8 +75,8 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
         throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
-    OPTIX_CHECK( optixModuleCreateFromPTX(
-                map->context,
+    RM_OPTIX_CHECK( optixModuleCreateFromPTX(
+                map->context()->ref(),
                 &module_compile_options,
                 &pipeline_compile_options,
                 ptx.c_str(),
@@ -88,7 +96,7 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     sizeof_log = sizeof( log );
 
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &raygen_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -103,7 +111,7 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
     sizeof_log = sizeof( log );
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &miss_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -118,7 +126,7 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
     sizeof_log = sizeof( log );
     optixProgramGroupCreate(
-                map->context,
+                map->context()->ref(),
                 &hitgroup_prog_group_desc,
                 1,   // num program groups
                 &program_group_options,
@@ -130,7 +138,7 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     // 3. link pipeline
     // traverse depth = 2 for ias + gas
     uint32_t    max_traversable_depth = 1;
-    if(map->ias())
+    if(insts)
     {
         max_traversable_depth = 2;
     }
@@ -150,8 +158,8 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
 #endif
     sizeof_log = sizeof( log );
-    OPTIX_CHECK_LOG( optixPipelineCreate(
-                map->context,
+    RM_OPTIX_CHECK_LOG( optixPipelineCreate(
+                map->context()->ref(),
                 &pipeline_compile_options,
                 &pipeline_link_options,
                 program_groups,
@@ -164,19 +172,19 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     OptixStackSizes stack_sizes = {};
     for( auto& prog_group : program_groups )
     {
-        OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
+        RM_OPTIX_CHECK( optixUtilAccumulateStackSizes( prog_group, &stack_sizes ) );
     }
 
 
     uint32_t direct_callable_stack_size_from_traversal;
     uint32_t direct_callable_stack_size_from_state;
     uint32_t continuation_stack_size;
-    OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
+    RM_OPTIX_CHECK( optixUtilComputeStackSizes( &stack_sizes, max_trace_depth,
                                                 0,  // maxCCDepth
                                                 0,  // maxDCDEpth
                                                 &direct_callable_stack_size_from_traversal,
                                                 &direct_callable_stack_size_from_state, &continuation_stack_size ) );
-    OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
+    RM_OPTIX_CHECK( optixPipelineSetStackSize( pipeline, direct_callable_stack_size_from_traversal,
                                             direct_callable_stack_size_from_state, continuation_stack_size,
                                             max_traversable_depth  // maxTraversableDepth
                                             ) );
@@ -184,10 +192,10 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
     // 4. setup shader binding table
     CUdeviceptr  raygen_record;
     const size_t raygen_record_size = sizeof( RayGenSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &raygen_record ), raygen_record_size ) );
     RayGenSbtRecord rg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( raygen_prog_group, &rg_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( raygen_record ),
                 &rg_sbt,
                 raygen_record_size,
@@ -196,11 +204,11 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
 
     CUdeviceptr miss_record;
     size_t      miss_record_size = sizeof( MissSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &miss_record ), miss_record_size ) );
     MissSbtRecord ms_sbt;
     
-    OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( miss_prog_group, &ms_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( miss_record ),
                 &ms_sbt,
                 miss_record_size,
@@ -209,10 +217,10 @@ OnDnProgramRanges::OnDnProgramRanges(OptixMapPtr map)
 
     CUdeviceptr hitgroup_record;
     size_t      hitgroup_record_size = sizeof( HitGroupSbtRecord );
-    CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
+    RM_CUDA_CHECK( cudaMalloc( reinterpret_cast<void**>( &hitgroup_record ), hitgroup_record_size ) );
     HitGroupSbtRecord hg_sbt;
-    OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
-    CUDA_CHECK( cudaMemcpy(
+    RM_OPTIX_CHECK( optixSbtRecordPackHeader( hitgroup_prog_group, &hg_sbt ) );
+    RM_CUDA_CHECK( cudaMemcpy(
                 reinterpret_cast<void*>( hitgroup_record ),
                 &hg_sbt,
                 hitgroup_record_size,

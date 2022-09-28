@@ -1,6 +1,6 @@
 #include "rmagine/simulation/SphereSimulatorOptix.hpp"
 
-#include "rmagine/simulation/optix/OptixSimulationData.hpp"
+#include "rmagine/simulation/optix/sim_program_data.h"
 #include "rmagine/util/optix/OptixDebug.hpp"
 
 #include <optix.h>
@@ -9,9 +9,10 @@
 #include <cuda_runtime.h>
 
 // Scan Programs
-#include <rmagine/simulation/optix/SphereProgramRanges.hpp>
-#include <rmagine/simulation/optix/SphereProgramNormals.hpp>
-#include <rmagine/simulation/optix/SphereProgramGeneric.hpp>
+// #include <rmagine/simulation/optix/SphereProgramRanges.hpp>
+// #include <rmagine/simulation/optix/SphereProgramGeneric.hpp>
+
+#include <rmagine/util/cuda/CudaStream.hpp>
 
 namespace rmagine
 {
@@ -20,7 +21,9 @@ SphereSimulatorOptix::SphereSimulatorOptix()
 :m_model(1)
 ,m_Tsb(1)
 {
-    CUDA_CHECK( cudaStreamCreate( &m_stream ) );
+    Memory<Transform, RAM_CUDA> I(1);
+    I->setIdentity();
+    m_Tsb = I;
 }
 
 SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
@@ -29,21 +32,26 @@ SphereSimulatorOptix::SphereSimulatorOptix(OptixMapPtr map)
     setMap(map);
 }
 
+SphereSimulatorOptix::SphereSimulatorOptix(OptixScenePtr scene)
+:SphereSimulatorOptix()
+{
+    OptixMapPtr map = std::make_shared<OptixMap>(scene);
+    setMap(map);
+}
+
 SphereSimulatorOptix::~SphereSimulatorOptix()
 {
-    // std::cout << "Destruct SphereSimulatorOptix" << std::endl;
-    cudaStreamDestroy(m_stream);
-    
     m_programs.resize(0);
-    m_generic_programs.clear();
 }
 
 void SphereSimulatorOptix::setMap(const OptixMapPtr map)
 {
     m_map = map;
+    // none generic version
     m_programs.resize(2);
-    m_programs[0].reset(new SphereProgramRanges(map));
-    m_programs[1].reset(new SphereProgramNormals(map));
+    // m_programs[0] = std::make_shared<SphereProgramRanges>(map);
+
+    m_stream = m_map->stream();
 }
 
 void SphereSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
@@ -63,6 +71,10 @@ void SphereSimulatorOptix::setModel(const Memory<SphericalModel, RAM>& model)
     m_width = model->getWidth();
     m_height = model->getHeight();
     m_model = model;
+
+    Memory<SensorModelUnion, RAM> model_union(1);
+    model_union->spherical = m_model.raw();
+    m_model_union = model_union;
 }
 
 void SphereSimulatorOptix::setModel(const SphericalModel& model)
@@ -76,26 +88,43 @@ void SphereSimulatorOptix::simulateRanges(
     const Memory<Transform, VRAM_CUDA>& Tbm, 
     Memory<float, VRAM_CUDA>& ranges) const
 {
+    if(!m_map)
+    {
+        // no map set
+        throw std::runtime_error("[SphereSimulatorOptix] simulateRanges(): No Map available!");
+        return;
+    }
+
+    auto optix_ctx = m_map->context();
+    auto cuda_ctx = optix_ctx->getCudaContext();
+    if(!cuda_ctx->isActive())
+    {
+        std::cout << "[SphereSimulatorOptix::simulateRanges() Need to activate map context" << std::endl;
+        cuda_ctx->use();
+    }
+
     Memory<OptixSimulationDataRangesSphere, RAM> mem(1);
     mem->Tsb = m_Tsb.raw();
     mem->model = m_model.raw();
     mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
     mem->ranges = ranges.raw();
+    mem->handle = m_map->scene()->as()->handle;
+    
 
     Memory<OptixSimulationDataRangesSphere, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
+    copy(mem, d_mem, m_stream->handle());
 
-    OptixProgramPtr program = m_programs[0];
+    PipelinePtr program = m_programs[0];
 
     if(program)
     {
-        OPTIX_CHECK( optixLaunch(
+        // std::cout << "Simulating " << Tbm.size() << " SphericalSensors " << m_width << "x" << m_height << std::endl;
+        RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
-                m_stream,
+                m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
                 sizeof( OptixSimulationDataRangesSphere ),
-                &program->sbt,
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
                 Tbm.size() // depth Zdim
@@ -113,45 +142,23 @@ Memory<float, VRAM_CUDA> SphereSimulatorOptix::simulateRanges(
     return res;
 }
 
-void SphereSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm, 
-    Memory<Vector, VRAM_CUDA>& normals) const
+void SphereSimulatorOptix::launch(
+    const Memory<OptixSimulationDataGeneric, RAM>& mem,
+    PipelinePtr program)
 {
-    Memory<OptixSimulationDataNormalsSphere, RAM> mem(1);
-    mem->Tsb = m_Tsb.raw();
-    mem->model = m_model.raw();
-    mem->Tbm = Tbm.raw();
-    mem->handle = m_map->as.handle;
-    mem->normals = normals.raw();
+    Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
+    copy(mem, d_mem, m_stream->handle());
 
-    Memory<OptixSimulationDataNormalsSphere, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream);
-
-    OptixProgramPtr program = m_programs[1];
-
-    if(program)
-    {
-        OPTIX_CHECK( optixLaunch(
+    RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
-                m_stream,
+                m_stream->handle(),
                 reinterpret_cast<CUdeviceptr>(d_mem.raw()), 
-                sizeof( OptixSimulationDataNormalsSphere ),
-                &program->sbt,
+                sizeof( OptixSimulationDataGeneric ),
+                program->sbt,
                 m_width, // width Xdim
                 m_height, // height Ydim
-                Tbm.size() // depth Zdim
-                ));
-    } else {
-        throw std::runtime_error("Return Bundle Combination not implemented for Optix Simulator");
-    }
-}
-
-Memory<Vector, VRAM_CUDA> SphereSimulatorOptix::simulateNormals(
-    const Memory<Transform, VRAM_CUDA>& Tbm) const
-{
-    Memory<Vector, VRAM_CUDA> res(m_width * m_height * Tbm.size());
-    simulateNormals(Tbm, res);
-    return res;
+                mem->Nposes // depth Zdim
+                ) );
 }
 
 } // rmagine

@@ -3,13 +3,18 @@
 namespace rmagine
 {
 
-OnDnSimulatorEmbree::OnDnSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
+OnDnSimulatorEmbree::OnDnSimulatorEmbree()
+:m_model(1)
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
+}
+
+OnDnSimulatorEmbree::OnDnSimulatorEmbree(EmbreeMapPtr map)
+:OnDnSimulatorEmbree()
+{
+    setMap(map);
 }
 
 OnDnSimulatorEmbree::~OnDnSimulatorEmbree()
@@ -17,17 +22,32 @@ OnDnSimulatorEmbree::~OnDnSimulatorEmbree()
     // std::cout << "O1DnSimulatorEmbree - Destructor " << std::endl;
 }
 
-void OnDnSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void OnDnSimulatorEmbree::setMap(EmbreeMapPtr map)
+{
+    m_map = map;
+}
+
+void OnDnSimulatorEmbree::setTsb(
+    const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void OnDnSimulatorEmbree::setModel(const OnDnModel_<RAM>& model)
+void OnDnSimulatorEmbree::setTsb(
+    const Transform& Tsb)
+{
+    m_Tsb.resize(1);
+    m_Tsb[0] = Tsb;
+}
+
+void OnDnSimulatorEmbree::setModel(
+    const OnDnModel_<RAM>& model)
 {
     m_model[0] = model;
 }
 
-void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
+void OnDnSimulatorEmbree::setModel(
+    const MemoryView<OnDnModel_<RAM>, RAM>& model)
 {
     m_model->width = model->width;
     m_model->height = model->height;
@@ -43,8 +63,8 @@ void OnDnSimulatorEmbree::setModel(const Memory<OnDnModel_<RAM>, RAM>& model)
 }
 
 void OnDnSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -83,7 +103,7 @@ void OnDnSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -97,7 +117,7 @@ void OnDnSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
@@ -105,8 +125,8 @@ Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
 }
 
 void OnDnSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -143,7 +163,7 @@ void OnDnSimulatorEmbree::simulateHits(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -157,7 +177,7 @@ void OnDnSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> OnDnSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);

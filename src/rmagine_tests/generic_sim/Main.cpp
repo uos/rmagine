@@ -167,6 +167,22 @@ bool compareResults(const BundleT1& res1, const BundleT2& res2)
     return res;
 }
 
+Memory<LiDARModel, RAM> velodyne_model()
+{
+    Memory<LiDARModel, RAM> model(1);
+    model->theta.min = -M_PI;
+    model->theta.inc = 0.4 * M_PI / 180.0;
+    model->theta.size = 900;
+
+    model->phi.min = -15.0 * M_PI / 180.0;
+    model->phi.inc = 2.0 * M_PI / 180.0;
+    model->phi.size = 16;
+    
+    model->range.min = 0.5;
+    model->range.max = 130.0;
+    return model;
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Generic Simulation" << std::endl;
@@ -196,19 +212,7 @@ int main(int argc, char** argv)
     std::cout << "- GPU: loaded in " << el << "s" << std::endl;
 
     // Define and set Scanner Model
-    Memory<LiDARModel, RAM> model;
-    model->theta.min = -M_PI;
-    model->theta.max = M_PI; 
-    model->theta.size = 440;
-    model->theta.computeStep();
-    
-    model->phi.min = -M_PI;
-    model->phi.max = M_PI;
-    model->phi.size = 16;
-    model->phi.computeStep();
-
-    model->range.min = 1.0;
-    model->range.max = 100.0;
+    auto model = velodyne_model();
 
     sim_gpu->setModel(model);
     sim_cpu->setModel(model);

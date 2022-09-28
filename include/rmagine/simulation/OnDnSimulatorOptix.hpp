@@ -41,22 +41,22 @@
 #ifndef RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
 #define RMAGINE_ONDN_SIMULATOR_OPTIX_HPP
 
-#include <optix.h>
 
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
+#include <rmagine/util/optix/optix_modules.h>
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <rmagine/types/Bundle.hpp>
-#include <rmagine/simulation/optix/OptixSimulationData.hpp>
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
+#include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
 
 #include <unordered_map>
+
+#include <rmagine/util/cuda/cuda_definitions.h>
 
 
 namespace rmagine {
@@ -117,9 +117,13 @@ namespace rmagine {
  */
 class OnDnSimulatorOptix {
 public:
+
+    OnDnSimulatorOptix();
     OnDnSimulatorOptix(OptixMapPtr map);
 
     ~OnDnSimulatorOptix();
+
+    void setMap(OptixMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);
@@ -175,7 +179,7 @@ public:
 protected:
 
     OptixMapPtr m_map;
-    cudaStream_t m_stream;
+    CudaStreamPtr m_stream;
 
     
     Memory<Transform, VRAM_CUDA> m_Tsb;
@@ -185,10 +189,15 @@ protected:
 
     Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
 
-private:
-    std::vector<OptixProgramPtr> m_programs;
+    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
 
-    std::unordered_map<OptixSimulationDataGenericOnDn, OptixProgramPtr> m_generic_programs;
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+
+private:
+
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program);
 };
 
 using OnDnSimulatorOptixPtr = std::shared_ptr<OnDnSimulatorOptix>;

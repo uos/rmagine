@@ -40,20 +40,21 @@
 #ifndef RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 #define RMAGINE_O1DN_SIMULATOR_OPTIX_HPP
 
-#include <optix.h>
-
 #include <rmagine/map/OptixMap.hpp>
-#include <rmagine/util/optix/OptixProgram.hpp>
+#include <rmagine/util/optix/optix_modules.h>
+
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/types/sensor_models.h>
 
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <rmagine/types/Bundle.hpp>
-#include <rmagine/simulation/optix/OptixSimulationData.hpp>
-#include <rmagine/simulation/optix/OptixProgramMap.hpp>
+#include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
+
+#include <rmagine/util/cuda/cuda_definitions.h>
+
 
 namespace rmagine {
 
@@ -113,9 +114,12 @@ namespace rmagine {
  */
 class O1DnSimulatorOptix {
 public:
+    O1DnSimulatorOptix();
     O1DnSimulatorOptix(OptixMapPtr map);
 
     ~O1DnSimulatorOptix();
+
+    void setMap(OptixMapPtr map);
 
     void setTsb(const Memory<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);
@@ -130,13 +134,6 @@ public:
         Memory<float, VRAM_CUDA>& ranges) const;
 
     Memory<float, VRAM_CUDA> simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
     /**
@@ -169,21 +166,22 @@ public:
     // member
 
 protected:
-
     OptixMapPtr m_map;
-    cudaStream_t m_stream;
+    CudaStreamPtr m_stream;
 
-    
     Memory<Transform, VRAM_CUDA> m_Tsb;
 
     uint32_t m_width;
     uint32_t m_height;
     Memory<O1DnModel_<VRAM_CUDA>, RAM> m_model;
+    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
 
+    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
-    std::vector<OptixProgramPtr> m_programs;
-
-    std::unordered_map<OptixSimulationDataGenericO1Dn, OptixProgramPtr> m_generic_programs;
+    // ADD LAUNCH
+    void launch(
+        const Memory<OptixSimulationDataGeneric, RAM>& mem,
+        PipelinePtr program);
 };
 
 using O1DnSimulatorOptixPtr = std::shared_ptr<O1DnSimulatorOptix>;

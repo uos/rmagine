@@ -39,16 +39,14 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/sensor_models.h>
 
+#include <rmagine/map/optix/optix_definitions.h>
+
+
 namespace rmagine 
 {
 
 struct RayGenDataEmpty {
 
-};
-
-// For fixed spherical model
-struct RayGenDataSpherical {
-    SphericalModel model;
 };
 
 struct MissDataEmpty {
@@ -57,11 +55,6 @@ struct MissDataEmpty {
 
 struct HitGroupDataEmpty {
 
-};
-
-struct HitGroupDataNormals {
-    // instance -> normals
-    Vector** normals;
 };
 
 } // namespace rmagine

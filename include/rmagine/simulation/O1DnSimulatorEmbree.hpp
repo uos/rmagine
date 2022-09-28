@@ -100,39 +100,42 @@ namespace rmagine
  */
 class O1DnSimulatorEmbree {
 public:
-    O1DnSimulatorEmbree(const EmbreeMapPtr map);
+    O1DnSimulatorEmbree();
+    O1DnSimulatorEmbree(EmbreeMapPtr map);
     ~O1DnSimulatorEmbree();
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
+    void setMap(EmbreeMapPtr map);
+
+    void setTsb(const MemoryView<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);
 
-    void setModel(const Memory<O1DnModel_<RAM>, RAM>& model);
+    void setModel(const MemoryView<O1DnModel_<RAM>, RAM>& model);
     void setModel(const O1DnModel_<RAM>& model);
 
     void simulateRanges(
-        const Memory<Transform, RAM>& Tbm, 
-        Memory<float, RAM>& ranges);
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<float, RAM>& ranges);
 
     Memory<float, RAM> simulateRanges(
-        const Memory<Transform, RAM>& Tbm);
+        const MemoryView<Transform, RAM>& Tbm);
 
     void simulateHits(
-        const Memory<Transform, RAM>& Tbm, 
-        Memory<uint8_t, RAM>& hits);
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<uint8_t, RAM>& hits);
 
     Memory<uint8_t, RAM> simulateHits(
-        const Memory<Transform, RAM>& Tbm);
+        const MemoryView<Transform, RAM>& Tbm);
 
     // Generic Version
     template<typename BundleT>
-    void simulate(const Memory<Transform, RAM>& Tbm,
+    void simulate(const MemoryView<Transform, RAM>& Tbm,
         BundleT& ret);
 
     template<typename BundleT>
-    BundleT simulate(const Memory<Transform, RAM>& Tbm);
+    BundleT simulate(const MemoryView<Transform, RAM>& Tbm);
 
 protected:
-    const EmbreeMapPtr m_map;
+    EmbreeMapPtr m_map;
     RTCIntersectContext m_context;
 
     Memory<Transform, RAM> m_Tsb;

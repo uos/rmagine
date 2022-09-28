@@ -3,13 +3,18 @@
 namespace rmagine
 {
 
-PinholeSimulatorEmbree::PinholeSimulatorEmbree(const EmbreeMapPtr map)
-:m_map(map)
-,m_model(1)
+PinholeSimulatorEmbree::PinholeSimulatorEmbree()
+:m_model(1)
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
     rtcInitIntersectContext(&m_context);
+}
+
+PinholeSimulatorEmbree::PinholeSimulatorEmbree(const EmbreeMapPtr map)
+:PinholeSimulatorEmbree()
+{
+    setMap(map);
 }
 
 PinholeSimulatorEmbree::~PinholeSimulatorEmbree()
@@ -17,19 +22,36 @@ PinholeSimulatorEmbree::~PinholeSimulatorEmbree()
     
 }
 
-void PinholeSimulatorEmbree::setTsb(const Memory<Transform, RAM>& Tsb)
+void PinholeSimulatorEmbree::setMap(EmbreeMapPtr map)
+{
+    m_map = map;
+}
+
+void PinholeSimulatorEmbree::setTsb(const MemoryView<Transform, RAM>& Tsb)
 {
     m_Tsb = Tsb;
 }
 
-void PinholeSimulatorEmbree::setModel(const Memory<PinholeModel, RAM>& model)
+void PinholeSimulatorEmbree::setTsb(const Transform& Tsb)
+{
+    m_Tsb.resize(1);
+    m_Tsb[0] = Tsb;
+}
+
+void PinholeSimulatorEmbree::setModel(const MemoryView<PinholeModel, RAM>& model)
 {
     m_model = model;
 }
 
+void PinholeSimulatorEmbree::setModel(const PinholeModel& model)
+{
+    m_model.resize(1);
+    m_model[0] = model;
+}
+
 void PinholeSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm,
-    Memory<float, RAM>& ranges)
+    const MemoryView<Transform, RAM>& Tbm,
+    MemoryView<float, RAM>& ranges)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -63,7 +85,7 @@ void PinholeSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -77,7 +99,7 @@ void PinholeSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> PinholeSimulatorEmbree::simulateRanges(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
@@ -85,8 +107,8 @@ Memory<float, RAM> PinholeSimulatorEmbree::simulateRanges(
 }
 
 void PinholeSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm, 
-    Memory<uint8_t, RAM>& hits)
+    const MemoryView<Transform, RAM>& Tbm, 
+    MemoryView<uint8_t, RAM>& hits)
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -120,7 +142,7 @@ void PinholeSimulatorEmbree::simulateHits(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -134,7 +156,7 @@ void PinholeSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> PinholeSimulatorEmbree::simulateHits(
-    const Memory<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm)
 {
     Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);

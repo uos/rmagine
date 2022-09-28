@@ -2,63 +2,326 @@
 #define RMAGINE_MATH_MATH_H
 
 #include <rmagine/math/types.h>
-// self include ?!
-#include <math.h>
-
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/Memory.hpp>
+#include <vector>
 
 namespace rmagine
 {
 
-static RMAGINE_INLINE_FUNCTION
-void set_identity(Quaternion& q)
+/////////////
+// #multNxN
+////////
+void multNxN(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Quaternion, RAM>& B,
+    MemoryView<Quaternion, RAM>& C);
+
+Memory<Quaternion, RAM> multNxN(
+    const MemoryView<Quaternion, RAM>& A, 
+    const MemoryView<Quaternion, RAM>& B);
+
+void multNxN(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b, 
+    MemoryView<Vector, RAM>& c);
+
+Memory<Vector, RAM> multNxN(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b);
+
+void multNxN(
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& T2,
+    MemoryView<Transform, RAM>& Tr);
+
+Memory<Transform, RAM> multNxN(
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& T2);
+
+void multNxN(
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& c);
+
+Memory<Vector, RAM> multNxN(
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x);
+
+void multNxN(
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& M2,
+    MemoryView<Matrix3x3, RAM>& Mr);
+
+Memory<Matrix3x3, RAM> multNxN(
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& M2);
+
+void multNxN(
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& c);
+
+Memory<Vector, RAM> multNxN(
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x);
+
+/////////////
+// #multNx1
+////////
+void multNx1(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Quaternion, RAM>& b,
+    MemoryView<Quaternion, RAM>& C);
+
+Memory<Quaternion, RAM> multNx1(
+    const MemoryView<Quaternion, RAM>& A, 
+    const MemoryView<Quaternion, RAM>& b);
+
+void multNx1(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b, 
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> multNx1(
+    const MemoryView<Quaternion, RAM>& A,
+    const MemoryView<Vector, RAM>& b);
+
+void multNx1(
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& t2,
+    MemoryView<Transform, RAM>& Tr);
+
+Memory<Transform, RAM> multNx1(
+    const MemoryView<Transform, RAM>& T1,
+    const MemoryView<Transform, RAM>& t2);
+
+void multNx1(
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> multNx1(
+    const MemoryView<Transform, RAM>& T,
+    const MemoryView<Vector, RAM>& x);
+
+void multNx1(
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& m2,
+    MemoryView<Matrix3x3, RAM>& Mr);
+
+Memory<Matrix3x3, RAM> multNx1(
+    const MemoryView<Matrix3x3, RAM>& M1,
+    const MemoryView<Matrix3x3, RAM>& m2);
+
+void multNx1(
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> multNx1(
+    const MemoryView<Matrix3x3, RAM>& M,
+    const MemoryView<Vector, RAM>& x);
+
+/////////////
+// #mult1xN
+////////
+void mult1xN(
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Quaternion, RAM>& B,
+    MemoryView<Quaternion, RAM>& C);
+
+Memory<Quaternion, RAM> mult1xN(
+    const MemoryView<Quaternion, RAM>& a, 
+    const MemoryView<Quaternion, RAM>& B);
+
+void mult1xN(
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Vector, RAM>& B, 
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> mult1xN(
+    const MemoryView<Quaternion, RAM>& a,
+    const MemoryView<Vector, RAM>& B);
+
+void mult1xN(
+    const MemoryView<Transform, RAM>& t1,
+    const MemoryView<Transform, RAM>& T2,
+    MemoryView<Transform, RAM>& Tr);
+
+Memory<Transform, RAM> mult1xN(
+    const MemoryView<Transform, RAM>& t1,
+    const MemoryView<Transform, RAM>& T2);
+
+void mult1xN(
+    const MemoryView<Transform, RAM>& t,
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> mult1xN(
+    const MemoryView<Transform, RAM>& t,
+    const MemoryView<Vector, RAM>& X);
+
+void mult1xN(
+    const MemoryView<Matrix3x3, RAM>& m1,
+    const MemoryView<Matrix3x3, RAM>& M2,
+    MemoryView<Matrix3x3, RAM>& Mr);
+
+Memory<Matrix3x3, RAM> mult1xN(
+    const MemoryView<Matrix3x3, RAM>& m1,
+    const MemoryView<Matrix3x3, RAM>& M2);
+
+void mult1xN(
+    const MemoryView<Matrix3x3, RAM>& m,
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> mult1xN(
+    const MemoryView<Matrix3x3, RAM>& m,
+    const MemoryView<Vector, RAM>& X);
+
+//////
+// #add
+void addNxN(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> addNxN(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B);
+
+inline Memory<Vector, RAM> operator+(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B)
 {
-    q.x = 0.0;
-    q.y = 0.0;
-    q.z = 0.0;
-    q.w = 1.0;
+    return addNxN(A, B);
 }
 
-static RMAGINE_INLINE_FUNCTION
-void set_identity(Matrix3x3& M)
+//////
+// #sub
+void subNxN(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> subNxN(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B);
+
+inline Memory<Vector, RAM> operator-(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& B)
 {
-    M[0][0] = 1.0;
-    M[0][1] = 0.0;
-    M[0][2] = 0.0;
-
-    M[1][0] = 0.0;
-    M[1][1] = 1.0;
-    M[1][2] = 0.0;
-
-    M[2][0] = 0.0;
-    M[2][1] = 0.0;
-    M[2][2] = 1.0;
+    return subNxN(A, B);
 }
 
-static RMAGINE_INLINE_FUNCTION
-void set_identity(Matrix4x4& M)
+void subNx1(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& b,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> subNx1(
+    const MemoryView<Vector, RAM>& A,
+    const MemoryView<Vector, RAM>& b);
+
+void sub(
+    const MemoryView<Vector, RAM>& A,
+    const Vector& b,
+    MemoryView<Vector, RAM>& C);
+
+Memory<Vector, RAM> sub(
+    const MemoryView<Vector, RAM>& A,
+    const Vector& b);
+
+inline Memory<Vector, RAM> operator-(
+    const MemoryView<Vector, RAM>& A,
+    const Vector& b)
 {
-    M[0][0] = 1.0;
-    M[0][1] = 0.0;
-    M[0][2] = 0.0;
-    M[0][3] = 0.0;
-
-    M[1][0] = 0.0;
-    M[1][1] = 1.0;
-    M[1][2] = 0.0;
-    M[1][3] = 0.0;
-
-    M[2][0] = 0.0;
-    M[2][1] = 0.0;
-    M[2][2] = 1.0;
-    M[2][3] = 0.0;
-
-    M[3][0] = 0.0;
-    M[3][1] = 0.0;
-    M[3][2] = 0.0;
-    M[3][3] = 1.0;
+    return sub(A, b);
 }
 
-} // namespace image
+/////
+// #transpose
+void transpose(
+    const MemoryView<Matrix3x3, RAM>& A, 
+    MemoryView<Matrix3x3, RAM>& B);
+
+Memory<Matrix3x3, RAM> transpose(
+    const MemoryView<Matrix3x3, RAM>& A);
+
+void transpose(
+    const MemoryView<Matrix4x4, RAM>& A,
+    MemoryView<Matrix4x4, RAM>& B);
+
+Memory<Matrix4x4, RAM> transpose(
+    const MemoryView<Matrix4x4, RAM>& A);
+
+//////
+// #invert
+void invert(
+    const MemoryView<Matrix3x3, RAM>& A, 
+    MemoryView<Matrix3x3, RAM>& B);
+
+Memory<Matrix3x3, RAM> invert(
+    const MemoryView<Matrix3x3, RAM>& A);
+
+void invert(
+    const MemoryView<Matrix4x4, RAM>& A,
+    MemoryView<Matrix4x4, RAM>& B);
+
+Memory<Matrix4x4, RAM> invert(
+    const MemoryView<Matrix4x4, RAM>& A);
+
+void invert(
+    const MemoryView<Transform, RAM>& A,
+    MemoryView<Transform, RAM>& B);
+
+Memory<Transform, RAM> invert(
+    const MemoryView<Transform, RAM>& A);
+
+////////
+// #pack
+void pack(
+    const MemoryView<Matrix3x3, RAM>& R,
+    const MemoryView<Vector, RAM>& t,
+    MemoryView<Transform, RAM>& T);
+
+void pack(
+    const MemoryView<Quaternion, RAM>& R,
+    const MemoryView<Vector, RAM>& t,
+    MemoryView<Transform, RAM>& T);
+
+///////
+// #sum
+void sum(
+    const MemoryView<Vector, RAM>& X, 
+    MemoryView<Vector, RAM>& res);
+
+Memory<Vector, RAM> sum(
+    const MemoryView<Vector, RAM>& X);
+
+//////
+// #mean
+void mean(
+    const MemoryView<Vector, RAM>& X,
+    MemoryView<Vector, RAM>& res);
+
+Memory<Vector,RAM> mean(
+    const MemoryView<Vector, RAM>& X);
+
+///////
+// #cov   C = (v1 * v2.T) / N
+void cov(
+    const MemoryView<Vector, RAM>& v1,
+    const MemoryView<Vector, RAM>& v2,
+    MemoryView<Matrix3x3, RAM>& C
+);
+
+Memory<Matrix3x3, RAM> cov(
+    const MemoryView<Vector, RAM>& v1,
+    const MemoryView<Vector, RAM>& v2
+);
+
+} // namespace rmagine
 
 #endif // RMAGINE_MATH_MATH_H

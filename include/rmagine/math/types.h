@@ -1,13 +1,24 @@
 #ifndef RMAGINE_MATH_TYPES_H
 #define RMAGINE_MATH_TYPES_H
 
+// this should not include own math.h - is this correct?
 #include <math.h>
+#include <float.h>
 #include <stdint.h>
 
-#include <rmagine/types/SharedFunctions.hpp>
+#include <rmagine/types/shared_functions.h>
+
 
 namespace rmagine
 {
+
+#define __UINT_MAX__ (__INT_MAX__ * 2U + 1U)
+
+#define DEG_TO_RAD      0.017453292519943295
+#define DEG_TO_RAD_F    0.017453292519943295f
+#define RAD_TO_DEG      57.29577951308232
+#define RAD_TO_DEG_F    57.29577951308232f
+
 
 // Forward declarations
 struct Vector2;
@@ -17,6 +28,7 @@ struct Quaternion;
 struct Transform;
 struct Matrix3x3;
 struct Matrix4x4;
+struct AABB;
 
 /**
  * @brief Vector2 class with functions
@@ -40,12 +52,12 @@ struct Vector2 {
     RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector2& b);
 
-    /**
-     * @brief Multiply quaternion
-     * 
-     * @param b 
-     * @return Quaternion 
-     */
+    RMAGINE_INLINE_FUNCTION
+    Vector2 negation() const;
+
+    RMAGINE_INLINE_FUNCTION  
+    void negate();
+
     RMAGINE_INLINE_FUNCTION
     float dot(const Vector2& b) const;
 
@@ -93,9 +105,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator+=(const Vector2& b)
+    Vector2& operator+=(const Vector2& b)
     {
         addInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -105,9 +118,16 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator-=(const Vector2& b)
+    Vector2& operator-=(const Vector2& b)
     {
         subInplace(b);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2 operator-() const
+    {
+        return negation();
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -123,9 +143,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s) 
+    Vector2& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -135,9 +156,10 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator/=(const float& s) 
+    Vector2& operator/=(const float& s)
     {
         divInplace(s);
+        return *this;
     }
 };
 
@@ -150,13 +172,21 @@ struct Vector3 {
     float y;
     float z;
 
+    RMAGINE_FUNCTION
+    static Vector3 NaN()
+    {
+        return {NAN, NAN, NAN};
+    }
+
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector3 add(const Vector3& b) const;
-
     
     RMAGINE_INLINE_FUNCTION
     void addInplace(const Vector3& b);
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile Vector3& b) volatile;
 
     RMAGINE_INLINE_FUNCTION
     Vector3 sub(const Vector3& b) const;
@@ -178,12 +208,18 @@ struct Vector3 {
 
     RMAGINE_INLINE_FUNCTION
     float mult(const Vector3& b) const;
+    
+    RMAGINE_INLINE_FUNCTION
+    Vector3 mult_ewise(const Vector3& b) const;
 
     RMAGINE_INLINE_FUNCTION
     Vector3 mult(const float& s) const;
 
     RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3 multT(const Vector3& b) const;
 
     RMAGINE_INLINE_FUNCTION
     Vector3 div(const float& s) const;
@@ -194,6 +230,11 @@ struct Vector3 {
     RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
 
+    /**
+     * @brief sqrt(x*x + y*y + z*z)
+     * 
+     * @return norm
+     */
     RMAGINE_INLINE_FUNCTION
     float l2norm() const; 
 
@@ -215,8 +256,6 @@ struct Vector3 {
     RMAGINE_INLINE_FUNCTION
     void setZeros();
 
-
-
     // OPERATORS
     RMAGINE_INLINE_FUNCTION
     Vector3 operator+(const Vector3& b) const
@@ -225,9 +264,17 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator+=(const Vector3& b)
+    Vector3& operator+=(const Vector3& b)
     {
         addInplace(b);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    volatile Vector3& operator+=(volatile Vector3& b) volatile
+    {
+        addInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -237,9 +284,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator-=(const Vector3& b)
+    Vector3& operator-=(const Vector3& b)
     {
         subInplace(b);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -261,9 +309,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s) 
+    Vector3& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -273,9 +322,10 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator/=(const float& s) 
+    Vector3 operator/=(const float& s)
     {
         divInplace(s);
+        return *this;
     }
 };
 
@@ -293,6 +343,14 @@ struct EulerAngles
     float yaw; // z-axis
 
     // Functions
+    RMAGINE_FUNCTION
+    static EulerAngles Identity()
+    {
+        EulerAngles ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -337,6 +395,14 @@ struct Quaternion
     float z;
     float w;
 
+    RMAGINE_FUNCTION
+    static Quaternion Identity()
+    {
+        Quaternion ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -371,6 +437,9 @@ struct Quaternion
      */
     RMAGINE_INLINE_FUNCTION
     Vector3 mult(const Vector3& p) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float dot(const Quaternion& q) const;
 
     RMAGINE_INLINE_FUNCTION
     float l2normSquared() const;
@@ -411,9 +480,10 @@ struct Quaternion
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const Quaternion& q2) 
+    Quaternion& operator*=(const Quaternion& q2)
     {
         multInplace(q2);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -445,6 +515,14 @@ struct Transform {
     uint32_t stamp;
 
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Transform Identity()
+    {
+        Transform ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -493,9 +571,10 @@ struct Transform {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const Transform& T2) 
+    Transform& operator*=(const Transform& T2)
     {
         multInplace(T2);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -508,7 +587,13 @@ struct Transform {
 /**
  * @brief Matrix3x3 class
  * 
- * Same order than Eigen default -> Can be reinterpret-casted or mapped.
+ * Same order than Eigen::Matrix3f default -> Can be reinterpret-casted or mapped.
+ * 
+ * Storage order ()-operator 
+ * (0,0), (1,0), (2,0), (0,1), (1,1), (2,1), ... 
+ * 
+ * Storage order []-operator
+ * [0][0], [0][1], [0][2], [1][0], [1][1], [1][2], ...
  * 
  */
 struct Matrix3x3 {
@@ -520,13 +605,26 @@ struct Matrix3x3 {
     float& at(unsigned int i, unsigned int j);
 
     RMAGINE_INLINE_FUNCTION
+    volatile float& at(unsigned int i, unsigned int j) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     float at(unsigned int i, unsigned int j) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float at(unsigned int i, unsigned int j) volatile const;
+
 
     RMAGINE_INLINE_FUNCTION
     float& operator()(unsigned int i, unsigned int j);
 
     RMAGINE_INLINE_FUNCTION
+    volatile float& operator()(unsigned int i, unsigned int j) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     float operator()(unsigned int i, unsigned int j) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float operator()(unsigned int i, unsigned int j) volatile const;
 
     RMAGINE_INLINE_FUNCTION
     float* operator[](const unsigned int i);
@@ -535,6 +633,14 @@ struct Matrix3x3 {
     const float* operator[](const unsigned int i) const;
 
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Matrix3x3 Identity()
+    {
+        Matrix3x3 ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -580,6 +686,12 @@ struct Matrix3x3 {
     Matrix3x3 mult(const float& s) const;
 
     RMAGINE_INLINE_FUNCTION
+    Matrix3x3 div(const float& s) const;
+
+    RMAGINE_INLINE_FUNCTION
+    void divInplace(const float& s);
+
+    RMAGINE_INLINE_FUNCTION
     void multInplace(const float& s);
 
     RMAGINE_INLINE_FUNCTION
@@ -587,6 +699,15 @@ struct Matrix3x3 {
 
     RMAGINE_INLINE_FUNCTION
     Matrix3x3 mult(const Matrix3x3& M) const;
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3 add(const Matrix3x3& M) const;
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(const Matrix3x3& M);
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile Matrix3x3& M) volatile;
 
     // OPERATORS
     RMAGINE_INLINE_FUNCTION
@@ -596,9 +717,10 @@ struct Matrix3x3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s)
+    Matrix3x3& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -611,6 +733,39 @@ struct Matrix3x3 {
     Matrix3x3 operator*(const Matrix3x3& M) const 
     {
         return mult(M);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3 operator/(const float& s) const
+    {
+        return div(s);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3& operator/=(const float& s)
+    {
+        divInplace(s);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3 operator+(const Matrix3x3& M) const
+    {
+        return add(M);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix3x3& operator+=(const Matrix3x3& M)
+    {
+        addInplace(M);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    volatile Matrix3x3& operator+=(volatile Matrix3x3& M) volatile
+    {
+        addInplace(M);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -637,6 +792,12 @@ struct Matrix3x3 {
  * 
  * Same order as Eigen-default -> can be reinterpret-casted or mapped.
  * 
+ * Storage order ()-operator 
+ * (0,0), (1,0), (2,0), (3,0), (0,1), (1,1), (2,1), ... 
+ * 
+ * Storage order []-operator
+ * [0][0], [0][1], [0][2], [0][3], [1][0], [1][1], [1][2], ...
+ * 
  */
 struct Matrix4x4 {
     float data[4][4];
@@ -645,13 +806,28 @@ struct Matrix4x4 {
     float& at(unsigned int i, unsigned int j);
 
     RMAGINE_INLINE_FUNCTION
+    volatile float& at(unsigned int i, unsigned int j) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     float at(unsigned int i, unsigned int j) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float at(unsigned int i, unsigned int j) volatile const;
+
 
     RMAGINE_INLINE_FUNCTION
     float& operator()(unsigned int i, unsigned int j);
 
     RMAGINE_INLINE_FUNCTION
+    volatile float& operator()(unsigned int i, unsigned int j) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     float operator()(unsigned int i, unsigned int j) const;
+
+    RMAGINE_INLINE_FUNCTION
+    float operator()(unsigned int i, unsigned int j) volatile const;
+
+
 
     RMAGINE_INLINE_FUNCTION
     float* operator[](const unsigned int i);
@@ -659,7 +835,16 @@ struct Matrix4x4 {
     RMAGINE_INLINE_FUNCTION
     const float* operator[](const unsigned int i) const;
 
+
     // FUNCTIONS
+    RMAGINE_FUNCTION
+    static Matrix4x4 Identity()
+    {
+        Matrix4x4 ret;
+        ret.setIdentity();
+        return ret;
+    }
+
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
@@ -725,6 +910,21 @@ struct Matrix4x4 {
     RMAGINE_INLINE_FUNCTION
     Matrix4x4 mult(const Matrix4x4& M) const;
 
+    RMAGINE_INLINE_FUNCTION
+    Matrix4x4 div(const float& s) const;
+
+    RMAGINE_INLINE_FUNCTION
+    void divInplace(const float& s);
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix4x4 add(const Matrix4x4& M) const;
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(const Matrix4x4& M);
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile Matrix4x4& M) volatile;
+
     // OPERATORS
     RMAGINE_INLINE_FUNCTION
     void operator=(const Transform& T)
@@ -739,9 +939,23 @@ struct Matrix4x4 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator*=(const float& s)
+    Matrix4x4& operator*=(const float& s)
     {
         multInplace(s);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix4x4 operator/(const float& s) const
+    {
+        return div(s);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix4x4& operator/=(const float& s)
+    {
+        divInplace(s);
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -757,12 +971,52 @@ struct Matrix4x4 {
     }
 
     RMAGINE_INLINE_FUNCTION
+    Matrix4x4 operator+(const Matrix4x4& M) const
+    {
+        return add(M);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Matrix4x4& operator+=(const Matrix4x4& M)
+    {
+        addInplace(M);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    volatile Matrix4x4& operator+=(volatile Matrix4x4& M) volatile
+    {
+        addInplace(M);
+        return *this;
+    }
+
+    RMAGINE_INLINE_FUNCTION
     Matrix4x4 operator~() const 
     {
         return inv();
     }
 };
 
+struct AABB
+{
+    Vector3 min;
+    Vector3 max;
+
+    RMAGINE_INLINE_FUNCTION
+    float volume() const;
+
+    RMAGINE_INLINE_FUNCTION
+    Vector3 size() const;
+
+    RMAGINE_INLINE_FUNCTION
+    void init();
+
+    RMAGINE_INLINE_FUNCTION
+    void expand(const Vector3& p);
+
+    RMAGINE_INLINE_FUNCTION
+    void expand(const AABB& o);
+};
 
 //////////////////////////////
 ///// INLINE IMPLEMENTATIONS
@@ -797,6 +1051,19 @@ void Vector2::subInplace(const Vector2& b)
 {
     x -= b.x;
     y -= b.y;
+}
+
+RMAGINE_INLINE_FUNCTION
+Vector2 Vector2::negation() const
+{
+    return {-x, -y};
+}
+
+RMAGINE_INLINE_FUNCTION
+void Vector2::negate()
+{
+    x = -x;
+    y = -y;
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -893,6 +1160,14 @@ void Vector3::addInplace(const Vector3& b)
 }
 
 RMAGINE_INLINE_FUNCTION
+void Vector3::addInplace(volatile Vector3& b) volatile
+{
+    x += b.x;
+    y += b.y;
+    z += b.z;
+}
+
+RMAGINE_INLINE_FUNCTION
 Vector3 Vector3::sub(const Vector3& b) const
 {
     return {x - b.x, y - b.y, z - b.z};
@@ -940,6 +1215,28 @@ RMAGINE_INLINE_FUNCTION
 float Vector3::mult(const Vector3& b) const
 {
     return dot(b);
+}
+
+RMAGINE_INLINE_FUNCTION
+Vector3 Vector3::mult_ewise(const Vector3& b) const
+{
+    return {x * b.x, y * b.y, z * b.z};
+}
+
+RMAGINE_INLINE_FUNCTION
+Matrix3x3 Vector3::multT(const Vector3& b) const
+{
+    Matrix3x3 C;
+    C(0,0) = x * b.x;
+    C(1,0) = y * b.x;
+    C(2,0) = z * b.x;
+    C(0,1) = x * b.y;
+    C(1,1) = y * b.y;
+    C(2,1) = z * b.y;
+    C(0,2) = x * b.z;
+    C(1,2) = y * b.z;
+    C(2,2) = z * b.z;
+    return C;
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -1161,6 +1458,12 @@ Vector3 Quaternion::mult(const Vector3& p) const
 }
 
 RMAGINE_INLINE_FUNCTION
+float Quaternion::dot(const Quaternion& q) const
+{
+    return x * q.x + y * q.y + z * q.z + w * q.w;
+}
+
+RMAGINE_INLINE_FUNCTION
 float Quaternion::l2normSquared() const 
 {
     return w * w + x * x + y * y + z * z;
@@ -1304,13 +1607,31 @@ float& Matrix3x3::at(unsigned int i, unsigned int j)
 }
 
 RMAGINE_INLINE_FUNCTION
+volatile float& Matrix3x3::at(unsigned int i, unsigned int j) volatile
+{
+    return data[j][i];
+}
+
+RMAGINE_INLINE_FUNCTION
 float Matrix3x3::at(unsigned int i, unsigned int j) const
 {
     return data[j][i];
-}   
+}
+
+RMAGINE_INLINE_FUNCTION
+float Matrix3x3::at(unsigned int i, unsigned int j) volatile const
+{
+    return data[j][i];
+}
 
 RMAGINE_INLINE_FUNCTION
 float& Matrix3x3::operator()(unsigned int i, unsigned int j)
+{
+    return at(i,j);
+}
+
+RMAGINE_INLINE_FUNCTION
+volatile float& Matrix3x3::operator()(unsigned int i, unsigned int j) volatile
 {
     return at(i,j);
 }
@@ -1322,16 +1643,22 @@ float Matrix3x3::operator()(unsigned int i, unsigned int j) const
 }
 
 RMAGINE_INLINE_FUNCTION
+float Matrix3x3::operator()(unsigned int i, unsigned int j) volatile const
+{
+    return at(i,j);
+}
+
+RMAGINE_INLINE_FUNCTION
 float* Matrix3x3::operator[](const unsigned int i) 
 {
     return data[i];
-};
+}
 
 RMAGINE_INLINE_FUNCTION
 const float* Matrix3x3::operator[](const unsigned int i) const 
 {
     return data[i];
-};
+}
 
 RMAGINE_INLINE_FUNCTION
 void Matrix3x3::setIdentity()
@@ -1536,6 +1863,22 @@ Matrix3x3 Matrix3x3::mult(const float& s) const
 }
 
 RMAGINE_INLINE_FUNCTION
+Matrix3x3 Matrix3x3::div(const float& s) const
+{
+    Matrix3x3 ret;
+    ret(0,0) = at(0,0) / s;
+    ret(0,1) = at(0,1) / s;
+    ret(0,2) = at(0,2) / s;
+    ret(1,0) = at(1,0) / s;
+    ret(1,1) = at(1,1) / s;
+    ret(1,2) = at(1,2) / s;
+    ret(2,0) = at(2,0) / s;
+    ret(2,1) = at(2,1) / s;
+    ret(2,2) = at(2,2) / s;
+    return ret;
+}
+
+RMAGINE_INLINE_FUNCTION
 void Matrix3x3::multInplace(const float& s)
 {
     at(0,0) *= s;
@@ -1547,6 +1890,20 @@ void Matrix3x3::multInplace(const float& s)
     at(2,0) *= s;
     at(2,1) *= s;
     at(2,2) *= s;
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix3x3::divInplace(const float& s)
+{
+    at(0,0) /= s;
+    at(0,1) /= s;
+    at(0,2) /= s;
+    at(1,0) /= s;
+    at(1,1) /= s;
+    at(1,2) /= s;
+    at(2,0) /= s;
+    at(2,1) /= s;
+    at(2,2) /= s;
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -1574,6 +1931,51 @@ Matrix3x3 Matrix3x3::mult(const Matrix3x3& M) const
     return res;
 }
 
+
+RMAGINE_INLINE_FUNCTION
+Matrix3x3 Matrix3x3::add(const Matrix3x3& M) const
+{
+    Matrix3x3 ret;
+    ret(0,0) = at(0,0) + M(0,0);
+    ret(0,1) = at(0,1) + M(0,1);
+    ret(0,2) = at(0,2) + M(0,2);
+    ret(1,0) = at(1,0) + M(1,0);
+    ret(1,1) = at(1,1) + M(1,1);
+    ret(1,2) = at(1,2) + M(1,2);
+    ret(2,0) = at(2,0) + M(2,0);
+    ret(2,1) = at(2,1) + M(2,1);
+    ret(2,2) = at(2,2) + M(2,2);
+    return ret;
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix3x3::addInplace(const Matrix3x3& M)
+{
+    at(0,0) += M(0,0);
+    at(0,1) += M(0,1);
+    at(0,2) += M(0,2);
+    at(1,0) += M(1,0);
+    at(1,1) += M(1,1);
+    at(1,2) += M(1,2);
+    at(2,0) += M(2,0);
+    at(2,1) += M(2,1);
+    at(2,2) += M(2,2);
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix3x3::addInplace(volatile Matrix3x3& M) volatile
+{
+    at(0,0) += M(0,0);
+    at(0,1) += M(0,1);
+    at(0,2) += M(0,2);
+    at(1,0) += M(1,0);
+    at(1,1) += M(1,1);
+    at(1,2) += M(1,2);
+    at(2,0) += M(2,0);
+    at(2,1) += M(2,1);
+    at(2,2) += M(2,2);
+}
+
 ////////////////////
 //// Matrix4x4 /////
 ////////////////////
@@ -1585,10 +1987,23 @@ float& Matrix4x4::at(unsigned int i, unsigned int j)
 }
 
 RMAGINE_INLINE_FUNCTION
+volatile float& Matrix4x4::at(unsigned int i, unsigned int j) volatile
+{
+    return data[j][i];
+}
+
+
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::at(unsigned int i, unsigned int j) const
 {
     return data[j][i];
-}   
+}
+
+RMAGINE_INLINE_FUNCTION
+float Matrix4x4::at(unsigned int i, unsigned int j) volatile const
+{
+    return data[j][i];
+}
 
 RMAGINE_INLINE_FUNCTION
 float& Matrix4x4::operator()(unsigned int i, unsigned int j)
@@ -1597,7 +2012,20 @@ float& Matrix4x4::operator()(unsigned int i, unsigned int j)
 }
 
 RMAGINE_INLINE_FUNCTION
+volatile float& Matrix4x4::operator()(unsigned int i, unsigned int j) volatile
+{
+    return at(i,j);
+}
+
+
+RMAGINE_INLINE_FUNCTION
 float Matrix4x4::operator()(unsigned int i, unsigned int j) const
+{
+    return at(i,j);
+}
+
+RMAGINE_INLINE_FUNCTION
+float Matrix4x4::operator()(unsigned int i, unsigned int j) volatile const
 {
     return at(i,j);
 }
@@ -1689,6 +2117,7 @@ void Matrix4x4::set(const Transform& T)
 RMAGINE_INLINE_FUNCTION
 Matrix3x3 Matrix4x4::rotation() const
 {
+    // careful: if scale was applied, result of this function will be wrong
     Matrix3x3 R;
     R(0,0) = at(0,0);
     R(0,1) = at(0,1);
@@ -1962,6 +2391,233 @@ Matrix4x4 Matrix4x4::mult(const Matrix4x4& M) const
     }
 
     return res;
+}
+
+RMAGINE_INLINE_FUNCTION
+Matrix4x4 Matrix4x4::div(const float& s) const
+{
+    Matrix4x4 ret;
+
+    ret(0,0) = at(0,0) / s;
+    ret(0,1) = at(0,1) / s;
+    ret(0,2) = at(0,2) / s;
+    ret(0,3) = at(0,3) / s;
+
+    ret(1,0) = at(1,0) / s;
+    ret(1,1) = at(1,1) / s;
+    ret(1,2) = at(1,2) / s;
+    ret(1,3) = at(1,3) / s;
+
+    ret(2,0) = at(2,0) / s;
+    ret(2,1) = at(2,1) / s;
+    ret(2,2) = at(2,2) / s;
+    ret(2,3) = at(2,3) / s;
+
+    ret(3,0) = at(3,0) / s;
+    ret(3,1) = at(3,1) / s;
+    ret(3,2) = at(3,2) / s;
+    ret(3,3) = at(3,3) / s;
+
+    return ret;
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix4x4::divInplace(const float& s)
+{
+    at(0,0) /= s;
+    at(0,1) /= s;
+    at(0,2) /= s;
+    at(0,3) /= s;
+
+    at(1,0) /= s;
+    at(1,1) /= s;
+    at(1,2) /= s;
+    at(1,3) /= s;
+
+    at(2,0) /= s;
+    at(2,1) /= s;
+    at(2,2) /= s;
+    at(2,3) /= s;
+
+    at(3,0) /= s;
+    at(3,1) /= s;
+    at(3,2) /= s;
+    at(3,3) /= s;
+}
+
+
+RMAGINE_INLINE_FUNCTION
+Matrix4x4 Matrix4x4::add(const Matrix4x4& M) const
+{
+    Matrix4x4 ret;
+    ret(0,0) = at(0,0) + M(0,0);
+    ret(0,1) = at(0,1) + M(0,1);
+    ret(0,2) = at(0,2) + M(0,2);
+    ret(0,3) = at(0,3) + M(0,3);
+    ret(1,0) = at(1,0) + M(1,0);
+    ret(1,1) = at(1,1) + M(1,1);
+    ret(1,2) = at(1,2) + M(1,2);
+    ret(1,3) = at(1,3) + M(1,3);
+    ret(2,0) = at(2,0) + M(2,0);
+    ret(2,1) = at(2,1) + M(2,1);
+    ret(2,2) = at(2,2) + M(2,2);
+    ret(2,3) = at(2,3) + M(2,3);
+    ret(3,0) = at(3,0) + M(3,0);
+    ret(3,1) = at(3,1) + M(3,1);
+    ret(3,2) = at(3,2) + M(3,2);
+    ret(3,3) = at(3,3) + M(3,3);
+    return ret;
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix4x4::addInplace(const Matrix4x4& M)
+{
+    at(0,0) += M(0,0);
+    at(0,1) += M(0,1);
+    at(0,2) += M(0,2);
+    at(0,3) += M(0,3);
+    at(1,0) += M(1,0);
+    at(1,1) += M(1,1);
+    at(1,2) += M(1,2);
+    at(1,3) += M(1,3);
+    at(2,0) += M(2,0);
+    at(2,1) += M(2,1);
+    at(2,2) += M(2,2);
+    at(2,3) += M(2,3);
+    at(3,0) += M(3,0);
+    at(3,1) += M(3,1);
+    at(3,2) += M(3,2);
+    at(3,3) += M(3,3);
+}
+
+RMAGINE_INLINE_FUNCTION
+void Matrix4x4::addInplace(volatile Matrix4x4& M) volatile
+{
+    at(0,0) += M(0,0);
+    at(0,1) += M(0,1);
+    at(0,2) += M(0,2);
+    at(0,3) += M(0,3);
+    at(1,0) += M(1,0);
+    at(1,1) += M(1,1);
+    at(1,2) += M(1,2);
+    at(1,3) += M(1,3);
+    at(2,0) += M(2,0);
+    at(2,1) += M(2,1);
+    at(2,2) += M(2,2);
+    at(2,3) += M(2,3);
+    at(3,0) += M(3,0);
+    at(3,1) += M(3,1);
+    at(3,2) += M(3,2);
+    at(3,3) += M(3,3);
+}
+
+
+
+// Static Functions
+
+static RMAGINE_INLINE_FUNCTION
+void set_identity(Quaternion& q)
+{
+    q.x = 0.0;
+    q.y = 0.0;
+    q.z = 0.0;
+    q.w = 1.0;
+}
+
+static RMAGINE_INLINE_FUNCTION
+void set_identity(Matrix3x3& M)
+{
+    M[0][0] = 1.0;
+    M[0][1] = 0.0;
+    M[0][2] = 0.0;
+
+    M[1][0] = 0.0;
+    M[1][1] = 1.0;
+    M[1][2] = 0.0;
+
+    M[2][0] = 0.0;
+    M[2][1] = 0.0;
+    M[2][2] = 1.0;
+}
+
+static RMAGINE_INLINE_FUNCTION
+void set_identity(Matrix4x4& M)
+{
+    M[0][0] = 1.0;
+    M[0][1] = 0.0;
+    M[0][2] = 0.0;
+    M[0][3] = 0.0;
+
+    M[1][0] = 0.0;
+    M[1][1] = 1.0;
+    M[1][2] = 0.0;
+    M[1][3] = 0.0;
+
+    M[2][0] = 0.0;
+    M[2][1] = 0.0;
+    M[2][2] = 1.0;
+    M[2][3] = 0.0;
+
+    M[3][0] = 0.0;
+    M[3][1] = 0.0;
+    M[3][2] = 0.0;
+    M[3][3] = 1.0;
+}
+
+
+RMAGINE_INLINE_FUNCTION
+Vector3 AABB::size() const
+{
+    return max - min;
+}
+
+RMAGINE_INLINE_FUNCTION
+float AABB::volume() const
+{
+    const Vector3 _size = size();
+    float _volume = _size.l2norm();
+
+    if(_size.x < 0.f || _size.y < 0.f || _size.z < 0.f)
+    {
+        // compute volume and add minus to signalize wrong
+        _volume = -_volume;
+    }
+
+    return _volume;
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::init()
+{
+    min.x = FLT_MAX;
+    min.y = FLT_MAX;
+    min.z = FLT_MAX;
+    max.x = -FLT_MAX;
+    max.y = -FLT_MAX;
+    max.z = -FLT_MAX;
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::expand(const Vector3& p)
+{
+    min.x = fminf(min.x, p.x);
+    min.y = fminf(min.y, p.y);
+    min.z = fminf(min.z, p.z);
+    max.x = fmaxf(max.x, p.x);
+    max.y = fmaxf(max.y, p.y);
+    max.z = fmaxf(max.z, p.z);
+}
+
+RMAGINE_INLINE_FUNCTION
+void AABB::expand(const AABB& o)
+{
+    // assuming AABBs to be initialized
+    min.x = fminf(min.x, o.min.x);
+    min.y = fminf(min.y, o.min.y);
+    min.z = fminf(min.z, o.min.z);
+    max.x = fmaxf(max.x, o.max.x);
+    max.y = fmaxf(max.y, o.max.y);
+    max.z = fmaxf(max.z, o.max.z);
 }
 
 } // namespace rmagine 

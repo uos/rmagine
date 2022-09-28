@@ -6,9 +6,66 @@ namespace rmagine
 {
 
 template<typename BundleT>
-void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
+void SphereSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
+    bool sim_hits = false;
+    bool sim_ranges = false;
+    bool sim_points = false;
+    bool sim_normals = false;
+    bool sim_object_ids = false;
+    bool sim_geom_ids = false;
+    bool sim_face_ids = false;
+
+    if constexpr(BundleT::template has<Hits<RAM> >())
+    {
+        if(ret.Hits<RAM>::hits.size() > 0)
+        {
+            sim_hits = true;
+        }
+    }
+    
+    if constexpr(BundleT::template has<Ranges<RAM> >())
+    {
+        if(ret.Ranges<RAM>::ranges.size() > 0)
+        {
+            sim_ranges = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<Normals<RAM> >())
+    {
+        if(ret.Normals<RAM>::normals.size() > 0)
+        {
+            sim_normals = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<ObjectIds<RAM> >())
+    {
+        if(ret.ObjectIds<RAM>::object_ids.size() > 0)
+        {
+            sim_object_ids = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<GeomIds<RAM> >())
+    {
+        if(ret.GeomIds<RAM>::geom_ids.size() > 0)
+        {
+            sim_geom_ids = true;
+        }
+    }
+
+    if constexpr(BundleT::template has<FaceIds<RAM> >())
+    {
+        if(ret.FaceIds<RAM>::face_ids.size() > 0)
+        {
+            sim_face_ids = true;
+        }
+    }
+
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
@@ -20,9 +77,9 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 
         const unsigned int glob_shift = pid * m_model->size();
 
-        for(unsigned int vid = 0; vid < m_model->phi.size; vid++)
+        for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
-            for(unsigned int hid = 0; hid < m_model->theta.size; hid++)
+            for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
             {
                 const unsigned int loc_id = m_model->getBufferId(vid, hid);
                 const unsigned int glob_id = glob_shift + loc_id;
@@ -44,88 +101,147 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(m_map->scene, &m_context, &rayhit);
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
                     if constexpr(BundleT::template has<Hits<RAM> >())
                     {
-                        ret.Hits<RAM>::hits[glob_id] = 1;
+                        if(sim_hits)
+                        {
+                            ret.Hits<RAM>::hits[glob_id] = 1;
+                        }
                     }
 
                     if constexpr(BundleT::template has<Ranges<RAM> >())
                     {
-                        ret.Ranges<RAM>::ranges[glob_id] = rayhit.ray.tfar;
+                        if(sim_ranges)
+                        {
+                            ret.Ranges<RAM>::ranges[glob_id] = rayhit.ray.tfar;
+                        }
                     }
 
                     if constexpr(BundleT::template has<Points<RAM> >())
                     {
-                        Vector pint = ray_dir_s * rayhit.ray.tfar;
-                        ret.Points<RAM>::points[glob_id] = pint;
+                        if(sim_points)
+                        {
+                            Vector pint = ray_dir_s * rayhit.ray.tfar;
+                            ret.Points<RAM>::points[glob_id] = pint;
+                        }
                     }
 
                     if constexpr(BundleT::template has<Normals<RAM> >())
                     {
-                        Vector nint{
-                                rayhit.hit.Ng_x,
-                                rayhit.hit.Ng_y,
-                                rayhit.hit.Ng_z
-                            };
-                        nint.normalize();
-                        nint = Tms_.R * nint;
-
-                        // flip?
-                        if(ray_dir_s.dot(nint) > 0.0)
+                        if(sim_normals)
                         {
-                            nint *= -1.0;
-                        }
+                            Vector nint{
+                                    rayhit.hit.Ng_x,
+                                    rayhit.hit.Ng_y,
+                                    rayhit.hit.Ng_z
+                                };
+                            
+                            nint.normalize();
+                            nint = Tms_.R * nint;
 
-                        // nint in local frame
-                        ret.Normals<RAM>::normals[glob_id] = nint.normalized();
+                            // flip?
+                            if(ray_dir_s.dot(nint) > 0.0)
+                            {
+                                nint *= -1.0;
+                            }
+
+                            // nint in local frame
+                            ret.Normals<RAM>::normals[glob_id] = nint.normalized();
+                        }
                     }
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
                     {
-                        ret.FaceIds<RAM>::face_ids[glob_id] = rayhit.hit.primID;
+                        if(sim_face_ids)
+                        {
+                            ret.FaceIds<RAM>::face_ids[glob_id] = rayhit.hit.primID;
+                        }
+                    }
+
+                    if constexpr(BundleT::template has<GeomIds<RAM> >())
+                    {
+                        if(sim_geom_ids)
+                        {
+                            ret.GeomIds<RAM>::geom_ids[glob_id] = rayhit.hit.geomID;
+                        }
                     }
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
+                        if(sim_object_ids)
+                        {
+                            if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
+                            {
+                                ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.instID[0];
+                            } else {
+                                ret.ObjectIds<RAM>::object_ids[glob_id] = rayhit.hit.geomID;
+                            }
+                        }
                     }
+                    
                 } else {
                     if constexpr(BundleT::template has<Hits<RAM> >())
                     {
-                        ret.Hits<RAM>::hits[glob_id] = 0;
+                        if(sim_hits)
+                        {
+                            ret.Hits<RAM>::hits[glob_id] = 0;
+                        }
                     }
 
                     if constexpr(BundleT::template has<Ranges<RAM> >())
                     {
-                        ret.Ranges<RAM>::ranges[glob_id] = m_model->range.max + 1.0;
+                        if(sim_ranges)
+                        {
+                            ret.Ranges<RAM>::ranges[glob_id] = m_model->range.max + 1.0;
+                        }
                     }
 
                     if constexpr(BundleT::template has<Points<RAM> >())
                     {
-                        ret.Points<RAM>::points[glob_id].x = std::numeric_limits<float>::quiet_NaN();
-                        ret.Points<RAM>::points[glob_id].y = std::numeric_limits<float>::quiet_NaN();
-                        ret.Points<RAM>::points[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                        if(sim_points)
+                        {
+                            ret.Points<RAM>::points[glob_id].x = std::numeric_limits<float>::quiet_NaN();
+                            ret.Points<RAM>::points[glob_id].y = std::numeric_limits<float>::quiet_NaN();
+                            ret.Points<RAM>::points[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                        }
                     }
 
                     if constexpr(BundleT::template has<Normals<RAM> >())
                     {
-                        ret.Normals<RAM>::normals[glob_id].x = std::numeric_limits<float>::quiet_NaN();
-                        ret.Normals<RAM>::normals[glob_id].y = std::numeric_limits<float>::quiet_NaN();
-                        ret.Normals<RAM>::normals[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                        if(sim_normals)
+                        {
+                            ret.Normals<RAM>::normals[glob_id].x = std::numeric_limits<float>::quiet_NaN();
+                            ret.Normals<RAM>::normals[glob_id].y = std::numeric_limits<float>::quiet_NaN();
+                            ret.Normals<RAM>::normals[glob_id].z = std::numeric_limits<float>::quiet_NaN();
+                        }
                     }
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
                     {
-                        ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        if(sim_face_ids)
+                        {
+                            ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        }
+                    }
+
+                    if constexpr(BundleT::template has<GeomIds<RAM> >())
+                    {
+                        if(sim_geom_ids)
+                        {
+                            ret.GeomIds<RAM>::geom_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        }
                     }
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        if(sim_object_ids)
+                        {
+                            ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::max();
+                        }
                     }
                 }
             }
@@ -134,7 +250,8 @@ void SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm,
 }
 
 template<typename BundleT>
-BundleT SphereSimulatorEmbree::simulate(const Memory<Transform, RAM>& Tbm)
+BundleT SphereSimulatorEmbree::simulate(
+    const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
     resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

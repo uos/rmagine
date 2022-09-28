@@ -97,6 +97,25 @@ struct FaceIds {
     Memory<unsigned int, MemT> face_ids;
 };
 
+
+/**
+ * @brief GeomIds computed by the simulators
+ * 
+ * Embree:
+ * - each instance can have multiply geometries 
+ * -> id of those
+ * 
+ * OptiX:
+ * - each instance can have only one geometry
+ * -> id is zero anytime
+ * 
+ * @tparam MemT 
+ */
+template<typename MemT>
+struct GeomIds {
+    Memory<unsigned int, MemT> geom_ids;
+};
+
 /**
  * @brief ObjectIds computed by the simulators
  * 
@@ -106,6 +125,18 @@ template<typename MemT>
 struct ObjectIds {
     Memory<unsigned int, MemT> object_ids;
 };
+
+
+template<typename MemT>
+using IntAttrAny = Bundle<
+    Hits<MemT>,
+    Ranges<MemT>,
+    Points<MemT>,
+    Normals<MemT>,
+    FaceIds<MemT>,
+    GeomIds<MemT>,
+    ObjectIds<MemT>
+>;
 
 /**
  * @brief Helper function to resize a whole bundle of attributes by one size
@@ -146,6 +177,11 @@ void resizeMemoryBundle(BundleT& res,
     if constexpr(BundleT::template has<FaceIds<MemT> >())
     {
         res.FaceIds<MemT>::face_ids.resize(W*H*N);
+    }
+
+    if constexpr(BundleT::template has<GeomIds<MemT> >())
+    {
+        res.GeomIds<MemT>::geom_ids.resize(W*H*N);
     }
 
     if constexpr(BundleT::template has<ObjectIds<MemT> >())

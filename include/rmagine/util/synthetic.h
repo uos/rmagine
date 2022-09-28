@@ -12,7 +12,14 @@ aiScene createAiScene(
     const std::vector<Vector3>& vertices,
     const std::vector<Face>& faces);
 
-
+/**
+ * @brief Generates Sphere with diameter of 1
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param num_long 
+ * @param num_lat 
+ */
 void genSphere(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
@@ -27,7 +34,7 @@ aiScene genSphere(unsigned int num_long = 50, unsigned int num_lat = 50);
  * 
  * Nt: Number of triangles per side
  * a: side_triangles_exp
- * Nt = 2 * 4^a 
+ * Nt = 2 * 4^(a-1) 
  * 
  * if a = 1 -> Nt = 2
  * if a = 2 -> Nt = 8
@@ -48,6 +55,44 @@ void genCube(
     unsigned int side_triangles_exp=1);
 
 aiScene genCube(unsigned int side_triangles_exp=1);
+
+/**
+ * @brief Generates 1mx1m plane centered in (0,0,0) with normal (0,0,1)
+ * 
+ * Nt: Number of triangles per plane
+ * a: side_triangles_exp
+ * Nt = 2 * 4^(a-1)
+ * 
+ * a = 1 -> Nt = 2
+ * a = 2 -> Nt = 8
+ * a = 3 -> Nt = 32
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param side_triangles_exp 
+ */
+void genPlane(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_triangles_exp=1
+);
+
+aiScene genPlane(unsigned int side_triangles_exp=1);
+
+/**
+ * @brief Generates Cylinder of 1m height and 1m diameter (0.5m radius)
+ * 
+ * @param vertices 
+ * @param faces 
+ * @param side_faces number of rectangles used to express the curvature
+ */
+void genCylinder(
+    std::vector<Vector3>& vertices,
+    std::vector<Face>& faces,
+    unsigned int side_faces = 100);
+
+aiScene genCylinder(unsigned int side_faces = 100);
+
 
 } // namespace rmagine
 
