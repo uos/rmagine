@@ -115,6 +115,7 @@ include_directories(
 set(RMAGINE_LIBRARIES rmagine)
 
 message(STATUS "Building Core. Library: rmagine")
+
 add_library(rmagine SHARED
     # Maps
     src/rmagine/map/AssimpIO.cpp
@@ -238,7 +239,6 @@ if(OptiX_FOUND)
     add_definitions( -DWITH_OPTIX )
     add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
     add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
-
 
     # message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
 
