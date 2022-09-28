@@ -34,3 +34,15 @@ See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
 
 ## Code
 Is available on Github: [rmagine](https://github.com/uos/rmagine)
+
+## Rmagine-accelerated Applications
+- [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
+- [RMCL](https://github.com/uos/rmcl)
+
+## Publications
+
+Please reference the following papers when using the Rmagine library in your scientific work.
+
+**Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Raytracing for Embedded Hardware on Mobile Robots**
+- State: submitted at ICRA 2023
+- Preprint: https://arxiv.org/abs/2209.13397
