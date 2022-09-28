@@ -1,6 +1,6 @@
 [[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)]
 
-# rmagine - Fast Depth-Sensor simulation in 3D environments
+# Rmagine - 3D Range Sensor Simulation in Polygonal Maps via Raytracing for Embedded Hardware on Mobile Robots
 
 Library for fast sensor data simulation in large 3D environments.
 
