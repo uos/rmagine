@@ -16,9 +16,9 @@ OptixAccelerationStructure::~OptixAccelerationStructure()
 {
     if(buffer)
     {
-        std::cout << "[OptixAccelerationStructure::~OptixAccelerationStructure()] free " << buffer_size / 1000000 << " MB" << std::endl;
+        // std::cout << "[OptixAccelerationStructure::~OptixAccelerationStructure()] free " << buffer_size / 1000000 << " MB" << std::endl;
         cudaFree( reinterpret_cast<void*>( buffer ) );
-        std::cout << "[OptixAccelerationStructure::~OptixAccelerationStructure()] done." << std::endl;
+        // std::cout << "[OptixAccelerationStructure::~OptixAccelerationStructure()] done." << std::endl;
     }
     
 }

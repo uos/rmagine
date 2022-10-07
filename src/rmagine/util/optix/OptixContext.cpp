@@ -61,13 +61,13 @@ OptixContext::OptixContext(CudaContextPtr cuda_context)
 :m_cuda_context(cuda_context)
 {
     init(cuda_context);
-    std::cout << "[OptixContext::OptixContext()] constructed." << std::endl;
+    // std::cout << "[OptixContext::OptixContext()] constructed." << std::endl;
 }
 
 OptixContext::~OptixContext()
 {
     optixDeviceContextDestroy( m_optix_context );
-    std::cout << "[OptixContext::~OptixContext()] destroyed." << std::endl;
+    // std::cout << "[OptixContext::~OptixContext()] destroyed." << std::endl;
 }
 
 CudaContextPtr OptixContext::getCudaContext()

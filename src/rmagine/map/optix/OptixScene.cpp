@@ -32,7 +32,7 @@ OptixScene::OptixScene(OptixContextPtr context)
 
 OptixScene::~OptixScene()
 {
-    std::cout << "OptixScene::~OptixScene" << std::endl;
+    // std::cout << "OptixScene::~OptixScene" << std::endl;
     if(sbt_data.geometries)
     {
         cudaFree(sbt_data.geometries);

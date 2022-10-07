@@ -246,7 +246,7 @@ std::unordered_map<unsigned int, unsigned int> EmbreeScene::integrate(EmbreeScen
 
 void EmbreeScene::freeze()
 {
-    std::cout << "[EmbreeScene::freeze()] start optimizing scene.." << std::endl;
+    // std::cout << "[EmbreeScene::freeze()] start optimizing scene.." << std::endl;
     std::vector<EmbreeInstancePtr> instances_to_optimize;
 
     for(auto it = m_geometries.begin(); it != m_geometries.end(); ++it)
@@ -286,11 +286,11 @@ void EmbreeScene::freeze()
             mesh->commit();
 
             unsigned int geom_id = add(mesh);
-            std::cout << "- instance " << instance_id << " optimized to mesh " << geom_id << std::endl;
+            // std::cout << "- instance " << instance_id << " optimized to mesh " << geom_id << std::endl;
         }
     }
 
-    std::cout << "[EmbreeScene::freeze()] finished optimizing scene.." << std::endl;
+    // std::cout << "[EmbreeScene::freeze()] finished optimizing scene.." << std::endl;
 }
 
 EmbreeScenePtr make_embree_scene(
