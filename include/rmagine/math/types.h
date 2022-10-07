@@ -143,7 +143,7 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Vector2& operator*=(const float& s) 
+    Vector2& operator*=(const float& s)
     {
         multInplace(s);
         return *this;
@@ -156,7 +156,7 @@ struct Vector2 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Vector2& operator/=(const float& s) 
+    Vector2& operator/=(const float& s)
     {
         divInplace(s);
         return *this;
@@ -309,7 +309,7 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Vector3& operator*=(const float& s) 
+    Vector3& operator*=(const float& s)
     {
         multInplace(s);
         return *this;
@@ -322,7 +322,7 @@ struct Vector3 {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Vector3 operator/=(const float& s) 
+    Vector3 operator/=(const float& s)
     {
         divInplace(s);
         return *this;
@@ -395,8 +395,6 @@ struct Quaternion
     float z;
     float w;
 
-
-
     RMAGINE_FUNCTION
     static Quaternion Identity()
     {
@@ -404,7 +402,6 @@ struct Quaternion
         ret.setIdentity();
         return ret;
     }
-
 
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
@@ -483,7 +480,7 @@ struct Quaternion
     }
 
     RMAGINE_INLINE_FUNCTION
-    Quaternion& operator*=(const Quaternion& q2) 
+    Quaternion& operator*=(const Quaternion& q2)
     {
         multInplace(q2);
         return *this;
@@ -574,7 +571,7 @@ struct Transform {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Transform& operator*=(const Transform& T2) 
+    Transform& operator*=(const Transform& T2)
     {
         multInplace(T2);
         return *this;
@@ -961,7 +958,6 @@ struct Matrix4x4 {
         return *this;
     }
 
-
     RMAGINE_INLINE_FUNCTION
     Vector operator*(const Vector& v) const 
     {
@@ -973,7 +969,6 @@ struct Matrix4x4 {
     {
         return mult(M);
     }
-
 
     RMAGINE_INLINE_FUNCTION
     Matrix4x4 operator+(const Matrix4x4& M) const
@@ -2010,7 +2005,6 @@ float Matrix4x4::at(unsigned int i, unsigned int j) volatile const
     return data[j][i];
 }
 
-
 RMAGINE_INLINE_FUNCTION
 float& Matrix4x4::operator()(unsigned int i, unsigned int j)
 {
@@ -2371,7 +2365,6 @@ void Matrix4x4::multInplace(const float& s)
     at(3,2) *= s;
     at(3,3) *= s;
 }
-
 
 RMAGINE_INLINE_FUNCTION
 Vector Matrix4x4::mult(const Vector& v) const
