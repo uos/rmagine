@@ -6,8 +6,8 @@
 
 namespace rmagine {
 
-SVDCuda::SVDCuda()
-:SVDCuda(std::make_shared<CudaStream>(cudaStreamNonBlocking))
+SVDCuda::SVDCuda(CudaContextPtr ctx)
+:SVDCuda(std::make_shared<CudaStream>(cudaStreamNonBlocking, ctx))
 {
     
 }
@@ -16,18 +16,36 @@ SVDCuda::SVDCuda(CudaStreamPtr stream)
 {
     m_stream = stream;
 
+    if(!stream->context()->isActive())
+    {
+        std::cout << "SVDCuda - stream has inactive context. reactivating..." << std::endl;
+        stream->context()->use();
+    }
+
     cusolverStatus_t status = CUSOLVER_STATUS_SUCCESS;
     cudaError_t cuda_status = cudaSuccess;
 
     /* step 1: create cusolver handle, bind a stream  */
     status = cusolverDnCreate(&cusolverH);
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnCreate): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
     status = cusolverDnSetStream(cusolverH, m_stream->handle());
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnSetStream): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
     /* step 2: configuration of gesvdj */
     status = cusolverDnCreateGesvdjInfo(&gesvdj_params);
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnCreateGesvdjInfo): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
     const double tol = 1.e-6;
@@ -38,18 +56,32 @@ SVDCuda::SVDCuda(CudaStreamPtr stream)
     status = cusolverDnXgesvdjSetTolerance(
         gesvdj_params,
         tol);
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnXgesvdjSetTolerance): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
     /* default value of max. sweeps is 100 */
     status = cusolverDnXgesvdjSetMaxSweeps(
         gesvdj_params,
         max_sweeps);
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnXgesvdjSetMaxSweeps): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
+    
 
     /* disable sorting */
     status = cusolverDnXgesvdjSetSortEig(
         gesvdj_params,
         sort_svd);
+
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnXgesvdjSetSortEig): " << status << std::endl;
+    }
     assert(CUSOLVER_STATUS_SUCCESS == status);
 }
 
@@ -121,7 +153,11 @@ void SVDCuda::calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
     // - parameter for expected maximum number of matrices:
     //    - prealloc memory for d_work, d_info
 
-    cuda_status = cudaMalloc ((void**)&d_info, sizeof(int   )*batchSize);
+    cuda_status = cudaMalloc((void**)&d_info, sizeof(int   )*batchSize);
+    if(cuda_status != cudaSuccess)
+    {
+        std::cout << "SVDCuda - CUDA error (malloc d_info): " << status << std::endl;
+    }
     assert(cudaSuccess == cuda_status);
 
     /////////////////////
@@ -145,10 +181,30 @@ void SVDCuda::calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
         gesvdj_params,
         batchSize
     );
+
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnSgesvdjBatched_bufferSize): " << status << std::endl;
+    }
+
     assert(CUSOLVER_STATUS_SUCCESS == status);
 
+
+
+
+
     cuda_status = cudaMalloc((void**)&d_work, sizeof(float)*lwork);
+    if(cuda_status != cudaSuccess)
+    {
+        std::cout << "SVDCuda - CUDA error (malloc d_work): " << status << std::endl;
+    }
     assert(cudaSuccess == cuda_status);
+
+    if(!m_stream->context()->isActive())
+    {
+        std::cout << "SVDCuda - context inactive. reactivating..." << std::endl;
+        m_stream->context()->use();
+    }
 
     // cusolverDnDgesvdjBatched wants A to be none const? 
     // until they change(/fix?) it we need const_cast  
@@ -173,6 +229,11 @@ void SVDCuda::calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
         batchSize
     );
 
+    if(status != CUSOLVER_STATUS_SUCCESS)
+    {
+        std::cout << "SVDCuda - CUSOLVER error (cusolverDnSgesvdjBatched): " << status << std::endl;
+    }
+
     // cuda_status = cudaDeviceSynchronize();
 
     // std::cout << "batchSize: " << batchSize << std::endl;
@@ -186,6 +247,7 @@ void SVDCuda::calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
     // free(h_S);
 
     assert(CUSOLVER_STATUS_SUCCESS == status);
+    
     cudaFree(d_work);
     cudaFree(d_info);
 }
