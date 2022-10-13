@@ -394,6 +394,15 @@ __device__ void warpReduce(volatile T* sdata, unsigned int tid)
 }
 
 
+
+__global__ void normalizeInplace_kernel(
+    Quaternion* q,
+    unsigned int N)
+{
+    
+}
+
+
 template<unsigned int blockSize, typename T>
 __global__ void sum_kernel(
     const T* data,
@@ -1300,6 +1309,68 @@ Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
     Memory<Matrix3x3, VRAM_CUDA> Cs(m1.size());
     multNxNTransposed(m1, m2, mask, Cs);
     return Cs;
+}
+
+///////
+// #normalize
+void normalizeInplace(MemoryView<Quaternion, VRAM_CUDA>& q)
+{
+    constexpr unsigned int blockSize = 1024;
+    const unsigned int gridSize = (q.size() + blockSize - 1) / blockSize;
+    normalizeInplace_kernel<<<gridSize, blockSize>>>(q.raw(), q.size());
+}
+
+///////
+// #setter
+
+template<typename T>
+__global__ void setIdentity_kernel(
+    T* data,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        data[id] = T::Identity();
+    }
+}
+
+void setIdentity(MemoryView<Quaternion, VRAM_CUDA>& qs)
+{
+    constexpr unsigned int blockSize = 1024;
+    const unsigned int gridSize = (qs.size() + blockSize - 1) / blockSize;
+    setIdentity_kernel<<<gridSize, blockSize>>>(qs.raw(), qs.size());
+}
+
+void setIdentity(MemoryView<Transform, VRAM_CUDA>& Ts)
+{
+    constexpr unsigned int blockSize = 1024;
+    const unsigned int gridSize = (Ts.size() + blockSize - 1) / blockSize;
+    setIdentity_kernel<<<gridSize, blockSize>>>(Ts.raw(), Ts.size());
+}
+
+void setIdentity(MemoryView<Matrix3x3, VRAM_CUDA>& Ms)
+{
+    constexpr unsigned int blockSize = 1024;
+    const unsigned int gridSize = (Ms.size() + blockSize - 1) / blockSize;
+    setIdentity_kernel<<<gridSize, blockSize>>>(Ms.raw(), Ms.size());
+}
+
+void setIdentity(MemoryView<Matrix4x4, VRAM_CUDA>& Ms)
+{
+    constexpr unsigned int blockSize = 1024;
+    const unsigned int gridSize = (Ms.size() + blockSize - 1) / blockSize;
+    setIdentity_kernel<<<gridSize, blockSize>>>(Ms.raw(), Ms.size());
+}
+
+void setZeros(MemoryView<Matrix3x3, VRAM_CUDA>& Ms)
+{
+    cudaMemset(Ms.raw(), 0, Ms.size() * sizeof(Matrix3x3) );
+}
+
+void setZeros(MemoryView<Matrix4x4, VRAM_CUDA>& Ms)
+{
+    cudaMemset(Ms.raw(), 0, Ms.size() * sizeof(Matrix4x4) );
 }
 
 //////////

@@ -450,6 +450,26 @@ Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
     const MemoryView<Vector, VRAM_CUDA>& m2,
     const MemoryView<bool, VRAM_CUDA>& mask);
 
+
+///////
+// #normalize
+void normalizeInplace(MemoryView<Quaternion, VRAM_CUDA>& q);
+
+///////
+// #setter
+void setIdentity(MemoryView<Quaternion, VRAM_CUDA>& qs);
+
+void setIdentity(MemoryView<Transform, VRAM_CUDA>& Ts);
+
+void setIdentity(MemoryView<Matrix3x3, VRAM_CUDA>& Ms);
+
+void setIdentity(MemoryView<Matrix4x4, VRAM_CUDA>& Ms);
+
+void setZeros(MemoryView<Matrix3x3, VRAM_CUDA>& Ms);
+
+void setZeros(MemoryView<Matrix4x4, VRAM_CUDA>& Ms);
+
+
 //////////
 // #sum
 void sum(

@@ -13,7 +13,7 @@ namespace rmagine {
 class SVDCuda
 {
 public:
-    SVDCuda();
+    SVDCuda(CudaContextPtr ctx = cuda_current_context());
     SVDCuda(CudaStreamPtr stream);
 
     ~SVDCuda();
