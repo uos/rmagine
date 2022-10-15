@@ -18,6 +18,7 @@
 
 
 using namespace rmagine;
+namespace rm = rmagine;
 
 void print(Eigen::Matrix4f M)
 {
@@ -29,6 +30,44 @@ void print(Eigen::Matrix4f M)
         }
         std::cout << std::endl;
     }
+}
+
+void rotationInitTest()
+{
+    std::cout << std::endl;
+    std::cout << "--------------------------" << std::endl;
+    std::cout << "---- rotationInitTest ----" << std::endl;
+    std::cout << "--------------------------" << std::endl;
+    std::cout << std::endl;
+
+    // EulerAngles
+    rm::EulerAngles e1;
+    e1.roll = 0.0;
+    e1.pitch = 0.0;
+    e1.yaw = M_PI / 2.0;
+    rm::EulerAngles e2 = {0.0, 0.0, M_PI / 2.0};
+    rm::EulerAngles eI = rm::EulerAngles::Identity();
+    
+    // Quaternion
+    rm::Quaternion q1;
+    q1.x = 0.0;
+    q1.y = 0.0;
+    q1.z = 0.7071068;
+    q1.w = 0.7071068;
+    rm::Quaternion q2 = {0.0, 0.0, 0.7071068, 0.7071068};
+    rm::Quaternion qI = rm::Quaternion::Identity();
+
+    // Matrix3x3
+    rm::Matrix3x3 M1;
+    M1(0,0) =  0.0; M1(0,1) = -1.0; M1(0,2) =  0.0;
+    M1(1,0) =  1.0; M1(1,1) =  0.0; M1(1,2) =  0.0;
+    M1(2,0) =  0.0; M1(2,1) =  0.0; M1(2,2) =  1.0;
+    rm::Matrix3x3 M2 = {{
+        {0.0, 1.0, 0.0},
+        {-1.0, 0.0, 0.0},
+        {0.0, 0.0, 1.0}
+    }};
+    rm::Matrix3x3 MI = rm::Matrix3x3::Identity();
 }
 
 bool rotationConversionTest()
@@ -132,12 +171,17 @@ bool checkMatrix3x3()
         RM_THROW(Exception, "rm Mat3x3 Eigen view error.");
     }
 
+    Eigen::Map<Eigen::Matrix3f> Meig_shallow2(&M(0,0));
+    M(0,1) = 0.0;
+    if( fabs(Meig_shallow2(0,1)) > 0.00001 )
+    {
+        RM_THROW(Exception, "rm Mat3x3 Eigen map error.");
+    }
+
     // std::cout << Meig_shallow << std::endl;
 
     // deep copy
     Eigen::Matrix3f Meig(&M(0,0));
-
-
 
     // Eigen::Matrix3f Meig_inv = Meig.inverse();
     Matrix3x3 M_inv = ~M;
@@ -278,6 +322,7 @@ bool checkMatrix4x4()
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Basic Math" << std::endl;
+    rotationInitTest();
     rotationConversionTest();
 
     checkMatrix3x3();
