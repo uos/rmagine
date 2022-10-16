@@ -718,9 +718,10 @@ void scene_13()
     printRaycast(scene, {-5.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
 
     // change cube vertices: shift 1 along x axis
-    for(size_t i=0; i<cube->vertices.size(); i++)
+    auto cube_vertices = cube->vertices();
+    for(size_t i=0; i<cube_vertices.size(); i++)
     {
-        cube->vertices[i].x += 1.0;
+        cube_vertices[i].x += 1.0;
     }
     // apply changes
     cube->apply();
