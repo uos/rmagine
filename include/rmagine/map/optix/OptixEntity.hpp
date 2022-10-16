@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief OptixEntitiy. Holds all data one entity in OptiX requires to endure
+ * @brief OptixEntity. Holds all data one entity in OptiX requires to endure
  *
  * @date 03.10.2022
  * @author Alexander Mock
