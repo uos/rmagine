@@ -403,13 +403,13 @@ int main(int argc, char** argv)
 
 
 
-    // rotationInitTest();
-    // rotationConversionTest();
+    rotationInitTest();
+    rotationConversionTest();
 
-    // checkMatrix3x3();
-    // checkMatrix4x4();
+    checkMatrix3x3();
+    checkMatrix4x4();
     initTest();
-    // mathNew();
+    mathNew();
 
     return 0;
 }
