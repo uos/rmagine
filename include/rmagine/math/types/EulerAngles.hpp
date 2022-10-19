@@ -14,12 +14,50 @@ namespace rmagine
 template<typename DataT>
 struct EulerAngles_ 
 {
-    float roll;     // x-axis
-    float pitch;    // y-axis
-    float yaw;      // z-axis
+    DataT roll;     // x-axis
+    DataT pitch;    // y-axis
+    DataT yaw;      // z-axis
 
-    // RMAGINE_INLINE_FUNCTION
-    // void setIdentity();
+
+    // Functions
+    RMAGINE_FUNCTION
+    static EulerAngles_<DataT> Identity()
+    {
+        EulerAngles_<DataT> ret;
+        ret.setIdentity();
+        return ret;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    void setIdentity();
+
+    RMAGINE_INLINE_FUNCTION
+    void set(const Quaternion_<DataT>& q);
+
+    RMAGINE_INLINE_FUNCTION
+    void set(const Matrix_<DataT, 3, 3>& M);
+
+    RMAGINE_INLINE_FUNCTION
+    Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
+
+    // Operators
+    RMAGINE_INLINE_FUNCTION
+    void operator=(const Quaternion_<DataT>& q)
+    {
+        set(q);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    void operator=(const Matrix_<DataT, 3, 3>& M)
+    {
+        set(M);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector3_<DataT> operator*(const Vector3_<DataT>& v) const 
+    {
+        return mult(v);
+    }
 };
 
 } // rmagine

@@ -3,7 +3,6 @@
 
 
 #include <rmagine/types/shared_functions.h>
-#include <iostream>
 #include <type_traits>
 
 #include "definitions.h"
@@ -24,6 +23,7 @@ struct MatrixAddInvalid {};
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 struct Matrix_ {
+    // raw data
     DataT data[Cols][Rows];
 
     //////////////////////////
@@ -54,7 +54,6 @@ struct Matrix_ {
         return ret;
     }
 
-
     RMAGINE_FUNCTION
     static Matrix_<DataT, Rows, Cols> Identity()
     {
@@ -62,8 +61,6 @@ struct Matrix_ {
         ret.setIdentity();
         return ret;
     }
-
-    
 
     ////////////////////
     // access functions
@@ -129,11 +126,17 @@ struct Matrix_ {
     RMAGINE_INLINE_FUNCTION 
     Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
 
+    RMAGINE_INLINE_FUNCTION 
+    Vector2_<DataT> mult(const Vector2_<DataT>& v) const;
+
     RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
 
     RMAGINE_INLINE_FUNCTION
     void addInplace(const Matrix_<DataT, Rows, Cols>& M);
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile;
 
     RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Rows, Cols> sub(const Matrix_<DataT, Rows, Cols>& M) const;
@@ -228,14 +231,14 @@ struct Matrix_ {
     }
 
     RMAGINE_INLINE_FUNCTION
-    Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M) const
+    Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M)
     {
         addInplace(M);
-        return this;
+        return *this;
     }
 
     RMAGINE_INLINE_FUNCTION
-    volatile Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M) volatile
+    volatile Matrix_<DataT, Rows, Cols>& operator+=(volatile Matrix_<DataT, Rows, Cols>& M) volatile
     {
         addInplace(M);
         return *this;
@@ -269,10 +272,22 @@ struct Matrix_ {
     void setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R);
 
     RMAGINE_INLINE_FUNCTION
+    void setRotation(const Quaternion_<DataT>& q);
+
+    RMAGINE_INLINE_FUNCTION
+    void setRotation(const EulerAngles_<DataT>& e);
+
+    RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Rows-1, 1> translation() const;
 
     RMAGINE_INLINE_FUNCTION
     void setTranslation(const Matrix_<DataT, Rows-1, 1>& t);
+
+    RMAGINE_INLINE_FUNCTION
+    void setTranslation(const Vector2_<DataT>& t);
+
+    RMAGINE_INLINE_FUNCTION
+    void setTranslation(const Vector3_<DataT>& t);
 
     RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Rows, Cols> invRigid() const;
@@ -283,6 +298,8 @@ struct Matrix_ {
     RMAGINE_INLINE_FUNCTION
     void set(const EulerAngles_<DataT>& e);
 
+    RMAGINE_INLINE_FUNCTION
+    void set(const Transform_<DataT>& T);
 
     
     RMAGINE_INLINE_FUNCTION

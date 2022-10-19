@@ -390,7 +390,7 @@ RMAGINE_INLINE_FUNCTION
 Matrix_<DataT, Rows, Cols2> 
     Matrix_<DataT, Rows, Cols>::mult(const Matrix_<DataT, Cols, Cols2>& M) const
 {
-    constexpr unsigned int Rows2 = Cols;
+    // constexpr unsigned int Rows2 = Cols;
     constexpr unsigned int Rows3 = Rows;
     constexpr unsigned int Cols3 = Cols2;
 
@@ -544,6 +544,32 @@ Vector3_<DataT>
             at(1,0) * v.x + at(1,1) * v.y + at(1,2) * v.z + at(1,3),
             at(2,0) * v.x + at(2,1) * v.y + at(2,2) * v.z + at(2,3)
         };
+    }
+
+    return {NAN, NAN, NAN};
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION 
+Vector2_<DataT> 
+    Matrix_<DataT, Rows, Cols>::mult(const Vector2_<DataT>& v) const
+{
+    if constexpr(Rows == 2 && Cols == 2)
+    {
+        return {
+            at(0,0) * v.x + at(0,1) * v.y + at(0,2) * v.z, 
+            at(1,0) * v.x + at(1,1) * v.y + at(1,2) * v.z, 
+            at(2,0) * v.x + at(2,1) * v.y + at(2,2) * v.z
+        };
+    } else 
+    if constexpr(Rows == 2 && Cols == 3
+                || Rows == 3 && Cols == 3)
+    {
+        return {
+            at(0,0) * v.x + at(0,1) * v.y + at(0,2) * v.z + at(0,3),
+            at(1,0) * v.x + at(1,1) * v.y + at(1,2) * v.z + at(1,3),
+            at(2,0) * v.x + at(2,1) * v.y + at(2,2) * v.z + at(2,3)
+        };
     } else {
         return {NAN, NAN, NAN};
     }
@@ -571,6 +597,19 @@ Matrix_<DataT, Rows, Cols>
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
 RMAGINE_INLINE_FUNCTION
 void Matrix_<DataT, Rows, Cols>::addInplace(const Matrix_<DataT, Rows, Cols>& M)
+{
+    for(unsigned int i = 0; i < Rows; i++)
+    {
+        for(unsigned int j = 0; j < Cols; j++)
+        {
+            at(i, j) += M(i, j);
+        }
+    }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -685,6 +724,15 @@ DataT Matrix_<DataT, Rows, Cols>::trace() const
     return res;
 }
 
+template<>
+RMAGINE_INLINE_FUNCTION
+float Matrix_<float, 3, 3>::det() const
+{
+    return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
+            at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
+            at(0, 2) * (at(1, 0) * at(2, 1) - at(1, 1) * at(2, 0));
+}
+
 template<> 
 RMAGINE_INLINE_FUNCTION
 float Matrix_<float, 4, 4>::det() const
@@ -713,6 +761,28 @@ float Matrix_<float, 4, 4>::det() const
             - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
             + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
             - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+}
+
+
+template<> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<float, 3, 3> Matrix_<float, 3, 3>::inv() const
+{
+    Matrix_<float, 3, 3> ret;
+
+    const float invdet = 1 / det();
+
+    ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
+    ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;
+    ret(0, 2) = (at(0, 1) * at(1, 2) - at(0, 2) * at(1, 1)) * invdet;
+    ret(1, 0) = (at(1, 2) * at(2, 0) - at(1, 0) * at(2, 2)) * invdet;
+    ret(1, 1) = (at(0, 0) * at(2, 2) - at(0, 2) * at(2, 0)) * invdet;
+    ret(1, 2) = (at(1, 0) * at(0, 2) - at(0, 0) * at(1, 2)) * invdet;
+    ret(2, 0) = (at(1, 0) * at(2, 1) - at(2, 0) * at(1, 1)) * invdet;
+    ret(2, 1) = (at(2, 0) * at(0, 1) - at(0, 0) * at(2, 1)) * invdet;
+    ret(2, 2) = (at(0, 0) * at(1, 1) - at(1, 0) * at(0, 1)) * invdet;
+
+    return ret;
 }
 
 template<> 
@@ -807,6 +877,26 @@ void Matrix_<DataT, Rows, Cols>::setRotation(const Matrix_<DataT, Rows-1, Cols-1
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
 RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::setRotation(const Quaternion_<DataT>& q)
+{
+    static_assert(Rows >= 3 && Cols >= 3);
+    Matrix_<DataT, 3, 3> R;
+    R = q;
+    setRotation(R);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::setRotation(const EulerAngles_<DataT>& e)
+{
+    static_assert(Rows >= 3 && Cols >= 3);
+    Matrix_<DataT, 3, 3> R;
+    R = e;
+    setRotation(R);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
 Matrix_<DataT, Rows-1, 1> Matrix_<DataT, Rows, Cols>::translation() const
 {
     static_assert(Rows == Cols);
@@ -824,12 +914,29 @@ template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 void Matrix_<DataT, Rows, Cols>::setTranslation(const Matrix_<DataT, Rows-1, 1>& t)
 {
-    static_assert(Rows == Cols);
-
     for(unsigned int i=0; i < Rows - 1; i++)
     {
-        at(i, 0) = t(i, 0);
+        at(i, Cols-1) = t(i, 0);
     }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::setTranslation(const Vector2_<DataT>& t)
+{
+    static_assert(Rows >= 2 && Cols >= 3);
+    at(0, Cols-1) = t.x;
+    at(1, Cols-1) = t.y;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::setTranslation(const Vector3_<DataT>& t)
+{
+    static_assert(Rows >= 3 && Cols >= 4);
+    at(0, Cols-1) = t.x;
+    at(1, Cols-1) = t.y;
+    at(2, Cols-1) = t.z;
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
@@ -898,6 +1005,17 @@ void Matrix_<DataT, Rows, Cols>::set(const EulerAngles_<DataT>& e)
     at(2,0) = -cA * sB * cC + sA * sC;
     at(2,1) =  cA * sB * sC + sA * cC;
     at(2,2) =  cA * cB;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::set(const Transform_<DataT>& T)
+{
+    static_assert(Rows >= 3);
+    static_assert(Cols >= 4);
+    setIdentity();
+    setRotation(T.R);
+    setTranslation(T.t);
 }
 
 
