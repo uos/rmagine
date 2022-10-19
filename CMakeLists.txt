@@ -128,7 +128,6 @@ add_library(rmagine SHARED
     src/rmagine/types/conversions.cpp
     src/rmagine/types/sensors.cpp
     # Util
-    src/rmagine/util/StopWatch.cpp
     src/rmagine/util/synthetic.cpp
     src/rmagine/util/assimp/helper.cpp
     src/rmagine/util/IDGen.cpp

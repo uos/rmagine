@@ -629,10 +629,10 @@ struct Transform {
  * 
  * Same order than Eigen::Matrix3f default -> Can be reinterpret-casted or mapped.
  * 
- * Storage order ()-operator 
+ * Storage order ()-operator: Row-Major
  * (0,0), (1,0), (2,0), (0,1), (1,1), (2,1), ... 
  * 
- * Storage order []-operator
+ * Storage order []-operator: Column-Major
  * [0][0], [0][1], [0][2], [1][0], [1][1], [1][2], ...
  * 
  */
@@ -2281,7 +2281,7 @@ float Matrix4x4::det() const
     return  at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
             - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
             + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
-            - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );;
+            - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
 }
 
 RMAGINE_INLINE_FUNCTION

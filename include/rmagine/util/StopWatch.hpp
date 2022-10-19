@@ -39,20 +39,30 @@
 
 namespace rmagine {
 
-class StopWatch {
+/**
+ * @brief Uses steady_clock for time measurements
+ * 
+ */
+template<typename ClockT>
+class StopWatch_ {
 public:
-    StopWatch();
+    StopWatch_();
 
-    double tic();
+    inline double toc();
 
-    double toc();
+    inline double tic();
 
-    double operator()();
-
+    inline double operator()();
 private:
-    std::chrono::time_point<std::chrono::steady_clock> m_old;
+    std::chrono::time_point<ClockT> m_old;
 };
 
+using StopWatch = StopWatch_<std::chrono::steady_clock>;
+using StopWatchHR = StopWatch_<std::chrono::high_resolution_clock>;
+
+
 } // namespace rmagine
+
+#include "StopWatch.tcc"
 
 #endif // RMAGINE_UTIL_STOPWATCH_HPP

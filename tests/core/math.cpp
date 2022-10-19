@@ -3,6 +3,7 @@
 #include "rmagine/math/types.h"
 
 #include <rmagine/math/math.h>
+#include <rmagine/math/Matrix.hpp>
 
 #include <rmagine/util/StopWatch.hpp>
 
@@ -319,14 +320,164 @@ bool checkMatrix4x4()
     return true;
 }
 
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+inline std::ostream& operator<<(std::ostream& os, const rm::Matrix<DataT, Rows, Cols>& M)
+{
+    os << "M" << M.rows() << "x" << M.cols() << "[\n";
+    for(unsigned int i=0; i<M.rows(); i++)
+    {
+        for(unsigned int j=0; j<M.cols(); j++)
+        {
+            os << " " << M(i, j);
+        }
+        os << "\n";
+    }
+    os << "]";
+    return os;
+}
+
+
+
+void mathNew()
+{
+    {
+        Matrix<float, 3, 4000> A;
+        Eigen::Matrix<float, A.rows(), A.cols()> Aeig;
+        // Eigen::Matrix<float, A.rows(), A.cols()>& Aeig = *reinterpret_cast<
+        //     Eigen::Matrix<float, A.rows(), A.cols()>* >(&A);
+
+        for(unsigned int i = 0; i < A.rows(); i++)
+        {
+            for(unsigned int j = 0; j < A.cols(); j++)
+            {
+                if(j % 2) {
+                    A(i, j) =   static_cast<float>(i * A.cols() + j) / static_cast<float>(A.cols() * A.rows());
+                } else {
+                    A(i, j) = - static_cast<float>(i * A.cols() + j) / static_cast<float>(A.cols() * A.rows());
+                }
+                Aeig(i, j) = A(i, j);
+            }
+        }
+
+        std::cout << "A: " << std::endl;
+        // std::cout << A << std::endl;
+        // std::cout << Aeig << std::endl;
+
+        Matrix<float, A.cols(), 2> B;
+
+        // Eigen::Matrix<float, B.rows(), B.cols()>& Beig = *reinterpret_cast<
+        //     Eigen::Matrix<float, B.rows(), B.cols()>* >(&B);
+        
+        Eigen::Matrix<float, B.rows(), B.cols()> Beig;
+
+        for(unsigned int i=0; i < B.rows(); i++)
+        {
+            for(unsigned int j=0; j < B.cols(); j++)
+            {
+                if(j % 2) {
+                    B(i, j) =   static_cast<float>(i * B.cols() + j) / static_cast<float>(B.cols() * B.rows());
+                } else {
+                    B(i, j) = - static_cast<float>(i * B.cols() + j) / static_cast<float>(B.cols() * B.rows());
+                }
+                Beig(i, j) = B(i, j);
+            }
+        }
+
+        std::cout << "B: " << std::endl;
+        // std::cout << B << std::endl;
+        // std::cout << Beig << std::endl;
+        
+        StopWatchHR sw;
+        double el1, el2;
+
+        sw();
+        auto C = A * B;
+        el1 = sw();
+
+        sw();
+        Eigen::Matrix<float, C.rows(), C.cols()> Ceig = Aeig * Beig;
+        el2 = sw();
+
+        std::cout << "C: " << std::endl;
+        std::cout << C << std::endl;
+        std::cout << el1 << "s" << std::endl;
+
+        std::cout << Ceig << std::endl;
+        std::cout << el2 << "s" << std::endl;
+
+        using ResT = decltype(A)::MultResultType<decltype(B)>;
+
+        std::cout << ResT::rows() << "x" << ResT::cols() << std::endl;
+    }
+
+
+
+    {
+        std::cout << "Matrix Vector Test" << std::endl;
+        Matrix<float, 3, 3> M;
+        M.setIdentity();
+        std::cout << M << std::endl;
+
+        auto Minv = M.invRigid();
+
+        Matrix<float, 3, 1> v;
+        v(0, 0) = 1.0;
+        v(1, 0) = 2.0;
+        v(2, 0) = 3.0;
+
+        std::cout << v << std::endl;
+
+        auto res = M * v;
+        std::cout << res.rows() << "x" << res.cols() << std::endl;
+
+        std::cout << res << std::endl;
+
+        Eigen::Matrix<float, 3, 3> Meig = Eigen::Matrix<float, 3, 3>::Identity();
+        Eigen::Matrix<float, 3, 1> veig;
+        veig(0) = 1.0;
+        veig(1) = 2.0;
+        veig(2) = 3.0;
+
+        Eigen::Matrix<float, 3, 1> reseig = Meig * veig;
+        std::cout << veig << std::endl;
+
+
+        // Meig(0) = 1.0;
+    }
+
+
+    {
+        Matrix<float, 3, 3> A = {{
+            {0.0, 3.0, 6.0},
+            {1.0, 4.0, 7.0},
+            {2.0, 5.0, 8.0}
+        }};
+
+        std::cout << A << std::endl;
+
+        Matrix<float, 3, 3> B;
+        B.setIdentity();
+        B = B.mult(5.0f);
+
+        std::cout << A * B << std::endl;
+
+        A.multInplace(B);
+
+        std::cout << A << std::endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Basic Math" << std::endl;
-    rotationInitTest();
-    rotationConversionTest();
+    // rotationInitTest();
+    // rotationConversionTest();
 
-    checkMatrix3x3();
-    checkMatrix4x4();
+    // checkMatrix3x3();
+    // checkMatrix4x4();
+
+    mathNew();
 
     return 0;
 }
