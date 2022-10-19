@@ -301,17 +301,110 @@ struct Matrix_ {
     RMAGINE_INLINE_FUNCTION
     void set(const Transform_<DataT>& T);
 
-    
+    // CASTS
     RMAGINE_INLINE_FUNCTION
-    void operator=(const Quaternion_<DataT>& q)
-    {
-        set(q);
+    operator Vector3_<DataT>() const 
+    { 
+        static_assert(Rows == 3 && Cols == 1);
+        return {
+            at(0, 0),
+            at(1, 0),
+            at(2, 0)
+        }; 
     }
 
     RMAGINE_INLINE_FUNCTION
-    void operator=(const EulerAngles_<DataT>& e)
+    operator Quaternion_<DataT>() const 
+    { 
+        static_assert(Rows == 3 && Cols == 3);
+        // https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+        // TODO: test
+        // 1. test: correct
+        DataT tr = trace();
+
+        Quaternion_<DataT> q;
+
+        if (tr > 0) { 
+            const DataT S = sqrtf(tr + 1.0) * 2; // S=4*qw 
+            q.w = 0.25f * S;
+            q.x = (at(2,1) - at(1,2)) / S;
+            q.y = (at(0,2) - at(2,0)) / S; 
+            q.z = (at(1,0) - at(0,1)) / S; 
+        } else if ((at(0,0) > at(1,1)) && (at(0,0) > at(2,2))) { 
+            const DataT S = sqrtf(1.0 + at(0,0) - at(1,1) - at(2,2)) * 2.0; // S=4*qx 
+            q.w = (at(2,1) - at(1,2)) / S;
+            q.x = 0.25f * S;
+            q.y = (at(0,1) + at(1,0)) / S; 
+            q.z = (at(0,2) + at(2,0)) / S; 
+        } else if (at(1,1) > at(2,2) ) { 
+            const DataT S = sqrtf(1.0 + at(1,1) - at(0,0) - at(2,2)) * 2.0; // S=4*qy
+            q.w = (at(0,2) - at(2,0)) / S;
+            q.x = (at(0,1) + at(1,0)) / S; 
+            q.y = 0.25f * S;
+            q.z = (at(1,2) + at(2,1)) / S; 
+        } else { 
+            const DataT S = sqrtf(1.0 + at(2,2) - at(0,0) - at(1,1)) * 2.0; // S=4*qz
+            q.w = (at(1,0) - at(0,1)) / S;
+            q.x = (at(0,2) + at(2,0)) / S;
+            q.y = (at(1,2) + at(2,1)) / S;
+            q.z = 0.25 * S;
+        }
+
+        return q;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    operator EulerAngles_<DataT>() const
     {
-        set(e);
+        static_assert(Rows == 3 && Cols == 3);
+        // extracted from knowledge of Matrix3x3::set(EulerAngles)
+        // plus EulerAngles::set(Quaternion)
+        // TODO: check. tested once: correct
+        
+        // roll (x-axis)
+        const DataT sinr_cosp = -at(1,2);
+        const DataT cosr_cosp =  at(2,2);
+        
+        // pitch (y-axis)
+        const DataT sinp = at(0,2);
+
+        // yaw (z-axis)
+        const DataT siny_cosp = -at(0,1);
+        const DataT cosy_cosp =  at(0,0);
+
+        // roll (x-axis)
+        EulerAngles_<DataT> e;
+        e.roll = atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis)
+        if (fabs(sinp) >= 1.0)
+        {
+            e.pitch = copysignf(M_PI / 2, sinp); // use 90 degrees if out of range
+        } else {
+            e.pitch = asinf(sinp);
+        }
+
+        // yaw (z-axis)
+        e.yaw = atan2f(siny_cosp, cosy_cosp);
+
+        return e;
+    }
+
+
+    template<typename ConvT>
+    RMAGINE_INLINE_FUNCTION
+    Matrix_<ConvT, Rows, Cols> cast() const
+    {
+        Matrix_<ConvT, Rows, Cols> res;
+
+        for(unsigned int i=0; i<Rows; i++)
+        {
+            for(unsigned int j=0; j<Cols; j++)
+            {
+                res(i, j) = at(i, j);
+            }
+        }
+        return res;
     }
 
     /////////////////////

@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include <rmagine/types/shared_functions.h>
+#include <initializer_list>
 
 namespace rmagine
 {
@@ -136,11 +137,14 @@ struct Vector2_
         return *this;
     }
 
+    template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
-    void operator=(const Matrix_<DataT, 2, 1>& M)
+    Vector2_<ConvT> cast() const
     {
-        x = M(0, 0);
-        y = M(1, 0);
+        return {
+            static_cast<ConvT>(x),
+            static_cast<ConvT>(y)
+        };
     }
 };
 

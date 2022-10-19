@@ -94,6 +94,16 @@ struct Transform_
     {
         return mult(v);
     }
+
+    template<typename ConvT>
+    Transform_<ConvT> cast() const
+    {
+        return {
+            R.template cast<ConvT>(),
+            t.template cast<ConvT>(),
+            stamp
+        };
+    }
 };
 
 } // namespace rmagine

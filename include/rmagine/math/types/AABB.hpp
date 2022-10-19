@@ -27,6 +27,16 @@ struct AABB_
 
     RMAGINE_INLINE_FUNCTION
     void expand(const AABB_<DataT>& o);
+
+    template<typename ConvT>
+    RMAGINE_INLINE_FUNCTION
+    AABB_<ConvT> cast() const
+    {
+        return {
+            min.template cast<ConvT>(),
+            max.template cast<ConvT>()
+        };
+    }
 };
 
 } // namespace rmagine

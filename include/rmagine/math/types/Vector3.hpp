@@ -171,24 +171,19 @@ struct Vector3_
         return *this;
     }
 
-    RMAGINE_INLINE_FUNCTION
-    void operator=(std::initializer_list<DataT> l)
-    {
-        auto it = l.begin();
-        x = *it;
-        ++it;
-        y = *it;
-        ++it;
-        z = *it;
-    }
+    ////////////////////////
+    // CASTING
 
+    template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
-    void operator=(const Matrix_<DataT, 3, 1>& M)
+    Vector3_<ConvT> cast() const
     {
-        x = M(0, 0);
-        y = M(1, 0);
-        z = M(2, 0);
-    }
+        return {
+            static_cast<ConvT>(x),
+            static_cast<ConvT>(y),
+            static_cast<ConvT>(z)
+        };
+    } 
 };
 
 } // namespace rmagine

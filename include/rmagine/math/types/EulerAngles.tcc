@@ -16,34 +16,7 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 void EulerAngles_<DataT>::set(const Quaternion_<DataT>& q)
 {
-    // TODO: check
-    // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-    // checked once
-
-    // roll (x-axis)
-    const DataT sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
-    const DataT cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-    // pitch (y-axis)
-    const DataT sinp = 2.0f * (q.w * q.y - q.z * q.x);
-    // yaw (z-axis)
-    const DataT siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
-    const DataT cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-    constexpr DataT PI_HALF = M_PI / 2;
-
-
-    // roll (x-axis)
-    roll = atan2f(sinr_cosp, cosr_cosp);
-
-    // pitch (y-axis)
-    if (fabs(sinp) >= 1.0f)
-    {
-        pitch = copysignf(PI_HALF, sinp); // use 90 degrees if out of range
-    } else {
-        pitch = asinf(sinp);
-    }
-
-    // yaw (z-axis)
-    yaw = atan2f(siny_cosp, cosy_cosp);
+    *this = static_cast<EulerAngles_<DataT> >(q);
 }
 
 template<typename DataT>

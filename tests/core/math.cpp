@@ -349,10 +349,25 @@ void initTest()
     e.set(M);
 
     Transform T = {q, v3};
-
-
     AABB bb;
 
+
+    Quaternion q2 = EulerAngles{0.0, 0.0, 0.0};
+    
+    std::cout << q2 << std::endl;
+    q2 = {0.0, 0.0, 1.0, 1.0};
+    std::cout << q2 << std::endl;
+
+    EulerAngles e2 = {0.0, 0.0, 0.0};
+    q2.set(e2);
+    std::cout << q2 << std::endl;
+
+    Matrix_<float, 3, 3> R = q2;
+
+    std::cout << R << std::endl;
+
+    // int bla = M;
+    // std::cout << bla << std::endl;
 }
 
 void mathNew()
@@ -370,9 +385,17 @@ void mathNew()
 
     Vector2 bla = {1, 2};
 
+    
+    Matrix_<float, 2, 2> A;
+
+
+
     bla.l2norm();
+
+
     
 }
+
 
 int main(int argc, char** argv)
 {

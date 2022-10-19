@@ -963,48 +963,17 @@ template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 void Matrix_<DataT, Rows, Cols>::set(const Quaternion_<DataT>& q)
 {
-    static_assert(Rows >= 3);
-    static_assert(Cols >= 3);
-    
-    at(0,0) = 2.0f * (q.w * q.w + q.x * q.x) - 1.0f;
-    at(0,1) = 2.0f * (q.x * q.y - q.w * q.z);
-    at(0,2) = 2.0f * (q.x * q.z + q.w * q.y);
-    at(1,0) = 2.0f * (q.x * q.y + q.w * q.z);
-    at(1,1) = 2.0f * (q.w * q.w + q.y * q.y) - 1.0f;
-    at(1,2) = 2.0f * (q.y * q.z - q.w * q.x);
-    at(2,0) = 2.0f * (q.x * q.z - q.w * q.y);
-    at(2,1) = 2.0f * (q.y * q.z + q.w * q.x);
-    at(2,2) = 2.0f * (q.w * q.w + q.z * q.z) - 1.0f;
+    static_assert(Rows == 3 && Cols == 3);
+    *this = static_cast<Matrix_<DataT, Rows, Cols> >(q);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
 RMAGINE_INLINE_FUNCTION
 void Matrix_<DataT, Rows, Cols>::set(const EulerAngles_<DataT>& e)
 {
-    static_assert(Rows >= 3);
-    static_assert(Cols >= 3);
-    // Wrong?
-    // TODO check
-    // 1. test: correct
-
-    const float cA = cosf(e.roll);
-    const float sA = sinf(e.roll);
-    const float cB = cosf(e.pitch);
-    const float sB = sinf(e.pitch);
-    const float cC = cosf(e.yaw);
-    const float sC = sinf(e.yaw);
-
-    at(0,0) =  cB * cC;
-    at(0,1) = -cB * sC;
-    at(0,2) =  sB;
-   
-    at(1,0) =  sA * sB * cC + cA * sC;
-    at(1,1) = -sA * sB * sC + cA * cC;
-    at(1,2) = -sA * cB;
-    
-    at(2,0) = -cA * sB * cC + sA * sC;
-    at(2,1) =  cA * sB * sC + sA * cC;
-    at(2,2) =  cA * cB;
+    static_assert(Rows == 3);
+    static_assert(Cols == 3);
+    *this = static_cast<Matrix_<DataT, Rows, Cols> >(e);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
