@@ -446,7 +446,10 @@ void Matrix_<DataT, Rows, Cols>::multInplace(const Matrix_<DataT, Rows, Cols>& M
         // copy entire column
         const DataT* col = data[j];
         DataT tmp[Rows];
-        std::copy(col, col + Rows, tmp);
+        for(unsigned int i = 0; i < Rows; i++)
+        {
+            tmp[i] = col[i];
+        }
 
         for(unsigned int i = 0; i < Rows; i++)
         {
@@ -1106,6 +1109,7 @@ Matrix_<ConvT, Rows, Cols> Matrix_<DataT, Rows, Cols>::cast() const
             res(i, j) = at(i, j);
         }
     }
+    
     return res;
 }
 

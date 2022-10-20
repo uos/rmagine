@@ -275,9 +275,6 @@ bool checkMatrix4x4()
 
     Eigen::Matrix4f Meig(&M(0,0));
     Eigen::Matrix4f Meig_inv = Meig.inverse();
-    
-
-
 
     for(size_t i=0; i<4; i++)
     {
@@ -289,8 +286,6 @@ bool checkMatrix4x4()
             }
         }
     }
-
-
 
     Matrix4x4 I = M_inv * M;
     Eigen::Matrix4f Ieig = Meig_inv * Meig;
@@ -306,7 +301,6 @@ bool checkMatrix4x4()
         }
     }
 
-
     if(fabs(Meig.determinant() - M.det() ) > 0.00001)
     {
         RM_THROW(Exception, "Determinant of rmagine and Eigen differs too much.");
@@ -320,7 +314,6 @@ bool checkMatrix4x4()
 
     return true;
 }
-
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 inline std::ostream& operator<<(std::ostream& os, const rm::Matrix<DataT, Rows, Cols>& M)
@@ -350,7 +343,6 @@ void initTest()
 
     Transform T = {q, v3};
     AABB bb;
-
 
     Quaternion q2 = EulerAngles{0.0, 0.0, 0.0};
     
@@ -385,23 +377,14 @@ void mathNew()
 
     Vector2 bla = {1, 2};
 
-    
     Matrix_<float, 2, 2> A;
 
-
-
     bla.l2norm();
-
-
-    
 }
-
 
 int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Basic Math" << std::endl;
-
-
 
     rotationInitTest();
     rotationConversionTest();
