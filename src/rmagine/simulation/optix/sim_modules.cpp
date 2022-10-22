@@ -208,7 +208,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     const OptixSimulationDataGeneric& flags)
 {
     unsigned int traversable_graph_flags = scene->traversableGraphFlags();
-    unsigned int bid = boundingId(flags);
+    unsigned int bid = get_bounding_id(flags);
 
 
     auto scene_it = sim_module_hit_miss_cache.find(traversable_graph_flags);

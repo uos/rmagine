@@ -82,7 +82,7 @@ using OptixMapPtr = std::shared_ptr<OptixMap>;
  * @brief Import a mesh file as OptixMap to an existing OptixContext 
  * 
  */
-static OptixMapPtr importOptixMap(
+static OptixMapPtr import_optix_map(
     const std::string& meshfile, 
     OptixContextPtr optix_ctx = optix_default_context())
 {
@@ -105,6 +105,13 @@ static OptixMapPtr importOptixMap(
     return std::make_shared<OptixMap>(scene);
 }
 
+[[deprecated("Use import_optix_map() instead.")]]
+static OptixMapPtr importOptixMap(
+    const std::string& meshfile, 
+    OptixContextPtr optix_ctx = optix_default_context())
+{
+    return import_optix_map(meshfile, optix_ctx);
+}
 
 } // namespace rmagine
 

@@ -225,7 +225,7 @@ struct PinholeModel {
         const float pY = (static_cast<float>(vid) - c[1]) / f[1];
         
         const Vector dir_optical = {pX, pY, 1.0};
-        return dir_optical.normalized();
+        return dir_optical.normalize();
     }
 
     RMAGINE_INLINE_FUNCTION

@@ -103,10 +103,10 @@ struct Vector3_
     DataT l1norm() const;
 
     RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> normalized() const;
+    Vector3_<DataT> normalize() const;
 
     RMAGINE_INLINE_FUNCTION
-    void normalize();
+    void normalizeInplace();
 
     RMAGINE_INLINE_FUNCTION
     void setZeros();
@@ -192,6 +192,7 @@ struct Vector3_
 
     ///////////////////////
     // DEPRECATED FUNCTIONS
+    [[deprecated("Use multEwise() instead.")]]
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult_ewise(const Vector3_<DataT>& b) const
     {   

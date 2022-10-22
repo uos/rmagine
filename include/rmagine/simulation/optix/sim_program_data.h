@@ -64,7 +64,7 @@ struct OptixSimulationDataGeneric {
     unsigned int*               object_ids;
 };
 
-inline uint32_t boundingId(const OptixSimulationDataGeneric& flags)
+inline uint32_t get_bounding_id(const OptixSimulationDataGeneric& flags)
 {
     uint32_t ret = 0;
 
@@ -77,6 +77,12 @@ inline uint32_t boundingId(const OptixSimulationDataGeneric& flags)
     ret |= static_cast<uint32_t>(flags.computeObjectIds) << 6;
 
     return ret;
+}
+
+[[deprecated("Use get_bounding_id() instead.")]]
+inline uint32_t boundingId(const OptixSimulationDataGeneric& flags)
+{
+    return get_bounding_id(flags);
 }
 
 } // namespace rmagine

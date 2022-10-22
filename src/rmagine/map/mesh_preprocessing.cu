@@ -15,7 +15,7 @@ __global__ void computeFaceNormals_kernel(
         const Vector v0 = vertices[faces[id].v0];
         const Vector v1 = vertices[faces[id].v1];
         const Vector v2 = vertices[faces[id].v2];
-        face_normals[id] = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+        face_normals[id] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
     }
 }
 

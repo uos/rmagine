@@ -19,7 +19,7 @@ void O1DnSimulatorOptix::preBuildProgram()
 
     OptixSimulationDataGeneric flags;
     flags.model_type = 2;
-    setGenericFlags<BundleT>(flags);
+    set_generic_flags<BundleT>(flags);
     make_pipeline_sim(m_map->scene(), flags);
 }
 
@@ -44,7 +44,7 @@ void O1DnSimulatorOptix::simulate(
     
     Memory<OptixSimulationDataGeneric, RAM> mem(1);
     mem[0].model_type = 2;
-    setGenericFlags(res, mem[0]);
+    set_generic_flags(res, mem[0]);
 
     SimPipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
 
@@ -59,7 +59,7 @@ void O1DnSimulatorOptix::simulate(
     mem->handle = m_map->scene()->as()->handle;
 
     // set generic data
-    setGenericData(res, mem[0]);
+    set_generic_data(res, mem[0]);
 
     launch(mem, program);
 }
@@ -69,7 +69,7 @@ BundleT O1DnSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm)
 {
     BundleT res;
-    resizeMemoryBundle<VRAM_CUDA>(res, m_width, m_height, Tbm.size());
+    resize_memory_bundle<VRAM_CUDA>(res, m_width, m_height, Tbm.size());
     simulate(Tbm, res);
     return res;
 }

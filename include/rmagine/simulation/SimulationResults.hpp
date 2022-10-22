@@ -149,7 +149,7 @@ using IntAttrAny = Bundle<
  * @param N 
  */
 template<typename MemT, typename BundleT>
-void resizeMemoryBundle(BundleT& res, 
+void resize_memory_bundle(BundleT& res, 
     unsigned int W,
     unsigned int H,
     unsigned int N )
@@ -190,6 +190,16 @@ void resizeMemoryBundle(BundleT& res,
     }
 }
 
+
+template<typename MemT, typename BundleT>
+[[deprecated("Use resize_memory_bundle() instead.")]]
+void resizeMemoryBundle(BundleT& res, 
+    unsigned int W,
+    unsigned int H,
+    unsigned int N )
+{
+    resize_memory_bundle<BundleT>(res, W, H, N);
+}
 
 } // namespace rmagine
 

@@ -109,7 +109,7 @@ public:
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
 
-static EmbreeMapPtr importEmbreeMap(
+static EmbreeMapPtr import_embree_map(
     const std::string& meshfile,
     EmbreeDevicePtr device = embree_default_device())
 {
@@ -132,6 +132,14 @@ static EmbreeMapPtr importEmbreeMap(
     scene->freeze();
     scene->commit();
     return std::make_shared<EmbreeMap>(scene);
+}
+
+[[deprecated("Use import_embree_map() instead.")]]
+static EmbreeMapPtr importEmbreeMap(
+    const std::string& meshfile,
+    EmbreeDevicePtr device = embree_default_device())
+{
+    return import_embree_map(meshfile, device);
 }
 
 } // namespace rmagine

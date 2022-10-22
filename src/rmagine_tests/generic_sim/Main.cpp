@@ -12,8 +12,8 @@ SphereSimulatorEmbreePtr  sim_cpu;
 template<typename BundleT>
 void resizeResults(BundleT& res, unsigned int W, unsigned int H, unsigned int N)
 {
-    resizeMemoryBundle<RAM>(res, W, H, N);
-    resizeMemoryBundle<VRAM_CUDA>(res, W, H, N);
+    resize_memory_bundle<RAM>(res, W, H, N);
+    resize_memory_bundle<VRAM_CUDA>(res, W, H, N);
 }
 
 template<typename BundleT1, typename BundleT2>
@@ -199,14 +199,14 @@ int main(int argc, char** argv)
     std::cout << "Loading " << argv[1] << std::endl;
 
     sw();
-    EmbreeMapPtr map_cpu = importEmbreeMap(argv[1]);
+    EmbreeMapPtr map_cpu = import_embree_map(argv[1]);
     sim_cpu.reset(new SphereSimulatorEmbree(map_cpu));
     el = sw();
     std::cout << "- CPU: loaded in " << el << "s" << std::endl;
 
 
     sw();
-    OptixMapPtr map_gpu = importOptixMap(argv[1]);
+    OptixMapPtr map_gpu = import_optix_map(argv[1]);
     sim_gpu.reset(new SphereSimulatorOptix(map_gpu));
     el = sw();
     std::cout << "- GPU: loaded in " << el << "s" << std::endl;

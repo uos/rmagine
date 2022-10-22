@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     }
 
     IntAttrAny<RAM> result;
-    resizeMemoryBundle<RAM>(result, model.getWidth(), model.getHeight(), 100);
+    resize_memory_bundle<RAM>(result, model.getWidth(), model.getHeight(), 100);
 
     Memory<Transform, RAM> T(100);
     for(size_t i=0; i<T.size(); i++)

@@ -179,14 +179,14 @@ DataT Vector3_<DataT>::l1norm() const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Vector3_<DataT> Vector3_<DataT>::normalized() const 
+Vector3_<DataT> Vector3_<DataT>::normalize() const 
 {
     return div(l2norm());
 }
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-void Vector3_<DataT>::normalize() 
+void Vector3_<DataT>::normalizeInplace() 
 {
     divInplace(l2norm());
 }

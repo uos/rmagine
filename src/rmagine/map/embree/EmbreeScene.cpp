@@ -279,7 +279,7 @@ void EmbreeScene::freeze()
         if(mesh)
         {
             // TODO check if this is correct
-            mesh->setScale(instance->scale().mult_ewise(mesh->scale()));
+            mesh->setScale(instance->scale().multEwise(mesh->scale()));
 
             mesh->setTransform(instance->transform() * mesh->transform());
             mesh->apply();

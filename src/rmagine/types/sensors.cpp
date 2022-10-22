@@ -92,7 +92,7 @@ O1DnModel example_o1dn()
         model.dirs[i].y = y;
         model.dirs[i].z = z;
 
-        model.dirs[i].normalize();
+        model.dirs[i].normalizeInplace();
     }
 
     model.range.min = 0.0;

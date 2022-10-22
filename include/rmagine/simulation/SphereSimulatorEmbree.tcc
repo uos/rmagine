@@ -140,7 +140,7 @@ void SphereSimulatorEmbree::simulate(
                                     rayhit.hit.Ng_z
                                 };
                             
-                            nint.normalize();
+                            nint.normalizeInplace();
                             nint = Tms_.R * nint;
 
                             // flip?
@@ -150,7 +150,7 @@ void SphereSimulatorEmbree::simulate(
                             }
 
                             // nint in local frame
-                            ret.Normals<RAM>::normals[glob_id] = nint.normalized();
+                            ret.Normals<RAM>::normals[glob_id] = nint.normalize();
                         }
                     }
 
@@ -254,7 +254,7 @@ BundleT SphereSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
-    resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
+    resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
     simulate(Tbm, res);
     return res;
 }

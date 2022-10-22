@@ -156,7 +156,7 @@ void EmbreeMesh::computeFaceNormals()
         const Vector v0 = m_vertices[m_faces[i].v0];
         const Vector v1 = m_vertices[m_faces[i].v1];
         const Vector v2 = m_vertices[m_faces[i].v2];
-        Vector n = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+        Vector n = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
         m_face_normals[i] = n;
     }
 }
@@ -166,7 +166,7 @@ void EmbreeMesh::apply()
     // TRANSFORM VERTICES
     for(unsigned int i=0; i<m_num_vertices; i++)
     {
-        m_vertices_transformed[i] = m_T * (m_vertices[i].mult_ewise(m_S));
+        m_vertices_transformed[i] = m_T * (m_vertices[i].multEwise(m_S));
         // also possible:
         // m_vertices_transformed[i] = matrix() * m_vertices[i];
         // might be slower
@@ -180,8 +180,8 @@ void EmbreeMesh::apply()
 
     for(unsigned int i=0; i<m_face_normals.size(); i++)
     {
-        auto face_normal_scaled = m_face_normals[i].mult_ewise(m_S);
-        m_face_normals_transformed[i] = m_T.R * face_normal_scaled.normalized();
+        auto face_normal_scaled = m_face_normals[i].multEwise(m_S);
+        m_face_normals_transformed[i] = m_T.R * face_normal_scaled.normalize();
     }
 
     // TRANSFORM VERTEX NORMALS
@@ -191,8 +191,8 @@ void EmbreeMesh::apply()
     }
     for(unsigned int i=0; i<m_vertex_normals.size(); i++)
     {
-        auto vertex_normal_scaled = m_vertex_normals[i].mult_ewise(m_S);
-        m_vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalized();
+        auto vertex_normal_scaled = m_vertex_normals[i].multEwise(m_S);
+        m_vertex_normals_transformed[i] = m_T.R * vertex_normal_scaled.normalize();
     }
 
     if(anyParentCommittedOnce())

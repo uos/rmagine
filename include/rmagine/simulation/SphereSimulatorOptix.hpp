@@ -75,7 +75,7 @@ namespace rmagine {
  * using namespace rmagine;
  * 
  * // Import a map
- * OptixMapPtr map = importOptixMap("somemap.ply");
+ * OptixMapPtr map = import_optix_map("somemap.ply");
  * // Construct the simulator, that operates on a specific map
  * SphereSimulatorOptix sim(map);
  * 

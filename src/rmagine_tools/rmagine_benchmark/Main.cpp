@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         std::cout << "  inc: " << model->phi.inc << std::endl;
 
         // Load mesh
-        EmbreeMapPtr cpu_mesh = importEmbreeMap(path_to_mesh);
+        EmbreeMapPtr cpu_mesh = import_embree_map(path_to_mesh);
         
         SphereSimulatorEmbreePtr cpu_sim(new SphereSimulatorEmbree(cpu_mesh));
 
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
 
         std::cout << "Top Level geometries: " << scene->geometries().size() << std::endl;
 
-        // OptixMapPtr gpu_mesh = importOptixMap(path_to_mesh, device_id);
+        // OptixMapPtr gpu_mesh = import_optix_map(path_to_mesh, device_id);
         SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
 
         gpu_sim->setTsb(Tsb);
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
         ResultT res;
 
         res.ranges.resize(Tbm.size() * model->size());
-        // resizeMemoryBundle<VRAM_CUDA>(res, Tbm.size(), model->phi.size, model->theta.size);
+        // resize_memory_bundle<VRAM_CUDA>(res, Tbm.size(), model->phi.size, model->theta.size);
         
         gpu_sim->simulate(Tbm_gpu, res);
         ranges_cpu = res.ranges;

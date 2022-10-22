@@ -75,7 +75,10 @@ struct Quaternion_
     DataT l2norm() const;
 
     RMAGINE_INLINE_FUNCTION
-    void normalize();
+    Quaternion_<DataT> normalize() const;
+    
+    RMAGINE_INLINE_FUNCTION
+    void normalizeInplace();
 
     RMAGINE_INLINE_FUNCTION
     void set(const Matrix_<DataT, 3, 3>& M);

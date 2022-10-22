@@ -14,7 +14,7 @@ namespace rmagine
 {
 
 template<typename BundleT>
-static void setGenericData(
+static void set_generic_data(
     BundleT& res, 
     OptixSimulationDataGeneric& mem)
 {
@@ -75,9 +75,17 @@ static void setGenericData(
     }
 }
 
+template<typename BundleT>
+[[deprecated("Use set_generic_data() instead.")]]
+static void setGenericData(
+    BundleT& res, 
+    OptixSimulationDataGeneric& mem)
+{
+    set_generic_data<BundleT>(res, mem);
+}
 
 template<typename BundleT>
-static void setGenericFlags(
+static void set_generic_flags(
     OptixSimulationDataGeneric& flags)
 {
     flags.computeHits = false;
@@ -125,7 +133,15 @@ static void setGenericFlags(
 }
 
 template<typename BundleT>
+[[deprecated("Use set_generic_flags() instead.")]]
 static void setGenericFlags(
+    OptixSimulationDataGeneric& flags)
+{
+    set_generic_flags<BundleT>(flags);
+}
+
+template<typename BundleT>
+static void set_generic_flags(
     const BundleT& res,
     OptixSimulationDataGeneric& flags)
 {
@@ -193,6 +209,16 @@ static void setGenericFlags(
         }
     }
 }
+
+template<typename BundleT>
+[[deprecated("Use set_generic_flags() instead.")]]
+static void setGenericFlags(
+    const BundleT& res,
+    OptixSimulationDataGeneric& flags)
+{
+    set_generic_flags<BundleT>(res, flags);
+}
+
 
 } // namespace rmagine
 

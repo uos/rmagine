@@ -124,7 +124,7 @@ void computeNormalSBT()
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
-    nint.normalize();
+    nint.normalizeInplace();
     nint = Tms.R * nint;
 
     // flip?
@@ -133,7 +133,7 @@ void computeNormalSBT()
         nint *= -1.0;
     }
 
-    mem.normals[glob_id] = nint.normalized();
+    mem.normals[glob_id] = nint.normalize();
 }
 
 __forceinline__ __device__
@@ -172,13 +172,13 @@ void computeNormal()
     const Vector v1 = {vertices[1].x, vertices[1].y, vertices[1].z};
     const Vector v2 = {vertices[2].x, vertices[2].y, vertices[2].z};
 
-    const Vector3 rm_normal = (v1 - v0).normalized().cross((v2 - v0).normalized() ).normalized();
+    const Vector3 rm_normal = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
 
     const float3 normal = make_float3(rm_normal.x, rm_normal.y, rm_normal.z);
     const float3 normal_world = optixTransformNormalFromObjectToWorldSpace(normal);
 
     Vector nint{normal_world.x, normal_world.y, normal_world.z};
-    nint.normalize();
+    nint.normalizeInplace();
     nint = Tms.R * nint;
 
     // flip?
@@ -187,7 +187,7 @@ void computeNormal()
         nint *= -1.0;
     }
 
-    mem.normals[glob_id] = nint.normalized();
+    mem.normals[glob_id] = nint.normalize();
 }
 
 __forceinline__ __device__

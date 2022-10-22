@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     using ResultT = IntAttrAny<VRAM_CUDA>;
 
     ResultT result;
-    resizeMemoryBundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
+    resize_memory_bundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
 
     Memory<Transform, RAM> T(100);
     for(size_t i=0; i<T.size(); i++)

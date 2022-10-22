@@ -74,7 +74,7 @@ void OnDnSimulatorEmbree::simulate(
                                 rayhit.hit.Ng_y,
                                 rayhit.hit.Ng_z
                             };
-                        nint.normalize();
+                        nint.normalizeInplace();
                         nint = Tms_.R * nint;
 
                         // flip?
@@ -84,7 +84,7 @@ void OnDnSimulatorEmbree::simulate(
                         }
 
                         // nint in local frame
-                        ret.Normals<RAM>::normals[glob_id] = nint.normalized();
+                        ret.Normals<RAM>::normals[glob_id] = nint.normalize();
                     }
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
@@ -141,7 +141,7 @@ BundleT OnDnSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm)
 {
     BundleT res;
-    resizeMemoryBundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
+    resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
     simulate(Tbm, res);
     return res;
 }

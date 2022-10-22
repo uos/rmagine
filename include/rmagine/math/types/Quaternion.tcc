@@ -84,7 +84,20 @@ DataT Quaternion_<DataT>::l2norm() const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-void Quaternion_<DataT>::normalize()
+Quaternion_<DataT> Quaternion_<DataT>::normalize() const
+{
+    const DataT d = l2norm();
+    return {
+        x / d,
+        y / d,
+        z / d,
+        w / d
+    };
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+void Quaternion_<DataT>::normalizeInplace()
 {
     const DataT d = l2norm();
     x /= d;

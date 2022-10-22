@@ -61,7 +61,7 @@ namespace rmagine
  * using namespace rmagine;
  * 
  * // Import a map
- * EmbreeMapPtr map = importEmbreeMap("somemesh.ply");
+ * EmbreeMapPtr map = import_embree_map("somemesh.ply");
  * // Construct the simulator, that operates on a specific map 
  * OnDnSimulatorEmbree sim(map);
  * 
