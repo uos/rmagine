@@ -16,6 +16,7 @@ namespace rmagine
 template<typename DataT>
 struct Quaternion_
 {
+    // Data
     DataT x;
     DataT y;
     DataT z;

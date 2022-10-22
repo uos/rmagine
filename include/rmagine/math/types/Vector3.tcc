@@ -195,9 +195,21 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 void Vector3_<DataT>::setZeros()
 {
-    x = 0.0;
-    y = 0.0;
-    z = 0.0;
+    x = static_cast<DataT>(0);
+    y = static_cast<DataT>(0);
+    z = static_cast<DataT>(0);
+}
+
+template<typename DataT>
+template<typename ConvT>
+RMAGINE_INLINE_FUNCTION
+Vector3_<ConvT> Vector3_<DataT>::cast() const
+{
+    return {
+        static_cast<ConvT>(x),
+        static_cast<ConvT>(y),
+        static_cast<ConvT>(z)
+    };
 }
 
 } // namespace rmagine

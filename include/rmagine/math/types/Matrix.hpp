@@ -18,7 +18,7 @@ struct MatrixAddInvalid {};
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 struct Matrix_ {
-    // raw data
+    // DATA
     DataT data[Cols][Rows];
 
     //////////////////////////

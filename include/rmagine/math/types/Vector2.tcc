@@ -135,4 +135,15 @@ void Vector2_<DataT>::setZeros()
     y = 0.0;
 }
 
+template<typename DataT>
+template<typename ConvT>
+RMAGINE_INLINE_FUNCTION
+Vector2_<ConvT> Vector2_<DataT>::cast() const
+{
+    return {
+        static_cast<ConvT>(x),
+        static_cast<ConvT>(y)
+    };
+}
+
 } // namespace rmagine

@@ -160,13 +160,7 @@ struct Vector2_
 
     template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
-    Vector2_<ConvT> cast() const
-    {
-        return {
-            static_cast<ConvT>(x),
-            static_cast<ConvT>(y)
-        };
-    }
+    Vector2_<ConvT> cast() const;
 };
 
 

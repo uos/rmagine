@@ -16,6 +16,7 @@ namespace rmagine
 template<typename DataT>
 struct EulerAngles_ 
 {
+    // DATA
     DataT roll;     // x-axis
     DataT pitch;    // y-axis
     DataT yaw;      // z-axis

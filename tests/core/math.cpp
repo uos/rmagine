@@ -22,23 +22,11 @@
 using namespace rmagine;
 namespace rm = rmagine;
 
-void print(Eigen::Matrix4f M)
-{
-    for(size_t i=0; i<4; i++)
-    {
-        for(size_t j=0; j<4; j++)
-        {
-            std::cout << M(i,j) << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-void rotationInitTest()
+void rotation_init_test()
 {
     std::cout << std::endl;
     std::cout << "--------------------------" << std::endl;
-    std::cout << "---- rotationInitTest ----" << std::endl;
+    std::cout << "---- rotation_init_test ----" << std::endl;
     std::cout << "--------------------------" << std::endl;
     std::cout << std::endl;
 
@@ -72,11 +60,11 @@ void rotationInitTest()
     rm::Matrix3x3 MI = rm::Matrix3x3::Identity();
 }
 
-bool rotationConversionTest()
+bool rotation_conv_test()
 {
     std::cout << std::endl;
     std::cout << "--------------------------------" << std::endl;
-    std::cout << "---- rotationConversionTest ----" << std::endl;
+    std::cout << "---- rotation_conv_test ----" << std::endl;
     std::cout << "--------------------------------" << std::endl;
     std::cout << std::endl;
 
@@ -139,22 +127,22 @@ bool rotationConversionTest()
     return true;
 }
 
-Eigen::Vector3f& eigenView(Vector3& v)
+Eigen::Vector3f& eigen_view(Vector3& v)
 {
     return *reinterpret_cast<Eigen::Vector3f*>( &v );
 }
 
-Eigen::Matrix3f& eigenView(Matrix3x3& M)
+Eigen::Matrix3f& eigen_view(Matrix3x3& M)
 {
     return *reinterpret_cast<Eigen::Matrix3f*>( &M );
 }
 
-Eigen::Matrix4f& eigenView(Matrix4x4& M)
+Eigen::Matrix4f& eigen_view(Matrix4x4& M)
 {
     return *reinterpret_cast<Eigen::Matrix4f*>( &M );
 }
 
-bool checkMatrix3x3()
+bool check_Matrix3x3()
 {
     std::cout << "---------- checkMatrix3x3" << std::endl;
     EulerAngles e{-0.1, 0.1, M_PI / 2.0};
@@ -163,7 +151,7 @@ bool checkMatrix3x3()
     M = e;
     
     // shallow copy. 
-    Eigen::Matrix3f& Meig_shallow = eigenView(M);
+    Eigen::Matrix3f& Meig_shallow = eigen_view(M);
 
     // setting this, should set Meig_shallow data as well
     M(0,1) = 10.0;
@@ -234,7 +222,7 @@ bool checkMatrix3x3()
     return true;
 }
 
-bool checkMatrix4x4()
+bool check_Matrix4x4()
 {
     std::cout << "---------- checkMatrix4x4" << std::endl;
     EulerAngles e{-0.1, 0.1, M_PI / 2.0};
@@ -243,7 +231,7 @@ bool checkMatrix4x4()
     M.setIdentity();
     M.setRotation(e);
 
-    Eigen::Matrix4f& Meig_shallow = eigenView(M);
+    Eigen::Matrix4f& Meig_shallow = eigen_view(M);
     
     
     M(0,1) = 10.0;
@@ -315,7 +303,7 @@ bool checkMatrix4x4()
     return true;
 }
 
-void initTest()
+void init_test()
 {
     Vector2 v2 = {1, 2};
     Vector3 v3 = {1, 2, 3};
@@ -346,7 +334,7 @@ void initTest()
     // std::cout << bla << std::endl;
 }
 
-void mathNew()
+void math_new()
 {
     Matrix4x4 M = Matrix4x4::Identity();
     M = M.mult(3.0);
@@ -377,13 +365,13 @@ int main(int argc, char** argv)
 {
     std::cout << "Rmagine Test: Basic Math" << std::endl;
 
-    rotationInitTest();
-    rotationConversionTest();
+    rotation_init_test();
+    rotation_conv_test();
 
-    checkMatrix3x3();
-    checkMatrix4x4();
-    initTest();
-    mathNew();
+    check_Matrix3x3();
+    check_Matrix4x4();
+    init_test();
+    math_new();
 
     return 0;
 }

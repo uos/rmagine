@@ -63,4 +63,15 @@ void AABB_<DataT>::expand(const AABB_<DataT>& o)
     max.z = fmaxf(max.z, o.max.z);
 }
 
+template<typename DataT>
+template<typename ConvT>
+RMAGINE_INLINE_FUNCTION
+AABB_<ConvT> AABB_<DataT>::cast() const
+{
+    return {
+        min.template cast<ConvT>(),
+        max.template cast<ConvT>()
+    };
+}
+
 } // namespace rmagine

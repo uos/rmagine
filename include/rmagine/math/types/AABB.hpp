@@ -10,9 +10,11 @@ namespace rmagine
 template<typename DataT>
 struct AABB_
 {
+    // DATA
     Vector3_<DataT> min;
     Vector3_<DataT> max;
 
+    // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     DataT volume() const;
 
@@ -30,13 +32,7 @@ struct AABB_
 
     template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
-    AABB_<ConvT> cast() const
-    {
-        return {
-            min.template cast<ConvT>(),
-            max.template cast<ConvT>()
-        };
-    }
+    AABB_<ConvT> cast() const;
 };
 
 } // namespace rmagine

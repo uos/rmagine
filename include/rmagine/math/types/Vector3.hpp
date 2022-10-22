@@ -188,14 +188,7 @@ struct Vector3_
 
     template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
-    Vector3_<ConvT> cast() const
-    {
-        return {
-            static_cast<ConvT>(x),
-            static_cast<ConvT>(y),
-            static_cast<ConvT>(z)
-        };
-    }
+    Vector3_<ConvT> cast() const;
 
     ///////////////////////
     // DEPRECATED FUNCTIONS
