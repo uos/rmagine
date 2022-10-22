@@ -269,9 +269,9 @@ void Matrix_<DataT, Rows, Cols>::setIdentity()
         {
             if(i == j)
             {
-                at(i, j) = 1;
+                at(i, j) = static_cast<DataT>(1);
             } else {
-                at(i, j) = 0;
+                at(i, j) = static_cast<DataT>(0);
             }
         }
     }
@@ -734,7 +734,23 @@ float Matrix_<float, 2, 2>::det() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
+double Matrix_<double, 2, 2>::det() const
+{
+    return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+}
+
+template<>
+RMAGINE_INLINE_FUNCTION
 float Matrix_<float, 3, 3>::det() const
+{
+    return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
+            at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
+            at(0, 2) * (at(1, 0) * at(2, 1) - at(1, 1) * at(2, 0));
+}
+
+template<>
+RMAGINE_INLINE_FUNCTION
+double Matrix_<double, 3, 3>::det() const
 {
     return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
             at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
@@ -771,6 +787,36 @@ float Matrix_<float, 4, 4>::det() const
             - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
 }
 
+template<> 
+RMAGINE_INLINE_FUNCTION
+double Matrix_<double, 4, 4>::det() const
+{
+    // TODO: check
+    const double A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
+    const double A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
+    const double A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
+    const double A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
+    const double A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
+    const double A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
+    const double A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
+    const double A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
+    const double A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
+    const double A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
+    const double A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
+    const double A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
+    const double A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
+    const double A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
+    const double A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
+    const double A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
+    const double A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
+    const double A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
+
+    return  at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
+            - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
+            + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
+            - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+}
+
 template<>
 RMAGINE_INLINE_FUNCTION
 Matrix_<float, 2, 2> Matrix_<float, 2, 2>::inv() const
@@ -786,13 +832,49 @@ Matrix_<float, 2, 2> Matrix_<float, 2, 2>::inv() const
     return ret;
 }
 
+template<>
+RMAGINE_INLINE_FUNCTION
+Matrix_<double, 2, 2> Matrix_<double, 2, 2>::inv() const
+{
+    Matrix_<double, 2, 2> ret;
+    
+    const double invdet = 1.0 / det();
+    ret(0, 0) =  at(1, 1) * invdet;
+    ret(0, 1) = -at(0, 1) * invdet;
+    ret(1, 0) = -at(1, 0) * invdet;
+    ret(1, 1) =  at(0, 0) * invdet;
+    
+    return ret;
+}
+
 template<> 
 RMAGINE_INLINE_FUNCTION
 Matrix_<float, 3, 3> Matrix_<float, 3, 3>::inv() const
 {
     Matrix_<float, 3, 3> ret;
 
-    const float invdet = 1.0 / det();
+    const float invdet = 1.0f / det();
+
+    ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
+    ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;
+    ret(0, 2) = (at(0, 1) * at(1, 2) - at(0, 2) * at(1, 1)) * invdet;
+    ret(1, 0) = (at(1, 2) * at(2, 0) - at(1, 0) * at(2, 2)) * invdet;
+    ret(1, 1) = (at(0, 0) * at(2, 2) - at(0, 2) * at(2, 0)) * invdet;
+    ret(1, 2) = (at(1, 0) * at(0, 2) - at(0, 0) * at(1, 2)) * invdet;
+    ret(2, 0) = (at(1, 0) * at(2, 1) - at(2, 0) * at(1, 1)) * invdet;
+    ret(2, 1) = (at(2, 0) * at(0, 1) - at(0, 0) * at(2, 1)) * invdet;
+    ret(2, 2) = (at(0, 0) * at(1, 1) - at(1, 0) * at(0, 1)) * invdet;
+
+    return ret;
+}
+
+template<> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<double, 3, 3> Matrix_<double, 3, 3>::inv() const
+{
+    Matrix_<double, 3, 3> ret;
+
+    const double invdet = 1.0 / det();
 
     ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
     ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;
@@ -862,6 +944,61 @@ Matrix_<float, 4, 4> Matrix_<float, 4, 4>::inv() const
     return ret;
 }
 
+
+template<> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<double, 4, 4> Matrix_<double, 4, 4>::inv() const
+{
+    // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+    // answer of willnode at Jun 8 '17 at 23:09
+
+    const double A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
+    const double A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
+    const double A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
+    const double A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
+    const double A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
+    const double A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
+    const double A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
+    const double A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
+    const double A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
+    const double A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
+    const double A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
+    const double A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
+    const double A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
+    const double A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
+    const double A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
+    const double A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
+    const double A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
+    const double A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
+
+    double det_ = at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
+                - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
+                + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
+                - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 ) ;
+
+    // inv det
+    det_ = 1.0 / det_;
+
+    Matrix_<double, 4, 4> ret;
+    ret(0,0) = det_ *   ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 );
+    ret(0,1) = det_ * - ( at(0,1) * A2323 - at(0,2) * A1323 + at(0,3) * A1223 );
+    ret(0,2) = det_ *   ( at(0,1) * A2313 - at(0,2) * A1313 + at(0,3) * A1213 );
+    ret(0,3) = det_ * - ( at(0,1) * A2312 - at(0,2) * A1312 + at(0,3) * A1212 );
+    ret(1,0) = det_ * - ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 );
+    ret(1,1) = det_ *   ( at(0,0) * A2323 - at(0,2) * A0323 + at(0,3) * A0223 );
+    ret(1,2) = det_ * - ( at(0,0) * A2313 - at(0,2) * A0313 + at(0,3) * A0213 );
+    ret(1,3) = det_ *   ( at(0,0) * A2312 - at(0,2) * A0312 + at(0,3) * A0212 );
+    ret(2,0) = det_ *   ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 );
+    ret(2,1) = det_ * - ( at(0,0) * A1323 - at(0,1) * A0323 + at(0,3) * A0123 );
+    ret(2,2) = det_ *   ( at(0,0) * A1313 - at(0,1) * A0313 + at(0,3) * A0113 );
+    ret(2,3) = det_ * - ( at(0,0) * A1312 - at(0,1) * A0312 + at(0,3) * A0112 );
+    ret(3,0) = det_ * - ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+    ret(3,1) = det_ *   ( at(0,0) * A1223 - at(0,1) * A0223 + at(0,2) * A0123 );
+    ret(3,2) = det_ * - ( at(0,0) * A1213 - at(0,1) * A0213 + at(0,2) * A0113 );
+    ret(3,3) = det_ *   ( at(0,0) * A1212 - at(0,1) * A0212 + at(0,2) * A0112 );
+
+    return ret;
+}
 
 /////////////////////
 // Transformation Helpers

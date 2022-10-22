@@ -4,7 +4,6 @@
 namespace rmagine
 {
 
-
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 void Quaternion_<DataT>::setIdentity()
@@ -79,7 +78,7 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 DataT Quaternion_<DataT>::l2norm() const 
 {
-    return sqrtf(l2normSquared());
+    return sqrt(l2normSquared());
 }
 
 template<typename DataT>
@@ -141,18 +140,18 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     EulerAngles_<DataT> e;
 
     // roll (x-axis)
-    e.roll = atan2f(sinr_cosp, cosr_cosp);
+    e.roll = atan2(sinr_cosp, cosr_cosp);
 
     // pitch (y-axis)
     if (fabs(sinp) >= 1.0f)
     {
-        e.pitch = copysignf(PI_HALF, sinp); // use 90 degrees if out of range
+        e.pitch = copysign(PI_HALF, sinp); // use 90 degrees if out of range
     } else {
-        e.pitch = asinf(sinp);
+        e.pitch = asin(sinp);
     }
 
     // yaw (z-axis)
-    e.yaw = atan2f(siny_cosp, cosy_cosp);
+    e.yaw = atan2(siny_cosp, cosy_cosp);
 
     return e;
 }
