@@ -14,6 +14,24 @@ struct Vector2_
     DataT x;
     DataT y;
 
+    RMAGINE_FUNCTION
+    static Vector2_<DataT> NaN()
+    {
+        return {NAN, NAN};
+    }
+
+    RMAGINE_FUNCTION
+    static Vector2_<DataT> Zeros()
+    {
+        return {static_cast<DataT>(0), static_cast<DataT>(0)};
+    }
+
+    RMAGINE_FUNCTION
+    static Vector2_<DataT> Ones()
+    {
+        return {static_cast<DataT>(1), static_cast<DataT>(1)};
+    }
+
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector2_<DataT> add(const Vector2_<DataT>& b) const;
@@ -22,16 +40,19 @@ struct Vector2_
     void addInplace(const Vector2_<DataT>& b);
 
     RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile Vector2_<DataT>& b) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     Vector2_<DataT> sub(const Vector2_<DataT>& b) const;
 
     RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector2_<DataT>& b);
 
     RMAGINE_INLINE_FUNCTION
-    Vector2_<DataT> negation() const;
+    Vector2_<DataT> negate() const;
 
     RMAGINE_INLINE_FUNCTION
-    void negate();
+    void negateInplace();
 
     RMAGINE_INLINE_FUNCTION
     DataT dot(const Vector2_<DataT>& b) const;
@@ -102,7 +123,7 @@ struct Vector2_
     RMAGINE_INLINE_FUNCTION
     Vector2_<DataT> operator-() const
     {
-        return negation();
+        return negate();
     }
 
     RMAGINE_INLINE_FUNCTION

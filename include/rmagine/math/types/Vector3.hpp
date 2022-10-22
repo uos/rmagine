@@ -21,6 +21,18 @@ struct Vector3_
         return {NAN, NAN, NAN};
     }
 
+    RMAGINE_FUNCTION
+    static Vector3_<DataT> Zeros()
+    {
+        return {static_cast<DataT>(0), static_cast<DataT>(0), static_cast<DataT>(0)};
+    }
+
+    RMAGINE_FUNCTION
+    static Vector3_<DataT> Ones()
+    {
+        return {static_cast<DataT>(1), static_cast<DataT>(1), static_cast<DataT>(1)};
+    }
+
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> add(const Vector3_<DataT>& b) const;
@@ -35,10 +47,10 @@ struct Vector3_
     Vector3_<DataT> sub(const Vector3_<DataT>& b) const;
 
     RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> negation() const;
+    Vector3_<DataT> negate() const;
 
     RMAGINE_INLINE_FUNCTION
-    void negate();
+    void negateInplace();
 
     RMAGINE_INLINE_FUNCTION
     void subInplace(const Vector3_<DataT>& b);
@@ -53,7 +65,7 @@ struct Vector3_
     DataT mult(const Vector3_<DataT>& b) const;
     
     RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> mult_ewise(const Vector3_<DataT>& b) const;
+    Vector3_<DataT> multEwise(const Vector3_<DataT>& b) const;
 
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const DataT& s) const;
@@ -136,7 +148,7 @@ struct Vector3_
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> operator-() const
     {
-        return negation();
+        return negate();
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -183,7 +195,15 @@ struct Vector3_
             static_cast<ConvT>(y),
             static_cast<ConvT>(z)
         };
-    } 
+    }
+
+    ///////////////////////
+    // DEPRECATED FUNCTIONS
+    RMAGINE_INLINE_FUNCTION
+    Vector3_<DataT> mult_ewise(const Vector3_<DataT>& b) const
+    {   
+        return multEwise(b);
+    }
 };
 
 } // namespace rmagine

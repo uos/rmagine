@@ -38,14 +38,14 @@ Vector3_<DataT> Vector3_<DataT>::sub(const Vector3_<DataT>& b) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Vector3_<DataT> Vector3_<DataT>::negation() const
+Vector3_<DataT> Vector3_<DataT>::negate() const
 {
     return {-x, -y, -z};
 }
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-void Vector3_<DataT>::negate() 
+void Vector3_<DataT>::negateInplace() 
 {
     x = -x;
     y = -y;
@@ -88,7 +88,7 @@ DataT Vector3_<DataT>::mult(const Vector3_<DataT>& b) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Vector3_<DataT> Vector3_<DataT>::mult_ewise(const Vector3_<DataT>& b) const
+Vector3_<DataT> Vector3_<DataT>::multEwise(const Vector3_<DataT>& b) const
 {
     return {x * b.x, y * b.y, z * b.z};
 }

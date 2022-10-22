@@ -560,21 +560,19 @@ Vector2_<DataT>
     if constexpr(Rows == 2 && Cols == 2)
     {
         return {
-            at(0,0) * v.x + at(0,1) * v.y + at(0,2) * v.z, 
-            at(1,0) * v.x + at(1,1) * v.y + at(1,2) * v.z, 
-            at(2,0) * v.x + at(2,1) * v.y + at(2,2) * v.z
+            at(0,0) * v.x + at(0,1) * v.y, 
+            at(1,0) * v.x + at(1,1) * v.y,
         };
     } else 
     if constexpr(Rows == 2 && Cols == 3
                 || Rows == 3 && Cols == 3)
     {
         return {
-            at(0,0) * v.x + at(0,1) * v.y + at(0,2) * v.z + at(0,3),
-            at(1,0) * v.x + at(1,1) * v.y + at(1,2) * v.z + at(1,3),
-            at(2,0) * v.x + at(2,1) * v.y + at(2,2) * v.z + at(2,3)
+            at(0,0) * v.x + at(0,1) * v.y + at(0,2),
+            at(1,0) * v.x + at(1,1) * v.y + at(1,2),
         };
     } else {
-        return {NAN, NAN, NAN};
+        return {NAN, NAN};
     }
     
 }
@@ -729,6 +727,13 @@ DataT Matrix_<DataT, Rows, Cols>::trace() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
+float Matrix_<float, 2, 2>::det() const
+{
+    return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+}
+
+template<>
+RMAGINE_INLINE_FUNCTION
 float Matrix_<float, 3, 3>::det() const
 {
     return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
@@ -766,6 +771,20 @@ float Matrix_<float, 4, 4>::det() const
             - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
 }
 
+template<>
+RMAGINE_INLINE_FUNCTION
+Matrix_<float, 2, 2> Matrix_<float, 2, 2>::inv() const
+{
+    Matrix_<float, 2, 2> ret;
+    
+    const float invdet = 1.0f / det();
+    ret(0, 0) =  at(1, 1) * invdet;
+    ret(0, 1) = -at(0, 1) * invdet;
+    ret(1, 0) = -at(1, 0) * invdet;
+    ret(1, 1) =  at(0, 0) * invdet;
+    
+    return ret;
+}
 
 template<> 
 RMAGINE_INLINE_FUNCTION
@@ -773,7 +792,7 @@ Matrix_<float, 3, 3> Matrix_<float, 3, 3>::inv() const
 {
     Matrix_<float, 3, 3> ret;
 
-    const float invdet = 1 / det();
+    const float invdet = 1.0 / det();
 
     ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
     ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;

@@ -35,14 +35,14 @@ void Vector2_<DataT>::subInplace(const Vector2_<DataT>& b)
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Vector2_<DataT> Vector2_<DataT>::negation() const
+Vector2_<DataT> Vector2_<DataT>::negate() const
 {
     return {-x, -y};
 }
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-void Vector2_<DataT>::negate()
+void Vector2_<DataT>::negateInplace()
 {
     x = -x;
     y = -y;

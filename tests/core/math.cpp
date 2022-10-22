@@ -315,22 +315,6 @@ bool checkMatrix4x4()
     return true;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols>
-inline std::ostream& operator<<(std::ostream& os, const rm::Matrix<DataT, Rows, Cols>& M)
-{
-    os << "M" << M.rows() << "x" << M.cols() << "[\n";
-    for(unsigned int i=0; i<M.rows(); i++)
-    {
-        for(unsigned int j=0; j<M.cols(); j++)
-        {
-            os << " " << M(i, j);
-        }
-        os << "\n";
-    }
-    os << "]";
-    return os;
-}
-
 void initTest()
 {
     Vector2 v2 = {1, 2};
@@ -380,6 +364,13 @@ void mathNew()
     Matrix_<float, 2, 2> A;
 
     bla.l2norm();
+
+    float yaw = 1.0;
+
+    auto R = rm::yaw_to_rot_mat_2d(yaw);
+
+    std::cout << R << std::endl;
+
 }
 
 int main(int argc, char** argv)

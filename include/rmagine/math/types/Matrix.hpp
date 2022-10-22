@@ -11,11 +11,6 @@
 namespace rmagine
 {
 
-// Move this to another header
-template<typename DataT, unsigned int Rows, unsigned int Cols>
-struct Matrix;
-
-
 // Marker Types
 struct MatrixMultInvalid {};
 struct MatrixAddInvalid {};
@@ -94,7 +89,6 @@ struct Matrix_ {
 
     RMAGINE_INLINE_FUNCTION
     const DataT* operator[](const unsigned int col) const;
-
 
     /////////////////////
     // math functions
@@ -375,7 +369,27 @@ struct Matrix_ {
     using Type = DataT;
 };
 
+
+RMAGINE_INLINE_FUNCTION
+Matrix_<float, 2, 2> yaw_to_rot_mat_2d(float yaw)
+{
+    Matrix_<float, 2, 2> R;
+    R(0,0) =  cos(yaw); R(0,1) = sin(yaw);
+    R(1,0) = -sin(yaw); R(1,1) = cos(yaw);
+    return R;
+}
+
+RMAGINE_INLINE_FUNCTION
+Matrix_<float, 3, 3> yaw_to_rot_mat_3d(float yaw)
+{
+    EulerAngles_<float> e = {0.0, 0.0, yaw};
+    return static_cast<Matrix_<float, 3, 3> >(e);
+}
+
+
 } // namespace rmagine
+
+
 
 #include "Matrix.tcc"
 
