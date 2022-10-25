@@ -1,7 +1,12 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.4...10.0)
 project(rmagine 
     LANGUAGES CXX C
     VERSION 1)
+
+option(BUILD_TOOLS "Build tools" ON)
+option(BUILD_TESTS "Build tests" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
+option(BUILD_DOCS "Build documentation" OFF)
 
 include(GNUInstallDirs)
 
@@ -9,10 +14,11 @@ include(GNUInstallDirs)
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_TOOLS "Build tools" ON)
-option(BUILD_TESTS "Build tests" ON)
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_DOCS "Build documentation" OFF)
+message(STATUS "CMake Version: ${CMAKE_VERSION}")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
+    message(STATUS ">= 3.9 - Enabling Link Time Optimization")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 # DEFAULT RELEASE
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
@@ -24,7 +30,6 @@ endif()
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -112,11 +117,11 @@ include_directories(
     include
 )
 
-set(RMAGINE_LIBRARIES rmagine)
+
 
 message(STATUS "Building Core. Library: rmagine")
 
-add_library(rmagine SHARED
+set(RMAGINE_CORE_SRCS
     # Maps
     src/rmagine/map/AssimpIO.cpp
     # # Math
@@ -140,6 +145,10 @@ add_library(rmagine SHARED
     src/rmagine/noise/UniformDustNoise.cpp
 )
 
+add_library(rmagine SHARED
+    ${RMAGINE_CORE_SRCS}
+)
+
 target_link_libraries(rmagine
   ${ASSIMP_LIBRARIES}
   Eigen3::Eigen
@@ -147,200 +156,272 @@ target_link_libraries(rmagine
 
 target_compile_features(rmagine PRIVATE cxx_std_17)
 
+set(RMAGINE_LIBRARIES rmagine)
+
+add_library(rmagine_static STATIC
+    ${RMAGINE_CORE_SRCS}
+)
+
+target_link_libraries(rmagine_static
+  ${ASSIMP_LIBRARIES}
+  Eigen3::Eigen
+)
+
+target_compile_features(rmagine_static PRIVATE cxx_std_17)
+
+set(RMAGINE_STATIC_LIBRARIES rmagine_static)
+
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)
-message(STATUS "Building Embree (${embree_VERSION}) backend. Library: rmagine_embree")
+    message(STATUS "Building Embree (${embree_VERSION}) backend. Library: rmagine_embree")
 
-add_library(rmagine_embree SHARED
-    # Maps
-    
-    src/rmagine/map/embree/EmbreeDevice.cpp
-    src/rmagine/map/embree/EmbreeGeometry.cpp
-    src/rmagine/map/embree/EmbreeMesh.cpp
-    src/rmagine/map/embree/EmbreeScene.cpp
-    src/rmagine/map/embree/EmbreeInstance.cpp
-    src/rmagine/map/embree/EmbreePoints.cpp
-    
-    src/rmagine/map/embree/embree_shapes.cpp
+    set(RMAGINE_EMBREE_SRCS
+        # Maps
+        src/rmagine/map/embree/EmbreeDevice.cpp
+        src/rmagine/map/embree/EmbreeGeometry.cpp
+        src/rmagine/map/embree/EmbreeMesh.cpp
+        src/rmagine/map/embree/EmbreeScene.cpp
+        src/rmagine/map/embree/EmbreeInstance.cpp
+        src/rmagine/map/embree/EmbreePoints.cpp
+        src/rmagine/map/embree/embree_shapes.cpp
+        src/rmagine/map/EmbreeMap.cpp
+        
+        # Simulators
+        src/rmagine/simulation/SphereSimulatorEmbree.cpp
+        src/rmagine/simulation/PinholeSimulatorEmbree.cpp
+        src/rmagine/simulation/O1DnSimulatorEmbree.cpp
+        src/rmagine/simulation/OnDnSimulatorEmbree.cpp
+    )
 
-    src/rmagine/map/EmbreeMap.cpp
-    
-    # Simulators
-    src/rmagine/simulation/SphereSimulatorEmbree.cpp
-    src/rmagine/simulation/PinholeSimulatorEmbree.cpp
-    src/rmagine/simulation/O1DnSimulatorEmbree.cpp
-    src/rmagine/simulation/OnDnSimulatorEmbree.cpp
-)
+    add_library(rmagine_embree SHARED
+        ${RMAGINE_EMBREE_SRCS}
+    )
 
-target_link_libraries(rmagine_embree
-    rmagine
-    ${embree_LIBRARY}
-)
+    target_link_libraries(rmagine_embree
+        rmagine
+        ${embree_LIBRARY}
+    )
 
-add_dependencies(rmagine_embree
-    rmagine
-)
+    add_dependencies(rmagine_embree
+        rmagine
+    )
 
-target_compile_features(rmagine_embree PRIVATE cxx_std_17)
+    target_compile_features(rmagine_embree PRIVATE cxx_std_17)
 
-list(APPEND RMAGINE_LIBRARIES rmagine_embree)
+    list(APPEND RMAGINE_LIBRARIES rmagine_embree)
+
+
+    add_library(rmagine_embree_static STATIC
+        ${RMAGINE_EMBREE_SRCS}
+    )
+
+    target_link_libraries(rmagine_embree_static
+        rmagine_static
+        ${embree_LIBRARY}
+    )
+
+    add_dependencies(rmagine_embree_static
+        rmagine_static
+    )
+
+    target_compile_features(rmagine_embree_static PRIVATE cxx_std_17)
+
+    list(APPEND RMAGINE_STATIC_LIBRARIES rmagine_embree_static)
 
 endif(embree_FOUND)
 
 if(CUDA_FOUND)
 
-message(STATUS "Building Cuda dependend code. Library: rmagine_cuda")
+    message(STATUS "Building Cuda dependend code. Library: rmagine_cuda")
 
-add_library(rmagine_cuda SHARED
-    src/rmagine/types/MemoryCuda.cu
-    # math
-    src/rmagine/math/math.cu
-    src/rmagine/math/math_batched.cu
-    src/rmagine/math/SVDCuda.cpp
-    # util
-    src/rmagine/util/cuda/CudaContext.cpp
-    src/rmagine/util/cuda/CudaStream.cpp
-    src/rmagine/util/cuda/random.cu
-    # noise
-    src/rmagine/noise/NoiseCuda.cu
-    src/rmagine/noise/GaussianNoiseCuda.cu
-    src/rmagine/noise/RelGaussianNoiseCuda.cu
-    src/rmagine/noise/UniformDustNoiseCuda.cu
-    # map
-    src/rmagine/map/mesh_preprocessing.cu
-)
-
-# TODO: use CUDA language instead of find_package
-target_link_libraries(rmagine_cuda
-    rmagine
-    ${CUDA_LIBRARIES}
-    ${CUDA_cusolver_LIBRARY}
-    ${CUDA_cublas_LIBRARY}
-    # ${CUDA_CUDA_LIBRARY}
-    cuda
-)
-
-add_dependencies(rmagine_cuda
-    rmagine
-)
-
-list(APPEND RMAGINE_LIBRARIES rmagine_cuda)
-
-if(OptiX_FOUND)
-
-    message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine_optix")
-
-    # Optix Kernels
-    set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
-    set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
-
-    set(CUDA_GENERATED_OUTPUT_DIR ${RMAGINE_OPTIX_PTX_DIR})
-    add_definitions( -DWITH_OPTIX )
-    add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
-    add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
-
-    # message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
-
-    set(OPTIX_KERNEL_FILES
-        # Simulation
-        ## Spherical
-        src/rmagine/simulation/optix/SphereProgramRanges.cu
-        # src/rmagine/simulation/optix/SphereProgramNormals.cu
-        # src/rmagine/simulation/optix/SphereProgramGeneric.cu
-        ## Pinhole
-        src/rmagine/simulation/optix/PinholeProgramRanges.cu
-        # src/rmagine/simulation/optix/PinholeProgramNormals.cu
-        # src/rmagine/simulation/optix/PinholeProgramGeneric.cu
-        # ## O1Dn
-        src/rmagine/simulation/optix/O1DnProgramRanges.cu
-        # src/rmagine/simulation/optix/O1DnProgramNormals.cu
-        # src/rmagine/simulation/optix/O1DnProgramGeneric.cu
-        # ## OnDn
-        src/rmagine/simulation/optix/OnDnProgramRanges.cu
-        # src/rmagine/simulation/optix/OnDnProgramNormals.cu
-        # src/rmagine/simulation/optix/OnDnProgramGeneric.cu
-        ## NEW
-        src/rmagine/simulation/optix/SphereProgramGen.cu
-        src/rmagine/simulation/optix/PinholeProgramGen.cu
-        src/rmagine/simulation/optix/O1DnProgramGen.cu
-        src/rmagine/simulation/optix/OnDnProgramGen.cu
-        src/rmagine/simulation/optix/SensorProgramHit.cu
+    set(RMAGINE_CUDA_SRCS
+        src/rmagine/types/MemoryCuda.cu
+        # math
+        src/rmagine/math/math.cu
+        src/rmagine/math/math_batched.cu
+        src/rmagine/math/SVDCuda.cpp
+        # util
+        src/rmagine/util/cuda/CudaContext.cpp
+        src/rmagine/util/cuda/CudaStream.cpp
+        src/rmagine/util/cuda/random.cu
+        # noise
+        src/rmagine/noise/NoiseCuda.cu
+        src/rmagine/noise/GaussianNoiseCuda.cu
+        src/rmagine/noise/RelGaussianNoiseCuda.cu
+        src/rmagine/noise/UniformDustNoiseCuda.cu
+        # map
+        src/rmagine/map/mesh_preprocessing.cu
     )
 
-    cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
-        ${OPTIX_KERNEL_FILES}
+    add_library(rmagine_cuda SHARED
+        ${RMAGINE_CUDA_SRCS}
     )
 
-    add_custom_target(rmagine_optix_ptx ALL
-        DEPENDS ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
-        SOURCES ${OPTIX_KERNEL_FILES}
-        VERBATIM)
-
-    add_custom_command(
-        TARGET rmagine_optix_ptx POST_BUILD
-        COMMAND ${CMAKE_COMMAND} 
-            -DRMAGINE_SOURCE_DIR=${rmagine_SOURCE_DIR} 
-            -DRMAGINE_OPTIX_PTX_DIR=${RMAGINE_OPTIX_PTX_DIR} 
-            -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}" 
-            -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
+    # TODO: use CUDA language instead of find_package
+    target_link_libraries(rmagine_cuda
+        rmagine
+        ${CUDA_LIBRARIES}
+        ${CUDA_cusolver_LIBRARY}
+        ${CUDA_cublas_LIBRARY}
+        cuda
     )
-    
-    # OptiX GENERAL LIBRARY
-    add_library(rmagine_optix SHARED
-        # Util 
-        src/rmagine/util/optix/OptixFunctionTable.cpp
-        src/rmagine/util/optix/OptixUtil.cpp
-        src/rmagine/util/optix/OptixContext.cpp
-        src/rmagine/util/optix/optix_modules.cpp
-        # Maps
-        src/rmagine/map/optix/OptixAccelerationStructure.cpp
-        src/rmagine/map/optix/OptixGeometry.cpp
-        src/rmagine/map/optix/OptixMesh.cpp
-        src/rmagine/map/optix/OptixInst.cpp
-        src/rmagine/map/optix/OptixScene.cpp
-        src/rmagine/map/optix/OptixTransformable.cpp
-        src/rmagine/map/optix/OptixEntity.cpp
-        src/rmagine/map/optix/OptixSceneEventReceiver.cpp
-        src/rmagine/map/optix/optix_shapes.cpp
-        src/rmagine/map/OptixMap.cpp
+
+    add_dependencies(rmagine_cuda
+        rmagine
+    )
+
+    list(APPEND RMAGINE_LIBRARIES rmagine_cuda)
+
+    add_library(rmagine_cuda_static STATIC
+        ${RMAGINE_CUDA_SRCS}
+    )
+
+    # TODO: use CUDA language instead of find_package
+    target_link_libraries(rmagine_cuda_static
+        rmagine_static
+        ${CUDA_LIBRARIES}
+        ${CUDA_cusolver_LIBRARY}
+        ${CUDA_cublas_LIBRARY}
+        cuda
+    )
+
+    add_dependencies(rmagine_cuda_static
+        rmagine_static
+    )
+
+    list(APPEND RMAGINE_STATIC_LIBRARIES rmagine_cuda_static)
+
+
+    if(OptiX_FOUND)
+
+        message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine_optix")
+
+        # Optix Kernels
+        set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
+        set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
+
+        set(CUDA_GENERATED_OUTPUT_DIR ${RMAGINE_OPTIX_PTX_DIR})
+        add_definitions( -DWITH_OPTIX )
+        add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
+        add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
+
+        # message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
+
+        set(OPTIX_KERNEL_FILES
+            # Simulation
+            ## Spherical
+            src/rmagine/simulation/optix/SphereProgramRanges.cu
+            # src/rmagine/simulation/optix/SphereProgramNormals.cu
+            # src/rmagine/simulation/optix/SphereProgramGeneric.cu
+            ## Pinhole
+            src/rmagine/simulation/optix/PinholeProgramRanges.cu
+            # src/rmagine/simulation/optix/PinholeProgramNormals.cu
+            # src/rmagine/simulation/optix/PinholeProgramGeneric.cu
+            # ## O1Dn
+            src/rmagine/simulation/optix/O1DnProgramRanges.cu
+            # src/rmagine/simulation/optix/O1DnProgramNormals.cu
+            # src/rmagine/simulation/optix/O1DnProgramGeneric.cu
+            # ## OnDn
+            src/rmagine/simulation/optix/OnDnProgramRanges.cu
+            # src/rmagine/simulation/optix/OnDnProgramNormals.cu
+            # src/rmagine/simulation/optix/OnDnProgramGeneric.cu
+            ## NEW
+            src/rmagine/simulation/optix/SphereProgramGen.cu
+            src/rmagine/simulation/optix/PinholeProgramGen.cu
+            src/rmagine/simulation/optix/O1DnProgramGen.cu
+            src/rmagine/simulation/optix/OnDnProgramGen.cu
+            src/rmagine/simulation/optix/SensorProgramHit.cu
+        )
+
+        cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
+            ${OPTIX_KERNEL_FILES}
+        )
+
+        add_custom_target(rmagine_optix_ptx ALL
+            DEPENDS ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
+            SOURCES ${OPTIX_KERNEL_FILES}
+            VERBATIM)
+
+        add_custom_command(
+            TARGET rmagine_optix_ptx POST_BUILD
+            COMMAND ${CMAKE_COMMAND} 
+                -DRMAGINE_SOURCE_DIR=${rmagine_SOURCE_DIR} 
+                -DRMAGINE_OPTIX_PTX_DIR=${RMAGINE_OPTIX_PTX_DIR} 
+                -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}" 
+                -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernels.cmake"
+        )
         
-        # Simulation
-        src/rmagine/simulation/SphereSimulatorOptix.cpp
-        src/rmagine/simulation/PinholeSimulatorOptix.cpp
-        src/rmagine/simulation/O1DnSimulatorOptix.cpp
-        src/rmagine/simulation/OnDnSimulatorOptix.cpp
-        # Simulation Programs
-        ## Spherical
-        # src/rmagine/simulation/optix/SphereProgramRanges.cpp
-        # ## Pinhole
-        # src/rmagine/simulation/optix/PinholeProgramRanges.cpp
-        # ## O1Dn
-        # src/rmagine/simulation/optix/O1DnProgramRanges.cpp
-        # ## OnDn
-        # src/rmagine/simulation/optix/OnDnProgramRanges.cpp
-        # NEW
-        src/rmagine/simulation/optix/sim_modules.cpp
-        src/rmagine/simulation/optix/sim_program_groups.cpp
-        src/rmagine/simulation/optix/sim_pipelines.cpp
-    )
+        set(RMAGINE_OPTIX_SRCS
+            # Util 
+            src/rmagine/util/optix/OptixFunctionTable.cpp
+            src/rmagine/util/optix/OptixUtil.cpp
+            src/rmagine/util/optix/OptixContext.cpp
+            src/rmagine/util/optix/optix_modules.cpp
+            # Maps
+            src/rmagine/map/optix/OptixAccelerationStructure.cpp
+            src/rmagine/map/optix/OptixGeometry.cpp
+            src/rmagine/map/optix/OptixMesh.cpp
+            src/rmagine/map/optix/OptixInst.cpp
+            src/rmagine/map/optix/OptixScene.cpp
+            src/rmagine/map/optix/OptixTransformable.cpp
+            src/rmagine/map/optix/OptixEntity.cpp
+            src/rmagine/map/optix/OptixSceneEventReceiver.cpp
+            src/rmagine/map/optix/optix_shapes.cpp
+            src/rmagine/map/OptixMap.cpp
+            # Simulation
+            src/rmagine/simulation/SphereSimulatorOptix.cpp
+            src/rmagine/simulation/PinholeSimulatorOptix.cpp
+            src/rmagine/simulation/O1DnSimulatorOptix.cpp
+            src/rmagine/simulation/OnDnSimulatorOptix.cpp
+            # Simulation Programs
+            src/rmagine/simulation/optix/sim_modules.cpp
+            src/rmagine/simulation/optix/sim_program_groups.cpp
+            src/rmagine/simulation/optix/sim_pipelines.cpp
+        )
 
-    target_include_directories(rmagine_optix PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    )
+        # OptiX GENERAL LIBRARY
+        add_library(rmagine_optix SHARED
+            ${RMAGINE_OPTIX_SRCS}
+        )
 
-    target_link_libraries(rmagine_optix
-        ${OptiX_LIBRARIES}
-        rmagine_cuda
-    )
+        target_include_directories(rmagine_optix PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        )
 
-    add_dependencies(rmagine_optix
-        rmagine_optix_ptx
-        rmagine_cuda
-    )
+        target_link_libraries(rmagine_optix
+            ${OptiX_LIBRARIES}
+            rmagine_cuda
+        )
 
-    list(APPEND RMAGINE_LIBRARIES rmagine_optix)
+        add_dependencies(rmagine_optix
+            rmagine_optix_ptx
+            rmagine_cuda
+        )
 
-endif(OptiX_FOUND)
+        list(APPEND RMAGINE_LIBRARIES rmagine_optix)
+
+        # OptiX GENERAL STATIC LIBRARY
+        add_library(rmagine_optix_static STATIC
+            ${RMAGINE_OPTIX_SRCS}
+        )
+
+        target_include_directories(rmagine_optix_static PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        )
+
+        target_link_libraries(rmagine_optix_static
+            ${OptiX_LIBRARIES}
+            rmagine_cuda_static
+        )
+
+        add_dependencies(rmagine_optix
+            rmagine_optix_ptx
+            rmagine_cuda_static
+        )
+
+        list(APPEND RMAGINE_STATIC_LIBRARIES rmagine_optix_static)
+
+    endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
 
@@ -375,6 +456,8 @@ endif(BUILD_EXAMPLES)
 install(DIRECTORY include/rmagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
 install(TARGETS ${RMAGINE_LIBRARIES})
+# 3. Static Libraries
+install(TARGETS ${RMAGINE_STATIC_LIBRARIES})
 
 # install(TARGETS rmagine rmagine_cuda rmagine_optix)
 # TODO: Components?
