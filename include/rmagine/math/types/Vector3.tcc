@@ -13,6 +13,13 @@ Vector3_<DataT> Vector3_<DataT>::add(const Vector3_<DataT>& b) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+volatile Vector3_<DataT> Vector3_<DataT>::add(volatile Vector3_<DataT>& b) const volatile
+{
+    return {x + b.x, y + b.y, z + b.z};
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 void Vector3_<DataT>::addInplace(const Vector3_<DataT>& b)
 {
     x += b.x;
@@ -116,6 +123,14 @@ Vector3_<DataT> Vector3_<DataT>::mult(const DataT& s) const
 {
     return {x * s, y * s, z * s};
 }
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+volatile Vector3_<DataT> Vector3_<DataT>::mult(const DataT& s) const volatile 
+{
+    return {x * s, y * s, z * s};
+}
+
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION

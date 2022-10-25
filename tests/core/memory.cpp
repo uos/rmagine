@@ -5,6 +5,8 @@
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
 
+#include <rmagine/util/prints.h>
+
 
 using namespace rmagine;
 
@@ -133,6 +135,9 @@ void test_slicing_small()
     Memory<float> a(10);
     Memory<float> b(10);
     Memory<float> c(10);
+
+    std::cout << a << std::endl;
+
     init(a);
     init(b);
 

@@ -3,6 +3,7 @@
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/math/math.cuh>
 #include <rmagine/util/exceptions.h>
+#include <rmagine/util/prints.h>
 
 
 
@@ -46,6 +47,8 @@ void memory_basic()
     Memory<float, VRAM_CUDA> arr;
     arr.resize(5);
     arr = arr_cpu;
+
+    std::cout << arr << std::endl;
 
 
     Memory<float, RAM> dest;

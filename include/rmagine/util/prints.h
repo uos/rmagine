@@ -43,6 +43,8 @@
 
 #include <iostream>
 #include <rmagine/math/types.h>
+#include <rmagine/types/Memory.hpp>
+#include <typeinfo>       // operator typeid
 
 template<typename DataT>
 inline std::ostream& operator<<(std::ostream& os, const rmagine::Vector3_<DataT>& v)
@@ -94,6 +96,34 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform_<Data
     rmagine::EulerAngles e;
     e.set(T.R);
     os << "T[" << T.t << ", " << e << "]";
+    return os;
+}
+
+template<typename DataT, typename MemT>
+inline std::ostream& operator<<(std::ostream& os, const rmagine::MemoryView<DataT, MemT> mem)
+{
+    os << "Mem (DataT=" << typeid(DataT).name() << ", MemT=" << typeid(MemT).name() 
+        << ", Size=" << mem.size() << "): ";
+    
+    os << "[";
+    if(mem.size() > 0)
+    {
+        rmagine::Memory<DataT, rmagine::RAM> first = mem(0, 1);
+        os << first[0];
+
+        if(mem.size() > 2)
+        {
+            os << ", ..., ";
+        }
+
+        if(mem.size() > 1)
+        {
+            rmagine::Memory<DataT, rmagine::RAM> last = mem(mem.size()-1, mem.size());
+            os << last[0];
+        }
+    }
+    os << "]";
+
     return os;
 }
 

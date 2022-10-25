@@ -36,6 +36,9 @@ struct Vector3_
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> add(const Vector3_<DataT>& b) const;
+
+    RMAGINE_INLINE_FUNCTION
+    volatile Vector3_<DataT> add(volatile Vector3_<DataT>& b) const volatile;
     
     RMAGINE_INLINE_FUNCTION
     void addInplace(const Vector3_<DataT>& b);
@@ -69,6 +72,9 @@ struct Vector3_
 
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const DataT& s) const;
+
+    RMAGINE_INLINE_FUNCTION
+    volatile Vector3_<DataT> mult(const DataT& s) const volatile;
 
     RMAGINE_INLINE_FUNCTION
     void multInplace(const DataT& s);
@@ -119,6 +125,12 @@ struct Vector3_
     }
 
     RMAGINE_INLINE_FUNCTION
+    volatile Vector3_<DataT> operator+(volatile Vector3_<DataT> b) const volatile
+    {
+        return add(b);
+    }
+
+    RMAGINE_INLINE_FUNCTION
     Vector3_<DataT>& operator+=(const Vector3_<DataT>& b)
     {
         addInplace(b);
@@ -164,6 +176,12 @@ struct Vector3_
     }
 
     RMAGINE_INLINE_FUNCTION
+    volatile Vector3_<DataT> operator*(const DataT& s) const volatile
+    {
+        return mult(s);
+    }
+
+    RMAGINE_INLINE_FUNCTION
     Vector3_<DataT>& operator*=(const DataT& s)
     {
         multInplace(s);
@@ -183,9 +201,17 @@ struct Vector3_
         return *this;
     }
 
+    // RMAGINE_INLINE_FUNCTION
+    // volatile Vector3_<DataT>& operator=(volatile Vector3_<DataT> b) volatile
+    // {
+    //     x = b.x;
+    //     y = b.y;
+    //     z = b.z;
+    //     return *this;
+    // }
+
     ////////////////////////
     // CASTING
-
     template<typename ConvT>
     RMAGINE_INLINE_FUNCTION
     Vector3_<ConvT> cast() const;
