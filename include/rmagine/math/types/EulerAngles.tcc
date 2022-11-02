@@ -51,7 +51,7 @@ EulerAngles_<DataT>::operator Quaternion_<DataT>() const
     const DataT cy = cosf(yaw / 2.0f);
     const DataT sy = sinf(yaw / 2.0f);
 
-    std::cout << "Cast Euler to Quat - Done." << std::endl;
+    // std::cout << "Cast Euler to Quat - Done." << std::endl;
     return {
         sr * cp * cy - cr * sp * sy,
         cr * sp * cy + sr * cp * sy,
