@@ -123,6 +123,8 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 Quaternion_<DataT>::operator EulerAngles_<DataT>() const 
 {
+    constexpr DataT PI_HALF = M_PI / 2.0;
+
     // TODO: check
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     // checked once
@@ -131,12 +133,21 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     const DataT sinr_cosp = 2.0 * (w * x + y * z);
     const DataT cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
     // pitch (y-axis)
-    const DataT sinp = 2.0 * (w * y - z * x);
+    const DataT sinp =      2.0 * (w * y - z * x);
     // yaw (z-axis)
     const DataT siny_cosp = 2.0 * (w * z + x * y);
     const DataT cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
-    constexpr DataT PI_HALF = M_PI / 2.0;
 
+
+    // Tested with python:
+    // const DataT sinr_cosp = 2.0 * (w * x - y * z);
+    // const DataT cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
+    // // pitch (y-axis)
+    // const DataT sinp = 2.0 * (w * y + z * x);
+    // // yaw (z-axis)
+    // const DataT siny_cosp = 2.0 * (w * z - x * y);
+    // const DataT cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
+    
     EulerAngles_<DataT> e;
 
     // roll (x-axis)

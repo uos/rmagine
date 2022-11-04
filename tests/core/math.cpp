@@ -124,8 +124,161 @@ bool rotation_conv_test()
         return false;
     }
 
+
     return true;
 }
+
+
+
+void rotation_conv_test_single(
+    rm::EulerAngles e = {0.1, 0.2, 0.3})
+{
+    { // E -> Q -> E
+        rm::Quaternion q = e;
+        rm::EulerAngles e1 = q; // correct
+
+        if(fabs(e.roll - e1.roll) > 0.0001 
+        || fabs(e.pitch - e1.pitch) > 0.0001 
+        || fabs(e.yaw - e1.yaw) > 0.0001)
+        {
+            RM_THROW(Exception, "E <-> Q failed.");
+        }
+    }
+
+    { // E -> M -> E
+        rm::Matrix3x3 M = e;
+        rm::EulerAngles e1 = M; // correct
+
+        if(fabs(e.roll - e1.roll) > 0.0001 
+        || fabs(e.pitch - e1.pitch) > 0.0001 
+        || fabs(e.yaw - e1.yaw) > 0.0001)
+        {
+            RM_THROW(Exception, "E <-> M failed.");
+        }
+    }
+
+    { // M -> Q -> M
+        rm::Matrix3x3 M = e;
+        rm::Quaternion q = M;
+        rm::Matrix3x3 M1 = q; // correct
+    
+        float tot_error = 0.0;
+
+        auto Mdiff = M1 - M;
+        for(size_t i=0; i<3; i++)
+        {
+            for(size_t j=0; j<3; j++)
+            {
+                tot_error += abs(Mdiff(i, j));
+            }
+        }
+        tot_error /= 9.0;
+
+        if(tot_error > 0.0001)
+        {
+            RM_THROW(Exception, "M <-> Q failed.");
+        }
+    }
+}
+
+void rotation_conv_test_double(
+    rm::EulerAngles e = {0.1, 0.2, 0.3})
+{
+    { // E -> Q -> M -> E
+        rm::Quaternion q = e;
+        rm::Matrix3x3 M = q;
+        rm::EulerAngles e1 = M; // correct
+
+        if(fabs(e.roll - e1.roll) > 0.0001 
+        || fabs(e.pitch - e1.pitch) > 0.0001 
+        || fabs(e.yaw - e1.yaw) > 0.0001)
+        {
+            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+        }
+    }
+
+    { // E -> M -> Q -> E
+        rm::Matrix3x3 M = e;
+        rm::Quaternion q = M;
+        rm::EulerAngles e1 = q; // correct
+
+        if(fabs(e.roll - e1.roll) > 0.0001 
+        || fabs(e.pitch - e1.pitch) > 0.0001 
+        || fabs(e.yaw - e1.yaw) > 0.0001)
+        {
+            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+        }
+    }
+
+
+    { // E -> M -> Q -> M -> E
+        rm::Matrix3x3 M = e;
+        rm::Quaternion q = M;
+        rm::Matrix3x3 M1 = q;
+        rm::EulerAngles e1 = M1; // correct
+
+        if(fabs(e.roll - e1.roll) > 0.0001 
+        || fabs(e.pitch - e1.pitch) > 0.0001 
+        || fabs(e.yaw - e1.yaw) > 0.0001)
+        {
+            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+        }
+    }
+
+}
+
+void rotation_conv_test_2()
+{
+
+    for(int i=-3; i<4; i++)
+    {
+        for(int j=-3; j<4; j++)
+        {
+            for(int k=-3; k<4; k++)
+            {
+                rm::EulerAngles e = {
+                    static_cast<float>(i) / 2.0f,
+                    static_cast<float>(j) / 2.0f,
+                    static_cast<float>(k) / 2.0f
+                };
+
+                rotation_conv_test_single(e);
+                rotation_conv_test_double(e);
+            }
+        }
+    }
+}
+
+
+void rotation_apply_test()
+{
+    rm::Vector3 px = {1.0, 0.0, 0.0};
+
+    rm::EulerAngles e = {0.1, 0.2, M_PI / 2.0};
+
+    rm::EulerAngles ex = {e.roll, 0.0, 0.0};
+    rm::EulerAngles ey = {0.0, e.pitch, 0.0};
+    rm::EulerAngles ez = {0.0, 0.0, e.yaw};
+
+    rm::Quaternion q = e;
+    rm::Quaternion qx = ex;
+    rm::Quaternion qy = ey;
+    rm::Quaternion qz = ez;
+
+    rm::Matrix3x3  M = e;
+    rm::Matrix3x3  Mx = ex;
+    rm::Matrix3x3  My = ey;
+    rm::Matrix3x3  Mz = ez;
+
+    auto p_q = q * px;
+    auto p_M = M * px;
+
+    if( (p_q - p_M).l2norm() > 0.0001 )
+    {
+        RM_THROW(Exception, "M * p != Q * p");
+    }
+}
+
 
 Eigen::Vector3f& eigen_view(Vector3& v)
 {
@@ -358,7 +511,6 @@ void math_new()
     auto R = rm::yaw_to_rot_mat_2d(yaw);
 
     std::cout << R << std::endl;
-
 }
 
 int main(int argc, char** argv)
@@ -367,6 +519,9 @@ int main(int argc, char** argv)
 
     rotation_init_test();
     rotation_conv_test();
+    rotation_conv_test_2();
+
+    rotation_apply_test();
 
     check_Matrix3x3();
     check_Matrix4x4();

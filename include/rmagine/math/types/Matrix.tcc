@@ -494,6 +494,23 @@ void Matrix_<DataT, Rows, Cols>::multInplace(const DataT& scalar)
     }
 }
 
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, Rows, Cols> Matrix_<DataT, Rows, Cols>::multEwise(const Matrix_<DataT, Rows, Cols>& M) const
+{
+    Matrix_<DataT, Rows, Cols> res;
+
+    for(unsigned int i = 0; i < Rows; i++)
+    {
+        for(unsigned int j = 0; j < Cols; j++)
+        {
+            res(i, j) = at(i, j) * M(i,j);
+        }
+    }
+
+    return res;
+}
+
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
 RMAGINE_INLINE_FUNCTION
@@ -1188,7 +1205,7 @@ Matrix_<DataT, Rows, Cols>::operator Quaternion_<DataT>() const
         q.w = 0.25f * S;
         q.x = (at(2,1) - at(1,2)) / S;
         q.y = (at(0,2) - at(2,0)) / S; 
-        q.z = (at(1,0) - at(0,1)) / S; 
+        q.z = (at(1,0) - at(0,1)) / S;
     } else if ((at(0,0) > at(1,1)) && (at(0,0) > at(2,2))) { 
         const DataT S = sqrtf(1.0 + at(0,0) - at(1,1) - at(2,2)) * 2.0; // S=4*qx 
         q.w = (at(2,1) - at(1,2)) / S;
@@ -1222,30 +1239,30 @@ Matrix_<DataT, Rows, Cols>::operator EulerAngles_<DataT>() const
     // TODO: check. tested once: correct
     
     // roll (x-axis)
-    const DataT sinr_cosp = -at(1,2);
-    const DataT cosr_cosp =  at(2,2);
+    const DataT sA_cB =  at(2,1);
+    const DataT cA_cB =  at(2,2);
     
     // pitch (y-axis)
-    const DataT sinp = at(0,2);
+    const DataT sB    = -at(2,0);
 
     // yaw (z-axis)
-    const DataT siny_cosp = -at(0,1);
-    const DataT cosy_cosp =  at(0,0);
+    const DataT sC_cB =  at(1,0);
+    const DataT cC_cB =  at(0,0);
 
     // roll (x-axis)
     EulerAngles_<DataT> e;
-    e.roll = atan2(sinr_cosp, cosr_cosp);
+    e.roll = atan2(sA_cB, cA_cB);
 
     // pitch (y-axis)
-    if (fabs(sinp) >= 1.0)
+    if (fabs(sB) >= 1.0)
     {
-        e.pitch = copysignf(M_PI / 2, sinp); // use 90 degrees if out of range
+        e.pitch = copysignf(M_PI / 2, sB); // use 90 degrees if out of range
     } else {
-        e.pitch = asinf(sinp);
+        e.pitch = asinf(sB);
     }
 
     // yaw (z-axis)
-    e.yaw = atan2f(siny_cosp, cosy_cosp);
+    e.yaw = atan2f(sC_cB, cC_cB);
 
     return e;
 }

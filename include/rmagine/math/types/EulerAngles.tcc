@@ -76,16 +76,20 @@ EulerAngles_<DataT>::operator Matrix_<DataT, 3, 3>() const
     const DataT cC = cosf(yaw);
     const DataT sC = sinf(yaw);
 
+    // order: p_rotated = Rz * Ry * Rx * p
+    // row 0
     M(0,0) =  cB * cC;
-    M(0,1) = -cB * sC;
-    M(0,2) =  sB;
+    M(0,1) =  sA * sB * cC - cA * sC;
+    M(0,2) =  cA * sB * cC + sA * sC;
 
-    M(1,0) =  sA * sB * cC + cA * sC;
-    M(1,1) = -sA * sB * sC + cA * cC;
-    M(1,2) = -sA * cB;
+    // row 1
+    M(1,0) =  cB * sC;
+    M(1,1) =  sA * sB * sC + cA * cC;
+    M(1,2) =  cA * sB * sC - sA * cC;
     
-    M(2,0) = -cA * sB * cC + sA * sC;
-    M(2,1) =  cA * sB * sC + sA * cC;
+    // row 2
+    M(2,0) =  -sB;
+    M(2,1) =  sA * cB;
     M(2,2) =  cA * cB;
 
     return M;

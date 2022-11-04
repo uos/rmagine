@@ -112,6 +112,9 @@ struct Matrix_ {
     void multInplace(const DataT& scalar);
 
     RMAGINE_INLINE_FUNCTION
+    Matrix_<DataT, Rows, Cols> multEwise(const Matrix_<DataT, Rows, Cols>& M) const;
+
+    RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Rows, Cols> div(const DataT& scalar) const;
 
     RMAGINE_INLINE_FUNCTION
