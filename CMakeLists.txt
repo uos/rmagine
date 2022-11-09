@@ -455,21 +455,17 @@ endif(BUILD_EXAMPLES)
 # 1. Headers
 install(DIRECTORY include/rmagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
-install(TARGETS ${RMAGINE_LIBRARIES})
+install(TARGETS ${RMAGINE_LIBRARIES} EXPORT rmagineTargets)
 # 3. Static Libraries
-install(TARGETS ${RMAGINE_STATIC_LIBRARIES})
+install(TARGETS ${RMAGINE_STATIC_LIBRARIES} EXPORT rmagineTargets)
 
-# install(TARGETS rmagine rmagine_cuda rmagine_optix)
-# TODO: Components?
-# install(TARGETS rmagine COMPONENT core)
-# install(TARGETS rmagine_cuda COMPONENT cuda)
-# install(TARGETS rmagine_optix COMPONENT optix)
 
-# if(BUILD_TOOLS)
-# # Install Tools
-# install(TARGETS rmagine_benchmark
-#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-# endif(BUILD_TOOLS)
+
+install(EXPORT rmagineTargets
+    FILE rmagineTargets.cmake
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
+
 
 
 
@@ -488,7 +484,7 @@ write_basic_package_version_file(
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfigVersion.cmake
-              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine )
+              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
 
 # Shortcut Headers
 include(HeaderFromDirectory)

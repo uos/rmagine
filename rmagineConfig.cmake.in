@@ -13,14 +13,14 @@
 # -----------------------------------------------------------------
 @PACKAGE_INIT@
 
-#include("${CMAKE_CURRENT_LIST_DIR}/rmagineTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/rmagineTargets.cmake")
 
-
+set(RMAGINE_ROOT_DIR ${PACKAGE_PREFIX_DIR})
 
 ###########
 ### INCLUDE
 ###########
-set(rmagine_INCLUDE_DIRS @CMAKE_INSTALL_INCLUDEDIR@)
+set(rmagine_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@)
 
 ###########
 ### LIBRARY
@@ -84,8 +84,11 @@ endif(OPENMP_FOUND)
 
 # Assimp
 list(APPEND rmagine_INCLUDE_DIRS @ASSIMP_INCLUDE_DIRS@)
-list(APPEND rmagine_LIBRARIES @ASSIMP_LIBRARIES@)
-list(APPEND rmagine_ext_LIBRARIES @ASSIMP_LIBRARIES@)
+set(assimp_DIR @assimp_DIR@)
+find_package(assimp REQUIRED)
+list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
+list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
+
 
 # Embree
 if(@embree_FOUND@)
