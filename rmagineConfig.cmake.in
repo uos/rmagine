@@ -92,8 +92,29 @@ list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 
 # Embree
 if(@embree_FOUND@)
-    list(APPEND rmagine_LIBRARIES @embree_LIBRARY@)
-    list(APPEND rmagine_ext_LIBRARIES @embree_LIBRARY@)
+    set(embree_DIR @embree_DIR@)
+
+    ############################
+    ## EMBREE: CPU Raycasting ##
+    ############################
+    find_package(embree 3)
+    if(embree_FOUND)
+        # NO INCLUDE?
+        if(NOT embree_LIBRARY)
+            if(EMBREE_LIBRARY)
+                set(embree_LIBRARY ${EMBREE_LIBRARY})
+            elseif(Embree_LIBRARY)
+                set(embree_LIBRARY ${Embree_LIBRARY})
+            else()
+                set(embree_LIBRARY embree)
+            endif()
+        endif()
+    else()
+        message(FATAL "Embree not found")
+    endif(embree_FOUND)
+
+    list(APPEND rmagine_LIBRARIES ${embree_LIBRARY})
+    list(APPEND rmagine_ext_LIBRARIES ${embree_LIBRARY})
 endif(@embree_FOUND@)
 
 # CUDA
