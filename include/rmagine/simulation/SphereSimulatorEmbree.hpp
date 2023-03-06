@@ -138,7 +138,12 @@ public:
     
 protected:
     EmbreeMapPtr m_map;
+    
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
     RTCIntersectContext m_context;
+    #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
+    // RTCIntersectArguments m_context;
+    #endif // RMAGINE_EMBREE_VERSION_MAJOR
 
     Memory<Transform, RAM> m_Tsb;
     Memory<SphericalModel, RAM> m_model;

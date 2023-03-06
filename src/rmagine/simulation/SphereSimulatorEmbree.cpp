@@ -14,7 +14,11 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
     rtcInitIntersectContext(&m_context);
+    #else RMAGINE_EMBREE_VERSION_MAJOR == 4
+    // rtcInitIntersectArguments(&m_context);
+    #endif
     // std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
 }
 
@@ -99,7 +103,11 @@ void SphereSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                rtcIntersect1(handle, &m_context, &rayhit);
+                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
+                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
+                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
+                rtcIntersect1(m_map->scene->handle(), &rayhit);
+                #endif
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
@@ -156,7 +164,11 @@ void SphereSimulatorEmbree::simulateHits(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
+                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
                 rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
+                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
+                rtcIntersect1(m_map->scene->handle(), &rayhit);
+                #endif
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {

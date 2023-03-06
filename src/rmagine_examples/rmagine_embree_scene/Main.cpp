@@ -97,7 +97,9 @@ void scene_4()
     scene->commit();
 
     RTCIntersectContext context;
-    rtcInitIntersectContext(&context);
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
+    rtcInitIntersectContext(&m_context);
+    #endif
 
     RTCRayHit rayhit;
     rayhit.ray.org_x = 0;
@@ -113,7 +115,11 @@ void scene_4()
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    rtcIntersect1(scene->handle(), &context, &rayhit);
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
+    rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
+    #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
+    rtcIntersect1(m_map->scene->handle(), &rayhit);
+    #endif
 
     std::cout << "Raycast:" << std::endl;
 
@@ -133,7 +139,10 @@ void scene_4()
 void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
 {
     RTCIntersectContext context;
-    rtcInitIntersectContext(&context);
+    
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
+    rtcInitIntersectContext(&m_context);
+    #endif
 
     RTCRayHit rayhit;
     rayhit.ray.org_x = orig.x;
@@ -149,7 +158,11 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    rtcIntersect1(scene->handle(), &context, &rayhit);
+    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
+    rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
+    #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
+    rtcIntersect1(m_map->scene->handle(), &rayhit);
+    #endif
 
     std::cout << "Raycast:" << std::endl;
 
