@@ -75,6 +75,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
         throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
+    #if OPTIX_VERSION < 70700
     RM_OPTIX_CHECK( optixModuleCreateFromPTX(
                 map->context()->ref(),
                 &module_compile_options,
@@ -85,6 +86,18 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
                 &sizeof_log,
                 &module
                 ));
+    #else
+    RM_OPTIX_CHECK( optixModuleCreate(
+                map->context()->ref(),
+                &module_compile_options,
+                &pipeline_compile_options,
+                ptx.c_str(),
+                ptx.size(),
+                log,
+                &sizeof_log,
+                &module
+                ));
+    #endif
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
