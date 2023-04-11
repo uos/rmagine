@@ -165,11 +165,13 @@ O1DnProgramRanges::O1DnProgramRanges(OptixMapPtr map)
 
     OptixPipelineLinkOptions pipeline_link_options = {};
     pipeline_link_options.maxTraceDepth          = max_trace_depth;
+#if OPTIX_VERSION < 70700
 #ifndef NDEBUG
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
-#endif
+#endif // NDEBUG
+#endif // VERSION
     sizeof_log = sizeof( log );
     RM_OPTIX_CHECK_LOG( optixPipelineCreate(
                 map->context()->ref(),
