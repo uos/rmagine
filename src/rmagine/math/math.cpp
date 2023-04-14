@@ -501,7 +501,7 @@ void sub(
     const Vector& b,
     MemoryView<Vector, RAM>& C)
 {
-    #pragma omp parralel for
+    #pragma omp parallel for
     for(size_t i=0; i<A.size(); i++)
     {
         C[i] = A[i] - b;
