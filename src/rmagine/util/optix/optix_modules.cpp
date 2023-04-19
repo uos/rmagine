@@ -48,6 +48,7 @@ void ProgramModule::compile(
     char log[2048]; // For error reporting from OptiX creation functions
     size_t sizeof_log = sizeof( log );
 
+    #if OPTIX_VERSION < 70700
     RM_OPTIX_CHECK_LOG( optixModuleCreateFromPTX(
                     ctx->ref(),
                     compile_options,
@@ -58,6 +59,18 @@ void ProgramModule::compile(
                     &sizeof_log,
                     &module
                     ));
+    #else // OPTIX_VERSION >= 70700
+    RM_OPTIX_CHECK_LOG( optixModuleCreate(
+                    ctx->ref(),
+                    compile_options,
+                    pipeline_compile_options,
+                    ptx.c_str(),
+                    ptx.size(),
+                    log,
+                    &sizeof_log,
+                    &module
+                    ));
+    #endif // OPTIX_VERSION < 70700
 }
 
 

@@ -159,7 +159,7 @@ ProgramModulePtr make_program_module_sim_gen(
         throw std::runtime_error("[OptixScene::raygen_ptx_from_model_type] ERROR loading ptx");
     }
 
-    // TODO: share this between nearly any module?
+    // TODO: share this between nearly every module?
     // depends on:
     // - scene : traversableGraphFlags
     // - numPayloadValues: modules/shader

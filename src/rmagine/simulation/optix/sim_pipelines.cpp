@@ -88,11 +88,13 @@ SimPipelinePtr make_pipeline_sim(
 
     // LINK OPTIONS
     ret->link_options->maxTraceDepth          = max_trace_depth;
+    #if OPTIX_VERSION < 70700
     #ifndef NDEBUG
         ret->link_options->debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
     #else
         ret->link_options->debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
-    #endif
+    #endif // NDEBUG
+    #endif // OPTIX_VERSION
 
     { // COMPILE OPTIONS
         ret->compile_options->usesMotionBlur        = false;

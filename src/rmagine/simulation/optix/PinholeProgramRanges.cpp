@@ -75,6 +75,7 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
         throw std::runtime_error("ScanProgramRanges could not find its PTX part");
     }
 
+    #if OPTIX_VERSION < 70700
     RM_OPTIX_CHECK( optixModuleCreateFromPTX(
                 map->context()->ref(),
                 &module_compile_options,
@@ -85,6 +86,18 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
                 &sizeof_log,
                 &module
                 ));
+    #else
+    RM_OPTIX_CHECK( optixModuleCreate(
+                map->context()->ref(),
+                &module_compile_options,
+                &pipeline_compile_options,
+                ptx.c_str(),
+                ptx.size(),
+                log,
+                &sizeof_log,
+                &module
+                ));
+    #endif
 
     // 2. initProgramGroups
     OptixProgramGroupOptions program_group_options   = {}; // Initialize to zeros
@@ -152,11 +165,13 @@ PinholeProgramRanges::PinholeProgramRanges(OptixMapPtr map)
 
     OptixPipelineLinkOptions pipeline_link_options = {};
     pipeline_link_options.maxTraceDepth          = max_trace_depth;
+#if OPTIX_VERSION < 70700
 #ifndef NDEBUG
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 #else
     pipeline_link_options.debugLevel             = OPTIX_COMPILE_DEBUG_LEVEL_DEFAULT;
-#endif
+#endif // NDEBUG
+#endif // VERSION
     sizeof_log = sizeof( log );
     RM_OPTIX_CHECK_LOG( optixPipelineCreate(
                 map->context()->ref(),

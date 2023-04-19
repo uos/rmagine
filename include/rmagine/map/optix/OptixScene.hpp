@@ -50,6 +50,7 @@
 #include "OptixEntity.hpp"
 
 #include <map>
+#include <optional>
 
 #include <assimp/scene.h>
 
