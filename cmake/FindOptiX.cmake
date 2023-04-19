@@ -62,7 +62,7 @@ if(OptiX_INCLUDE_DIR)
 
     set(OptiX_VERSION "${OptiX_VERSION_MAJOR}.${OptiX_VERSION_MINOR}.${OptiX_VERSION_MICRO}")
   else()
-    message(WARNING "Could not find Optix version define in optix.h")
+    message(WARNING "Could not find OptiX version definition in optix.h")
   endif()
 
   
@@ -89,7 +89,7 @@ find_library(OptiX_LIBRARY
 endif()
 
 if(NOT OptiX_LIBRARY)
-  message(WARNING "optix library not found" TRUE)
+  message(WARNING "OptiX library not found" TRUE)
 endif()
 if(NOT OptiX_INCLUDE_DIR)
   message(WARNING "OptiX headers not found" TRUE)
@@ -98,7 +98,7 @@ endif()
 if(OptiX_LIBRARY AND OptiX_INCLUDE_DIR)
   set(OptiX_FOUND TRUE)
 else()
-  message(STATUS "Could not found OptiX")
+  message(STATUS "Could not find OptiX")
 endif()
 
 message(STATUS "Include: ${OptiX_INCLUDE_DIR}")

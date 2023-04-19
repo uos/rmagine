@@ -1,4 +1,5 @@
 #include "rmagine/simulation/O1DnSimulatorEmbree.hpp"
+#include <limits>
 
 namespace rmagine
 {
@@ -95,8 +96,8 @@ void O1DnSimulatorEmbree::simulateRanges(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -159,8 +160,8 @@ void O1DnSimulatorEmbree::simulateHits(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;

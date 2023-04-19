@@ -1,4 +1,5 @@
 #include "rmagine/simulation/PinholeSimulatorEmbree.hpp"
+#include <limits>
 
 namespace rmagine
 {
@@ -81,8 +82,8 @@ void PinholeSimulatorEmbree::simulateRanges(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -142,8 +143,8 @@ void PinholeSimulatorEmbree::simulateHits(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;

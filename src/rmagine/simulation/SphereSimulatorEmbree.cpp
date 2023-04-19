@@ -1,9 +1,5 @@
 #include "rmagine/simulation/SphereSimulatorEmbree.hpp"
-
-#include <rmagine/util/prints.h>
-
-#include <rmagine/util/StopWatch.hpp>
-
+#include <limits>
 
 
 namespace rmagine
@@ -16,7 +12,7 @@ SphereSimulatorEmbree::SphereSimulatorEmbree()
     m_Tsb[0].setIdentity();
     #if RMAGINE_EMBREE_VERSION_MAJOR == 3
     rtcInitIntersectContext(&m_context);
-    #else RMAGINE_EMBREE_VERSION_MAJOR == 4
+    #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
     // rtcInitIntersectArguments(&m_context);
     #endif
     // std::cout << "[SphereSimulatorEmbree::SphereSimulatorEmbree()] constructed." << std::endl;
@@ -97,8 +93,8 @@ void SphereSimulatorEmbree::simulateRanges(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -158,8 +154,8 @@ void SphereSimulatorEmbree::simulateHits(
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
                 rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = INFINITY;
-                rayhit.ray.mask = 0;
+                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;

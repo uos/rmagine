@@ -52,7 +52,12 @@ find_package(Eigen3 REQUIRED)
 ## EMBREE: CPU Raycasting ##
 ############################
 # supported VERSIONS: Embree 3 and 4
-find_package(embree)
+
+find_package(embree 4)
+if(NOT embree_FOUND)
+    find_package(embree 3)
+endif()
+
 
 if(embree_FOUND)
     # add_definitions(-DEMBREE_VERSION=)

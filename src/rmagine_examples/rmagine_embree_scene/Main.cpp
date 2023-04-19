@@ -13,6 +13,8 @@
 #include <rmagine/util/prints.h>
 #include <rmagine/util/StopWatch.hpp>
 
+#include <limits>
+
 
 
 using namespace rmagine;
@@ -109,8 +111,8 @@ void scene_4()
     rayhit.ray.dir_y = 0;
     rayhit.ray.dir_z = 0;
     rayhit.ray.tnear = 0;
-    rayhit.ray.tfar = INFINITY;
-    rayhit.ray.mask = 0;
+    rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+    rayhit.ray.mask = -1;
     rayhit.ray.flags = 0;
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -152,8 +154,8 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
     rayhit.ray.dir_y = dir.y;
     rayhit.ray.dir_z = dir.z;
     rayhit.ray.tnear = 0;
-    rayhit.ray.tfar = INFINITY;
-    rayhit.ray.mask = 0;
+    rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+    rayhit.ray.mask = -1;
     rayhit.ray.flags = 0;
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;

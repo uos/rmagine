@@ -27,6 +27,8 @@ int main(int argc, char** argv)
 {
     SphereSimulatorEmbree sim;
 
+    
+
     // make synthetic map
     EmbreeMapPtr map = make_map();
     sim.setMap(map);
