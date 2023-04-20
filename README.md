@@ -44,5 +44,5 @@ Is available on Github: [rmagine](https://github.com/uos/rmagine)
 Please reference the following papers when using the Rmagine library in your scientific work.
 
 **Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Raytracing for Embedded Hardware on Mobile Robots**
-- State: submitted to ICRA 2023
+- State: Accepted at ICRA 2023 - Citation is updated soon
 - Preprint: https://arxiv.org/abs/2209.13397
