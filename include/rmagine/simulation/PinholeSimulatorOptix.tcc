@@ -5,7 +5,6 @@
 #include <rmagine/simulation/optix/common.h>
 
 
-
 namespace rmagine
 {
 

@@ -1,5 +1,3 @@
-
-
 #include <rmagine/util/optix/OptixDebug.hpp>
 #include <rmagine/map/optix/OptixScene.hpp>
 #include <rmagine/util/cuda/CudaStream.hpp>

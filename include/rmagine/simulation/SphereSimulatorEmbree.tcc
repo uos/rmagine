@@ -2,6 +2,11 @@
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <limits>
 
+// TODO:
+// RMAGINE_EMBREE_VERSION_MAJOR define is required
+// since this is a template: Every program that uses 
+// rmagine also require this definition. How to solve
+// this problem without getting rid of templates?
 
 namespace rmagine
 {
