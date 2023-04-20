@@ -60,6 +60,7 @@ if(OptiX_INCLUDE_DIR)
     math(EXPR OptiX_VERSION_MINOR "(${OptiX_VERSION_RAW} % 10000) / 100")
     math(EXPR OptiX_VERSION_MICRO "${OptiX_VERSION_RAW} % 100")
 
+    set(OptiX_VERSION_PATCH ${OptiX_VERSION_MICRO})
     set(OptiX_VERSION "${OptiX_VERSION_MAJOR}.${OptiX_VERSION_MINOR}.${OptiX_VERSION_MICRO}")
   else()
     message(WARNING "Could not find OptiX version definition in optix.h")
