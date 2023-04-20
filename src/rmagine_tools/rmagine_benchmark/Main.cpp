@@ -74,6 +74,11 @@ int main(int argc, char** argv)
     double elapsed;
     double elapsed_total = 0.0;
 
+    Memory<LiDARModel, RAM> model = velodyne_model();
+
+    std::cout << "Unit: 1 Velodyne scan (velo) = " << model[0].size() << " Rays" << std::endl;
+
+
     if(device == "cpu")
     {
         #if defined WITH_EMBREE
@@ -95,18 +100,6 @@ int main(int argc, char** argv)
             Tbm[i] = Tsb[0];
         }
 
-        // Get Sensor Model
-        Memory<LiDARModel, RAM> model = velodyne_model();
-        std::cout << "theta" << std::endl;
-        std::cout << "  min: " << model->theta.min << std::endl;
-        std::cout << "  max: " << model->theta.max() << std::endl;
-        std::cout << "  N: " << model->theta.size << std::endl;
-        std::cout << "  inc: " << model->theta.inc << std::endl;
-        std::cout << "phi" << std::endl;
-        std::cout << "  min: " << model->phi.min << std::endl;
-        std::cout << "  max: " << model->phi.max() << std::endl;
-        std::cout << "  N: " << model->phi.size << std::endl;
-        std::cout << "  inc: " << model->phi.inc << std::endl;
 
         // Load mesh
         EmbreeMapPtr cpu_mesh = import_embree_map(path_to_mesh);
@@ -126,8 +119,7 @@ int main(int argc, char** argv)
         // Memory<float, RAM> res(Tbm.size() * model->phi.size * model->theta.size);
 
         using ResultT = Bundle<
-            Ranges<RAM>,
-            Normals<RAM>
+            Ranges<RAM>
         >;
 
         ResultT res;
@@ -145,16 +137,20 @@ int main(int argc, char** argv)
             double velos_per_second = static_cast<double>(Nposes) / elapsed;
             velos_per_second_mean = (n_dbl - 1.0)/(n_dbl) * velos_per_second_mean + (1.0 / n_dbl) * velos_per_second; 
             
-            std::cout
+
+            std::cout 
+            << std::fixed
             << "[ " << int((elapsed_total / benchmark_duration)*100.0) << "%" << " - " 
-            << "velos/s: " << velos_per_second 
-            << ", mean: " << velos_per_second_mean  << "] \r";
+            << velos_per_second << " velos/s" 
+            << ", mean: " << velos_per_second_mean << " velos/s] \r";
             std::cout.flush();
 
             run++;
         }
+
         std::cout << std::endl;
         std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
+        
 
         // clean up
         #else // WITH_EMBREE
@@ -184,24 +180,25 @@ int main(int argc, char** argv)
         }
 
         // Get Sensor Model
-        Memory<LiDARModel, RAM> model = velodyne_model();
         
-        // Load mesh
-        AssimpIO io;
-        const aiScene* ascene = io.ReadFile(path_to_mesh, 0);
+        // OptixMapPtr gpu_mesh = import_optix_map(path_to_mesh);
+        
+        // // Load mesh
+        // AssimpIO io;
+        // const aiScene* ascene = io.ReadFile(path_to_mesh, 0);
 
-        if(!ascene)
-        {
-            std::cerr << io.Importer::GetErrorString() << std::endl;
-        }
+        // if(!ascene)
+        // {
+        //     std::cerr << io.Importer::GetErrorString() << std::endl;
+        // }
 
-        OptixScenePtr scene = make_optix_scene(ascene);
-        scene->commit();
+        // OptixScenePtr scene = make_optix_scene(ascene);
+        // scene->commit();
 
-        std::cout << "Top Level geometries: " << scene->geometries().size() << std::endl;
+        // std::cout << "Top Level geometries: " << scene->geometries().size() << std::endl;
 
-        // OptixMapPtr gpu_mesh = import_optix_map(path_to_mesh, device_id);
-        SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(scene);
+        OptixMapPtr gpu_mesh = import_optix_map(path_to_mesh);
+        SphereSimulatorOptixPtr gpu_sim = std::make_shared<SphereSimulatorOptix>(gpu_mesh);
 
         gpu_sim->setTsb(Tsb);
         gpu_sim->setModel(model);
@@ -216,7 +213,10 @@ int main(int argc, char** argv)
         Memory<unsigned int, RAM> geom_ids_cpu;
         Memory<unsigned int, RAM> obj_ids_cpu;
 
-        using ResultT = IntAttrAny<VRAM_CUDA>;
+        using ResultT = Bundle<
+            Ranges<VRAM_CUDA>
+        >;
+        // using ResultT = IntAttrAny<VRAM_CUDA>;
         // using ResultT = Bundle<
         //     Ranges<VRAM_CUDA>
         //     ,Normals<VRAM_CUDA>
@@ -260,12 +260,18 @@ int main(int argc, char** argv)
             double velos_per_second = static_cast<double>(Nposes) / elapsed;
             velos_per_second_mean = (n_dbl - 1.0)/(n_dbl) * velos_per_second_mean + (1.0 / n_dbl) * velos_per_second; 
             
-            std::cout
+            // std::cout
+            // << "[ " << int((elapsed_total / benchmark_duration)*100.0) << "%" << " - " 
+            // << "velos/s: " << velos_per_second 
+            // << ", mean: " << velos_per_second_mean 
+            // << "] \r";
+            // std::cout.flush();
+
+            std::cout 
+            << std::fixed
             << "[ " << int((elapsed_total / benchmark_duration)*100.0) << "%" << " - " 
-            << "velos/s: " << velos_per_second 
-            << ", mean: " << velos_per_second_mean 
-            << ", rays/s: " << velos_per_second_mean * model->phi.size * model->theta.size 
-            << "] \r";
+            << velos_per_second << " velos/s" 
+            << ", mean: " << velos_per_second_mean << " velos/s] \r";
             std::cout.flush();
 
             run++;
