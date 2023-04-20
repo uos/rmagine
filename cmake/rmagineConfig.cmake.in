@@ -20,7 +20,8 @@ set(RMAGINE_ROOT_DIR ${PACKAGE_PREFIX_DIR})
 ###########
 ### INCLUDE
 ###########
-set(rmagine_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@)
+set(rmagine_INCLUDE_DIR @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@)
+set(rmagine_INCLUDE_DIRS ${rmagine_INCLUDE_DIR})
 
 ###########
 ### LIBRARY
@@ -39,6 +40,7 @@ if(@embree_FOUND@)
     set(rmagine_embree_LIBRARY rmagine_embree)
     set(rmagine_embree_LIBRARY_STATIC rmagine_embree_static)
     set(rmagine_embree_FOUND 1)
+
 else(@embree_FOUND@)
     set(rmagine_embree_FOUND 0)
 endif(@embree_FOUND@)
@@ -86,7 +88,7 @@ endif(OPENMP_FOUND)
 list(APPEND rmagine_INCLUDE_DIRS @ASSIMP_INCLUDE_DIRS@)
 set(assimp_DIR @assimp_DIR@)
 find_package(assimp REQUIRED)
-list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
+list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})rosmath
 list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 
 
@@ -94,10 +96,7 @@ list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 if(@embree_FOUND@)
     set(embree_DIR @embree_DIR@)
 
-    ############################
-    ## EMBREE: CPU Raycasting ##
-    ############################
-    find_package(embree 3)
+    find_package(embree @embree_VERSION_MAJOR@)
     if(embree_FOUND)
         # NO INCLUDE?
         if(NOT embree_LIBRARY)
@@ -112,6 +111,9 @@ if(@embree_FOUND@)
     else()
         message(FATAL "Embree not found")
     endif(embree_FOUND)
+
+    set(RMAGINE_EMBREE_VERSION_MAJOR ${embree_VERSION_MAJOR})
+    add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
 
     list(APPEND rmagine_LIBRARIES ${embree_LIBRARY})
     list(APPEND rmagine_ext_LIBRARIES ${embree_LIBRARY})

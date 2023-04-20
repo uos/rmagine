@@ -58,9 +58,8 @@ if(NOT embree_FOUND)
     find_package(embree 3)
 endif()
 
-
 if(embree_FOUND)
-    # add_definitions(-DEMBREE_VERSION=)
+    set(RMAGINE_EMBREE_VERSION_MAJOR ${embree_VERSION_MAJOR})
     add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
 
     # NO INCLUDE?
@@ -482,7 +481,7 @@ install(EXPORT rmagineTargets
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)
 
-configure_package_config_file(rmagineConfig.cmake.in
+configure_package_config_file(cmake/rmagineConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
 )
@@ -513,7 +512,7 @@ install(FILES ${GEN_SHORTCUT_HEADERS}
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/rmagineUninstall.cmake.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rmagineUninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake"
     IMMEDIATE @ONLY)
 
@@ -533,7 +532,7 @@ find_package( Doxygen REQUIRED)
 
 message(STATUS "Build Documentation with 'make doc'")
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.in
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY )
 
 add_custom_target( doc ALL 
