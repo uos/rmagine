@@ -73,7 +73,6 @@ endif(@OptiX_FOUND@)
 ############
 ### EXTERNAL
 ############
-
 find_package(Boost REQUIRED)
 
 # OpenMP
@@ -88,7 +87,7 @@ endif(OPENMP_FOUND)
 list(APPEND rmagine_INCLUDE_DIRS @ASSIMP_INCLUDE_DIRS@)
 set(assimp_DIR @assimp_DIR@)
 find_package(assimp REQUIRED)
-list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})rosmath
+list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
 list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 
 
