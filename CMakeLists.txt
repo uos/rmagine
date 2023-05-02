@@ -10,6 +10,15 @@ option(BUILD_DOCS "Build documentation" OFF)
 
 include(GNUInstallDirs)
 
+# message(STATUS "RMAGINE_VERSION: ${rmagine_VERSION}")
+
+set(rmagine_DEFINITIONS "-DRMAGINE_VERSION=\"${rmagine_VERSION}\"")
+list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_MAJOR=${rmagine_VERSION_MAJOR}")
+list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_MINOR=${rmagine_VERSION_MINOR}")
+list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_PATCH=${rmagine_VERSION_PATCH}")
+
+
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
@@ -26,8 +35,6 @@ if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
   endif()
 endif()
-
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
@@ -60,7 +67,8 @@ endif()
 
 if(embree_FOUND)
     set(RMAGINE_EMBREE_VERSION_MAJOR ${embree_VERSION_MAJOR})
-    add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
+    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR}")
+    # add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
 
     # NO INCLUDE?
     if(NOT embree_LIBRARY)
@@ -114,6 +122,7 @@ endif(CUDA_FOUND)
 find_package(OptiX)
 if(OptiX_FOUND)
     include_directories(${OptiX_INCLUDE_DIRS})
+    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
 endif()
 
 ###########
@@ -126,6 +135,8 @@ include_directories(
     include
 )
 
+
+add_definitions(${rmagine_DEFINITIONS})
 
 
 message(STATUS "Building Core. Library: rmagine")
@@ -310,7 +321,6 @@ if(CUDA_FOUND)
         set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
 
         set(CUDA_GENERATED_OUTPUT_DIR ${RMAGINE_OPTIX_PTX_DIR})
-        add_definitions( -DWITH_OPTIX )
         add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
         add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
 
@@ -447,6 +457,7 @@ if(BUILD_TOOLS)
     add_subdirectory(src/rmagine_tools/rmagine_benchmark)
     add_subdirectory(src/rmagine_tools/rmagine_synthetic)
     add_subdirectory(src/rmagine_tools/rmagine_map_info)
+    add_subdirectory(src/rmagine_tools/rmagine_version)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)

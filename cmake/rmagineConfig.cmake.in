@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------
-# lvr's cmake configuration
+# rmagine's cmake configuration
 #
 # provided interface variables:
 # - rmagine_INCLUDE_DIRS
@@ -8,7 +8,7 @@
 # 
 #
 # Do not forget to add_defintions(${rmagine_DEFINITIONS}) as they
-# describe the build configuration of liblvr.
+# describe the build configuration of rmagine.
 #
 # -----------------------------------------------------------------
 @PACKAGE_INIT@
@@ -68,7 +68,7 @@ else(@OptiX_FOUND@)
 endif(@OptiX_FOUND@)
 
 # Use this?
-# set(rmagine_DEFINITIONS @rmagine_DEFINITIONS@)
+set(rmagine_DEFINITIONS @rmagine_DEFINITIONS@)
 
 ############
 ### EXTERNAL
