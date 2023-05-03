@@ -4,7 +4,7 @@
 
 Library for fast sensor data simulation in large 3D environments.
 
-## Design Goals
+## Overview
 
 Mainly designed for robotic applications:
 
@@ -14,21 +14,12 @@ Mainly designed for robotic applications:
     - Minimal graphical overhead (offscreen-rendering)
 - Runtime critical operations
 
-## Sensor Models
 
-Spherical, Pinhole or fully customizable models.
+| Spherical, Pinhole or fully customizable models. | Query several attributes at intersection. |
+|:----:|:----:|
+|  ![rmagine_models_3d](dat/doc/sensor_models_3d.png) |   ![rmagine_attributes](dat/doc/simulation_attributes.png)   |
 
-![rmagine_models_3d](dat/doc/sensor_models_3d.png)
-
-![rmagine_models_ortho](dat/doc/sensor_models_ortho.png)
-
-## Intersection Attributes
-
-Query several attributes at intersection.
-
-![rmagine_attributes](dat/doc/simulation_attributes.png)
-
-## Usage
+## Installation / Usage
 
 See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
 
