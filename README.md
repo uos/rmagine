@@ -1,6 +1,6 @@
 [[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)]
 
-# Rmagine - 3D Range Sensor Simulation in Polygonal Maps via Raytracing for Embedded Hardware on Mobile Robots
+# Rmagine - 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots
 
 Library for fast sensor data simulation in large 3D environments.
 
@@ -34,7 +34,7 @@ Is available on Github: [rmagine](https://github.com/uos/rmagine)
 
 Please reference the following papers when using the Rmagine library in your scientific work.
 
-**Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Raytracing for Embedded Hardware on Mobile Robots**
+**Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots**
 - State: Accepted at ICRA 2023 - Citation is updated soon
 - Preprint: https://arxiv.org/abs/2209.13397
 
