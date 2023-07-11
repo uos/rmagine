@@ -1,12 +1,8 @@
 [[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)]
 
-# Rmagine - 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots
+# Rmagine
 
-Library for fast sensor data simulation in large 3D environments.
-
-## Overview
-
-Mainly designed for robotic applications:
+Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. The simulations can even be computed on embedded devices installed on a robot. Therefore, Rmagine has been specifically developed to
 
 - Perform multiple sensor simulations simultaneously and in realtime
 - Perform computations at specific computing devices (CPU, GPU, RTX..)
@@ -22,22 +18,6 @@ Mainly designed for robotic applications:
 ## Installation / Usage
 
 See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
-
-## Code
-Is available on Github: [rmagine](https://github.com/uos/rmagine)
-
-## Rmagine-accelerated Applications
-- [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
-- [RMCL](https://github.com/uos/rmcl)
-
-## Publications
-
-Please reference the following papers when using the Rmagine library in your scientific work.
-
-**Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots**
-- State: Accepted at ICRA 2023 - Citation is updated soon
-- Preprint: https://arxiv.org/abs/2209.13397
-
 
 ## Example
 
@@ -108,3 +88,20 @@ std::cout << "printing the first ray's range of the fifth scan: " << ranges5[0] 
 ```
 
 More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki).
+
+## Citation
+
+Please reference the following papers when using the Rmagine library in your scientific work.
+
+```latex
+@inproceedings{mock2023rmagine,
+  title={Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}, 
+  author={Mock, Alexander and Wiemann, Thomas and Hertzberg, Joachim},
+  booktitle={IEEE International Conference on Robotics and Automation (ICRA)}, 
+  year={2023}
+}
+```
+
+## Rmagine-accelerated Applications
+- [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
+- [RMCL](https://github.com/uos/rmcl)
