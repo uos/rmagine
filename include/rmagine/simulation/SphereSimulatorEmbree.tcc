@@ -2,6 +2,8 @@
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <limits>
 
+#include "embree_common.h"
+
 // TODO:
 // RMAGINE_EMBREE_VERSION_MAJOR define is required
 // since this is a template: Every program that uses 
@@ -11,75 +13,14 @@
 namespace rmagine
 {
 
+
 template<typename BundleT>
 void SphereSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm,
     BundleT& ret)
 {
-    bool sim_hits = false;
-    bool sim_ranges = false;
-    bool sim_points = false;
-    bool sim_normals = false;
-    bool sim_object_ids = false;
-    bool sim_geom_ids = false;
-    bool sim_face_ids = false;
-
-    if constexpr(BundleT::template has<Hits<RAM> >())
-    {
-        if(ret.Hits<RAM>::hits.size() > 0)
-        {
-            sim_hits = true;
-        }
-    }
-    
-    if constexpr(BundleT::template has<Ranges<RAM> >())
-    {
-        if(ret.Ranges<RAM>::ranges.size() > 0)
-        {
-            sim_ranges = true;
-        }
-    }
-
-    if constexpr(BundleT::template has<Points<RAM> >())
-    {
-        if(ret.Points<RAM>::points.size() > 0)
-        {
-            sim_points = true;
-        }
-    }
-
-    if constexpr(BundleT::template has<Normals<RAM> >())
-    {
-        if(ret.Normals<RAM>::normals.size() > 0)
-        {
-            sim_normals = true;
-        }
-    }
-
-    if constexpr(BundleT::template has<FaceIds<RAM> >())
-    {
-        if(ret.FaceIds<RAM>::face_ids.size() > 0)
-        {
-            sim_face_ids = true;
-        }
-    }
-
-    if constexpr(BundleT::template has<GeomIds<RAM> >())
-    {
-        if(ret.GeomIds<RAM>::geom_ids.size() > 0)
-        {
-            sim_geom_ids = true;
-        }
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<RAM> >())
-    {
-        if(ret.ObjectIds<RAM>::object_ids.size() > 0)
-        {
-            sim_object_ids = true;
-        }
-    }
-
+    SimulationFlags flags = SimulationFlags::Zero();
+    set_simulation_flags_<RAM>(ret, flags);
 
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -126,7 +67,7 @@ void SphereSimulatorEmbree::simulate(
                 {
                     if constexpr(BundleT::template has<Hits<RAM> >())
                     {
-                        if(sim_hits)
+                        if(flags.hits)
                         {
                             ret.Hits<RAM>::hits[glob_id] = 1;
                         }
@@ -134,7 +75,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Ranges<RAM> >())
                     {
-                        if(sim_ranges)
+                        if(flags.ranges)
                         {
                             ret.Ranges<RAM>::ranges[glob_id] = rayhit.ray.tfar;
                         }
@@ -142,7 +83,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Points<RAM> >())
                     {
-                        if(sim_points)
+                        if(flags.points)
                         {
                             Vector pint = ray_dir_s * rayhit.ray.tfar;
                             ret.Points<RAM>::points[glob_id] = pint;
@@ -151,7 +92,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Normals<RAM> >())
                     {
-                        if(sim_normals)
+                        if(flags.normals)
                         {
                             Vector nint{
                                     rayhit.hit.Ng_x,
@@ -175,7 +116,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
                     {
-                        if(sim_face_ids)
+                        if(flags.face_ids)
                         {
                             ret.FaceIds<RAM>::face_ids[glob_id] = rayhit.hit.primID;
                         }
@@ -183,7 +124,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<GeomIds<RAM> >())
                     {
-                        if(sim_geom_ids)
+                        if(flags.geom_ids)
                         {
                             ret.GeomIds<RAM>::geom_ids[glob_id] = rayhit.hit.geomID;
                         }
@@ -191,7 +132,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        if(sim_object_ids)
+                        if(flags.object_ids)
                         {
                             if(rayhit.hit.instID[0] != RTC_INVALID_GEOMETRY_ID)
                             {
@@ -205,7 +146,7 @@ void SphereSimulatorEmbree::simulate(
                 } else {
                     if constexpr(BundleT::template has<Hits<RAM> >())
                     {
-                        if(sim_hits)
+                        if(flags.hits)
                         {
                             ret.Hits<RAM>::hits[glob_id] = 0;
                         }
@@ -213,7 +154,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Ranges<RAM> >())
                     {
-                        if(sim_ranges)
+                        if(flags.ranges)
                         {
                             ret.Ranges<RAM>::ranges[glob_id] = m_model->range.max + 1.0;
                         }
@@ -221,7 +162,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Points<RAM> >())
                     {
-                        if(sim_points)
+                        if(flags.points)
                         {
                             ret.Points<RAM>::points[glob_id].x = std::numeric_limits<float>::quiet_NaN();
                             ret.Points<RAM>::points[glob_id].y = std::numeric_limits<float>::quiet_NaN();
@@ -231,7 +172,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<Normals<RAM> >())
                     {
-                        if(sim_normals)
+                        if(flags.normals)
                         {
                             ret.Normals<RAM>::normals[glob_id].x = std::numeric_limits<float>::quiet_NaN();
                             ret.Normals<RAM>::normals[glob_id].y = std::numeric_limits<float>::quiet_NaN();
@@ -241,7 +182,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<FaceIds<RAM> >())
                     {
-                        if(sim_face_ids)
+                        if(flags.face_ids)
                         {
                             ret.FaceIds<RAM>::face_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                         }
@@ -249,7 +190,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<GeomIds<RAM> >())
                     {
-                        if(sim_geom_ids)
+                        if(flags.geom_ids)
                         {
                             ret.GeomIds<RAM>::geom_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                         }
@@ -257,7 +198,7 @@ void SphereSimulatorEmbree::simulate(
 
                     if constexpr(BundleT::template has<ObjectIds<RAM> >())
                     {
-                        if(sim_object_ids)
+                        if(flags.object_ids)
                         {
                             ret.ObjectIds<RAM>::object_ids[glob_id] = std::numeric_limits<unsigned int>::max();
                         }

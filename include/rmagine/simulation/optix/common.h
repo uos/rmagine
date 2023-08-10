@@ -100,14 +100,6 @@ template<typename MemT, typename BundleT>
 static void set_generic_flags_(
     OptixSimulationDataGeneric& flags)
 {
-    // flags.computeHits = false;
-    // flags.computeRanges = false;
-    // flags.computePoints = false;
-    // flags.computeNormals = false;
-    // flags.computeFaceIds = false;
-    // flags.computeGeomIds = false;
-    // flags.computeObjectIds = false;
-
     if constexpr(BundleT::template has<Hits<MemT> >())
     {
         flags.computeHits = true;
@@ -175,7 +167,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<Hits<MemT> >())
     {
-        if(res.hits.size() > 0)
+        if(res.Hits<MemT>::hits.size() > 0)
         {
             flags.computeHits = true;
         }
@@ -183,7 +175,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<Ranges<MemT> >())
     {
-        if(res.ranges.size() > 0)
+        if(res.Ranges<MemT>::ranges.size() > 0)
         {
             flags.computeRanges = true;
         }
@@ -191,7 +183,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<Points<MemT> >())
     {
-        if(res.points.size() > 0)
+        if(res.Points<MemT>::points.size() > 0)
         {
             flags.computePoints = true;
         }
@@ -199,7 +191,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<Normals<MemT> >())
     {
-        if(res.normals.size() > 0)
+        if(res.Normals<MemT>::normals.size() > 0)
         {
             flags.computeNormals = true;
         }
@@ -207,7 +199,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<FaceIds<MemT> >())
     {
-        if(res.face_ids.size() > 0)
+        if(res.FaceIds<MemT>::face_ids.size() > 0)
         {
             flags.computeFaceIds = true;
         }
@@ -215,7 +207,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<GeomIds<MemT> >())
     {
-        if(res.geom_ids.size() > 0)
+        if(res.GeomIds<MemT>::geom_ids.size() > 0)
         {
             flags.computeGeomIds = true;
         }
@@ -223,7 +215,7 @@ static void set_generic_flags_(
 
     if constexpr(BundleT::template has<ObjectIds<MemT> >())
     {
-        if(res.object_ids.size() > 0)
+        if(res.ObjectIds<MemT>::object_ids.size() > 0)
         {
             flags.computeObjectIds = true;
         }
