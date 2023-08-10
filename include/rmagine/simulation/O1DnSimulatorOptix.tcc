@@ -15,7 +15,7 @@ void O1DnSimulatorOptix::preBuildProgram()
         throw std::runtime_error("[O1DnSimulatorOptix] preBuildProgram(): No Map available!");
     }
 
-    OptixSimulationDataGeneric flags;
+    OptixSimulationDataGeneric flags = OptixSimulationDataGeneric::Zero();
     flags.model_type = 2;
     set_generic_flags<BundleT>(flags);
     make_pipeline_sim(m_map->scene(), flags);
@@ -41,6 +41,7 @@ void O1DnSimulatorOptix::simulate(
     }
     
     Memory<OptixSimulationDataGeneric, RAM> mem(1);
+    mem[0] = OptixSimulationDataGeneric::Zero();
     mem[0].model_type = 2;
     set_generic_flags(res, mem[0]);
 

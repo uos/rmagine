@@ -138,6 +138,8 @@ using IntAttrAny = Bundle<
     ObjectIds<MemT>
 >;
 
+
+
 /**
  * @brief Helper function to resize a whole bundle of attributes by one size
  * 
@@ -149,7 +151,7 @@ using IntAttrAny = Bundle<
  * @param N 
  */
 template<typename MemT, typename BundleT>
-void resize_memory_bundle(BundleT& res, 
+static void resize_memory_bundle(BundleT& res, 
     unsigned int W,
     unsigned int H,
     unsigned int N )
@@ -190,6 +192,14 @@ void resize_memory_bundle(BundleT& res,
     }
 }
 
+// template<typename BundleT>
+// static void resize_memory_bundle(BundleT& res, 
+//     unsigned int W,
+//     unsigned int H,
+//     unsigned int N )
+// {
+//     resize_memory_bundle_<RAM>(res, W, H, N);
+// }
 
 template<typename MemT, typename BundleT>
 [[deprecated("Use resize_memory_bundle() instead.")]]

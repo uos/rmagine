@@ -13,66 +13,77 @@
 namespace rmagine
 {
 
+template<typename MemT, typename BundleT>
+static void set_generic_data_(
+    BundleT& res, 
+    OptixSimulationDataGeneric& mem)
+{
+    //////////////////
+    /// MemT
+    if constexpr(BundleT::template has<Hits<MemT> >())
+    {
+        if(res.Hits<MemT>::hits.size() > 0)
+        {
+            mem.hits = res.Hits<MemT>::hits.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<Ranges<MemT> >())
+    {
+        if(res.Ranges<MemT>::ranges.size() > 0)
+        {
+            mem.ranges = res.Ranges<MemT>::ranges.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<Points<MemT> >())
+    {
+        if(res.Points<MemT>::points.size() > 0)
+        {
+            mem.points = res.Points<MemT>::points.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<Normals<MemT> >())
+    {
+        if(res.Normals<MemT>::normals.size() > 0)
+        {
+            mem.normals = res.Normals<MemT>::normals.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<FaceIds<MemT> >())
+    {
+        if(res.FaceIds<MemT>::face_ids.size() > 0)
+        {
+            mem.face_ids = res.FaceIds<MemT>::face_ids.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<GeomIds<MemT> >())
+    {
+        if(res.GeomIds<MemT>::geom_ids.size() > 0)
+        {
+            mem.geom_ids = res.GeomIds<MemT>::geom_ids.raw();
+        }
+    }
+
+    if constexpr(BundleT::template has<ObjectIds<MemT> >())
+    {
+        if(res.ObjectIds<MemT>::object_ids.size() > 0)
+        {
+            mem.object_ids = res.ObjectIds<MemT>::object_ids.raw();
+        }
+    }
+}
+
 template<typename BundleT>
 static void set_generic_data(
     BundleT& res, 
     OptixSimulationDataGeneric& mem)
 {
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
-    {
-        if(res.Hits<VRAM_CUDA>::hits.size() > 0)
-        {
-            mem.hits = res.Hits<VRAM_CUDA>::hits.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
-    {
-        if(res.Ranges<VRAM_CUDA>::ranges.size() > 0)
-        {
-            mem.ranges = res.Ranges<VRAM_CUDA>::ranges.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
-    {
-        if(res.Points<VRAM_CUDA>::points.size() > 0)
-        {
-            mem.points = res.Points<VRAM_CUDA>::points.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
-    {
-        if(res.Normals<VRAM_CUDA>::normals.size() > 0)
-        {
-            mem.normals = res.Normals<VRAM_CUDA>::normals.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
-    {
-        if(res.FaceIds<VRAM_CUDA>::face_ids.size() > 0)
-        {
-            mem.face_ids = res.FaceIds<VRAM_CUDA>::face_ids.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
-    {
-        if(res.GeomIds<VRAM_CUDA>::geom_ids.size() > 0)
-        {
-            mem.geom_ids = res.GeomIds<VRAM_CUDA>::geom_ids.raw();
-        }
-    }
-
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
-    {
-        if(res.ObjectIds<VRAM_CUDA>::object_ids.size() > 0)
-        {
-            mem.object_ids = res.ObjectIds<VRAM_CUDA>::object_ids.raw();
-        }
-    }
+    set_generic_data_<VRAM_CUDA>(res, mem);
+    set_generic_data_<UNIFIED_CUDA>(res, mem);
 }
 
 template<typename BundleT>
@@ -84,52 +95,61 @@ static void setGenericData(
     set_generic_data<BundleT>(res, mem);
 }
 
-template<typename BundleT>
-static void set_generic_flags(
+
+template<typename MemT, typename BundleT>
+static void set_generic_flags_(
     OptixSimulationDataGeneric& flags)
 {
-    flags.computeHits = false;
-    flags.computeRanges = false;
-    flags.computePoints = false;
-    flags.computeNormals = false;
-    flags.computeFaceIds = false;
-    flags.computeGeomIds = false;
-    flags.computeObjectIds = false;
+    // flags.computeHits = false;
+    // flags.computeRanges = false;
+    // flags.computePoints = false;
+    // flags.computeNormals = false;
+    // flags.computeFaceIds = false;
+    // flags.computeGeomIds = false;
+    // flags.computeObjectIds = false;
 
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Hits<MemT> >())
     {
         flags.computeHits = true;
     }
 
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Ranges<MemT> >())
     {
         flags.computeRanges = true;
     }
 
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Points<MemT> >())
     {
         flags.computePoints = true;
     }
 
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Normals<MemT> >())
     {
         flags.computeNormals = true;
     }
 
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<FaceIds<MemT> >())
     {
         flags.computeFaceIds = true;
     }
 
-    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<GeomIds<MemT> >())
     {
         flags.computeGeomIds = true;
     }
 
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<ObjectIds<MemT> >())
     {
         flags.computeObjectIds = true;
     }
+}
+
+template<typename BundleT>
+static void set_generic_flags(
+    OptixSimulationDataGeneric& flags)
+{
+    set_generic_flags_<VRAM_CUDA, BundleT>(flags);
+    set_generic_flags_<UNIFIED_CUDA, BundleT>(flags);
 }
 
 template<typename BundleT>
@@ -140,20 +160,20 @@ static void setGenericFlags(
     set_generic_flags<BundleT>(flags);
 }
 
-template<typename BundleT>
-static void set_generic_flags(
+template<typename MemT, typename BundleT>
+static void set_generic_flags_(
     const BundleT& res,
     OptixSimulationDataGeneric& flags)
 {
-    flags.computeHits = false;
-    flags.computeRanges = false;
-    flags.computePoints = false;
-    flags.computeNormals = false;
-    flags.computeFaceIds = false;
-    flags.computeGeomIds = false;
-    flags.computeObjectIds = false;
+    // flags.computeHits = false;
+    // flags.computeRanges = false;
+    // flags.computePoints = false;
+    // flags.computeNormals = false;
+    // flags.computeFaceIds = false;
+    // flags.computeGeomIds = false;
+    // flags.computeObjectIds = false;
 
-    if constexpr(BundleT::template has<Hits<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Hits<MemT> >())
     {
         if(res.hits.size() > 0)
         {
@@ -161,7 +181,7 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<Ranges<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Ranges<MemT> >())
     {
         if(res.ranges.size() > 0)
         {
@@ -169,7 +189,7 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<Points<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Points<MemT> >())
     {
         if(res.points.size() > 0)
         {
@@ -177,7 +197,7 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<Normals<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<Normals<MemT> >())
     {
         if(res.normals.size() > 0)
         {
@@ -185,7 +205,7 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<FaceIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<FaceIds<MemT> >())
     {
         if(res.face_ids.size() > 0)
         {
@@ -193,7 +213,7 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<GeomIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<GeomIds<MemT> >())
     {
         if(res.geom_ids.size() > 0)
         {
@@ -201,13 +221,22 @@ static void set_generic_flags(
         }
     }
 
-    if constexpr(BundleT::template has<ObjectIds<VRAM_CUDA> >())
+    if constexpr(BundleT::template has<ObjectIds<MemT> >())
     {
         if(res.object_ids.size() > 0)
         {
             flags.computeObjectIds = true;
         }
     }
+}
+
+template<typename BundleT>
+static void set_generic_flags(
+    const BundleT& res,
+    OptixSimulationDataGeneric& flags)
+{
+    set_generic_flags_<VRAM_CUDA>(res, flags);
+    set_generic_flags_<UNIFIED_CUDA>(res, flags);
 }
 
 template<typename BundleT>

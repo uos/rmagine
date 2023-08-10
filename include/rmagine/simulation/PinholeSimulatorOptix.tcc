@@ -16,7 +16,7 @@ void PinholeSimulatorOptix::preBuildProgram()
         throw std::runtime_error("[PinholeSimulatorOptix] preBuildProgram(): No Map available!");
     }
 
-    OptixSimulationDataGeneric flags;
+    OptixSimulationDataGeneric flags = OptixSimulationDataGeneric::Zero();
     flags.model_type = 1;
     set_generic_flags<BundleT>(flags);
     make_pipeline_sim(m_map->scene(), flags);
@@ -43,6 +43,7 @@ void PinholeSimulatorOptix::simulate(
     }
 
     Memory<OptixSimulationDataGeneric, RAM> mem(1);
+    mem[0] = OptixSimulationDataGeneric::Zero();
     mem[0].model_type = 1;
     set_generic_flags(res, mem[0]);
 

@@ -62,6 +62,26 @@ struct OptixSimulationDataGeneric {
     unsigned int*               face_ids;
     unsigned int*               geom_ids;
     unsigned int*               object_ids;
+
+    static OptixSimulationDataGeneric Zero()
+    {
+        OptixSimulationDataGeneric ret;
+        ret.computeHits = false;
+        ret.computeRanges = false;
+        ret.computePoints = false;
+        ret.computeNormals = false;
+        ret.computeFaceIds = false;
+        ret.computeGeomIds = false;
+        ret.computeObjectIds = false;
+        ret.hits = nullptr;
+        ret.ranges = nullptr;
+        ret.points = nullptr;
+        ret.normals = nullptr;
+        ret.face_ids = nullptr;
+        ret.geom_ids = nullptr;
+        ret.object_ids = nullptr;
+        return ret;
+    }
 };
 
 inline uint32_t get_bounding_id(const OptixSimulationDataGeneric& flags)
