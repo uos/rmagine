@@ -40,6 +40,14 @@ void SphereSimulatorEmbree::simulate(
         }
     }
 
+    if constexpr(BundleT::template has<Points<RAM> >())
+    {
+        if(ret.Points<RAM>::points.size() > 0)
+        {
+            sim_points = true;
+        }
+    }
+
     if constexpr(BundleT::template has<Normals<RAM> >())
     {
         if(ret.Normals<RAM>::normals.size() > 0)
@@ -48,11 +56,11 @@ void SphereSimulatorEmbree::simulate(
         }
     }
 
-    if constexpr(BundleT::template has<ObjectIds<RAM> >())
+    if constexpr(BundleT::template has<FaceIds<RAM> >())
     {
-        if(ret.ObjectIds<RAM>::object_ids.size() > 0)
+        if(ret.FaceIds<RAM>::face_ids.size() > 0)
         {
-            sim_object_ids = true;
+            sim_face_ids = true;
         }
     }
 
@@ -64,11 +72,11 @@ void SphereSimulatorEmbree::simulate(
         }
     }
 
-    if constexpr(BundleT::template has<FaceIds<RAM> >())
+    if constexpr(BundleT::template has<ObjectIds<RAM> >())
     {
-        if(ret.FaceIds<RAM>::face_ids.size() > 0)
+        if(ret.ObjectIds<RAM>::object_ids.size() > 0)
         {
-            sim_face_ids = true;
+            sim_object_ids = true;
         }
     }
 
