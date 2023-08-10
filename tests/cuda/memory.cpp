@@ -9,6 +9,22 @@
 
 using namespace rmagine;
 
+void fill_sequence(MemoryView<int> a)
+{
+    for(size_t i=0; i<a.size(); i++)
+    {
+        a[i] = i;
+    }
+}
+
+void fill_sequence(MemoryView<int, RAM_CUDA> a)
+{
+    for(size_t i=0; i<a.size(); i++)
+    {
+        a[i] = i;
+    }
+}
+
 
 void fill_sequence(MemoryView<float> a)
 {
@@ -57,6 +73,43 @@ void memory_basic()
     std::cout << dest[8] << std::endl;
 }
 
+void error_if_not_equal(
+    MemoryView<int, RAM> ram,
+    MemoryView<int, RAM_CUDA> ram_cuda)
+{
+    for(size_t i=0; i<ram.size(); i++)
+    {
+        if(ram_cuda[i] != ram[i])
+        {
+            RM_THROW(CudaException, "Memory error, RAM != RAM_CUDA");
+        }
+    }
+}
+
+void memory_unified()
+{
+    std::cout << "MEM UNIFIED" << std::endl;
+    Memory<int, RAM> ram;
+    
+    Memory<int, RAM_CUDA> ram_cuda;
+    Memory<int, VRAM_CUDA> vram_cuda;
+    Memory<int, UNIFIED_CUDA> unified_cuda;
+
+
+    ram.resize(10);
+    fill_sequence(ram);
+
+    ram_cuda = ram;
+    error_if_not_equal(ram, ram_cuda);
+    vram_cuda = ram_cuda;
+    unified_cuda = vram_cuda;
+    
+    for(size_t i=0; i<ram.size(); i++)
+    {
+        std::cout << unified_cuda[i] << std::endl;
+    }
+}
+
 void memory_slicing()
 {
     Memory<float> data(100);
@@ -89,6 +142,7 @@ int main(int argc, char** argv)
 
     memory_basic();
     memory_slicing();
+    memory_unified();
     
 
     return 0;
