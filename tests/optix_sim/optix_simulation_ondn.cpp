@@ -38,7 +38,6 @@ int main(int argc, char** argv)
     size_t Nposes = 100;
     size_t Nsteps = 1000;
 
-
     IntAttrAny<VRAM_CUDA> result;
     resize_memory_bundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), Nposes);
 
@@ -50,8 +49,7 @@ int main(int argc, char** argv)
 
     Memory<Transform, VRAM_CUDA> T_ = T;
 
-    std::cout << "Simulate!" << std::endl;
-    
+    std::cout << "Simulate to VRAM_CUDA ..." << std::endl;
     
     for(size_t i=0; i<Nsteps; i++)
     {
@@ -72,13 +70,11 @@ int main(int argc, char** argv)
         }
     }
 
-    std::cout << "Done simulating." << std::endl;
-
     IntAttrAny<UNIFIED_CUDA> result2;
     resize_memory_bundle<UNIFIED_CUDA>(result2, 
         model.getWidth(), model.getHeight(), Nposes);
 
-    std::cout << "Simulate 2!" << std::endl;
+    std::cout << "Simulate to UNIFIED_CUDA ..." << std::endl;
 
     for(size_t i=0; i<Nsteps; i++)
     {
@@ -111,7 +107,7 @@ int main(int argc, char** argv)
     resize_memory_bundle<VRAM_CUDA>(result3, 
         model.getWidth(), model.getHeight(), Nposes);
 
-    std::cout << "Simulate 3!" << std::endl;
+    std::cout << "Simulate to mixed memory ..." << std::endl;
 
     for(size_t i=0; i<Nsteps; i++)
     {
@@ -143,9 +139,9 @@ int main(int argc, char** argv)
             ss << "Simulated normal error is too high: " << error;
             RM_THROW(OptixException, ss.str());
         }
-        
-
     }
+
+    std::cout << "Done simulating." << std::endl;
 
     return 0;
 }
