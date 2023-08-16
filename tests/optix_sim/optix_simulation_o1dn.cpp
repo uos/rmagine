@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
         float error = std::fabs(last_scan[0] - 0.570887);
 
-        if(error > 0.0001)                                         
+        if(error > 0.0001)                                  
         {                   
             std::stringstream ss;
             ss << "Simulated scan error is too high: " << error;
