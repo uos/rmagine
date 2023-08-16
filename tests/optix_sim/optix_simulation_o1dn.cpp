@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     std::cout << "Simulate to VRAM_CUDA ..." << std::endl;
     
     // Memory<float, RAM> last_scan(1);
-    for(size_t i=0; i<1000; i++)
+    for(size_t i=0; i<Nsteps; i++)
     {
         sim.simulate(T_, result);
 
