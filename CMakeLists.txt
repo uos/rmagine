@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4...10.0)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.1.0)
+    VERSION 2.1.1)
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
