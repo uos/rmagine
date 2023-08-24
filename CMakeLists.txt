@@ -110,6 +110,7 @@ include(CheckLanguage)
 
 
 find_package(CUDA)
+# set(CUDA_FOUND 0)
 if(CUDA_FOUND)
     enable_language(CUDA)
     include_directories(${CUDA_INCLUDE_DIRS})
@@ -261,6 +262,7 @@ if(CUDA_FOUND)
         src/rmagine/math/SVDCuda.cpp
         # util
         src/rmagine/util/cuda/CudaContext.cpp
+        src/rmagine/util/cuda/CudaDebug.cpp
         src/rmagine/util/cuda/CudaStream.cpp
         src/rmagine/util/cuda/random.cu
         # noise

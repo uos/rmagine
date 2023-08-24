@@ -36,10 +36,7 @@
 #define RMAGINE_MEMORY_CUDA_HPP
 
 #include "Memory.hpp"
-#include <cuda_runtime.h>
-#include "rmagine/util/cuda/CudaDebug.hpp"
 #include "rmagine/util/cuda/cuda_definitions.h"
-
 
 namespace rmagine
 {
@@ -47,15 +44,21 @@ namespace rmagine
 // CUDA HELPER
 namespace cuda {
 
-void* memcpyHostToDevice(   void* dest, const void* src, std::size_t count);
-void* memcpyHostToDevice(   void* dest, const void* src, std::size_t count, CudaStreamPtr stream);
-void* memcpyDeviceToHost(   void* dest, const void* src, std::size_t count);
-void* memcpyDeviceToHost(   void* dest, const void* src, std::size_t count, CudaStreamPtr stream);
-void* memcpyDeviceToDevice( void* dest, const void* src, std::size_t count);
-void* memcpyDeviceToDevice( void* dest, const void* src, std::size_t count, CudaStreamPtr stream);
-void* memcpyHostToHost(     void* dest, const void* src, std::size_t count);
-void* memcpyHostToHost(     void* dest, const void* src, std::size_t count, CudaStreamPtr stream);
+void* memcpyHostToDevice(   void* dest, const void* src, size_t count);
+void* memcpyHostToDevice(   void* dest, const void* src, size_t count, CudaStreamPtr stream);
+void* memcpyDeviceToHost(   void* dest, const void* src, size_t count);
+void* memcpyDeviceToHost(   void* dest, const void* src, size_t count, CudaStreamPtr stream);
+void* memcpyDeviceToDevice( void* dest, const void* src, size_t count);
+void* memcpyDeviceToDevice( void* dest, const void* src, size_t count, CudaStreamPtr stream);
+void* memcpyHostToHost(     void* dest, const void* src, size_t count);
+void* memcpyHostToHost(     void* dest, const void* src, size_t count, CudaStreamPtr stream);
 
+void** malloc(void** ptr, size_t count);
+void** mallocHost(void** ptr, size_t count);
+void** mallocManaged(void** ptr, size_t count);
+
+void* free(void* ptr);
+void* freeHost(void* ptr);
 
 } // namespace cuda
 
@@ -289,51 +292,6 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, RAM_CUDA>& to, C
 {
     cuda::memcpyHostToHost(to.raw(), from.raw(), sizeof(DataT) * from.size(), stream);
 }
-
-
-/// OLD
-
-// TODO: How to get rid of cuda includes here
-template<typename DataT>
-void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
-{
-    RM_CUDA_CHECK( cudaMemcpyAsync(
-                to.raw(),
-                from.raw(), sizeof( DataT ) * from.size(),
-                cudaMemcpyHostToDevice, stream
-                ) );
-}
-
-template<typename DataT>
-void copy(const MemoryView<DataT, RAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
-{
-    RM_CUDA_CHECK( cudaMemcpyAsync(
-                to.raw(),
-                from.raw(), sizeof( DataT ) * from.size(),
-                cudaMemcpyHostToDevice, stream
-                ) );
-}
-
-template<typename DataT>
-void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VRAM_CUDA>& to, const cudaStream_t& stream)
-{
-    RM_CUDA_CHECK( cudaMemcpyAsync(
-                to.raw(),
-                from.raw(), sizeof( DataT ) * from.size(),
-                cudaMemcpyDeviceToDevice, stream
-                ) );
-}
-
-template<typename DataT>
-void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, RAM_CUDA>& to, const cudaStream_t& stream)
-{
-    RM_CUDA_CHECK( cudaMemcpyAsync(
-                to.raw(),
-                from.raw(), sizeof( DataT ) * from.size(),
-                cudaMemcpyDeviceToHost, stream
-                ) );
-}
-
 
 } // namespace rmagine
 

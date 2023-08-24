@@ -35,11 +35,10 @@
 #ifndef RMAGINE_UTIL_CUDA_DEBUG_HPP
 #define RMAGINE_UTIL_CUDA_DEBUG_HPP
 
-#include <cuda_runtime.h>
 #include <stdio.h>
 #include <sstream>
 #include <rmagine/util/exceptions.h>
-
+#include <cuda_runtime.h>
 
 #define RM_CUDA_CHECK(call)    \
 {                 \
@@ -47,18 +46,10 @@
    cudaAssert(code, __FILE__, __PRETTY_FUNCTION__, __LINE__);  \
 }
 
-inline void cudaAssert(
+void cudaAssert(
    cudaError_t code, 
    const char* file, 
    const char* func,
-   int line)
-{
-   if(code != cudaSuccess)
-   {
-      std::stringstream ss;
-      ss << "CUDA Error! Name: " << cudaGetErrorName(code) << ", Message: " << cudaGetErrorString(code) << "\n";
-      throw rmagine::CudaException(ss.str(), file, func, line);
-   }
-}
+   int line);
 
 #endif // RMAGINE_UTIL_CUDA_DEBUG_HPP

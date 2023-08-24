@@ -104,7 +104,7 @@ void PinholeSimulatorOptix::simulateRanges(
     mem->ranges = ranges.raw();
 
     Memory<OptixSimulationDataRangesPinhole, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream->handle());
+    copy(mem, d_mem, m_stream);
 
     PipelinePtr program;// = m_programs[0];
 
@@ -139,7 +139,7 @@ void PinholeSimulatorOptix::launch(
     PipelinePtr program)
 {
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream->handle());
+    copy(mem, d_mem, m_stream);
 
     RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,

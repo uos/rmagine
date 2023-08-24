@@ -47,6 +47,8 @@
 #include <rmagine/types/sensor_models.h>
 #include "SimulationResults.hpp"
 
+#include <rmagine/types/MemoryCuda.hpp>
+
 namespace rmagine
 {
 

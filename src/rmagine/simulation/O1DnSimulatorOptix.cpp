@@ -72,7 +72,7 @@ void O1DnSimulatorOptix::setModel(const O1DnModel_<VRAM_CUDA>& model)
     m_model[0] = model;
 
     m_model_d.resize(1);
-    copy(m_model, m_model_d, m_stream->handle());
+    copy(m_model, m_model_d, m_stream);
 
     Memory<SensorModelUnion, RAM> model_union(1);
     model_union->o1dn = m_model_d.raw();
@@ -129,7 +129,7 @@ void O1DnSimulatorOptix::simulateRanges(
     // mem->ranges = ranges.raw();
 
     // Memory<OptixSimulationDataRangesO1Dn, VRAM_CUDA> d_mem(1);
-    // copy(mem, d_mem, m_stream->handle());
+    // copy(mem, d_mem, m_stream);
 
     // OptixProgramPtr program = m_programs[0];
 
@@ -163,7 +163,7 @@ void O1DnSimulatorOptix::launch(
     PipelinePtr program)
 {
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
-    copy(mem, d_mem, m_stream->handle());
+    copy(mem, d_mem, m_stream);
 
     RM_OPTIX_CHECK( optixLaunch(
                 program->pipeline,
