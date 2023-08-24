@@ -108,9 +108,7 @@ endif(OPENMP_FOUND)
 
 include(CheckLanguage)
 
-
 find_package(CUDA)
-# set(CUDA_FOUND 0)
 if(CUDA_FOUND)
     enable_language(CUDA)
     include_directories(${CUDA_INCLUDE_DIRS})
