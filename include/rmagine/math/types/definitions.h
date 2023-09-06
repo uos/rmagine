@@ -45,13 +45,20 @@ using Vector3f = Vector3_<float>;
 using Matrix2x2f = Matrix_<float, 2, 2>;
 using Matrix3x3f = Matrix_<float, 3, 3>;
 using Matrix4x4f = Matrix_<float, 4, 4>;
+using Quaternionf = Quaternion_<float>;
+using EulerAnglesf = EulerAngles_<float>;
+using Transformf = Transform_<float>;
+using AABBf = AABB_<float>;
 
 using Vector2d = Vector2_<double>;
 using Vector3d = Vector3_<double>;
 using Matrix2x2d = Matrix_<double, 2, 2>;
 using Matrix3x3d = Matrix_<double, 3, 3>;
 using Matrix4x4d = Matrix_<double, 4, 4>;
-
+using Quaterniond = Quaternion_<double>;
+using EulerAnglesd = EulerAngles_<double>;
+using Transformd = Transform_<double>;
+using AABBd = AABB_<double>;
 
 #define DEFAULT_FP_PRECISION 32
 
