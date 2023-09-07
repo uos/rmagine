@@ -321,6 +321,13 @@ if(CUDA_FOUND)
         rmagine-core
     )
 
+    set_target_properties(rmagine-cuda
+      PROPERTIES
+        EXPORT_NAME cuda
+    )
+
+    add_library(rmagine::cuda ALIAS rmagine-cuda)
+
     list(APPEND RMAGINE_LIBRARIES rmagine-cuda)
 
     add_library(rmagine-cuda-static STATIC
@@ -339,6 +346,13 @@ if(CUDA_FOUND)
     add_dependencies(rmagine-cuda-static
         rmagine-core-static
     )
+
+    set_target_properties(rmagine-cuda-static
+      PROPERTIES
+        EXPORT_NAME cuda-static
+    )
+
+    add_library(rmagine::cuda-static ALIAS rmagine-cuda-static)
 
     list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-cuda-static)
 
@@ -448,6 +462,13 @@ if(CUDA_FOUND)
             rmagine-cuda
         )
 
+        set_target_properties(rmagine-optix
+          PROPERTIES
+            EXPORT_NAME optix
+        )
+    
+        add_library(rmagine::optix ALIAS rmagine-optix)
+
         list(APPEND RMAGINE_LIBRARIES rmagine-optix)
 
         # OptiX GENERAL STATIC LIBRARY
@@ -468,6 +489,13 @@ if(CUDA_FOUND)
             rmagine_optix_ptx
             rmagine-cuda-static
         )
+
+        set_target_properties(rmagine-optix-static
+          PROPERTIES
+            EXPORT_NAME optix-static
+        )
+    
+        add_library(rmagine::optix-static ALIAS rmagine-optix-static)
 
         list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-optix-static)
 
@@ -518,14 +546,14 @@ message(STATUS "Generated ${GEN_SHORTCUT_HEADERS}")
 # 1. Headers
 install(DIRECTORY include/rmagine DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # 2. Libraries
-install(TARGETS ${RMAGINE_LIBRARIES} EXPORT rmagineTargets)
+# install(TARGETS rmagine-cuda rmagine-optix EXPORT rmagineTargets)
 # 3. Static Libraries
-install(TARGETS ${RMAGINE_STATIC_LIBRARIES} EXPORT rmagineTargets)
+# install(TARGETS rmagine-cuda-static rmagine-optix-static EXPORT rmagineTargets)
 
-install(EXPORT rmagineTargets
-    FILE rmagineTargets.cmake
-    NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
+# install(EXPORT rmagineTargets
+#     FILE rmagineTargets.cmake
+#     NAMESPACE rmagine::
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
 
     
 # CMAKE FIND SCRIPT
@@ -572,7 +600,7 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
-configure_package_config_file(cmake/core-config.cmake.in
+configure_package_config_file(cmake/rmagine-core-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
 )
@@ -606,7 +634,7 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
-configure_package_config_file(cmake/core-static-config.cmake.in
+configure_package_config_file(cmake/rmagine-core-static-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-static-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
 )
@@ -627,6 +655,243 @@ install(
 
 
 
+###########
+## EMBREE
+############
+install(TARGETS rmagine-embree EXPORT rmagine-embree-targets)
+
+install(EXPORT rmagine-embree-targets
+    FILE rmagine-embree-targets.cmake
+    COMPONENT embree
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-embree-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT embree
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT embree
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(TARGETS rmagine-embree-static EXPORT rmagine-embree-static-targets)
+
+install(EXPORT rmagine-embree-static-targets
+    FILE rmagine-embree-static-targets.cmake
+    COMPONENT embree-static
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-embree-static-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT embree-static
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT embree-static
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+
+###########
+## CUDA
+############
+install(TARGETS rmagine-cuda EXPORT rmagine-cuda-targets)
+
+install(EXPORT rmagine-cuda-targets
+    FILE rmagine-cuda-targets.cmake
+    COMPONENT cuda
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-cuda-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT cuda
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT cuda
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(TARGETS rmagine-cuda-static EXPORT rmagine-cuda-static-targets)
+
+install(EXPORT rmagine-cuda-static-targets
+    FILE rmagine-cuda-static-targets.cmake
+    COMPONENT cuda-static
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-static-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-cuda-static-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-static-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-static-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-static-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT cuda-static
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT cuda-static
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+
+###########
+## OptiX
+############
+install(TARGETS rmagine-optix EXPORT rmagine-optix-targets)
+
+install(EXPORT rmagine-optix-targets
+    FILE rmagine-optix-targets.cmake
+    COMPONENT optix
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-optix-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT optix
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT optix
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(TARGETS rmagine-optix-static EXPORT rmagine-optix-static-targets)
+
+install(EXPORT rmagine-optix-static-targets
+    FILE rmagine-optix-static-targets.cmake
+    COMPONENT optix-static
+    NAMESPACE rmagine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(cmake/rmagine-optix-static-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  COMPONENT optix-static
+)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT optix-static
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
@@ -639,6 +904,23 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###############################################################################

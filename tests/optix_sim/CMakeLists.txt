@@ -3,7 +3,7 @@
 
 add_executable(rmagine_tests_optix_simulation_spherical optix_simulation_spherical.cpp)
 target_link_libraries(rmagine_tests_optix_simulation_spherical
-    rmagine-optix
+    rmagine::optix
 )
 
 add_test(NAME optix_simulation_spherical COMMAND rmagine_tests_optix_simulation_spherical)
@@ -13,7 +13,7 @@ add_test(NAME optix_simulation_spherical COMMAND rmagine_tests_optix_simulation_
 
 add_executable(rmagine_tests_optix_simulation_pinhole optix_simulation_pinhole.cpp)
 target_link_libraries(rmagine_tests_optix_simulation_pinhole
-    rmagine-optix
+    rmagine::optix
 )
 
 add_test(NAME optix_simulation_pinhole COMMAND rmagine_tests_optix_simulation_pinhole)
@@ -21,7 +21,7 @@ add_test(NAME optix_simulation_pinhole COMMAND rmagine_tests_optix_simulation_pi
 # 3. O1DN
 add_executable(rmagine_tests_optix_simulation_o1dn optix_simulation_o1dn.cpp)
 target_link_libraries(rmagine_tests_optix_simulation_o1dn
-    rmagine-optix
+    rmagine::optix
 )
 
 add_test(NAME optix_simulation_o1dn COMMAND rmagine_tests_optix_simulation_o1dn)
@@ -30,7 +30,7 @@ add_test(NAME optix_simulation_o1dn COMMAND rmagine_tests_optix_simulation_o1dn)
 # 4. ONDN
 add_executable(rmagine_tests_optix_simulation_ondn optix_simulation_ondn.cpp)
 target_link_libraries(rmagine_tests_optix_simulation_ondn
-    rmagine-optix
+    rmagine::optix
 )
 
 add_test(NAME optix_simulation_ondn COMMAND rmagine_tests_optix_simulation_ondn)

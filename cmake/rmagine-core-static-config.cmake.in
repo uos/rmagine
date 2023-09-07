@@ -7,4 +7,4 @@ include(CMakeFindDependencyMacro)
 find_dependency(Eigen3)
 find_dependency(Assimp)
 
-check_required_components(core)
+check_required_components(core-static)

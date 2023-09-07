@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include(${CMAKE_CURRENT_LIST_DIR}/rmagine-cuda-static-config-version.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/rmagine-cuda-static-targets.cmake)
+
+# include(CMakeFindDependencyMacro)
+# find_dependency(Eigen3)
+# find_dependency(Assimp)
+
+check_required_components(cuda-static)
