@@ -27,11 +27,13 @@ set(rmagine_INCLUDE_DIRS ${rmagine_INCLUDE_DIR})
 ### LIBRARY
 ###########
 
+# find_package(Eigen3 REQUIRED)
+
 # RMAGINE CORE LIB
-set(rmagine_LIBRARY rmagine)
-set(rmagine_LIBRARIES rmagine)
-set(rmagine_LIBRARY_STATIC rmagine_static)
-set(rmagine_LIBRARIES_STATIC rmagine_static)
+set(rmagine_LIBRARY rmagine::core)
+set(rmagine_LIBRARIES rmagine::core)
+set(rmagine_LIBRARY_STATIC rmagine::core_static)
+set(rmagine_LIBRARIES_STATIC rmagine::core_static)
 
 # RMAGINE EMBREE LIB
 if(@embree_FOUND@)
@@ -134,3 +136,12 @@ if(@OptiX_FOUND@)
 endif(@OptiX_FOUND@)
 
 set(rmagine_FOUND TRUE)
+
+
+## COMPONENT STUFF
+
+set(rmagine_COMPONENTS_FOUND "")
+foreach(component ${rmagine_FIND_COMPONENTS})
+    include(${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
+    list(APPEND rmagine_COMPONENTS_FOUND ${component})
+endforeach()

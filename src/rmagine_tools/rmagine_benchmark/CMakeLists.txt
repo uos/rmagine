@@ -7,19 +7,19 @@ add_executable(rmagine_benchmark
 )
 
 target_link_libraries(rmagine_benchmark
-    rmagine_static
+    rmagine::core-static
 )
 
 if(embree_FOUND)
     target_link_libraries(rmagine_benchmark
-        rmagine_embree_static
+        rmagine-embree-static
     )
     target_compile_definitions(rmagine_benchmark PUBLIC WITH_EMBREE)
 endif(embree_FOUND)
 
 if(CUDA_FOUND AND OptiX_FOUND)
     target_link_libraries(rmagine_benchmark
-        rmagine_optix_static
+        rmagine-optix-static
     )
     target_compile_definitions(rmagine_benchmark PUBLIC WITH_OPTIX)
 endif(CUDA_FOUND AND OptiX_FOUND)
