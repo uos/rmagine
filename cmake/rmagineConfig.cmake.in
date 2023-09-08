@@ -13,8 +13,6 @@
 # -----------------------------------------------------------------
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/rmagineTargets.cmake")
-
 set(RMAGINE_ROOT_DIR ${PACKAGE_PREFIX_DIR})
 
 ###########
@@ -30,17 +28,17 @@ set(rmagine_INCLUDE_DIRS ${rmagine_INCLUDE_DIR})
 # find_package(Eigen3 REQUIRED)
 
 # RMAGINE CORE LIB
-set(rmagine_LIBRARY rmagine::core)
-set(rmagine_LIBRARIES rmagine::core)
-set(rmagine_LIBRARY_STATIC rmagine::core_static)
-set(rmagine_LIBRARIES_STATIC rmagine::core_static)
+set(rmagine_LIBRARY rmagine-core)
+set(rmagine_LIBRARIES rmagine-core)
+set(rmagine_LIBRARY_STATIC rmagine-core_static)
+set(rmagine_LIBRARIES_STATIC rmagine-core_static)
 
 # RMAGINE EMBREE LIB
 if(@embree_FOUND@)
-    list(APPEND rmagine_LIBRARIES rmagine_embree)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine_embree_static)
-    set(rmagine_embree_LIBRARY rmagine_embree)
-    set(rmagine_embree_LIBRARY_STATIC rmagine_embree_static)
+    list(APPEND rmagine_LIBRARIES rmagine-embree)
+    list(APPEND rmagine_LIBRARIES_STATIC rmagine-embree-static)
+    set(rmagine_embree_LIBRARY rmagine-embree)
+    set(rmagine_embree_LIBRARY_STATIC rmagine-embree-static)
     set(rmagine_embree_FOUND 1)
 
 else(@embree_FOUND@)
@@ -49,10 +47,10 @@ endif(@embree_FOUND@)
 
 # RMAGINE CUDA LIB
 if(@CUDA_FOUND@)
-    list(APPEND rmagine_LIBRARIES rmagine_cuda)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine_cuda_static)
-    set(rmagine_cuda_LIBRARY rmagine_cuda)
-    set(rmagine_cuda_LIBRARY_STATIC rmagine_cuda_static)
+    list(APPEND rmagine_LIBRARIES rmagine-cuda)
+    list(APPEND rmagine_LIBRARIES_STATIC rmagine-cuda-static)
+    set(rmagine_cuda_LIBRARY rmagine-cuda)
+    set(rmagine_cuda_LIBRARY_STATIC rmagine-cuda-static)
     set(rmagine_cuda_FOUND 1)
 else(@CUDA_FOUND@)
     set(rmagine_cuda_FOUND 0)
@@ -60,10 +58,10 @@ endif(@CUDA_FOUND@)
 
 # RMAGINE OptiX LIB
 if(@OptiX_FOUND@)
-    list(APPEND rmagine_LIBRARIES rmagine_optix)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine_optix_static)
-    set(rmagine_optix_LIBRARY rmagine_optix)
-    set(rmagine_optix_LIBRARY_STATIC rmagine_optix_static)
+    list(APPEND rmagine_LIBRARIES rmagine-optix)
+    list(APPEND rmagine_LIBRARIES_STATIC rmagine-optix-static)
+    set(rmagine_optix_LIBRARY rmagine-optix)
+    set(rmagine_optix_LIBRARY_STATIC rmagine-optix-static)
     set(rmagine_optix_FOUND 1)
 else(@OptiX_FOUND@)
     set(rmagine_optix_FOUND 0)
@@ -139,6 +137,8 @@ set(rmagine_FOUND TRUE)
 
 
 ## COMPONENT STUFF
+
+
 
 set(rmagine_COMPONENTS_FOUND "")
 foreach(component ${rmagine_FIND_COMPONENTS})

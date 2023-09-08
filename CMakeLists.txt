@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4...10.0)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.1.1)
+    VERSION 2.2.1)
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
@@ -874,24 +874,6 @@ install(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
@@ -904,8 +886,6 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
-
-
 
 
 
@@ -942,4 +922,10 @@ add_custom_target( doc ALL
     COMMENT "Generating API documentation with Doxygen" VERBATIM )
 
 endif(BUILD_DOCS)
+
+
+#########################
+# PACKAGE GENERATION
+#########################
+include(cmake/rmagine-deb.cmake)
 
