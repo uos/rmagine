@@ -227,4 +227,5 @@ Vector3_<ConvT> Vector3_<DataT>::cast() const
     };
 }
 
+
 } // namespace rmagine

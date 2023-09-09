@@ -51,6 +51,9 @@
 
 #include <memory>
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #if RMAGINE_EMBREE_VERSION_MAJOR == 3
 #include <embree3/rtcore.h>
 #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
@@ -64,6 +67,8 @@
 
 namespace rmagine
 {
+
+
 
 /**
  * @brief EmbreeMesh
@@ -94,6 +99,8 @@ public:
     void init(const aiMesh* amesh);
 
     void initVertexNormals();
+
+    bool closestPointFunc2(RTCPointQueryFunctionArguments* args);
 
     // PUBLIC ATTRIBUTES
     MemoryView<Face, RAM> faces() const;
@@ -137,6 +144,10 @@ private:
     Vertex* m_vertices_transformed;
     Memory<Vector, RAM> m_face_normals_transformed;
     Memory<Vector, RAM> m_vertex_normals_transformed;
+
+    boost::function<bool (RTCPointQueryFunctionArguments*)> m_closest_point_func;
+    RTCPointQueryFunction* m_closest_point_func_raw;
+
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;

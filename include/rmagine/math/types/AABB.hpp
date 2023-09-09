@@ -14,6 +14,7 @@ struct AABB_
     Vector3_<DataT> min;
     Vector3_<DataT> max;
 
+
     // FUNCTIONS
     RMAGINE_INLINE_FUNCTION
     DataT volume() const;

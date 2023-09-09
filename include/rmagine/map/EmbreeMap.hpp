@@ -73,25 +73,7 @@
 namespace rmagine 
 {
 
-struct ClosestPointResult
-{
-    ClosestPointResult() 
-        : d(std::numeric_limits<float>::max())
-        , primID(RTC_INVALID_GEOMETRY_ID)
-        , geomID(RTC_INVALID_GEOMETRY_ID)
-    {}
 
-    float d;
-    Point p;
-    unsigned int primID;
-    unsigned int geomID;
-};
-
-struct PointQueryUserData 
-{
-    std::vector<EmbreeMesh>* parts;
-    ClosestPointResult* result;
-};
 
 class EmbreeMap {
 public:

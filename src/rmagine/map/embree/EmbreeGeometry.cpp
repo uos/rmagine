@@ -8,6 +8,10 @@
 namespace rmagine
 {
 
+
+
+
+
 EmbreeGeometry::EmbreeGeometry(EmbreeDevicePtr device)
 :m_device(device)
 ,m_S{1.0,1.0,1.0}

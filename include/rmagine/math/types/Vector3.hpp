@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include <rmagine/types/shared_functions.h>
 #include <initializer_list>
+#include <limits>
 
 namespace rmagine
 {
@@ -31,6 +32,18 @@ struct Vector3_
     static Vector3_<DataT> Ones()
     {
         return {static_cast<DataT>(1), static_cast<DataT>(1), static_cast<DataT>(1)};
+    }
+
+    RMAGINE_FUNCTION
+    static Vector3_<DataT> Max()
+    {
+        return {std::numeric_limits<DataT>::max(), std::numeric_limits<DataT>::max(), std::numeric_limits<DataT>::max()};
+    }
+
+    RMAGINE_FUNCTION
+    static Vector3_<DataT> Min()
+    {
+        return {std::numeric_limits<DataT>::lowest(), std::numeric_limits<DataT>::lowest(), std::numeric_limits<DataT>::lowest()};
     }
 
     // FUNCTIONS

@@ -31,3 +31,11 @@ target_link_libraries(rmagine_tests_embree_simulation_ondn
 )
 
 add_test(NAME embree_simulation_ondn COMMAND rmagine_tests_embree_simulation_ondn)
+
+# 5. CLOSEST POINT
+add_executable(rmagine_tests_embree_closest_point embree_closest_point.cpp)
+target_link_libraries(rmagine_tests_embree_closest_point
+    rmagine_embree
+)
+
+add_test(NAME embree_closest_point COMMAND rmagine_tests_embree_closest_point)
