@@ -24,6 +24,7 @@ rm::EmbreeMapPtr make_map_1()
     return std::make_shared<rm::EmbreeMap>(cube_scene);;
 }
 
+// DOES NOT WORK YET
 rm::EmbreeMapPtr make_map_2()
 {
     rm::EmbreeScenePtr cube_scene = std::make_shared<rm::EmbreeScene>();
@@ -46,12 +47,43 @@ rm::EmbreeMapPtr make_map_2()
     return std::make_shared<rm::EmbreeMap>(cube_scene);;
 }
 
+rm::EmbreeMapPtr make_map_3()
+{
+    rm::EmbreeScenePtr cube_scene = std::make_shared<rm::EmbreeScene>();
+
+    {
+        rm::EmbreeMeshPtr cube_mesh = std::make_shared<rm::EmbreeCube>();
+        rm::Transform T = rm::Transform::Identity();
+        T.t.z = 5.0;
+        cube_mesh->setTransform(T);
+        cube_mesh->apply();
+        cube_mesh->commit();
+        cube_scene->add(cube_mesh);
+    }
+    
+    {
+        rm::EmbreeMeshPtr cube_mesh = std::make_shared<rm::EmbreeCube>();
+        rm::Transform T = rm::Transform::Identity();
+        T.t.z = 5.0;
+        T.t.x = 20.0;
+        cube_mesh->setTransform(T);
+        cube_mesh->apply();
+        cube_mesh->commit();
+        cube_scene->add(cube_mesh);
+    }
+
+
+    cube_scene->commit();
+
+    return std::make_shared<rm::EmbreeMap>(cube_scene);;
+}
+
 int main(int argc, char ** argv)
 {
     std::cout << "EMBREE CLOSEST POINT" << std::endl;
 
 
-    auto map = make_map_1();
+    auto map = make_map_3();
     rm::Vector qp;
     rm::Vector cp;
 
