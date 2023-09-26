@@ -41,12 +41,12 @@
 #ifndef RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP
 #define RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP
 
-#include "Simulator.hpp"
+#include <rmagine/simulation/Simulator.hpp>
 
-#include "SphereSimulatorEmbree.hpp"
-#include "PinholeSimulatorEmbree.hpp"
-#include "O1DnSimulatorEmbree.hpp"
-#include "OnDnSimulatorEmbree.hpp"
+#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
+#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
+#include <rmagine/simulation/O1DnSimulatorEmbree.hpp>
+#include <rmagine/simulation/OnDnSimulatorEmbree.hpp>
 
 namespace rmagine
 {

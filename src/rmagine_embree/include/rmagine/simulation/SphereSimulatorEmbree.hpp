@@ -45,7 +45,7 @@
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
-#include "SimulationResults.hpp"
+#include <rmagine/simulation/SimulationResults.hpp>
 
 #include <rmagine/types/MemoryCuda.hpp>
 

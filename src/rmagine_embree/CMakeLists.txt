@@ -105,7 +105,7 @@ install(EXPORT rmagine-embree-targets
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config-version.cmake
   VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
+  COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-embree-config.cmake.in
@@ -139,7 +139,7 @@ install(EXPORT rmagine-embree-static-targets
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config-version.cmake
   VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
+  COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-embree-static-config.cmake.in

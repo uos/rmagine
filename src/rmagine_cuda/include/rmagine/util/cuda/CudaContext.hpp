@@ -44,7 +44,7 @@
 
 #include "CudaHelper.hpp"
 
-#include "cuda_definitions.h"
+#include <rmagine/util/cuda/cuda_definitions.h>
 
 namespace rmagine {
 

@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief Contains @link rmagine::PinholeSimulatorEmbree PinholeSimulatorEmbree @endlink
+ * @brief Contains @link rmagine::OnDnSimulatorEmbree OnDnSimulatorEmbree @endlink
  *
  * @date 03.01.2022
  * @author Alexander Mock
@@ -38,22 +38,19 @@
  * 
  */
 
-#ifndef RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
-#define RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
+#ifndef RMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
+#define RMAGINE_SIMULATION_ONDN_SIMULATOR_EMBREE_HPP
 
 #include <rmagine/map/EmbreeMap.hpp>
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
-#include "SimulationResults.hpp"
+#include <rmagine/simulation/SimulationResults.hpp>
 
 namespace rmagine
 {
 
 /**
- * 
- * @class
- * 
- * @brief Pinhole simulation on CPU via Embree
+ * @brief OnDnModel simulation on CPU via Embree
  * 
  * Example:
  * 
@@ -66,13 +63,13 @@ namespace rmagine
  * // Import a map
  * EmbreeMapPtr map = import_embree_map("somemesh.ply");
  * // Construct the simulator, that operates on a specific map 
- * PinholeSimulatorEmbree sim(map);
+ * OnDnSimulatorEmbree sim(map);
  * 
  * size_t Nposes = 100;
  * 
  * // Inputs
  * Memory<Transform, RAM> T_sensor_to_base(1); // Static transform between sensor and base frame
- * Memory<PinholeModel, RAM> model; // PinholeModel in RAM
+ * OnDnModel_<RAM> model; // OnDnModel in RAM
  * Memory<Transform, RAM> T_base_to_map(Nposes); // Poses in VRAM
  * // fill data
  * 
@@ -101,21 +98,19 @@ namespace rmagine
  * @endcode
  * 
  */
-class PinholeSimulatorEmbree {
+class OnDnSimulatorEmbree {
 public:
-
-    PinholeSimulatorEmbree();
-    PinholeSimulatorEmbree(EmbreeMapPtr map);
-    ~PinholeSimulatorEmbree();
+    OnDnSimulatorEmbree();
+    OnDnSimulatorEmbree(EmbreeMapPtr map);
+    ~OnDnSimulatorEmbree();
 
     void setMap(EmbreeMapPtr map);
 
     void setTsb(const MemoryView<Transform, RAM>& Tsb);
     void setTsb(const Transform& Tsb);
 
-    void setModel(const MemoryView<PinholeModel, RAM>& model);
-    void setModel(const PinholeModel& model);
-
+    void setModel(const OnDnModel_<RAM>& model);
+    void setModel(const MemoryView<OnDnModel_<RAM>, RAM>& model);
 
     void simulateRanges(
         const MemoryView<Transform, RAM>& Tbm, 
@@ -141,7 +136,7 @@ public:
 
 protected:
     EmbreeMapPtr m_map;
-
+    
     #if RMAGINE_EMBREE_VERSION_MAJOR == 3
     RTCIntersectContext m_context;
     #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
@@ -149,13 +144,13 @@ protected:
     #endif // RMAGINE_EMBREE_VERSION_MAJOR
 
     Memory<Transform, RAM> m_Tsb;
-    Memory<PinholeModel, RAM> m_model;
+    Memory<OnDnModel_<RAM>, RAM> m_model;
 };
 
-using PinholeSimulatorEmbreePtr = std::shared_ptr<PinholeSimulatorEmbree>;
+using OnDnSimulatorEmbreePtr = std::shared_ptr<OnDnSimulatorEmbree>;
 
 } // namespace rmagine
 
-#include "PinholeSimulatorEmbree.tcc"
+#include "OnDnSimulatorEmbree.tcc"
 
-#endif // RMAGINE_SIMULATION_PINHOLE_SIMULATOR_EMBREE_HPP
+#endif // RMAGINE_SIMULATION_O1DN_SIMULATOR_EMBREE_HPP

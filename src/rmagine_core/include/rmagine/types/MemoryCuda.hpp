@@ -35,8 +35,8 @@
 #ifndef RMAGINE_MEMORY_CUDA_HPP
 #define RMAGINE_MEMORY_CUDA_HPP
 
-#include "Memory.hpp"
-#include "rmagine/util/cuda/cuda_definitions.h"
+#include <rmagine/types/Memory.hpp>
+#include <rmagine/util/cuda/cuda_definitions.h>
 
 namespace rmagine
 {

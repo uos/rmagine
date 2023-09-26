@@ -5,7 +5,7 @@
 #include <cuda.h>
 #include <memory>
 
-#include "cuda_definitions.h"
+#include <rmagine/util/cuda/cuda_definitions.h>
 #include "CudaContext.hpp"
 
 namespace rmagine {

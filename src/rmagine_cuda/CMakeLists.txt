@@ -24,6 +24,12 @@ add_library(rmagine-cuda SHARED
     ${RMAGINE_CUDA_SRCS}
 )
 
+target_include_directories(rmagine-cuda
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 # TODO: use CUDA language instead of find_package
 target_link_libraries(rmagine-cuda
     rmagine-core
@@ -46,9 +52,17 @@ add_library(rmagine::cuda ALIAS rmagine-cuda)
 
 list(APPEND RMAGINE_LIBRARIES rmagine-cuda)
 
+
 add_library(rmagine-cuda-static STATIC
     ${RMAGINE_CUDA_SRCS}
 )
+
+target_include_directories(rmagine-cuda-static
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 
 # TODO: use CUDA language instead of find_package
 target_link_libraries(rmagine-cuda-static
@@ -58,6 +72,7 @@ target_link_libraries(rmagine-cuda-static
     ${CUDA_cublas_LIBRARY}
     cuda
 )
+
 
 add_dependencies(rmagine-cuda-static
     rmagine-core-static
@@ -87,7 +102,7 @@ install(EXPORT rmagine-cuda-targets
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config-version.cmake
     VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
+    COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-cuda-config.cmake.in
@@ -121,7 +136,7 @@ install(EXPORT rmagine-cuda-static-targets
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-static-config-version.cmake
     VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
+    COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-cuda-static-config.cmake.in
