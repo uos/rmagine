@@ -95,8 +95,10 @@ add_dependencies(rmagine-optix
 )
 
 set_target_properties(rmagine-optix
-    PROPERTIES
+  PROPERTIES
     EXPORT_NAME optix
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::optix ALIAS rmagine-optix)
@@ -124,8 +126,10 @@ add_dependencies(rmagine-optix
 )
 
 set_target_properties(rmagine-optix-static
-    PROPERTIES
+  PROPERTIES
     EXPORT_NAME optix-static
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::optix-static ALIAS rmagine-optix-static)

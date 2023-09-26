@@ -46,6 +46,8 @@ add_dependencies(rmagine-cuda
 set_target_properties(rmagine-cuda
     PROPERTIES
     EXPORT_NAME cuda
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::cuda ALIAS rmagine-cuda)
@@ -81,6 +83,8 @@ add_dependencies(rmagine-cuda-static
 set_target_properties(rmagine-cuda-static
     PROPERTIES
     EXPORT_NAME cuda-static
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::cuda-static ALIAS rmagine-cuda-static)

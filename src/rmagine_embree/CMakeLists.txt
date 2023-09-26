@@ -48,6 +48,8 @@ target_compile_features(rmagine-embree PRIVATE cxx_std_17)
 set_target_properties(rmagine-embree
     PROPERTIES
     EXPORT_NAME embree
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::embree ALIAS rmagine-embree)
@@ -80,6 +82,8 @@ target_compile_features(rmagine-embree-static PRIVATE cxx_std_17)
 set_target_properties(rmagine-embree-static
     PROPERTIES
     EXPORT_NAME embree-static
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::embree-static ALIAS rmagine-embree-static)

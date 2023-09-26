@@ -45,6 +45,8 @@ target_compile_features(rmagine-core PRIVATE cxx_std_17)
 set_target_properties(rmagine-core
   PROPERTIES
     EXPORT_NAME core
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 # TODO: do this:
@@ -75,6 +77,8 @@ target_compile_features(rmagine-core-static PRIVATE cxx_std_17)
 set_target_properties(rmagine-core-static
   PROPERTIES
     EXPORT_NAME core-static
+    SOVERSION ${rmagine_VERSION_MAJOR}
+    VERSION ${rmagine_VERSION}
 )
 
 add_library(rmagine::core-static ALIAS rmagine-core-static)
