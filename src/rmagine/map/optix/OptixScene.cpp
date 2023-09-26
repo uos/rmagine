@@ -667,7 +667,7 @@ OptixScenePtr make_optix_scene(
     const aiNode* root_node = ascene->mRootNode;
     std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
 
-    // std::cout << "[make_embree_scene()] Loading Instances..." << std::endl;
+    // std::cout << "[make_optix_scene()] Loading Instances..." << std::endl;
     for(size_t i=0; i<mesh_nodes.size(); i++)
     {
         const aiNode* node = mesh_nodes[i];
