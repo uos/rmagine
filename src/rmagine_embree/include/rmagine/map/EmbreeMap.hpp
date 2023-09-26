@@ -62,7 +62,7 @@
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/math/assimp_conversions.h>
-#include "AssimpIO.hpp"
+#include <rmagine/map/AssimpIO.hpp>
 
 #include "embree/EmbreeDevice.hpp"
 #include "embree/EmbreeScene.hpp"
@@ -72,8 +72,6 @@
 
 namespace rmagine 
 {
-
-
 
 class EmbreeMap {
 public:
