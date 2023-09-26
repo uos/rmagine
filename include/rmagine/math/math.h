@@ -45,8 +45,17 @@
 #include <rmagine/types/Memory.hpp>
 #include <vector>
 
+
 namespace rmagine
 {
+
+
+template<typename DataT>
+Vector3_<DataT> min(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
+
+template<typename DataT>
+Vector3_<DataT> max(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
+
 
 /////////////
 // #multNxN
@@ -363,5 +372,7 @@ Memory<Matrix3x3, RAM> cov(
 );
 
 } // namespace rmagine
+
+#include "math.tcc"
 
 #endif // RMAGINE_MATH_MATH_H

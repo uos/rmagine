@@ -3,6 +3,7 @@
 // other internal deps
 #include "rmagine/map/embree/EmbreeDevice.hpp"
 #include "rmagine/map/embree/EmbreeScene.hpp"
+#include "rmagine/map/embree/EmbreeInstance.hpp"
 
 #include <iostream>
 
@@ -13,12 +14,190 @@
 
 #include <rmagine/math/assimp_conversions.h>
 
+
+
 namespace rmagine {
+
+Point closestPointTriangle(
+    const Point& p, 
+    const Point& a, 
+    const Point& b, 
+    const Point& c)
+{
+    const Vector ab = b-a;
+    const Vector ac = c-a;
+    const Vector ap = p-a;
+    const Vector n = ab.cross(ac);
+
+    // TODO: comment this in and test
+    Matrix3x3 R;
+    R(0,0) = ab.x;
+    R(1,0) = ab.y;
+    R(2,0) = ab.z;
+    
+    R(0,1) = ac.x;
+    R(1,1) = ac.y;
+    R(2,1) = ac.z;
+
+    R(0,2) = n.x;
+    R(1,2) = n.y;
+    R(2,2) = n.z;
+
+    Matrix3x3 Rinv = R.inv();
+    Vector p_in_t = Rinv * ap;
+    float p0 = p_in_t.x;
+    float p1 = p_in_t.y;
+
+    // Instead of this
+    const bool on_ab_edge = (p0 >= 0.f && p0 <= 1.f);
+    const bool on_ac_edge = (p1 >= 0.f && p1 <= 1.f);
+
+    if(on_ab_edge && on_ac_edge)
+    {
+        // in triangle
+        return ab * p0 + ac * p1 + a;
+    } 
+    else if(on_ab_edge && !on_ac_edge)
+    {
+        // nearest point on edge (ab)
+        return ab * p0 + a;
+    }
+    else if(!on_ab_edge && on_ac_edge)
+    {
+        // nearest point on edge (ac)
+        return ac * p1 + a;
+    }
+    else
+    {
+        // nearest vertex
+        float d_ap = ap.l2normSquared();
+        float d_bp = (p - b).l2normSquared();
+        float d_cp = (p - c).l2normSquared();
+        
+        if(d_ap < d_bp && d_ap < d_cp)
+        {
+            // a best
+            return a;
+        } 
+        else if(d_bp < d_cp) 
+        { 
+            // b best
+            return b;
+        } 
+        else 
+        {
+            // c best
+            return c;
+        }
+    }
+}
+
+bool closestPointFunc(RTCPointQueryFunctionArguments* args)
+{
+    assert(args->userPtr);
+    const unsigned int geomID = args->geomID;
+    const unsigned int primID = args->primID;
+
+    RTCPointQueryContext* context = args->context;
+    const unsigned int stackSize = args->context->instStackSize;
+    const unsigned int stackPtr = stackSize-1;
+
+    PointQueryUserData* userData = (PointQueryUserData*)args->userPtr;
+
+    // query position in world space
+    Vector q{args->query->x, args->query->y, args->query->z};
+
+    /*
+    * Get triangle information in global space
+    */
+    EmbreeScenePtr scene = *userData->scene;
+    EmbreeMeshPtr mesh = scene->getAs<EmbreeMesh>(geomID);
+    
+    if(mesh)
+    {
+        Face face = mesh->faces()[primID];
+
+        Vertex v0 = mesh->verticesTransformed()[face.v0];
+        Vertex v1 = mesh->verticesTransformed()[face.v1];
+        Vertex v2 = mesh->verticesTransformed()[face.v2];
+
+        const Vector p = closestPointTriangle(q, v0, v1, v2);
+
+        float d = (p - q).l2norm();
+
+        if (d < args->query->radius)
+        {
+            args->query->radius = d;
+            if(d < userData->result->d)
+            {
+                userData->result->d = d;
+                userData->result->geomID = geomID;
+                userData->result->primID = primID;
+                userData->result->p = p;
+            }
+            return true; // Return true to indicate that the query radius changed.
+        }
+    } else {
+        EmbreeInstancePtr inst = scene->getAs<EmbreeInstance>(geomID);
+
+        if(inst)
+        {
+            std::cout << "INSTANCING NOT SUPPORTED FOR POINTQUERIES YET!" << std::endl;
+            // inst->scene()
+        } else {
+            std::cout << "WARNING: " << geomID << " unknown type" << std::endl;
+        }
+        
+    }
+
+    return false;
+}
+
+bool EmbreeMesh::closestPointFunc2(RTCPointQueryFunctionArguments* args)
+{
+    std::cout << "closestPointFunc2 called!" << std::endl;
+    return true;
+}
 
 EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
 :Base(device)
 {
     m_handle = rtcNewGeometry(device->handle(), RTC_GEOMETRY_TYPE_TRIANGLE);
+
+    rtcSetGeometryPointQueryFunction(m_handle, closestPointFunc);
+
+    // rtcSetGeometryPointQueryFunction(m_handle, [](RTCPointQueryFunctionArguments* args)
+    // {
+    //     assert(args->userPtr);
+    //     const unsigned int geomID = args->geomID;
+    //     const unsigned int primID = args->primID;
+    //     RTCPointQueryContext* context = args->context;
+    //     const unsigned int stackSize = args->context->instStackSize;
+    //     const unsigned int stackPtr = stackSize-1;
+
+    //     PointQueryUserData* userData = (PointQueryUserData*)args->userPtr;
+
+    //     // query position in world space
+    //     Vector q{args->query->x, args->query->y, args->query->z};
+
+    //     // std::cout << "closestPointFunc called in " << name << std::endl;
+
+    //     std::cout << geomID << " " << primID << std::endl;
+        
+    //     return true; 
+    // });
+
+    // rtcSetGeometryPointQueryFunction(m_handle, closestPointFunc2);
+    // bool (RTCPointQueryFunctionArguments*) bla = boost::bind( &EmbreeMesh::closestPointFunc2, this, _1 );
+    // boost::function<bool (RTCPointQueryFunctionArguments*)> func( 
+    //     boost::bind( &EmbreeMesh::closestPointFunc2, this, _1 ) );
+
+    // m_closest_point_func = boost::bind( &EmbreeMesh::closestPointFunc2, this, _1 );
+
+    // m_closest_point_func_raw = m_closest_point_func.target<RTCPointQueryFunction>();
+    
+    // rtcSetGeometryPointQueryFunction(m_handle, &m_closest_point_func);
+
 }
 
 EmbreeMesh::EmbreeMesh( 
@@ -200,5 +379,7 @@ void EmbreeMesh::apply()
         rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
     }
 }
+
+// pt2ConstMember = &EmbreeMesh::closestPointFunc2; 
 
 } // namespace rmagine

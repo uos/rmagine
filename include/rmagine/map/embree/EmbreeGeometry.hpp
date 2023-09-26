@@ -42,6 +42,7 @@
 #define RMAGINE_MAP_EMBREE_GEOMETRY_HPP
 
 #include <memory>
+#include <unordered_map>
 
 #if RMAGINE_EMBREE_VERSION_MAJOR == 3
 #include <embree3/rtcore.h>
@@ -59,6 +60,27 @@
 
 namespace rmagine
 {
+
+struct ClosestPointResult
+{
+    ClosestPointResult() 
+        : d(std::numeric_limits<float>::max())
+        , primID(RTC_INVALID_GEOMETRY_ID)
+        , geomID(RTC_INVALID_GEOMETRY_ID)
+    {}
+
+    float d;
+    Point p;
+    unsigned int primID;
+    unsigned int geomID;
+};
+
+struct PointQueryUserData 
+{
+    EmbreeScenePtr* scene;
+    ClosestPointResult* result;
+};
+
 
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>
