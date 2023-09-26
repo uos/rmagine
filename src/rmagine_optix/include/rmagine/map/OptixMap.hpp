@@ -50,7 +50,7 @@
 
 #include <rmagine/util/cuda/CudaContext.hpp>
 #include <rmagine/util/optix/OptixContext.hpp>
-#include "AssimpIO.hpp"
+#include <rmagine/map/AssimpIO.hpp>
 
 #include "optix/OptixAccelerationStructure.hpp"
 

@@ -28,12 +28,21 @@ set(OPTIX_KERNEL_FILES
     src/simulation/optix/SensorProgramHit.cu
 )
 
+# cuda_include_directories(/home/amock/workspaces/rmagine_stack/rmagine/src/rmagine_core/include)
+# include_directories(/home/amock/workspaces/rmagine_stack/rmagine/src/rmagine_core/include)
+
+
 cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
     ${OPTIX_KERNEL_FILES}
+    OPTIONS 
+        -I /home/amock/workspaces/rmagine_stack/rmagine/src/rmagine_core/include
+        -I /home/amock/workspaces/rmagine_stack/rmagine/src/rmagine_optix/include
 )
 
+message(WARNING "CUD BQSJIDW: ${RMAGINE_OPTIX_PTX_FILES}")
+
 add_custom_target(rmagine_optix_ptx ALL
-    DEPENDS ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
+    DEPENDS rmagine-core ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
     SOURCES ${OPTIX_KERNEL_FILES}
     VERBATIM)
 
@@ -80,7 +89,7 @@ add_library(rmagine-optix SHARED
 )
 
 target_include_directories(rmagine-optix PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}/include>"
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -112,7 +121,7 @@ add_library(rmagine-optix-static STATIC
 )
 
 target_include_directories(rmagine-optix-static PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}/include>"
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -121,7 +130,7 @@ target_link_libraries(rmagine-optix-static
     rmagine-cuda-static
 )
 
-add_dependencies(rmagine-optix
+add_dependencies(rmagine-optix-static
     rmagine_optix_ptx
     rmagine-cuda-static
 )
@@ -216,8 +225,6 @@ install(
   COMPONENT optix-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-
-# set(CPACK_COMPONENT_OPTIX_DEPENDS cuda) 
 
 set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
 set(CPACK_DEBIAN_OPTIX-STATIC_PACKAGE_DEPENDS "rmagine-cuda-static" PARENT_SCOPE)

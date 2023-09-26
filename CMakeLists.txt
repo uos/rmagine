@@ -220,6 +220,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
     COMPONENT core
 )
 
+
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
@@ -232,6 +233,8 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
+
+
 
 ###############################################################################
 # DOCUMENTATION
@@ -269,9 +272,11 @@ include(cmake/rmagine-deb.cmake)
 include(CPack)
 
 
-cpack_add_component(core DISABLED)
 
-message(WARNING "CPACK COMPONENTS: ${CPACK_COMPONENTS_ALL}")
+
+
+
+
 
 
 
