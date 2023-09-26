@@ -48,7 +48,7 @@ set_target_properties(rmagine-core
 )
 
 # TODO: do this:
-# add_library(rmagine ALIAS rmagine-core)
+add_library(rmagine ALIAS rmagine-core)
 add_library(rmagine::core ALIAS rmagine-core)
 
 

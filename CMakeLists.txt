@@ -3,7 +3,7 @@ project(rmagine
     LANGUAGES CXX C
     VERSION 2.1.2)# TODO update this version when merging into main-branch
 
-option(BUILD_TOOLS "Build tools" OFF)
+option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
@@ -135,11 +135,8 @@ endif()
 
 add_definitions(${rmagine_DEFINITIONS})
 
+### RMAGINE CORE LIB
 add_subdirectory(src/rmagine_core)
-
-
-
-
 
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)
@@ -164,20 +161,20 @@ endif(BUILD_TESTS)
 
 #### TOOLS
 if(BUILD_TOOLS)
-    add_subdirectory(src/rmagine_tools/rmagine_benchmark)
-    add_subdirectory(src/rmagine_tools/rmagine_synthetic)
-    add_subdirectory(src/rmagine_tools/rmagine_map_info)
-    add_subdirectory(src/rmagine_tools/rmagine_version)
+    add_subdirectory(apps/rmagine_benchmark)
+    add_subdirectory(apps/rmagine_synthetic)
+    add_subdirectory(apps/rmagine_map_info)
+    add_subdirectory(apps/rmagine_version)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)
-    if(embree_FOUND)
-        add_subdirectory(src/rmagine_examples/rmagine_embree_scene)
-    endif(embree_FOUND)
+if(embree_FOUND)
+    add_subdirectory(apps/rmagine_examples/rmagine_embree_scene)
+endif(embree_FOUND)
 
-    if(OptiX_FOUND)
-    add_subdirectory(src/rmagine_examples/rmagine_optix_scene)
-    endif(OptiX_FOUND)
+if(OptiX_FOUND)
+    add_subdirectory(apps/rmagine_examples/rmagine_optix_scene)
+endif(OptiX_FOUND)
 endif(BUILD_EXAMPLES)
 
 
