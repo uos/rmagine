@@ -90,10 +90,10 @@ find_library(OptiX_LIBRARY
 endif()
 
 if(NOT OptiX_LIBRARY)
-  message(WARNING "OptiX library not found")
+  message(INFO "OptiX library not found")
 endif()
 if(NOT OptiX_INCLUDE_DIR)
-  message(WARNING "OptiX headers not found")
+  message(INFO "OptiX headers not found")
 endif()
 
 if(OptiX_LIBRARY AND OptiX_INCLUDE_DIR)
