@@ -104,6 +104,7 @@ set_target_properties(rmagine-optix
 add_library(rmagine::optix ALIAS rmagine-optix)
 
 list(APPEND RMAGINE_LIBRARIES rmagine-optix)
+set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
 # OptiX GENERAL STATIC LIBRARY
 add_library(rmagine-optix-static STATIC
@@ -135,13 +136,17 @@ set_target_properties(rmagine-optix-static
 add_library(rmagine::optix-static ALIAS rmagine-optix-static)
 
 list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-optix-static)
+set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
 
 include(CMakePackageConfigHelpers)
 
 ###########
 ## OptiX
 ############
-install(TARGETS rmagine-optix EXPORT rmagine-optix-targets)
+install(TARGETS rmagine-optix
+    EXPORT rmagine-optix-targets
+    COMPONENT optix
+)
 
 install(EXPORT rmagine-optix-targets
     FILE rmagine-optix-targets.cmake
@@ -175,7 +180,10 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-optix-static EXPORT rmagine-optix-static-targets)
+install(TARGETS rmagine-optix-static
+    EXPORT rmagine-optix-static-targets
+    COMPONENT optix-static
+)
 
 install(EXPORT rmagine-optix-static-targets
     FILE rmagine-optix-static-targets.cmake
@@ -208,3 +216,12 @@ install(
   COMPONENT optix-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+# set(CPACK_COMPONENT_OPTIX_DEPENDS cuda) 
+
+set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
+set(CPACK_DEBIAN_OPTIX-STATIC_PACKAGE_DEPENDS "rmagine-cuda-static" PARENT_SCOPE)
+
+list(APPEND CPACK_COMPONENTS_ALL optix)
+list(APPEND CPACK_COMPONENTS_ALL optix-static)
+set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)

@@ -56,6 +56,7 @@ add_library(rmagine::core ALIAS rmagine-core)
 
 
 list(APPEND RMAGINE_LIBRARIES rmagine-core)
+set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
 add_library(rmagine-core-static STATIC
     ${RMAGINE_CORE_SRCS}
@@ -85,6 +86,7 @@ set_target_properties(rmagine-core-static
 add_library(rmagine::core-static ALIAS rmagine-core-static)
 
 list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-core-static)
+set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
 
 
 # CMAKE FIND SCRIPT
@@ -93,7 +95,9 @@ include(CMakePackageConfigHelpers)
 ###########
 ## CORE
 ############
-install(TARGETS rmagine-core EXPORT rmagine-core-targets)
+install(TARGETS rmagine-core 
+  EXPORT rmagine-core-targets
+  COMPONENT core)
 
 install(EXPORT rmagine-core-targets
     FILE rmagine-core-targets.cmake
@@ -127,7 +131,9 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-core-static EXPORT rmagine-core-static-targets)
+install(TARGETS rmagine-core-static
+  EXPORT rmagine-core-static-targets
+  COMPONENT core-static)
 
 install(EXPORT rmagine-core-static-targets
     FILE rmagine-core-static-targets.cmake
@@ -161,9 +167,10 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
+set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOPE)
+set(CPACK_DEBIAN_CORE-STATIC_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOPE)
 
+list(APPEND CPACK_COMPONENTS_ALL core)
+list(APPEND CPACK_COMPONENTS_ALL core-static)
+set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
-
-# CPACK TEST
-
-set(CPACK_)

@@ -40,7 +40,22 @@ Memory<LiDARModel, RAM> velodyne_model()
 
 int main(int argc, char** argv)
 {
-    std::cout << "Rmagine Benchmark" << std::endl;
+    std::cout << "Rmagine Benchmark";
+    
+    int device_id = 0;
+    std::string device;
+
+    #if defined WITH_EMBREE
+    std::cout << " CPU (Embree)";
+    device = "cpu";
+    #elif defined WITH_OPTIX
+    std::cout << " GPU (OptiX)";
+    device = "gpu";
+    #else
+    Either Embree or OptiX must be defined // compile time error
+    #endif
+    
+    std::cout << std::endl;
 
     // Total runtime of the Benchmark in seconds
     double benchmark_duration = 10.0;
@@ -48,27 +63,17 @@ int main(int argc, char** argv)
     size_t Nposes = 10 * 1024;
 
     // minimum 2 arguments
-    if(argc < 3)
+    if(argc < 2)
     {
-        std::cout << "Usage: " << argv[0] << " mesh_file device [device_id]" << std::endl;
-
+        std::cout << "Usage: " << argv[0] << " mesh_file" << std::endl;
         return 0;
     }
 
     std::string path_to_mesh = argv[1];
-    std::string device = argv[2];
-    int device_id = 0;
+    // std::string device = argv[2];
     
-    if(argc > 3)
-    {
-        // device id specified
-        device_id = atoi(argv[3]);
-    }
-
     std::cout << "Inputs: " << std::endl;
     std::cout << "- mesh: " << path_to_mesh << std::endl;
-    std::cout << "- device: " << device << std::endl;
-    std::cout << "- device_id: " << device_id << std::endl; 
 
     StopWatch sw;
     double elapsed;
@@ -77,7 +82,6 @@ int main(int argc, char** argv)
     Memory<LiDARModel, RAM> model = velodyne_model();
 
     std::cout << "Unit: 1 Velodyne scan (velo) = " << model[0].size() << " Rays" << std::endl;
-
 
     if(device == "cpu")
     {

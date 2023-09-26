@@ -4,13 +4,13 @@ project(rmagine
     VERSION 2.1.2)# TODO update this version when merging into main-branch
 
 option(BUILD_TOOLS "Build tools" ON)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
+
 include(GNUInstallDirs)
 
-# message(STATUS "RMAGINE_VERSION: ${rmagine_VERSION}")
 
 set(rmagine_DEFINITIONS "-DRMAGINE_VERSION=\"${rmagine_VERSION}\"")
 list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_MAJOR=${rmagine_VERSION_MAJOR}")
@@ -47,6 +47,8 @@ set(CMAKE_MODULE_PATH
   ${rmagine_SOURCE_DIR}/cmake
   ${CMAKE_MODULE_PATH}
 )
+
+
 
 ################################
 ## REQUIRED DEPS
@@ -135,6 +137,9 @@ endif()
 
 add_definitions(${rmagine_DEFINITIONS})
 
+set(RMAGINE_LIBRARIES)
+set(RMAGINE_STATIC_LIBRARIES)
+
 ### RMAGINE CORE LIB
 add_subdirectory(src/rmagine_core)
 
@@ -211,7 +216,9 @@ write_basic_package_version_file(
 ## INSTALL
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfigVersion.cmake
-              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    COMPONENT core
+)
 
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
@@ -247,8 +254,24 @@ add_custom_target( doc ALL
 endif(BUILD_DOCS)
 
 
+
 #########################
 # PACKAGE GENERATION
 #########################
 include(cmake/rmagine-deb.cmake)
+
+# set(CPACK_COMPONENT_UNSPECIFIED_DISABLED True)
+
+# set(CPACK_COMPONENT_CORE_DISABLED True)
+# set(CPACK_COMPONENT_CORE_HIDDEN True)
+
+
+include(CPack)
+
+
+cpack_add_component(core DISABLED)
+
+message(WARNING "CPACK COMPONENTS: ${CPACK_COMPONENTS_ALL}")
+
+
 

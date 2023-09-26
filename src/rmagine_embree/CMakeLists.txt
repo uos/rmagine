@@ -55,6 +55,7 @@ set_target_properties(rmagine-embree
 add_library(rmagine::embree ALIAS rmagine-embree)
 
 list(APPEND RMAGINE_LIBRARIES rmagine-embree)
+set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
 ## STATIC
 add_library(rmagine-embree-static STATIC
@@ -89,6 +90,7 @@ set_target_properties(rmagine-embree-static
 add_library(rmagine::embree-static ALIAS rmagine-embree-static)
 
 list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-embree-static)
+set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
 
 
 ###########
@@ -97,7 +99,9 @@ list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-embree-static)
 
 include(CMakePackageConfigHelpers)
 
-install(TARGETS rmagine-embree EXPORT rmagine-embree-targets)
+install(TARGETS rmagine-embree EXPORT rmagine-embree-targets
+  COMPONENT embree
+)
 
 install(EXPORT rmagine-embree-targets
     FILE rmagine-embree-targets.cmake
@@ -131,7 +135,10 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-embree-static EXPORT rmagine-embree-static-targets)
+install(TARGETS rmagine-embree-static 
+  EXPORT rmagine-embree-static-targets
+  COMPONENT embree-static
+)
 
 install(EXPORT rmagine-embree-static-targets
     FILE rmagine-embree-static-targets.cmake
@@ -164,3 +171,10 @@ install(
   COMPONENT embree-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+set(CPACK_DEBIAN_EMBREE_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
+set(CPACK_DEBIAN_EMBREE-STATIC_PACKAGE_DEPENDS "rmagine-core-static" PARENT_SCOPE)
+
+list(APPEND CPACK_COMPONENTS_ALL embree)
+list(APPEND CPACK_COMPONENTS_ALL embree-static)
+set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)

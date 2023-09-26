@@ -6,4 +6,6 @@ target_link_libraries(rmagine_map_info
 )
 
 install(TARGETS rmagine_map_info
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT core
+)

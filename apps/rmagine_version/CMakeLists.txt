@@ -6,4 +6,6 @@ target_link_libraries(rmagine_version
 )
 
 install(TARGETS rmagine_version
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT core
+)

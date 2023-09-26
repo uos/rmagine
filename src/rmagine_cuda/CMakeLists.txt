@@ -53,6 +53,8 @@ set_target_properties(rmagine-cuda
 add_library(rmagine::cuda ALIAS rmagine-cuda)
 
 list(APPEND RMAGINE_LIBRARIES rmagine-cuda)
+set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
+
 
 
 add_library(rmagine-cuda-static STATIC
@@ -90,11 +92,15 @@ set_target_properties(rmagine-cuda-static
 add_library(rmagine::cuda-static ALIAS rmagine-cuda-static)
 
 list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-cuda-static)
+set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
 
 ###########
 ## CUDA
 ############
-install(TARGETS rmagine-cuda EXPORT rmagine-cuda-targets)
+install(TARGETS rmagine-cuda
+    EXPORT rmagine-cuda-targets
+    COMPONENT cuda
+)
 
 install(EXPORT rmagine-cuda-targets
     FILE rmagine-cuda-targets.cmake
@@ -128,7 +134,10 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-cuda-static EXPORT rmagine-cuda-static-targets)
+install(TARGETS rmagine-cuda-static 
+    EXPORT rmagine-cuda-static-targets
+    COMPONENT cuda-static
+)
 
 install(EXPORT rmagine-cuda-static-targets
     FILE rmagine-cuda-static-targets.cmake
@@ -161,3 +170,10 @@ install(
   COMPONENT cuda-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+set(CPACK_DEBIAN_CUDA_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
+set(CPACK_DEBIAN_CUDA-STATIC_PACKAGE_DEPENDS "rmagine-core-static" PARENT_SCOPE)
+
+list(APPEND CPACK_COMPONENTS_ALL cuda)
+list(APPEND CPACK_COMPONENTS_ALL cuda-static)
+set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
