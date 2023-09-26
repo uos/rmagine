@@ -32,7 +32,9 @@ get_target_property(RMAGINE_CORE_INCLUDES rmagine-core INCLUDE_DIRECTORIES)
 
 cuda_include_directories(
     ${RMAGINE_CORE_INCLUDES}
-    include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+
 )
 
 cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
