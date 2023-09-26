@@ -27,7 +27,7 @@ add_library(rmagine-cuda SHARED
 target_include_directories(rmagine-cuda
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 # TODO: use CUDA language instead of find_package
@@ -62,7 +62,7 @@ add_library(rmagine-cuda-static STATIC
 target_include_directories(rmagine-cuda-static
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 

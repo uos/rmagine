@@ -32,7 +32,7 @@ add_library(rmagine-core SHARED
 target_include_directories(rmagine-core
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(rmagine-core
@@ -47,6 +47,7 @@ set_target_properties(rmagine-core
     EXPORT_NAME core
     SOVERSION ${rmagine_VERSION_MAJOR}
     VERSION ${rmagine_VERSION}
+    COMPONENT core
 )
 
 # TODO: do this:
@@ -54,7 +55,7 @@ add_library(rmagine ALIAS rmagine-core)
 add_library(rmagine::core ALIAS rmagine-core)
 
 
-set(RMAGINE_LIBRARIES rmagine-core)
+list(APPEND RMAGINE_LIBRARIES rmagine-core)
 
 add_library(rmagine-core-static STATIC
     ${RMAGINE_CORE_SRCS}
@@ -63,7 +64,7 @@ add_library(rmagine-core-static STATIC
 target_include_directories(rmagine-core-static
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(rmagine-core-static
@@ -83,7 +84,7 @@ set_target_properties(rmagine-core-static
 
 add_library(rmagine::core-static ALIAS rmagine-core-static)
 
-set(RMAGINE_STATIC_LIBRARIES rmagine-core-static)
+list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-core-static)
 
 
 # CMAKE FIND SCRIPT
@@ -159,3 +160,10 @@ install(
   COMPONENT core-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+
+
+
+# CPACK TEST
+
+set(CPACK_)

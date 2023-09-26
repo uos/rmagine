@@ -81,7 +81,7 @@ add_library(rmagine-optix SHARED
 
 target_include_directories(rmagine-optix PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(rmagine-optix
@@ -112,7 +112,7 @@ add_library(rmagine-optix-static STATIC
 
 target_include_directories(rmagine-optix-static PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(rmagine-optix-static

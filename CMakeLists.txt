@@ -197,7 +197,6 @@ include(CMakePackageConfigHelpers)
 
     
 # CMAKE FIND SCRIPT
-include(CMakePackageConfigHelpers)
 
 configure_package_config_file(cmake/rmagineConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
@@ -214,17 +213,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfigVersion.cmake
               DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
 
-
-### COMPONENTS
-
-
-
-
-
-
-
-
-
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
@@ -237,22 +225,6 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ###############################################################################
 # DOCUMENTATION
