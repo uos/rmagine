@@ -250,18 +250,10 @@ add_custom_target( doc ALL
 endif(BUILD_DOCS)
 
 
-
 #########################
 # PACKAGE GENERATION
 #########################
 include(cmake/rmagine-deb.cmake)
-
-# set(CPACK_COMPONENT_UNSPECIFIED_DISABLED True)
-
-# set(CPACK_COMPONENT_CORE_DISABLED True)
-# set(CPACK_COMPONENT_CORE_HIDDEN True)
-
-
 include(CPack)
 
 

@@ -19,6 +19,8 @@
 
 using namespace rmagine;
 
+
+
 void scene_1()
 {
     EmbreeScenePtr scene = std::make_shared<EmbreeScene>();
@@ -98,8 +100,6 @@ void scene_4()
     sphere->commit();
     scene->commit();
 
-    RTCIntersectContext context;
-
     RTCRayHit rayhit;
     rayhit.ray.org_x = 0;
     rayhit.ray.org_y = 0;
@@ -114,7 +114,7 @@ void scene_4()
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    rtcIntersect1(m_map->scene->handle(), &rayhit);
+    rtcIntersect1(scene->handle(), &rayhit);
     
     std::cout << "Raycast:" << std::endl;
 
@@ -133,7 +133,7 @@ void scene_4()
 
 void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
 {
-    RTCIntersectContext context;
+    // RTCIntersectContext context;
 
     RTCRayHit rayhit;
     rayhit.ray.org_x = orig.x;
@@ -149,7 +149,7 @@ void printRaycast(EmbreeScenePtr scene, Vector3 orig, Vector3 dir)
     rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
     rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-    rtcIntersect1(m_map->scene->handle(), &rayhit);
+    rtcIntersect1(scene->handle(), &rayhit);
     
     std::cout << "Raycast:" << std::endl;
 
