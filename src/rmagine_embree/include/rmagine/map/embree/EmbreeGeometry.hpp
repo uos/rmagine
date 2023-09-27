@@ -44,13 +44,7 @@
 #include <memory>
 #include <unordered_map>
 
-#if RMAGINE_EMBREE_VERSION_MAJOR == 3
-#include <embree3/rtcore.h>
-#elif RMAGINE_EMBREE_VERSION_MAJOR == 4
 #include <embree4/rtcore.h>
-#else
-#pragma message("Wrong major version of Embree found: ", RMAGINE_EMBREE_VERSION_MAJOR)
-#endif
 
 #include "EmbreeDevice.hpp"
 #include "embree_definitions.h"

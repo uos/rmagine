@@ -59,11 +59,7 @@ void OnDnSimulatorEmbree::simulate(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
-                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
-                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
                 rtcIntersect1(m_map->scene->handle(), &rayhit);
-                #endif
                 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {

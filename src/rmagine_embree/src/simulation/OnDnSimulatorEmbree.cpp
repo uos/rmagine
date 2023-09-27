@@ -9,9 +9,6 @@ OnDnSimulatorEmbree::OnDnSimulatorEmbree()
 ,m_Tsb(1)
 {
     m_Tsb[0].setIdentity();
-    #if RMAGINE_EMBREE_VERSION_MAJOR == 3
-    rtcInitIntersectContext(&m_context);
-    #endif
 }
 
 OnDnSimulatorEmbree::OnDnSimulatorEmbree(EmbreeMapPtr map)
@@ -106,12 +103,8 @@ void OnDnSimulatorEmbree::simulateRanges(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
-                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
-                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
                 rtcIntersect1(m_map->scene->handle(), &rayhit);
-                #endif
-
+                
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
                     ranges[glob_id] = rayhit.ray.tfar;
@@ -170,12 +163,8 @@ void OnDnSimulatorEmbree::simulateHits(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
-                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
-                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
                 rtcIntersect1(m_map->scene->handle(), &rayhit);
-                #endif
-
+                
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {
                     hits[glob_id] = 1;

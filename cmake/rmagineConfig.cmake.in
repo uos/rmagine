@@ -111,9 +111,6 @@ if(@embree_FOUND@)
         message(FATAL "Embree not found")
     endif(embree_FOUND)
 
-    set(RMAGINE_EMBREE_VERSION_MAJOR ${embree_VERSION_MAJOR})
-    add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
-
     list(APPEND rmagine_LIBRARIES ${embree_LIBRARY})
     list(APPEND rmagine_ext_LIBRARIES ${embree_LIBRARY})
 endif(@embree_FOUND@)

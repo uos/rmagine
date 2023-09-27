@@ -5,7 +5,6 @@
 #include "embree_common.h"
 
 // TODO:
-// RMAGINE_EMBREE_VERSION_MAJOR define is required
 // since this is a template: Every program that uses 
 // rmagine also require this definition. How to solve
 // this problem without getting rid of templates?
@@ -60,12 +59,7 @@ void O1DnSimulatorEmbree::simulate(
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
                 rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
 
-                #if RMAGINE_EMBREE_VERSION_MAJOR == 3
-                rtcIntersect1(m_map->scene->handle(), &m_context, &rayhit);
-                #elif RMAGINE_EMBREE_VERSION_MAJOR == 4
                 rtcIntersect1(m_map->scene->handle(), &rayhit);
-                #endif
-
 
                 if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
                 {

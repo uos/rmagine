@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4...10.0)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.2.1)# TODO update this version when merging into main-branch
+    VERSION 2.2.0)# TODO update this version when merging into main-branch
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
@@ -59,17 +59,10 @@ find_package(Eigen3 REQUIRED)
 ############################
 ## EMBREE: CPU Raycasting ##
 ############################
-# supported VERSIONS: Embree 3 and 4
-
+# supported Embree VERSIONS: Embree 4 (Tested until versio 4.2)
 find_package(embree 4)
-if(NOT embree_FOUND)
-    find_package(embree 3)
-endif()
 
 if(embree_FOUND)
-    set(RMAGINE_EMBREE_VERSION_MAJOR ${embree_VERSION_MAJOR})
-    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR}")
-    # add_definitions(-DRMAGINE_EMBREE_VERSION_MAJOR=${embree_VERSION_MAJOR})
 
     # NO INCLUDE?
     if(NOT embree_LIBRARY)

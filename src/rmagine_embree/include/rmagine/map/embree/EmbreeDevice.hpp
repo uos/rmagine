@@ -41,13 +41,7 @@
 #ifndef RMAGINE_MAP_EMBREE_DEVICE_HPP
 #define RMAGINE_MAP_EMBREE_DEVICE_HPP
 
-#if RMAGINE_EMBREE_VERSION_MAJOR == 3
-#include <embree3/rtcore.h>
-#elif RMAGINE_EMBREE_VERSION_MAJOR == 4
 #include <embree4/rtcore.h>
-#else
-#pragma message("Wrong major version of Embree found: ", RMAGINE_EMBREE_VERSION_MAJOR)
-#endif
 #include <memory>
 
 namespace rmagine
