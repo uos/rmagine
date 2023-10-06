@@ -95,7 +95,8 @@ list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
 if(@embree_FOUND@)
     set(embree_DIR @embree_DIR@)
 
-    find_package(embree @embree_VERSION_MAJOR@)
+    set(embree_VERSION_MAJOR 4)
+    find_package(embree ${embree_VERSION_MAJOR})
     if(embree_FOUND)
         # NO INCLUDE?
         if(NOT embree_LIBRARY)
