@@ -8,3 +8,5 @@ include(${CMAKE_CURRENT_LIST_DIR}/rmagine-cuda-static-targets.cmake)
 # find_dependency(Assimp)
 
 check_required_components(cuda-static)
+
+set(rmagine_cuda_static_FOUND 1)

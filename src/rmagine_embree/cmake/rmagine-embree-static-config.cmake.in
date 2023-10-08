@@ -8,3 +8,5 @@ include(${CMAKE_CURRENT_LIST_DIR}/rmagine-embree-static-targets.cmake)
 # find_dependency(Assimp)
 
 check_required_components(embree-static)
+
+set(rmagine_embree_static_FOUND 1)

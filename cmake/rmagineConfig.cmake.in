@@ -39,10 +39,10 @@ if(@embree_FOUND@)
     list(APPEND rmagine_LIBRARIES_STATIC rmagine-embree-static)
     set(rmagine_embree_LIBRARY rmagine-embree)
     set(rmagine_embree_LIBRARY_STATIC rmagine-embree-static)
-    set(rmagine_embree_FOUND 1)
+    #set(rmagine_embree_FOUND 1)
 
 else(@embree_FOUND@)
-    set(rmagine_embree_FOUND 0)
+	#set(rmagine_embree_FOUND 0)
 endif(@embree_FOUND@)
 
 # RMAGINE CUDA LIB
@@ -51,9 +51,9 @@ if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES_STATIC rmagine-cuda-static)
     set(rmagine_cuda_LIBRARY rmagine-cuda)
     set(rmagine_cuda_LIBRARY_STATIC rmagine-cuda-static)
-    set(rmagine_cuda_FOUND 1)
+    # set(rmagine_cuda_FOUND 1)
 else(@CUDA_FOUND@)
-    set(rmagine_cuda_FOUND 0)
+    # set(rmagine_cuda_FOUND 0)
 endif(@CUDA_FOUND@)
 
 # RMAGINE OptiX LIB
@@ -62,9 +62,9 @@ if(@OptiX_FOUND@)
     list(APPEND rmagine_LIBRARIES_STATIC rmagine-optix-static)
     set(rmagine_optix_LIBRARY rmagine-optix)
     set(rmagine_optix_LIBRARY_STATIC rmagine-optix-static)
-    set(rmagine_optix_FOUND 1)
+    # set(rmagine_optix_FOUND 1)
 else(@OptiX_FOUND@)
-    set(rmagine_optix_FOUND 0)
+    # set(rmagine_optix_FOUND 0)
 endif(@OptiX_FOUND@)
 
 # Use this?

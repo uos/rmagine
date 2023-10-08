@@ -8,3 +8,5 @@ find_dependency(Eigen3)
 find_dependency(Assimp)
 
 check_required_components(core)
+
+set(rmagine_core_FOUND 1)
