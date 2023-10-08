@@ -123,6 +123,9 @@ if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES @CUDA_CUDA_LIBRARY@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_LIBRARIES@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_CUDA_LIBRARY@)
+
+    
+
 endif(@CUDA_FOUND@)
 
 if(@OptiX_FOUND@)
@@ -137,9 +140,10 @@ set(rmagine_FOUND TRUE)
 ## COMPONENT STUFF
 
 
-
 set(rmagine_COMPONENTS_FOUND "")
 foreach(component ${rmagine_FIND_COMPONENTS})
-    include(${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
-    list(APPEND rmagine_COMPONENTS_FOUND ${component})
+    if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
+    	include(${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
+    	list(APPEND rmagine_COMPONENTS_FOUND ${component})
+    endif()
 endforeach()
