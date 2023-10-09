@@ -137,13 +137,15 @@ endif(@OptiX_FOUND@)
 set(rmagine_FOUND TRUE)
 
 
+# TODO: what things can we remove up to here?
+
 ## COMPONENT STUFF
-
-
-set(rmagine_COMPONENTS_FOUND "")
+set(rmagine_LIBRARIES)
+set(rmagine_COMPONENTS_FOUND)
 foreach(component ${rmagine_FIND_COMPONENTS})
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
     	include(${CMAKE_CURRENT_LIST_DIR}/rmagine-${component}-config.cmake)
     	list(APPEND rmagine_COMPONENTS_FOUND ${component})
+        list(APPEND rmagine_LIBRARIES rmagine::${component})
     endif()
 endforeach()
