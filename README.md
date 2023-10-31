@@ -105,27 +105,28 @@ Please reference the following papers when using the Rmagine library in your sci
 ## Rmagine-accelerated Applications
 - [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
 - [RMCL](https://github.com/uos/rmcl)
+- [radarays_ros](https://github.com/uos/radarays_ros)
 
 
 ## NEWS 
 
-With new version 2.2.0 we enabled component-wise compilation and packaging for easier installation of Rmagine. In "Releases" section you can find the first pre-compiled binaries. Install the core library via
+From version >= 2.2.0 we enabled component-wise compilation and packaging for easier installation of Rmagine. In "Releases" section you can find the first pre-compiled binaries. Install the core library via
 
 ```console
-$ sudo dpkg -i rmagine-core_2.2.0_amd64.deb
+$ sudo dpkg -i rmagine-core_2.2.1_amd64.deb
 ```
 
 Then additionally for the Embree backend:
 
 ```console
-$ sudo dpkg -i rmagine-embree_2.2.0_amd64.deb
+$ sudo dpkg -i rmagine-embree_2.2.1_amd64.deb
 ```
 
 And if you have a NVIDIA GPU:
 
 ```
-$ sudo dpkg -i rmagine-cuda_2.2.0_amd64.deb
-$ sudo dpkg -i rmagine-optix_2.2.0_amd64.deb
+$ sudo dpkg -i rmagine-cuda_2.2.1_amd64.deb
+$ sudo dpkg -i rmagine-optix_2.2.1_amd64.deb
 ```
 
 Using the pre-compiled binaries, you are not required to download the OptiX-headers anymore. However, CUDA and Embree are still required to be installed on your system.
