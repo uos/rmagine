@@ -63,7 +63,6 @@ find_package(Eigen3 REQUIRED)
 find_package(embree 4)
 
 if(embree_FOUND)
-
     # NO INCLUDE?
     if(NOT embree_LIBRARY)
         if(EMBREE_LIBRARY)
@@ -75,7 +74,7 @@ if(embree_FOUND)
         endif()
     endif()
 else()
-    message(FATAL "Embree not found")
+    message(STATUS "Embree not found")
 endif(embree_FOUND)
 
 ####################
