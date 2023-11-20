@@ -222,7 +222,6 @@ EmbreeScenePtr make_embree_scene(
     const aiScene* ascene,
     EmbreeDevicePtr device = embree_default_device());
 
-
 } // namespace rmagine
 
 #endif // RMAGINE_MAP_EMBREE_SCENE_HPP

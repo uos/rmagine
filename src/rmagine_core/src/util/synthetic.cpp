@@ -22,13 +22,14 @@ aiScene createAiScene(
     scene.mMeshes[0] = nullptr;
     scene.mNumMeshes = 1;
     scene.mMeshes[0] = new aiMesh();
-    scene.mMeshes[0]->mMaterialIndex = 0;
 
     scene.mRootNode->mMeshes = new unsigned int[1];
     scene.mRootNode->mMeshes[0] = 0;
     scene.mRootNode->mNumMeshes = 1;
 
     auto pMesh = scene.mMeshes[0];
+    pMesh->mMaterialIndex = 0;
+    pMesh->mPrimitiveTypes = aiPrimitiveType_TRIANGLE;
 
     pMesh->mVertices = new aiVector3D[vertices.size()];
     pMesh->mNumVertices = vertices.size();
@@ -267,8 +268,6 @@ void genCylinder(
     // parameters
     float diameter = 1.0;
     float height = 1.0;
-
-
 
     float increment = 2.f * M_PI / static_cast<float>(side_faces);
     float radius = diameter / 2.f;
