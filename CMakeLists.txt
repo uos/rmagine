@@ -81,7 +81,6 @@ endif(embree_FOUND)
 ## ASSIMP: MeshIO ##
 ####################
 find_package(assimp REQUIRED)
-include_directories(${ASSIMP_INCLUDE_DIRS})
 
 #######################
 ## OpenMP: Threading ##
@@ -105,7 +104,6 @@ include(CheckLanguage)
 find_package(CUDA)
 if(CUDA_FOUND)
     enable_language(CUDA)
-    include_directories(${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
 
 ######################################

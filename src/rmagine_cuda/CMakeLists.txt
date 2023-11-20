@@ -30,6 +30,11 @@ target_include_directories(rmagine-cuda
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+target_include_directories(rmagine-cuda
+  PRIVATE
+    ${CUDA_INCLUDE_DIRS}  
+)
+
 # TODO: use CUDA language instead of find_package
 target_link_libraries(rmagine-cuda
     rmagine-core
