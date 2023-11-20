@@ -57,7 +57,6 @@ list(APPEND RMAGINE_LIBRARIES rmagine-cuda)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
 
-
 add_library(rmagine-cuda-static STATIC
     ${RMAGINE_CUDA_SRCS}
 )

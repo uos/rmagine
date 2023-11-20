@@ -51,9 +51,7 @@
 
 #include <memory>
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
+// #include <boost/function.hpp>
 #include <embree4/rtcore.h>
 
 #include "EmbreeDevice.hpp"
@@ -139,7 +137,7 @@ private:
     Memory<Vector, RAM> m_face_normals_transformed;
     Memory<Vector, RAM> m_vertex_normals_transformed;
 
-    boost::function<bool (RTCPointQueryFunctionArguments*)> m_closest_point_func;
+    // boost::function<bool (RTCPointQueryFunctionArguments*)> m_closest_point_func;
     RTCPointQueryFunction* m_closest_point_func_raw;
 
 };
