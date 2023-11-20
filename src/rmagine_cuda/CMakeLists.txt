@@ -28,11 +28,7 @@ target_include_directories(rmagine-cuda
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-target_include_directories(rmagine-cuda
-  PRIVATE
-    ${CUDA_INCLUDE_DIRS}  
+    ${CUDA_INCLUDE_DIRS}
 )
 
 # TODO: use CUDA language instead of find_package
