@@ -1,4 +1,4 @@
-[[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)]
+[[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)] [[Examples](https://github.com/aock/rmagine_examples)]
 
 # Rmagine
 
@@ -22,7 +22,6 @@ See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
 ## Example
 
 This examples shows how to simulate ranges of 100 Velodyne VLP-16 sensor using Embree backbone. First, the following headers need to be included:
-
 
 ```c++
 // Map
@@ -87,7 +86,7 @@ auto ranges5 = result.ranges(5 * model.size(), 6 * model.size());
 std::cout << "printing the first ray's range of the fifth scan: " << ranges5[0] << std::endl;
 ```
 
-More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki).
+More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki). More examples can be found here: https://github.com/aock/rmagine_examples.
 
 ## Citation
 
