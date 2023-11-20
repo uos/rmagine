@@ -34,7 +34,7 @@ cuda_include_directories(
     ${RMAGINE_CORE_INCLUDES}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-
+    ${OptiX_INCLUDE_DIRS}
 )
 
 cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -94,6 +94,10 @@ target_include_directories(rmagine-optix PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+target_include_directories(rmagine-optix PRIVATE
+    ${OptiX_INCLUDE_DIRS}
+)
+
 target_link_libraries(rmagine-optix
     ${OptiX_LIBRARIES}
     rmagine-cuda
@@ -125,6 +129,10 @@ target_include_directories(rmagine-optix-static PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_include_directories(rmagine-optix-static PRIVATE
+    ${OptiX_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-optix-static

@@ -111,7 +111,6 @@ endif(CUDA_FOUND)
 ######################################
 find_package(OptiX)
 if(OptiX_FOUND)
-    include_directories(${OptiX_INCLUDE_DIRS})
     list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
 endif()
 
