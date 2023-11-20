@@ -67,6 +67,7 @@ target_include_directories(rmagine-core-static
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    ${ASSIMP_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-core-static
