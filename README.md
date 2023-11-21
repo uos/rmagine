@@ -1,8 +1,3 @@
-[[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)] [[Examples](https://github.com/aock/rmagine_examples)]
-
-
-
-
 <div align="center">
 <h1>
 Rmagine
