@@ -124,8 +124,6 @@ if(@CUDA_FOUND@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_LIBRARIES@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_CUDA_LIBRARY@)
 
-    
-
 endif(@CUDA_FOUND@)
 
 if(@OptiX_FOUND@)
@@ -135,7 +133,6 @@ if(@OptiX_FOUND@)
 endif(@OptiX_FOUND@)
 
 set(rmagine_FOUND TRUE)
-
 
 # TODO: what things can we remove up to here?
 
