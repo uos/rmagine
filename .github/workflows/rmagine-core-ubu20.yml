@@ -1,0 +1,17 @@
+name: Rmagine Core - Ubuntu 20
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v4
+    - name: Configure the project
+      uses: threeal/cmake-action@v1.3.0
+    - name: Build the project
+      runs: cmake --build build
