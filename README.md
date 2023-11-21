@@ -107,25 +107,6 @@ Please reference the following papers when using the Rmagine library in your sci
 - [radarays_ros](https://github.com/uos/radarays_ros)
 
 
-## NEWS 
+## Contributions
 
-From version >= 2.2.0 we enabled component-wise compilation and packaging for easier installation of Rmagine. In "Releases" section you can find the first pre-compiled binaries. Install the core library via
-
-```console
-$ sudo dpkg -i rmagine-core_2.2.1_amd64.deb
-```
-
-Then additionally for the Embree backend:
-
-```console
-$ sudo dpkg -i rmagine-embree_2.2.1_amd64.deb
-```
-
-And if you have a NVIDIA GPU:
-
-```
-$ sudo dpkg -i rmagine-cuda_2.2.1_amd64.deb
-$ sudo dpkg -i rmagine-optix_2.2.1_amd64.deb
-```
-
-Using the pre-compiled binaries, you are not required to download the OptiX-headers anymore. However, CUDA and Embree are still required to be installed on your system.
+We are open to all contributions. These can be issues, pull requests or feedback that help us to improve this OpenSource project.
