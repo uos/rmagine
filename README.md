@@ -2,13 +2,15 @@
 
 # Rmagine
 
-Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. The simulations can even be computed on embedded devices installed on a robot. Therefore, Rmagine has been specifically developed to
+Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. 
+The simulations can even be computed on embedded devices installed on a robot. 
+Rmagine has been specifically developed to
 
-- Perform multiple sensor simulations simultaneously and in realtime
-- Perform computations at specific computing devices (CPU, GPU, RTX..)
-    - Hold data at device of computation
-    - Minimal graphical overhead (offscreen-rendering)
-- Runtime critical operations
+- perform multiple sensor simulations simultaneously and in realtime
+- distribute computations to various devices: CPU, GPU, RTX..
+- hold data at device of computation
+- reduce graphical overhead (offscreen-rendering)
+- solve runtime critical tasks
 
 
 | Spherical, Pinhole or fully customizable models. | Query several attributes at intersection. |
