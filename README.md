@@ -1,6 +1,29 @@
 [[Code](https://github.com/uos/rmagine)] [[Wiki](https://github.com/uos/rmagine/wiki)] [[Examples](https://github.com/aock/rmagine_examples)]
 
-# Rmagine
+
+
+
+<div align="center">
+<h1>
+Rmagine
+</h1>
+<h4 align="center">A robot wants to simulate too</h4>
+</div>
+
+<div align="center">
+  <a href="https://github.com/uos/rmagine">Code</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/uos/rmagine/wiki">Documentation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://youtube.com/playlist?list=PL9wBuzh6ev07faQ13tXH9mhL5Wk6r34JM">Videos</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/uos/rmagine/issues">Issues</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/aock/rmagine_examples">Examples</a>
+  <br />
+</div>
+
+## Description
 
 Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. 
 The simulations can even be computed on embedded devices installed on a robot. 
