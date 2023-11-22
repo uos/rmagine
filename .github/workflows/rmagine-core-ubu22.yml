@@ -1,4 +1,4 @@
-name: core_ubu22
+name: core-ubu22
 on:
   push:
     branches: [ $default-branch ]
