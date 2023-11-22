@@ -1,4 +1,4 @@
-name: Rmagine Core - Ubuntu 22
+name: core_ubu22
 on:
   push:
     branches: [ $default-branch ]
