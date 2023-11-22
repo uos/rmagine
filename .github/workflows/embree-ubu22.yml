@@ -1,4 +1,4 @@
-name: core-ubu20
+name: embree-ubu22
 on:
   push:
     branches:
@@ -10,11 +10,23 @@ on:
     branches:
       - '*'
 jobs:
-  rmagine-core-ubuntu20:
-    runs-on: ubuntu-20.04
+  rmagine-embree-ubuntu22:
+    runs-on: ubuntu-22.04
     steps:
     - name: Deps (core)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+    - name: Deps (clone embree)
+      uses: actions/checkout@v4
+      with:
+        repository: embree/embree
+        path: embree
+    - name: Compile Embree
+      run: | 
+        cd embree
+        mkdir build
+        cd build
+        cmake ..
+        make
     - name: Clone
       uses: actions/checkout@v4
       with:
