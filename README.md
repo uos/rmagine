@@ -136,6 +136,6 @@ We are open to all contributions. These can be issues, pull requests or feedback
 |                   | Ubuntu 20 | Ubuntu 22 |
 |-------------------|:---------:|:---------:|
 | `rmagine::core`   | [![CI](https://github.com/uos/rmagine/workflows/core-ubu20/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu20.yml) | [![CI](https://github.com/uos/rmagine/workflows/core-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu22.yml) |
-| `rmagine::embree` | ... | ... |
+| `rmagine::embree` | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu20/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu20.yml) | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu22.yml) |
 | `rmagine::cuda`   | ... | ... |
 | `rmagine::optix`  | ... | ... |
