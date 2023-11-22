@@ -137,5 +137,5 @@ We are open to all contributions. These can be issues, pull requests or feedback
 
 |             | `rmagine::core` | `rmagine::embree` | `rmagine::cuda` | `rmagine::optix` |
 |---------------|-----------------|-------------------|-----------------|------------------|
-| **Ubuntu 20** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu20/badge.svg)](https://github.com/uos/rmagine/actions?query=workflow%3A%22core-ubu20%22) | ... | ... | ... |
-| **Ubuntu 22** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu22/badge.svg)](https://github.com/uos/rmagine/actions?query=workflow%3A%22core-ubu22%22)
+| **Ubuntu 20** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu20/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu20.yml) | ... | ... | ... |
+| **Ubuntu 22** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu22.yml)
