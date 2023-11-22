@@ -10,12 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
+  
     - uses: actions/checkout@v3
-    - uses: threeal/cmake-action@v1.3.0
+    
     - name: Install APT Deps
       run: sudo apt install -y libboost-dev
+    
+    - uses: threeal/cmake-action@v1.3.0
+
     - name: Test Output
       run: |
         echo "Hello Action!" >> $GITHUB_OUTPUT
+    
     - name: Build the project
       run: cmake --build build
