@@ -14,12 +14,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Deps (APT)
-      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
-    - name: Deps (Embree)
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+    - name: Deps (CUDA)
       run: |
-        wget https://github.com/embree/embree/releases/download/v4.3.0/embree-4.3.0.x86_64.linux.tar.gz
-        mkdir embree
-        tar -xf embree-4.3.0.x86_64.linux.tar.gz -C embree
+        sudo apt install -y nvidia-driver-535
+        nvidia-smi
     - name: Clone
       uses: actions/checkout@v4
       with:

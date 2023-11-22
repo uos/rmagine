@@ -14,12 +14,15 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Deps (APT)
-      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+    # - name: Deps (CUDA)
+    #   uses: Jimver/cuda-toolkit@v0.2.11
+    #   id: cuda-toolkit
+    #   with:
+    #     cuda: '12.1.0'
     - name: Deps (CUDA)
-      uses: Jimver/cuda-toolkit@v0.2.11
-      id: cuda-toolkit
-      with:
-        cuda: '12.1.0'
+      run: |
+        nvidia-smi
     - name: Clone
       uses: actions/checkout@v4
       with:
