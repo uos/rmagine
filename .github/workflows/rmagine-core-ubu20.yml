@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Install APT Deps
-      run: sudo apt install -y libboost-dev
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev
     
     - uses: threeal/cmake-action@v1.3.0
 
