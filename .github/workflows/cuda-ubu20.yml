@@ -15,26 +15,24 @@ jobs:
     steps:
     - name: Deps (APT)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
-    - name: Deps (Embree)
-      run: |
-        wget https://github.com/embree/embree/releases/download/v4.3.0/embree-4.3.0.x86_64.linux.tar.gz
-        mkdir embree
-        tar -xf embree-4.3.0.x86_64.linux.tar.gz -C embree
+    - name: Deps (CUDA)
+      uses: Jimver/cuda-toolkit@v0.2.11
+      id: cuda-toolkit
+      with:
+        cuda: '12.1.0'
     - name: Clone
       uses: actions/checkout@v4
       with:
         path: rmagine
     - name: Compile
       run: |
-        . embree/embree-vars.sh
         cd rmagine
         mkdir build
         cd build
-        cmake -Dembree_DIR=$PWD/../../embree/lib/cmake/embree-4.3.0/ ..
+        cmake ..
         make
     - name: Test
       run: |
-        . embree/embree-vars.sh
         cd rmagine
         cd build
         ./bin/rmagine_version
