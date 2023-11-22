@@ -130,3 +130,12 @@ Please reference the following papers when using the Rmagine library in your sci
 ## Contributions
 
 We are open to all contributions. These can be issues, pull requests or feedback that help us to improve this OpenSource project.
+
+## Build Status
+
+## Build Status
+
+|             | `rmagine::core` | `rmagine::embree` | `rmagine::cuda` | `rmagine::optix` |
+|---------------|-----------------|-------------------|-----------------|------------------|
+| **Ubuntu 20** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu20/badge.svg)](https://github.com/uos/rmagine/actions?query=workflow%3A%22core-ubu20%22) | ... | ... | ... |
+| **Ubuntu 22** | [![CI](https://github.com/uos/rmagine/workflows/core-ubu22/badge.svg)](https://github.com/uos/rmagine/actions?query=workflow%3A%22core-ubu22%22)
