@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: threeal/cmake-action@v1.3.0
+    - name: Install APT Deps
+      run: sudo apt install -y libboost-dev
     - name: Test Output
       run: |
         echo "Hello Action!" >> $GITHUB_OUTPUT
