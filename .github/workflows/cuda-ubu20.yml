@@ -1,4 +1,4 @@
-name: embree-ubu20
+name: cuda-ubu22
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
     branches:
       - '*'
 jobs:
-  rmagine-embree-ubuntu20:
+  rmagine-cuda-ubuntu20:
     runs-on: ubuntu-20.04
     steps:
     - name: Deps (APT)

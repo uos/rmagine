@@ -1,4 +1,4 @@
-name: embree-ubu20
+name: cuda-ubu22
 on:
   push:
     branches:
@@ -10,8 +10,8 @@ on:
     branches:
       - '*'
 jobs:
-  rmagine-embree-ubuntu20:
-    runs-on: ubuntu-20.04
+  rmagine-cuda-ubuntu22:
+    runs-on: ubuntu-22.04
     steps:
     - name: Deps (APT)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
