@@ -1,0 +1,22 @@
+name: Rmagine Core - Ubuntu 22
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+  workflow_dispatch:
+    branches: [ $default-branch ]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+  
+    - uses: actions/checkout@v3
+    
+    - name: Install APT Deps
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev
+    
+    - uses: threeal/cmake-action@v1.3.0
+    
+    - name: Build the project
+      run: cmake --build build
