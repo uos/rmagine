@@ -13,6 +13,12 @@ MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
 }
 
 template<typename DataT, typename MemT>
+MemoryView<DataT, MemT>::~MemoryView()
+{
+    // Do nothing on destruction
+}
+
+template<typename DataT, typename MemT>
 MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<DataT, MemT>& o)
 {
     // std::cout << "[MemoryView::operator=(MemoryView)]" << std::endl;

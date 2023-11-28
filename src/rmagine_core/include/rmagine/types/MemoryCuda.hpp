@@ -42,7 +42,8 @@ namespace rmagine
 {
 
 // CUDA HELPER
-namespace cuda {
+namespace cuda 
+{
 
 void* memcpyHostToDevice(   void* dest, const void* src, size_t count);
 void* memcpyHostToDevice(   void* dest, const void* src, size_t count, CudaStreamPtr stream);

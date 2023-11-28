@@ -56,6 +56,9 @@ public:
 
     MemoryView(DataT* mem, size_t N);
 
+    // no virtual: we dont want to destruct memory of a view
+    ~MemoryView();
+
     // Copy for assignment of same MemT
     MemoryView<DataT, MemT>& operator=(
         const MemoryView<DataT, MemT>& o);

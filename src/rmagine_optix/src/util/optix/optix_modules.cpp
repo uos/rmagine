@@ -113,7 +113,8 @@ void ProgramGroup::create(OptixContextPtr ctx)
 }
 
 Pipeline::Pipeline()
-:sbt(new OptixShaderBindingTable({}))
+:pipeline(nullptr)
+,sbt(new OptixShaderBindingTable({}))
 ,compile_options(new OptixPipelineCompileOptions({}))
 ,link_options(new OptixPipelineLinkOptions({}))
 {
@@ -122,11 +123,17 @@ Pipeline::Pipeline()
 
 Pipeline::~Pipeline()
 {
-    if(pipeline)
-    {
-        optixPipelineDestroy( pipeline );
-    }
+    // TODO: Shouldn't I call optixPipelineDestroy here?
+    // - it causes a double free error
+    // if(pipeline)
+    // {
+    //     optixPipelineDestroy( pipeline );
+    // }
 
+    // if(pipeline)
+    // {
+    //     delete pipeline;
+    // }
     delete link_options;
     delete compile_options;
     delete sbt;
