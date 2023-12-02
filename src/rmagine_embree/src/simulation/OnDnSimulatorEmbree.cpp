@@ -64,7 +64,7 @@ void OnDnSimulatorEmbree::setModel(
 
 void OnDnSimulatorEmbree::simulateRanges(
     const MemoryView<Transform, RAM>& Tbm,
-    MemoryView<float, RAM>& ranges)
+    MemoryView<float, RAM>& ranges) const
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -117,7 +117,7 @@ void OnDnSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
-    const MemoryView<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm) const
 {
     Memory<float, RAM> res(m_model->size() * Tbm.size());
     simulateRanges(Tbm, res);
@@ -126,7 +126,7 @@ Memory<float, RAM> OnDnSimulatorEmbree::simulateRanges(
 
 void OnDnSimulatorEmbree::simulateHits(
     const MemoryView<Transform, RAM>& Tbm, 
-    MemoryView<uint8_t, RAM>& hits)
+    MemoryView<uint8_t, RAM>& hits) const
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -177,7 +177,7 @@ void OnDnSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> OnDnSimulatorEmbree::simulateHits(
-    const MemoryView<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm) const
 {
     Memory<uint8_t, RAM> res(m_model->size() * Tbm.size());
     simulateHits(Tbm, res);

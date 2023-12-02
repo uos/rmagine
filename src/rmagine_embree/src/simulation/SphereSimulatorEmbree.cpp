@@ -58,7 +58,7 @@ void SphereSimulatorEmbree::setModel(
 
 void SphereSimulatorEmbree::simulateRanges(
     const MemoryView<Transform, RAM>& Tbm,
-    MemoryView<float, RAM>& ranges)
+    MemoryView<float, RAM>& ranges) const
 {
     auto handle = m_map->scene->handle();
 
@@ -108,7 +108,7 @@ void SphereSimulatorEmbree::simulateRanges(
 }
 
 Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
-    const MemoryView<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm) const
 {
     Memory<float, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateRanges(Tbm, res);
@@ -117,7 +117,7 @@ Memory<float, RAM> SphereSimulatorEmbree::simulateRanges(
 
 void SphereSimulatorEmbree::simulateHits(
     const MemoryView<Transform, RAM>& Tbm, 
-    MemoryView<uint8_t, RAM>& hits)
+    MemoryView<uint8_t, RAM>& hits) const
 {
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
@@ -165,7 +165,7 @@ void SphereSimulatorEmbree::simulateHits(
 }
 
 Memory<uint8_t, RAM> SphereSimulatorEmbree::simulateHits(
-    const MemoryView<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm) const
 {
     Memory<uint8_t, RAM> res(m_model->phi.size * m_model->theta.size * Tbm.size());
     simulateHits(Tbm, res);

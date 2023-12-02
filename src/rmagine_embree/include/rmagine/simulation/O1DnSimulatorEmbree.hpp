@@ -112,27 +112,35 @@ public:
     void setModel(const MemoryView<O1DnModel_<RAM>, RAM>& model);
     void setModel(const O1DnModel_<RAM>& model);
 
-    void simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<float, RAM>& ranges);
-
-    Memory<float, RAM> simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm);
-
-    void simulateHits(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<uint8_t, RAM>& hits);
-
-    Memory<uint8_t, RAM> simulateHits(
-        const MemoryView<Transform, RAM>& Tbm);
-
     // Generic Version
     template<typename BundleT>
     void simulate(const MemoryView<Transform, RAM>& Tbm,
-        BundleT& ret);
+        BundleT& ret) const;
 
     template<typename BundleT>
-    BundleT simulate(const MemoryView<Transform, RAM>& Tbm);
+    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
+
+
+
+    // [[deprecated("Use simulate<AttrT>() instead.")]]
+    void simulateRanges(
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<float, RAM>& ranges) const;
+
+    // [[deprecated("Use simulate<AttrT>() instead.")]]
+    Memory<float, RAM> simulateRanges(
+        const MemoryView<Transform, RAM>& Tbm) const;
+
+    // [[deprecated("Use simulate<AttrT>() instead.")]]
+    void simulateHits(
+        const MemoryView<Transform, RAM>& Tbm, 
+        MemoryView<uint8_t, RAM>& hits) const;
+
+    // [[deprecated("Use simulate<AttrT>() instead.")]]
+    Memory<uint8_t, RAM> simulateHits(
+        const MemoryView<Transform, RAM>& Tbm) const;
+
+    
 
 protected:
     EmbreeMapPtr m_map;

@@ -16,7 +16,7 @@ namespace rmagine
 template<typename BundleT>
 void O1DnSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm,
-    BundleT& ret)
+    BundleT& ret) const
 {
     SimulationFlags flags = SimulationFlags::Zero();
     set_simulation_flags_<RAM>(ret, flags);
@@ -209,7 +209,7 @@ void O1DnSimulatorEmbree::simulate(
 
 template<typename BundleT>
 BundleT O1DnSimulatorEmbree::simulate(
-    const MemoryView<Transform, RAM>& Tbm)
+    const MemoryView<Transform, RAM>& Tbm) const
 {
     BundleT res;
     resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
