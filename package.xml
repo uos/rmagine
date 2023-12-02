@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rmagine</name>
+  <version>2.2.2</version>
+  <description>
+  Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. The simulations can even be computed on embedded devices installed on a robot.
+  </description>
+
+  <maintainer email="amock@uos.de">Alexander Mock</maintainer>
+
+  <license>BSD-3-Clause</license>
+
+  <url type="website">https://github.com/uos/rmagine</url>
+
+  <author email="amock@uos.de">Alexander Mock</author>
+
+  <depend>assimp</depend>
+  <depend>boost</depend>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
