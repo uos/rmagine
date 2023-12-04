@@ -16,6 +16,23 @@ pkg_check_modules(OptiX QUIET optix)
 
 # set(OptiX_ROOT_DIR "" CACHE PATH "Root of Optix installation")
 
+if(DEFINED ENV{OptiX_INCLUDE_DIR})
+  message(STATUS "FindOptiX: Found path to optix headers in environment variable 'OptiX_INCLUDE_DIR'. ")
+  set(OptiX_INCLUDE_DIR_ENV "$ENV{OptiX_INCLUDE_DIR}")
+
+  # INCLUDE
+  find_path(OptiX_INCLUDE_DIR
+  NAMES optix.h
+  PATHS "${OptiX_INCLUDE_DIR_ENV}"
+  NO_DEFAULT_PATH
+  )
+
+  if(NOT OptiX_INCLUDE_DIR)
+  message(WARNING "Environment variable 'OptiX_INCLUDE_DIR' pointing to optix headers folder that is not conform. Make sure it does contain the 'optix.h' file.")
+  endif(NOT OptiX_INCLUDE_DIR)
+
+endif(DEFINED ENV{OptiX_INCLUDE_DIR})
+
 # INCLUDE
 find_path(OptiX_INCLUDE_DIR
   NAMES optix.h
