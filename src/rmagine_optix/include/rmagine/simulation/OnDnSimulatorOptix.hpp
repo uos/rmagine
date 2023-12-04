@@ -155,12 +155,12 @@ public:
      */
     template<typename BundleT>
     BundleT simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm);
+        const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
     template<typename BundleT>
     void simulate(
         const Memory<Transform, VRAM_CUDA>& Tbm,
-        BundleT& res);
+        BundleT& res) const;
 
     template<typename BundleT>
     void preBuildProgram();
@@ -196,7 +196,7 @@ private:
 
     void launch(
         const Memory<OptixSimulationDataGeneric, RAM>& mem,
-        PipelinePtr program);
+        const PipelinePtr program) const;
 };
 
 using OnDnSimulatorOptixPtr = std::shared_ptr<OnDnSimulatorOptix>;

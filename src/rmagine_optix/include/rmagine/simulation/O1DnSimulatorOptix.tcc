@@ -24,7 +24,7 @@ void O1DnSimulatorOptix::preBuildProgram()
 template<typename BundleT>
 void O1DnSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
-    BundleT& res)
+    BundleT& res) const
 {
     if(!m_map)
     {
@@ -65,7 +65,7 @@ void O1DnSimulatorOptix::simulate(
 
 template<typename BundleT>
 BundleT O1DnSimulatorOptix::simulate(
-    const Memory<Transform, VRAM_CUDA>& Tbm)
+    const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
     BundleT res;
     resize_memory_bundle<VRAM_CUDA>(res, m_width, m_height, Tbm.size());

@@ -25,7 +25,7 @@ void SphereSimulatorOptix::preBuildProgram()
 template<typename BundleT>
 void SphereSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
-    BundleT& res)
+    BundleT& res) const
 {
     if(!m_map)
     {
@@ -72,7 +72,7 @@ void SphereSimulatorOptix::simulate(
 
 template<typename BundleT>
 BundleT SphereSimulatorOptix::simulate(
-    const Memory<Transform, VRAM_CUDA>& Tbm)
+    const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
     BundleT res;
     resize_memory_bundle<VRAM_CUDA>(res, m_width, m_height, Tbm.size());
