@@ -160,7 +160,7 @@ Memory<float, VRAM_CUDA> O1DnSimulatorOptix::simulateRanges(
 
 void O1DnSimulatorOptix::launch(
     const Memory<OptixSimulationDataGeneric, RAM>& mem,
-    PipelinePtr program)
+    const PipelinePtr program) const
 {
     Memory<OptixSimulationDataGeneric, VRAM_CUDA> d_mem(1);
     copy(mem, d_mem, m_stream);
