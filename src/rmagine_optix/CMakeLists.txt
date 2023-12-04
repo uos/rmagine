@@ -134,7 +134,7 @@ install(EXPORT rmagine-optix-targets
     FILE rmagine-optix-targets.cmake
     COMPONENT optix
     NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 write_basic_package_version_file(
@@ -145,14 +145,14 @@ write_basic_package_version_file(
 
 configure_package_config_file(cmake/rmagine-optix-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 install(
     FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
     COMPONENT optix
 )
 
