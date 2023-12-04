@@ -30,17 +30,11 @@ set(rmagine_INCLUDE_DIRS ${rmagine_INCLUDE_DIR})
 # RMAGINE CORE LIB
 set(rmagine_LIBRARY rmagine-core)
 set(rmagine_LIBRARIES rmagine-core)
-set(rmagine_LIBRARY_STATIC rmagine-core_static)
-set(rmagine_LIBRARIES_STATIC rmagine-core_static)
 
 # RMAGINE EMBREE LIB
 if(@embree_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine-embree)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine-embree-static)
     set(rmagine_embree_LIBRARY rmagine-embree)
-    set(rmagine_embree_LIBRARY_STATIC rmagine-embree-static)
-    #set(rmagine_embree_FOUND 1)
-
 else(@embree_FOUND@)
 	#set(rmagine_embree_FOUND 0)
 endif(@embree_FOUND@)
@@ -48,10 +42,7 @@ endif(@embree_FOUND@)
 # RMAGINE CUDA LIB
 if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine-cuda)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine-cuda-static)
     set(rmagine_cuda_LIBRARY rmagine-cuda)
-    set(rmagine_cuda_LIBRARY_STATIC rmagine-cuda-static)
-    # set(rmagine_cuda_FOUND 1)
 else(@CUDA_FOUND@)
     # set(rmagine_cuda_FOUND 0)
 endif(@CUDA_FOUND@)
@@ -59,10 +50,7 @@ endif(@CUDA_FOUND@)
 # RMAGINE OptiX LIB
 if(@OptiX_FOUND@)
     list(APPEND rmagine_LIBRARIES rmagine-optix)
-    list(APPEND rmagine_LIBRARIES_STATIC rmagine-optix-static)
     set(rmagine_optix_LIBRARY rmagine-optix)
-    set(rmagine_optix_LIBRARY_STATIC rmagine-optix-static)
-    # set(rmagine_optix_FOUND 1)
 else(@OptiX_FOUND@)
     # set(rmagine_optix_FOUND 0)
 endif(@OptiX_FOUND@)
@@ -89,7 +77,6 @@ set(assimp_DIR @assimp_DIR@)
 find_package(assimp REQUIRED)
 list(APPEND rmagine_LIBRARIES ${ASSIMP_LIBRARIES})
 list(APPEND rmagine_ext_LIBRARIES ${ASSIMP_LIBRARIES})
-
 
 # Embree
 if(@embree_FOUND@)
@@ -123,7 +110,6 @@ if(@CUDA_FOUND@)
     list(APPEND rmagine_LIBRARIES @CUDA_CUDA_LIBRARY@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_LIBRARIES@)
     list(APPEND rmagine_ext_LIBRARIES @CUDA_CUDA_LIBRARY@)
-
 endif(@CUDA_FOUND@)
 
 if(@OptiX_FOUND@)

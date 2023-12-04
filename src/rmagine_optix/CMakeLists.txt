@@ -120,43 +120,6 @@ add_library(rmagine::optix ALIAS rmagine-optix)
 list(APPEND RMAGINE_LIBRARIES rmagine-optix)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
-# OptiX GENERAL STATIC LIBRARY
-add_library(rmagine-optix-static STATIC
-    ${RMAGINE_OPTIX_SRCS}
-)
-
-target_include_directories(rmagine-optix-static PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-target_include_directories(rmagine-optix-static PRIVATE
-    ${OptiX_INCLUDE_DIRS}
-)
-
-target_link_libraries(rmagine-optix-static
-    ${OptiX_LIBRARIES}
-    rmagine-cuda-static
-)
-
-add_dependencies(rmagine-optix-static
-    rmagine_optix_ptx
-    rmagine-cuda-static
-)
-
-set_target_properties(rmagine-optix-static
-  PROPERTIES
-    EXPORT_NAME optix-static
-    SOVERSION ${rmagine_VERSION_MAJOR}
-    VERSION ${rmagine_VERSION}
-)
-
-add_library(rmagine::optix-static ALIAS rmagine-optix-static)
-
-list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-optix-static)
-set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
-
 include(CMakePackageConfigHelpers)
 
 ###########
@@ -199,46 +162,8 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-optix-static
-    EXPORT rmagine-optix-static-targets
-    COMPONENT optix-static
-)
-
-install(EXPORT rmagine-optix-static-targets
-    FILE rmagine-optix-static-targets.cmake
-    COMPONENT optix-static
-    NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config-version.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(cmake/rmagine-optix-static-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-install(
-    FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-static-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-    COMPONENT optix-static
-)
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
-  COMPONENT optix-static
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
 
 set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
-set(CPACK_DEBIAN_OPTIX-STATIC_PACKAGE_DEPENDS "rmagine-cuda-static" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL optix)
-list(APPEND CPACK_COMPONENTS_ALL optix-static)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)

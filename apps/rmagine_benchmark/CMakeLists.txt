@@ -8,8 +8,8 @@ add_executable(rmagine_benchmark_cpu
 )
 
 target_link_libraries(rmagine_benchmark_cpu
-    rmagine::core-static
-    rmagine::embree-static
+    rmagine::core
+    rmagine::embree
 )
 
 target_compile_definitions(rmagine_benchmark_cpu PUBLIC WITH_EMBREE)
@@ -18,11 +18,6 @@ target_compile_definitions(rmagine_benchmark_cpu PUBLIC WITH_EMBREE)
 install(TARGETS rmagine_benchmark_cpu
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT embree
-)
-
-install(TARGETS rmagine_benchmark_cpu
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT embree-static
 )
 
 endif(embree_FOUND)
@@ -34,8 +29,8 @@ add_executable(rmagine_benchmark_gpu
 )
 
 target_link_libraries(rmagine_benchmark_gpu
-    rmagine::core-static
-    rmagine::optix-static
+    rmagine::core
+    rmagine::optix
 )
 
 target_compile_definitions(rmagine_benchmark_gpu PUBLIC WITH_OPTIX)
@@ -44,11 +39,6 @@ target_compile_definitions(rmagine_benchmark_gpu PUBLIC WITH_OPTIX)
 install(TARGETS rmagine_benchmark_gpu
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT optix
-)
-
-install(TARGETS rmagine_benchmark_gpu
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT optix-static
 )
 
 endif(OptiX_FOUND)

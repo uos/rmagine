@@ -57,42 +57,6 @@ add_library(rmagine::embree ALIAS rmagine-embree)
 list(APPEND RMAGINE_LIBRARIES rmagine-embree)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
-## STATIC
-add_library(rmagine-embree-static STATIC
-    ${RMAGINE_EMBREE_SRCS}
-)
-
-target_include_directories(rmagine-embree-static
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-
-target_link_libraries(rmagine-embree-static
-    rmagine-core-static
-    ${embree_LIBRARY}
-)
-
-add_dependencies(rmagine-embree-static
-    rmagine-core-static
-)
-
-target_compile_features(rmagine-embree-static PRIVATE cxx_std_17)
-
-set_target_properties(rmagine-embree-static
-    PROPERTIES
-    EXPORT_NAME embree-static
-    SOVERSION ${rmagine_VERSION_MAJOR}
-    VERSION ${rmagine_VERSION}
-)
-
-add_library(rmagine::embree-static ALIAS rmagine-embree-static)
-
-list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-embree-static)
-set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
-
-
 ###########
 ## INSTALL
 ############
@@ -107,25 +71,25 @@ install(EXPORT rmagine-embree-targets
     FILE rmagine-embree-targets.cmake
     COMPONENT embree
     NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config-version.cmake
-  VERSION ${PROJECT_VERSION}
+  VERSION ${rmagine_VERSION}
   COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-embree-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
   COMPONENT embree
 )
 
@@ -135,46 +99,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(TARGETS rmagine-embree-static 
-  EXPORT rmagine-embree-static-targets
-  COMPONENT embree-static
-)
-
-install(EXPORT rmagine-embree-static-targets
-    FILE rmagine-embree-static-targets.cmake
-    COMPONENT embree-static
-    NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(cmake/rmagine-embree-static-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-static-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-  COMPONENT embree-static
-)
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
-  COMPONENT embree-static
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
 set(CPACK_DEBIAN_EMBREE_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
-set(CPACK_DEBIAN_EMBREE-STATIC_PACKAGE_DEPENDS "rmagine-core-static" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL embree)
-list(APPEND CPACK_COMPONENTS_ALL embree-static)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)

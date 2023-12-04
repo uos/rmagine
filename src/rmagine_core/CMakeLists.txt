@@ -59,37 +59,6 @@ add_library(rmagine::core ALIAS rmagine-core)
 list(APPEND RMAGINE_LIBRARIES rmagine-core)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
-add_library(rmagine-core-static STATIC
-    ${RMAGINE_CORE_SRCS}
-)
-
-target_include_directories(rmagine-core-static
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    ${ASSIMP_INCLUDE_DIRS}
-)
-
-target_link_libraries(rmagine-core-static
-    PUBLIC
-    ${ASSIMP_LIBRARIES}
-    Eigen3::Eigen
-)
-
-target_compile_features(rmagine-core-static PRIVATE cxx_std_17)
-
-set_target_properties(rmagine-core-static
-  PROPERTIES
-    EXPORT_NAME core-static
-    SOVERSION ${rmagine_VERSION_MAJOR}
-    VERSION ${rmagine_VERSION}
-)
-
-add_library(rmagine::core-static ALIAS rmagine-core-static)
-
-list(APPEND RMAGINE_STATIC_LIBRARIES rmagine-core-static)
-set(RMAGINE_STATIC_LIBRARIES ${RMAGINE_STATIC_LIBRARIES} PARENT_SCOPE)
-
 
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)
@@ -105,74 +74,36 @@ install(EXPORT rmagine-core-targets
     FILE rmagine-core-targets.cmake
     COMPONENT core
     NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-config-version.cmake
-  VERSION ${PROJECT_VERSION}
+  VERSION ${rmagine_VERSION}
   COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-core-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
   COMPONENT core
 )
 
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
   COMPONENT core
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(TARGETS rmagine-core-static
-  EXPORT rmagine-core-static-targets
-  COMPONENT core-static)
-
-install(EXPORT rmagine-core-static-targets
-    FILE rmagine-core-static-targets.cmake
-    COMPONENT core-static
-    NAMESPACE rmagine::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-static-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(cmake/rmagine-core-static-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-static-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-)
-
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-static-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-core-static-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
-  COMPONENT core-static
-)
-
-install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
-  COMPONENT core-static
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOPE)
-set(CPACK_DEBIAN_CORE-STATIC_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL core)
-list(APPEND CPACK_COMPONENTS_ALL core-static)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 

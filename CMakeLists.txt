@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...10.0)
+cmake_minimum_required(VERSION 3.16)
 project(rmagine 
     LANGUAGES CXX C
     VERSION 2.2.2)# TODO update this version when merging into main-branch
@@ -190,34 +190,38 @@ include(CMakePackageConfigHelpers)
     
 # CMAKE FIND SCRIPT
 
-configure_package_config_file(cmake/rmagineConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+configure_package_config_file(cmake/rmagine-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config-version.cmake
     COMPATIBILITY SameMajorVersion
 )
 
 ## INSTALL
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/rmagineConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
     COMPONENT core
 )
 
+install(FILES package.xml
+    DESTINATION share/rmagine-${rmagine_VERSION}
+    COMPONENT core
+)
 
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rmagineUninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rmagine-uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/rmagine-uninstall.cmake"
     IMMEDIATE @ONLY)
 
   add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagineUninstall.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagine-uninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
 
