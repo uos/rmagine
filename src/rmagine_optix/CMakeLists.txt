@@ -25,7 +25,7 @@ set(OPTIX_KERNEL_FILES
     src/simulation/optix/SensorProgramHit.cu
 )
 
-get_target_property(RMAGINE_CORE_INCLUDES rmagine-core INCLUDE_DIRECTORIES)
+get_target_property(RMAGINE_CORE_INCLUDES rmagine-core INTERFACE_INCLUDE_DIRECTORIES)
 
 cuda_include_directories(
     ${RMAGINE_CORE_INCLUDES}
@@ -96,9 +96,14 @@ target_include_directories(rmagine-optix PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
 )
 
-target_include_directories(rmagine-optix PRIVATE
+# TODO: make this PRIVATE as soon as RMCL is not compiling OptiX code
+target_include_directories(rmagine-optix PUBLIC
     ${OptiX_INCLUDE_DIRS}
 )
+
+# target_include_directories(rmagine-optix PRIVATE
+#     ${OptiX_INCLUDE_DIRS}
+# )
 
 target_link_libraries(rmagine-optix
     ${OptiX_LIBRARIES}
