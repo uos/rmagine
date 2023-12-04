@@ -27,7 +27,7 @@ add_library(rmagine-cuda SHARED
 target_include_directories(rmagine-cuda
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
     ${CUDA_INCLUDE_DIRS}
 )
 
@@ -57,7 +57,7 @@ list(APPEND RMAGINE_LIBRARIES rmagine-cuda)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 
 ###########
-## CUDA
+## INSTALL COMPONENT: CUDA
 ############
 install(TARGETS rmagine-cuda
     EXPORT rmagine-cuda-targets
@@ -82,6 +82,7 @@ configure_package_config_file(cmake/rmagine-cuda-config.cmake.in
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine
 )
 
+# FIND PACKAGE FILES
 install(
     FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cuda-config.cmake
@@ -90,10 +91,11 @@ install(
     COMPONENT cuda
 )
 
+# HEADERS
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
   COMPONENT cuda
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
 set(CPACK_DEBIAN_CUDA_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)

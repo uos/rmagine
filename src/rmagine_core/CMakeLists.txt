@@ -32,7 +32,7 @@ add_library(rmagine-core SHARED
 target_include_directories(rmagine-core
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
     ${ASSIMP_INCLUDE_DIRS}
 )
 
@@ -99,7 +99,7 @@ install(
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
   COMPONENT core
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
 set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOPE)

@@ -31,7 +31,7 @@ add_library(rmagine-embree SHARED
 target_include_directories(rmagine-embree
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
 )
 
 target_link_libraries(rmagine-embree
@@ -85,6 +85,7 @@ configure_package_config_file(cmake/rmagine-embree-config.cmake.in
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
+# CMAKE FIND PACKAGE FILES
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-embree-config.cmake
@@ -93,10 +94,11 @@ install(
   COMPONENT embree
 )
 
+# HEADERS
 install(
   DIRECTORY include/rmagine
   COMPONENT embree
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
 set(CPACK_DEBIAN_EMBREE_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)

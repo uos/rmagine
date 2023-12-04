@@ -5,9 +5,6 @@ set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
 set(RMAGINE_OPTIX_PTX_GLOB_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/rmagine_optix_ptx")
 
 set(CUDA_GENERATED_OUTPUT_DIR ${RMAGINE_OPTIX_PTX_DIR})
-add_definitions( -DRMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}" )
-add_definitions( -DRMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}")
-
 # message(STATUS "Writing Optix Kernels to ${RMAGINE_OPTIX_PTX_DIR}")
 
 set(OPTIX_KERNEL_FILES
@@ -88,10 +85,15 @@ add_library(rmagine-optix SHARED
     ${RMAGINE_OPTIX_SRCS}
 )
 
+target_compile_definitions(rmagine-optix PRIVATE 
+    RMAGINE_OPTIX_PTX_GLOB_DIR="${RMAGINE_OPTIX_PTX_GLOB_DIR}"
+    RMAGINE_OPTIX_PTX_DIR="${RMAGINE_OPTIX_PTX_DIR}"
+)
+
 target_include_directories(rmagine-optix PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
 )
 
 target_include_directories(rmagine-optix PRIVATE
@@ -148,6 +150,7 @@ configure_package_config_file(cmake/rmagine-optix-config.cmake.in
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
 
+# FIND PACKAGE FILES
 install(
     FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-optix-config.cmake
@@ -156,10 +159,11 @@ install(
     COMPONENT optix
 )
 
+# HEADERS
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine
   COMPONENT optix
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
 
