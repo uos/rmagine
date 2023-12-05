@@ -139,3 +139,22 @@ We are open to all contributions. These can be issues, pull requests or feedback
 | `rmagine::embree` | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu20/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu20.yml) | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu22.yml) |
 | `rmagine::cuda`   | ... | ... |
 | `rmagine::optix`  | ... | ... |
+
+## News
+
+### Dez 5th 2023
+
+New version 2.2.2 is available now and brings convenience updates for ROS-users. Just place Rmagine into your ROS-workspace and it will compile. Via `find_package(rmagine COMPONENTS [...])` you can still find Rmagine's components as if you would install it globally on your system. We tested it with 
+- ROS1 - noetic
+- ROS2 - humble
+
+Normally you would set `OptiX_INCLUDE_DIR` via cmake flags. Now we provide an additional option: Set the environment variable `OPTIX_HEADER_DIR` for example in your `.bashrc`-file:
+
+```bash
+export OPTIX_INCLUDE_DIR=~/software/optix/NVIDIA-OptiX-SDK-7.4.0-linux64-x86_64/include
+```
+
+Especially if you place Rmagine into your ROS-workspace this option becomes very handy.
+
+[Older news ...](https://github.com/uos/rmagine/wiki/Extra-News)
+
