@@ -142,7 +142,7 @@ We are open to all contributions. These can be issues, pull requests or feedback
 
 ## News
 
-### Dez 5th 2023
+### Dec 5th 2023
 
 New version 2.2.2 is available now and brings convenience updates for ROS-users. Just place Rmagine into your ROS-workspace and it will compile. Via `find_package(rmagine COMPONENTS [...])` you can still find Rmagine's components as if you would install it globally on your system. We tested it with 
 - ROS1 - noetic
