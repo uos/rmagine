@@ -93,7 +93,7 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Matrix_<DataT, 
 template<typename DataT>
 inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform_<DataT>& T)
 {
-    rmagine::EulerAngles e;
+    rmagine::EulerAngles_<DataT> e;
     e.set(T.R);
     os << "T[" << T.t << ", " << e << "]";
     return os;
