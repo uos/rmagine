@@ -23,8 +23,8 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 Transform_<DataT> Transform_<DataT>::inv() const
 {
-    Transform Tinv;
-    Tinv.R = ~R;
+    Transform_<DataT> Tinv;
+    Tinv.R = R.inv();
     Tinv.t = -(Tinv.R * t);
     return Tinv;
 }
@@ -34,7 +34,7 @@ RMAGINE_INLINE_FUNCTION
 Transform_<DataT> Transform_<DataT>::mult(const Transform_<DataT>& T2) const
 {
     // P_ = R1 * (R2 * P + t2) + t1;
-    Transform T3;
+    Transform_<DataT> T3;
     T3.t = R * T2.t;
     T3.R = R * T2.R;
     T3.t += t;
