@@ -97,6 +97,8 @@ endif(OPENMP_FOUND)
 ## CUDA: For Optix                  ##
 ######################################
 
+set(CUDA_STANDARD 17)
+
 include(CheckLanguage)
 
 find_package(CUDA)

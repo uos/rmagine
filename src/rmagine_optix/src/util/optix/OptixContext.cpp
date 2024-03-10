@@ -90,7 +90,12 @@ void OptixContext::init(CudaContextPtr cuda_context)
     // Specify context options
     OptixDeviceContextOptions options = {};
     options.logCallbackFunction       = &context_log_cb;
-    options.logCallbackLevel          = 3;
+    options.logCallbackLevel          = 4;
+    // 0: disable Setting the callback level will disable all messages. The callback function will not be called in this case
+    // 1: fatal A non-recoverable error. The context and/or OptiX itself might no longer be in a usable state.
+    // 2: error A recoverable error, e.g., when passing invalid call parameters. 
+    // 3: warning Hints that OptiX might not behave exactly as requested by the user or may perform slower than expected. 
+    // 4: print Status or progress messages.
 
     RM_OPTIX_CHECK( optixDeviceContextCreate( cuda_context->ref(), &options, &m_optix_context ) );
 }

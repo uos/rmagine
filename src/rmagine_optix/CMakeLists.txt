@@ -13,9 +13,9 @@ set(OPTIX_KERNEL_FILES
     src/simulation/optix/SphereProgramRanges.cu
     ## Pinhole
     src/simulation/optix/PinholeProgramRanges.cu
-    # ## O1Dn
+    ## O1Dn
     src/simulation/optix/O1DnProgramRanges.cu
-    # ## OnDn
+    ## OnDn
     src/simulation/optix/OnDnProgramRanges.cu
     ## NEW
     src/simulation/optix/SphereProgramGen.cu

@@ -30,6 +30,12 @@ ProgramModule::~ProgramModule()
 
     if(module)
     {
+        // TODO:
+        // Strange behavior after compiling or clearing the /var/tmp/OptixCache:
+        // - first time segfault
+        // - > 1 time no segfault
+        // Why?
+
         optixModuleDestroy( module );
     }
 
