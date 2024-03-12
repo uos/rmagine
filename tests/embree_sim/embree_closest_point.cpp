@@ -88,19 +88,19 @@ int main(int argc, char ** argv)
     rm::Vector cp;
 
     qp = {0.0, 0.0, 0.0};
-    cp = map->closestPoint(qp);
+    cp = map->closestPoint(qp).p;
     std::cout << qp << " -> " << cp << std::endl;
 
     qp = {50.0, 50.0, 0.0};
-    cp = map->closestPoint(qp);
+    cp = map->closestPoint(qp).p;
     std::cout << qp << " -> " << cp << std::endl;
 
     qp = {50.0, -50.0, 20.0};
-    cp = map->closestPoint(qp);
+    cp = map->closestPoint(qp).p;
     std::cout << qp << " -> " << cp << std::endl;
 
     qp = {0.1, 0.1, 20.0};
-    cp = map->closestPoint(qp);
+    cp = map->closestPoint(qp).p;
     std::cout << qp << " -> " << cp << std::endl;
     
 
