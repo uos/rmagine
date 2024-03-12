@@ -74,7 +74,7 @@ public:
 
     ~EmbreeMap();
 
-    Point closestPoint(const Point& qp);
+    ClosestPointResult closestPoint(const Point& qp);
 
     EmbreeDevicePtr device;
     EmbreeScenePtr scene;

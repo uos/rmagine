@@ -28,7 +28,7 @@ EmbreeMap::~EmbreeMap()
     
 }
 
-Point EmbreeMap::closestPoint(const Point& qp)
+ClosestPointResult EmbreeMap::closestPoint(const Point& qp)
 {
     // std::cout << "TODO23: check if closestPoint is working after refactoring" << std::endl;
     RTCPointQuery query;
@@ -51,7 +51,8 @@ Point EmbreeMap::closestPoint(const Point& qp)
         // throw std::runtime_error("Cannot find nearest point on surface");
     }
 
-    return result.p;
+    return result;
 }
+
 
 } // namespace rmagine

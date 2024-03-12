@@ -101,6 +101,7 @@ public:
     MemoryView<Vector, RAM> faceNormals() const;
     
     MemoryView<const Vertex, RAM> verticesTransformed() const;
+    MemoryView<const Vector, RAM> faceNormalsTransformed() const;
     
     
     

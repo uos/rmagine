@@ -65,6 +65,7 @@ struct ClosestPointResult
 
     float d;
     Point p;
+    Vector n;
     unsigned int primID;
     unsigned int geomID;
 };

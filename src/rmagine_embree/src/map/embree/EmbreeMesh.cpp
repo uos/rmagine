@@ -116,6 +116,7 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     if(mesh)
     {
         Face face = mesh->faces()[primID];
+        Vector face_normal = mesh->faceNormalsTransformed()[primID];
 
         Vertex v0 = mesh->verticesTransformed()[face.v0];
         Vertex v1 = mesh->verticesTransformed()[face.v1];
@@ -134,6 +135,7 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
                 userData->result->geomID = geomID;
                 userData->result->primID = primID;
                 userData->result->p = p;
+                userData->result->n = face_normal;
             }
             return true; // Return true to indicate that the query radius changed.
         }
@@ -316,6 +318,11 @@ MemoryView<Vector, RAM> EmbreeMesh::faceNormals() const
 MemoryView<const Vertex, RAM> EmbreeMesh::verticesTransformed() const
 {
     return MemoryView<const Vertex, RAM>(m_vertices_transformed, m_num_vertices);
+}
+
+MemoryView<const Vertex, RAM> EmbreeMesh::faceNormalsTransformed() const
+{
+    return MemoryView<const Vertex, RAM>(m_face_normals_transformed.raw(), m_num_faces);
 }
 
 void EmbreeMesh::computeFaceNormals()
