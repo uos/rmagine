@@ -62,6 +62,13 @@ Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Quaternion_<DataT> Quaternion_<DataT>::mult(const float& scalar) const
+{
+  return {scalar * x, scalar * y, scalar * z, scalar * w};
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 DataT Quaternion_<DataT>::dot(const Quaternion_<DataT>& q) const
 {
     return x * q.x + y * q.y + z * q.z + w * q.w;

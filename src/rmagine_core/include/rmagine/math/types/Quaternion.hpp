@@ -66,6 +66,9 @@ struct Quaternion_
     Vector3_<DataT> mult(const Vector3_<DataT>& p) const;
 
     RMAGINE_INLINE_FUNCTION
+    Quaternion_<DataT> mult(const float& scalar) const;
+
+    RMAGINE_INLINE_FUNCTION
     DataT dot(const Quaternion_<DataT>& q) const;
 
     RMAGINE_INLINE_FUNCTION

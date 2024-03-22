@@ -26,3 +26,12 @@ target_link_libraries(rmagine_tests_core_memory_slicing
 
 add_test(NAME core_memory_slicing COMMAND rmagine_tests_core_memory_slicing)
 
+
+# 3. MEMORY SLICING
+add_executable(rmagine_tests_core_quaternion 
+    quaternion.cpp)
+target_link_libraries(rmagine_tests_core_quaternion
+    rmagine::core
+)
+
+add_test(NAME core_quaternion COMMAND rmagine_tests_core_quaternion)
