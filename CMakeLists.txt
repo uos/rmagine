@@ -97,6 +97,27 @@ endif(OPENMP_FOUND)
 ## CUDA: For Optix                  ##
 ######################################
 
+# default flags are not set when including cuda
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+
+  if(NOT CUDA_NVCC_FLAGS_DEBUG)
+    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
+    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELEASE)
+    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
+    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+endif()
+
 set(CUDA_STANDARD 17)
 
 include(CheckLanguage)
