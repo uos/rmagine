@@ -72,7 +72,7 @@ void printRaycast(SphereSimulatorOptixPtr gpu_sim,
         ObjectIds<VRAM_CUDA>
     >;
 
-    // using ResultT = IntAttrAny<VRAM_CUDA>;
+    // using ResultT = IntAttrAll<VRAM_CUDA>;
 
     ResultT res = gpu_sim->simulate<ResultT>(Tbm_gpu);
 

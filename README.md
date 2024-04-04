@@ -95,7 +95,7 @@ using ResultT = rm::Bundle<
     rm::Hits<rm::RAM>, 
     rm::Ranges<rm::RAM>
 >;
-// querying every attribute with 'rm::IntAttrAny' instead of 'ResultT'
+// querying every attribute with 'rm::IntAttrAll' instead of 'ResultT'
 
 ResultT result = sim.simulate<ResultT>(poses);
 // result.hits, result.ranges contain the resulting attribute buffers

@@ -35,7 +35,7 @@ int main(int argc, char** argv)
         sim.setModel(model);
     }
 
-    using ResultT = IntAttrAny<RAM>;
+    using ResultT = IntAttrAll<RAM>;
 
     ResultT result;
     resize_memory_bundle<RAM>(result, model.getWidth(), model.getHeight(), 100);

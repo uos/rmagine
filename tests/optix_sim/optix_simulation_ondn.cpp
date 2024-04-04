@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     size_t Nposes = 100;
     size_t Nsteps = 1000;
 
-    IntAttrAny<VRAM_CUDA> result;
+    IntAttrAll<VRAM_CUDA> result;
     resize_memory_bundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), Nposes);
 
     Memory<Transform, RAM> T(Nposes);
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         }
     }
 
-    IntAttrAny<UNIFIED_CUDA> result2;
+    IntAttrAll<UNIFIED_CUDA> result2;
     resize_memory_bundle<UNIFIED_CUDA>(result2, 
         model.getWidth(), model.getHeight(), Nposes);
 

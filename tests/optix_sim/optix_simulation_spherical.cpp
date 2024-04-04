@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     auto model = example_spherical();
     sim.setModel(model);
 
-    IntAttrAny<VRAM_CUDA> result;
+    IntAttrAll<VRAM_CUDA> result;
     resize_memory_bundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);
 
     Memory<Transform, RAM> T(100);

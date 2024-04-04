@@ -128,7 +128,7 @@ struct ObjectIds {
 
 
 template<typename MemT>
-using IntAttrAny = Bundle<
+using IntAttrAll = Bundle<
     Hits<MemT>,
     Ranges<MemT>,
     Points<MemT>,
@@ -138,7 +138,9 @@ using IntAttrAny = Bundle<
     ObjectIds<MemT>
 >;
 
-
+// deprectated
+template<typename MemT>
+using IntAttrAny = IntAttrAll<MemT>;
 
 /**
  * @brief Helper function to resize a whole bundle of attributes by one size

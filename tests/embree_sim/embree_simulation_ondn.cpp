@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     size_t Nsteps = 1000;
 
 
-    IntAttrAny<RAM> result;
+    IntAttrAll<RAM> result;
     resize_memory_bundle<RAM>(result, model.getWidth(), model.getHeight(), Nposes);
 
     Memory<Transform, RAM> T(Nposes);

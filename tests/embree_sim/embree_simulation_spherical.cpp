@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     auto model = example_spherical();
     sim.setModel(model);
 
-    IntAttrAny<RAM> result;
+    IntAttrAll<RAM> result;
     resize_memory_bundle<RAM>(result, model.getWidth(), model.getHeight(), 100);
 
     Memory<Transform, RAM> T(100);

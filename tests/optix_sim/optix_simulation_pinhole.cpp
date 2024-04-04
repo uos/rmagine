@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         sim.setModel(model);
     }
 
-    using ResultT = IntAttrAny<VRAM_CUDA>;
+    using ResultT = IntAttrAll<VRAM_CUDA>;
 
     ResultT result;
     resize_memory_bundle<VRAM_CUDA>(result, model.getWidth(), model.getHeight(), 100);

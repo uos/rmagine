@@ -220,7 +220,7 @@ int main(int argc, char** argv)
         using ResultT = Bundle<
             Ranges<VRAM_CUDA>
         >;
-        // using ResultT = IntAttrAny<VRAM_CUDA>;
+        // using ResultT = IntAttrAll<VRAM_CUDA>;
         // using ResultT = Bundle<
         //     Ranges<VRAM_CUDA>
         //     ,Normals<VRAM_CUDA>
