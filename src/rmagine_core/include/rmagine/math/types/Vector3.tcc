@@ -159,6 +159,13 @@ void Vector3_<DataT>::divInplace(const DataT& s)
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Vector3_<DataT> Vector3_<DataT>::to(const Vector3_<DataT>& o) const
+{
+    return o.sub(*this);
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 DataT Vector3_<DataT>::l2normSquared() const
 {
     return x*x + y*y + z*z;

@@ -63,6 +63,19 @@ struct Transform_
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
 
+    /**
+     * @brief computes the diff transform Td to another transform T2
+     * so that: this * Td = T2
+     * 
+     * or difference between other and this rotation
+     * Td = T2 - this
+    */
+    RMAGINE_INLINE_FUNCTION
+    Transform_<DataT> to(const Transform_<DataT>& T2) const;
+
+    RMAGINE_INLINE_FUNCTION
+    Transform_<DataT> pow(const DataT& exp) const;
+
     // OPERATORS
     RMAGINE_INLINE_FUNCTION
     void operator=(const Matrix_<DataT, 4, 4>& M)

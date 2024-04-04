@@ -51,17 +51,18 @@ rm::Quaternion operator+(rm::Quaternion a, rm::Quaternion b)
 
 rm::Quaternion operator*(rm::Quaternion q, float scalar)
 {
-  const float r = q.l2norm();
-  const float theta = acos(q.w / r);
-  const float imag_len = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
+  return q.pow(scalar);
+  // const float r = q.l2norm();
+  // const float theta = acos(q.w / r);
+  // const float imag_len = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
 
-  rm::Quaternion res;
-  res.x = sin(theta * scalar) * (q.x / imag_len) * powf(r, scalar);
-  res.y = sin(theta * scalar) * (q.y / imag_len) * powf(r, scalar);
-  res.z = sin(theta * scalar) * (q.z / imag_len) * powf(r, scalar);
-  res.w = cos(theta * scalar);
+  // rm::Quaternion res;
+  // res.x = sin(theta * scalar) * (q.x / imag_len) * powf(r, scalar);
+  // res.y = sin(theta * scalar) * (q.y / imag_len) * powf(r, scalar);
+  // res.z = sin(theta * scalar) * (q.z / imag_len) * powf(r, scalar);
+  // res.w = cos(theta * scalar);
 
-  return res;
+  // return res;
 }
 
 } // namespace esoteric_math

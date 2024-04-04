@@ -61,4 +61,21 @@ Vector3_<DataT> Transform_<DataT>::mult(const Vector3_<DataT>& v) const
     return R * v + t;
 }
 
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+Transform_<DataT> Transform_<DataT>::to(const Transform_<DataT>& T2) const
+{
+    return inv().mult(T2);
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+Transform_<DataT> Transform_<DataT>::pow(const DataT& exp) const
+{
+    Transform_<DataT> res;
+    res.R = R.pow(exp);
+    res.t = t * exp;
+    return res;
+}
+
 } // namespace rmagine

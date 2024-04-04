@@ -53,6 +53,13 @@ void Quaternion_<DataT>::multInplace(const Quaternion_<DataT>& q2)
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Quaternion_<DataT> Quaternion_<DataT>::to(const Quaternion_<DataT>& q2) const 
+{
+    return inv().mult(q2);
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 {
     const Quaternion_<DataT> P{p.x, p.y, p.z, 0.0};
@@ -62,9 +69,9 @@ Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Quaternion_<DataT> Quaternion_<DataT>::mult(const float& scalar) const
+Quaternion_<DataT> Quaternion_<DataT>::mult(const DataT& scalar) const
 {
-  return {scalar * x, scalar * y, scalar * z, scalar * w};
+    return {scalar * x, scalar * y, scalar * z, scalar * w};
 }
 
 template<typename DataT>
@@ -72,6 +79,51 @@ RMAGINE_INLINE_FUNCTION
 DataT Quaternion_<DataT>::dot(const Quaternion_<DataT>& q) const
 {
     return x * q.x + y * q.y + z * q.z + w * q.w;
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+Quaternion_<DataT> Quaternion_<DataT>::pow(const DataT& scalar) const
+{
+    // TODO: Test this function properly
+    Quaternion_<DataT> res = Quaternion_<DataT>::Identity();
+    
+    const float len = l2norm();
+    // L = |q|
+    // L^2 = q.x**2 ... + q.w**2
+    // L^2 - q.w**2 = q.x**2 ... + q.z**2
+    // sqrt(L^2 - q.w**2) = sqrt(q.x**2 ... + q.z **2) = |imag(q)|
+    const DataT imag_len = std::sqrt(len * len - w * w);
+
+    // imag_len = sqrt(1 - w^2) for normalized quaternions
+    // = sin(acos(w))
+    // hmm. mayber better use an epsilon here
+    if(imag_len > DataT(0))
+    {
+        // sin(acos(a)) / |imag(q)| 
+        // = sqrt(1-a^2) / sqrt(q_x^2 + q_y^2 + q_z^2)
+        // for normalized quaternions
+        // = sin(acos(w) * scalar) / sin(acos(w))
+        // lim w -> 0: sin(s * pi/2)
+        // lim w -> 1: s
+
+        const DataT theta = acos(w); // acos(1) == 0
+        const DataT theta_new = theta * scalar;
+        const DataT sts = sin(theta_new); // sin(0 * scalar) = 0 
+        const DataT cts = cos(theta_new);
+      
+        // 0 * q.x / 0 -> numerically instable!
+        // TODO: how to simplify this equation 
+        // and get rid of numerical problems?
+        const DataT factor = sts * std::pow(len, scalar) / imag_len;
+        
+        res.x = x * factor;
+        res.y = y * factor;
+        res.z = z * factor;
+        res.w = cts;
+    }
+
+    return res;
 }
 
 template<typename DataT>

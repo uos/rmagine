@@ -101,6 +101,14 @@ struct Vector3_
     RMAGINE_INLINE_FUNCTION
     void divInplace(const DataT& s);
 
+    /**
+     * @brief vector from this to another
+     * 
+     * return o - this
+    */
+    RMAGINE_INLINE_FUNCTION
+    Vector3_<DataT> to(const Vector3_<DataT>& o) const;
+
     RMAGINE_INLINE_FUNCTION
     DataT l2normSquared() const;
 

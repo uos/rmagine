@@ -75,6 +75,14 @@ struct Vector2_
     RMAGINE_INLINE_FUNCTION
     void divInplace(const DataT& s);
 
+    /**
+     * @brief vector from this to another
+     * 
+     * return o - this
+    */
+    RMAGINE_INLINE_FUNCTION
+    Vector2_<DataT> to(const Vector2_<DataT>& o) const;
+
     RMAGINE_INLINE_FUNCTION
     DataT l2normSquared() const;
 
