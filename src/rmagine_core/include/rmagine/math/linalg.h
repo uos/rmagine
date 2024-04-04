@@ -77,6 +77,28 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
  */
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
 
+/**
+ * @brief linear inter- or extrapolate between A and B with a factor
+ * 
+ * Examples:
+ * - if fac=0.0 it is exactly A
+ * - if fac=0.5 it is exactly between A and B
+ * - if fac=1.0 it is exactly B
+ * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
+*/
+Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
+
+/**
+ * @brief linear inter- or extrapolate between A and B with a factor
+ * 
+ * Examples:
+ * - if fac=0.0 it is exactly A
+ * - if fac=0.5 it is exactly between A and B
+ * - if fac=1.0 it is exactly B
+ * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
+*/
+Transform polate(const Transform& A, const Transform& B, float fac);
+
 } // namespace rmagine
 
 #endif // RMAGINE_MATH_MATH_LINALG_H

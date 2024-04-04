@@ -58,7 +58,8 @@ struct Quaternion_
 
     /**
      * @brief computes the diff quaternion qd to another quaternion q2
-     * so that: this * qd = q2
+     * so that: this * qd = q2  
+     * or q10 * q21 = q20
      * 
      * or difference between other and this rotation
      * res = q2 - this

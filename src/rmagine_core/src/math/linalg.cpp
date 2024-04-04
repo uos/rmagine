@@ -85,6 +85,15 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
     scale.z = S(2,2);
 }
 
+Quaternion polate(const Quaternion& A, const Quaternion& B, float fac)
+{
+    return A * A.to(B).pow(fac);
+}
+
+Transform polate(const Transform& A, const Transform& B, float fac)
+{
+    return A * A.to(B).pow(fac);
+}
 
 
 } // namespace rmagine
