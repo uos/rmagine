@@ -100,6 +100,7 @@ struct Quaternion_
      * Or parts of different rotations (Slerp)
      * Ra^(a) * Rb^(b)
     */
+    RMAGINE_INLINE_FUNCTION
     Quaternion_<DataT> pow(const DataT& exp) const;
 
     RMAGINE_INLINE_FUNCTION

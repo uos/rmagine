@@ -24,7 +24,11 @@ ProgramModule::~ProgramModule()
     #if OPTIX_VERSION >= 70400
     if(compile_options->payloadTypes)
     {
+      #if OPTIX_VERSION >= 80000
         cudaFreeHost(const_cast<void*>(reinterpret_cast<const void*>(compile_options->payloadTypes)));
+      #else
+        cudaFreeHost(compile_options->payloadTypes);
+      #endif // OPTIX_VERSION >= 80000
     }
     #endif
 
