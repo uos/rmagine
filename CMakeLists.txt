@@ -97,6 +97,10 @@ endif(OPENMP_FOUND)
 ## CUDA: For Optix                  ##
 ######################################
 
+# I am aware find_package(CUDA) is deprecated.
+# - TODO: support find_package(CUDAToolkit) as well
+# -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
+
 # default flags are not set when including cuda
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
 
