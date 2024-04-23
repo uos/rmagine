@@ -140,7 +140,15 @@ public:
     Memory<uint8_t, RAM> simulateHits(
         const MemoryView<Transform, RAM>& Tbm) const;
 
-    
+    inline Memory<O1DnModel_<RAM>, RAM> model() const
+    {
+        return m_model;
+    }
+
+    inline EmbreeMapPtr map() const 
+    {
+        return m_map;
+    }
 
 protected:
     EmbreeMapPtr m_map;

@@ -102,7 +102,7 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     const unsigned int stackSize = args->context->instStackSize;
     const unsigned int stackPtr = stackSize-1;
 
-    PointQueryUserData* userData = (PointQueryUserData*)args->userPtr;
+    EmbreePointQueryUserData* userData = (EmbreePointQueryUserData*)args->userPtr;
 
     // query position in world space
     Vector q{args->query->x, args->query->y, args->query->z};
@@ -110,7 +110,7 @@ bool closestPointFunc(RTCPointQueryFunctionArguments* args)
     /*
     * Get triangle information in global space
     */
-    EmbreeScenePtr scene = *userData->scene;
+    EmbreeScenePtr scene = userData->scene;
     EmbreeMeshPtr mesh = scene->getAs<EmbreeMesh>(geomID);
     
     if(mesh)
@@ -177,7 +177,7 @@ EmbreeMesh::EmbreeMesh(EmbreeDevicePtr device)
     //     const unsigned int stackSize = args->context->instStackSize;
     //     const unsigned int stackPtr = stackSize-1;
 
-    //     PointQueryUserData* userData = (PointQueryUserData*)args->userPtr;
+    //     EmbreePointQueryUserData* userData = (EmbreePointQueryUserData*)args->userPtr;
 
     //     // query position in world space
     //     Vector q{args->query->x, args->query->y, args->query->z};

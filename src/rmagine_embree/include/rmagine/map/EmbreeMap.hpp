@@ -48,6 +48,7 @@
 #include <vector>
 #include <set>
 #include <unordered_set>
+#include <limits>
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/math.h>
@@ -74,7 +75,10 @@ public:
 
     ~EmbreeMap();
 
-    ClosestPointResult closestPoint(const Point& qp);
+    // utility funtions
+    EmbreeClosestPointResult closestPoint(
+      const Point& qp, 
+      const float& max_distance = std::numeric_limits<float>::max());
 
     EmbreeDevicePtr device;
     EmbreeScenePtr scene;
@@ -85,7 +89,7 @@ public:
     // TODO: not only meshes here. Every geometry
     std::unordered_set<EmbreeMeshPtr> meshes;
 
-    RTCPointQueryContext pq_context;
+    
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
@@ -113,14 +117,6 @@ static EmbreeMapPtr import_embree_map(
     scene->freeze();
     scene->commit();
     return std::make_shared<EmbreeMap>(scene);
-}
-
-[[deprecated("Use import_embree_map() instead.")]]
-static EmbreeMapPtr importEmbreeMap(
-    const std::string& meshfile,
-    EmbreeDevicePtr device = embree_default_device())
-{
-    return import_embree_map(meshfile, device);
 }
 
 } // namespace rmagine

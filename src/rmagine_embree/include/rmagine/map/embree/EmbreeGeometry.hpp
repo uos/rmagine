@@ -55,9 +55,9 @@
 namespace rmagine
 {
 
-struct ClosestPointResult
+struct EmbreeClosestPointResult
 {
-    ClosestPointResult() 
+    EmbreeClosestPointResult() 
         : d(std::numeric_limits<float>::max())
         , primID(RTC_INVALID_GEOMETRY_ID)
         , geomID(RTC_INVALID_GEOMETRY_ID)
@@ -70,12 +70,11 @@ struct ClosestPointResult
     unsigned int geomID;
 };
 
-struct PointQueryUserData 
+struct EmbreePointQueryUserData 
 {
-    EmbreeScenePtr* scene;
-    ClosestPointResult* result;
+    EmbreeScenePtr scene;
+    EmbreeClosestPointResult* result;
 };
-
 
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>

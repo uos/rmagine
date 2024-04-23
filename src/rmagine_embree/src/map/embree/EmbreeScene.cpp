@@ -12,6 +12,7 @@
 #include <rmagine/math/assimp_conversions.h>
 #include <rmagine/util/assimp/helper.h>
 
+
 namespace rmagine {
 
 EmbreeScene::EmbreeScene(
@@ -22,6 +23,7 @@ EmbreeScene::EmbreeScene(
 {
     setQuality(settings.quality);
     setFlags(settings.flags);
+    rtcInitPointQueryContext(&m_pq_context);
 }
 
 EmbreeScene::~EmbreeScene()
@@ -293,6 +295,26 @@ void EmbreeScene::freeze()
     // std::cout << "[EmbreeScene::freeze()] finished optimizing scene.." << std::endl;
 }
 
+EmbreeClosestPointResult EmbreeScene::closestPoint(const Point& qp, const float& max_distance)
+{
+    // std::cout << "TODO23: check if closestPoint is working after refactoring" << std::endl;
+    RTCPointQuery query;
+    query.x = qp.x;
+    query.y = qp.y;
+    query.z = qp.z;
+    query.radius = max_distance;
+    query.time = 0.0;
+
+    EmbreeClosestPointResult result;
+
+    EmbreePointQueryUserData user_data;
+    user_data.scene = shared_from_this();
+    user_data.result = &result;
+    rtcPointQuery(m_scene, &query, &m_pq_context, nullptr, (void*)&user_data);
+
+    return result;
+}
+
 EmbreeScenePtr make_embree_scene(
     const aiScene* ascene,
     EmbreeDevicePtr device)
@@ -301,7 +323,6 @@ EmbreeScenePtr make_embree_scene(
     EmbreeScenePtr scene = std::make_shared<EmbreeScene>(settings, device);
 
     // std::vector<EmbreeMeshPtr> meshes;
-
     std::map<unsigned int, EmbreeMeshPtr> meshes;
 
     // 1. meshes

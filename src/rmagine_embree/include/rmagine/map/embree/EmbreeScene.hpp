@@ -51,6 +51,8 @@
 #include <optional>
 #include <assimp/scene.h>
 
+#include <rmagine/math/types/Vector3.hpp>
+
 namespace rmagine
 {
 struct EmbreeSceneSettings
@@ -167,6 +169,9 @@ public:
      */
     void freeze();
 
+    // utility functions
+    EmbreeClosestPointResult closestPoint(const Point& qp, const float& max_distance = std::numeric_limits<float>::max());
+
     inline EmbreeDevicePtr device() const 
     {
         return m_device;
@@ -183,6 +188,7 @@ private:
 
     RTCScene m_scene;
     EmbreeDevicePtr m_device;
+    RTCPointQueryContext m_pq_context;
 };
 
 

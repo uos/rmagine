@@ -66,6 +66,8 @@ class EmbreeGeometry;
 class EmbreeMesh;
 class EmbreeInstance;
 class EmbreeScene;
+class EmbreeClosestPointResult;
+class EmbreePointQueryUserData;
 
 using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>; 
 using EmbreeGeometryPtr = std::shared_ptr<EmbreeGeometry>;
