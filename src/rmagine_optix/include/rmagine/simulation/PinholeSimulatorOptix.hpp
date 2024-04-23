@@ -155,6 +155,16 @@ public:
     template<typename BundleT>
     void preBuildProgram();
 
+    inline Memory<PinholeModel, VRAM_CUDA> model() const
+    {
+        return m_model;
+    }
+
+    inline OptixMapPtr map() const 
+    {
+        return m_map;
+    }
+
     // Problems:
     // - a lot of copies
     // 
