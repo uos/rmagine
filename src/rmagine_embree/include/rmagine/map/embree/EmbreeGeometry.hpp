@@ -72,7 +72,7 @@ struct EmbreeClosestPointResult
 
 struct EmbreePointQueryUserData 
 {
-    EmbreeScenePtr scene;
+    const EmbreeScene* scene;
     EmbreeClosestPointResult* result;
 };
 

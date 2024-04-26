@@ -170,7 +170,7 @@ public:
     void freeze();
 
     // utility functions
-    EmbreeClosestPointResult closestPoint(const Point& qp, const float& max_distance = std::numeric_limits<float>::max());
+    EmbreeClosestPointResult closestPoint(const Point& qp, const float& max_distance = std::numeric_limits<float>::max()) const;
 
     inline EmbreeDevicePtr device() const 
     {
@@ -179,6 +179,7 @@ public:
 
     // Scene has no right to let parents stay alive
     std::unordered_set<EmbreeInstanceWPtr> parents;
+    
 private:
 
     std::unordered_map<unsigned int, EmbreeGeometryPtr > m_geometries;
@@ -188,7 +189,6 @@ private:
 
     RTCScene m_scene;
     EmbreeDevicePtr m_device;
-    RTCPointQueryContext m_pq_context;
 };
 
 

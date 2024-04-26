@@ -12,6 +12,10 @@
 namespace rmagine 
 {
 
+
+// TODO: implement instance level point query support
+// - See: https://github.com/RenderKit/embree/blob/master/tutorials/closest_point/closest_point_device.cpp)
+
 EmbreeInstance::EmbreeInstance(EmbreeDevicePtr device)
 :Base(device)
 {

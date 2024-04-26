@@ -139,7 +139,7 @@ private:
     Memory<Vector, RAM> m_vertex_normals_transformed;
 
     // boost::function<bool (RTCPointQueryFunctionArguments*)> m_closest_point_func;
-    RTCPointQueryFunction* m_closest_point_func_raw;
+    // RTCPointQueryFunction* m_closest_point_func_raw;
 
 };
 

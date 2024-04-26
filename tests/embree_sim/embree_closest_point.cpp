@@ -102,6 +102,10 @@ int main(int argc, char ** argv)
     qp = {0.1, 0.1, 20.0};
     cp = map->closestPoint(qp).p;
     std::cout << qp << " -> " << cp << std::endl;
+
+    qp = {-5.0, 0.0, 5.0};
+    cp = map->closestPoint(qp).p;
+    std::cout << qp << " -> " << cp << std::endl;
     
 
 
