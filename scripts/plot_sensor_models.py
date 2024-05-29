@@ -6,6 +6,13 @@ from mpl_toolkits import mplot3d
 from sensor_models import deg2rad
 from sensor_models import SphericalModel, PinholeModel
 
+
+"""
+Tested with 
+- ubuntu20, python 3.8.10, numpy 1.24.3, matplotlib 3.1.2
+"""
+
+
 """
 Generate ray directions from model
 """
