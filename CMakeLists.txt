@@ -284,7 +284,7 @@ endif()
 
 if(BUILD_DOCS)
 
-find_package( Doxygen REQUIRED)
+find_package(Doxygen REQUIRED)
 
 message(STATUS "Build Documentation with 'make doc'")
 
