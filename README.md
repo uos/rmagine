@@ -14,7 +14,7 @@ Rmagine
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://github.com/uos/rmagine/issues">Issues</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://github.com/aock/rmagine_examples">Examples</a>
+  <a href="https://github.com/amock/rmagine_examples">Examples</a>
   <br />
 </div>
 
