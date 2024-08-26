@@ -46,8 +46,10 @@ This examples shows how to simulate ranges of 100 Velodyne VLP-16 sensor using E
 ```c++
 // Map
 #include <rmagine/map/EmbreeMap.hpp>
-// Sensor Models
+// Sensor models
 #include <rmagine/types/sensor_models.h>
+// Predefined sensor models: e.g. VLP-16
+#include <rmagine/types/sensors.h>
 // Simulators
 #include <rmagine/simulation/SphereSimulatorEmbree.hpp>
 
@@ -59,19 +61,20 @@ The following code loads a map "my_mesh.ply" and simulates 100 Velodyne VLP-16 s
 ```c++
 // loading a map from disk
 std::string path_to_mesh = "my_mesh.ply";
-rm::EmbreeMapPtr map = rm::load_embree_map(path_to_mesh);
+rm::EmbreeMapPtr map = rm::import_embree_map(path_to_mesh);
 
-// defining a model
-rm::SphericalModel velo_model = rm::vlp16_900();
+// defining a sensor model
+// We use a predefined VLP-16 sensor model here
+rm::SphericalModel sensor_model = rm::vlp16_900();
 
-// construct a simulator
+// construct a simulator. set sensor model and 
+// map to operate on
 rm::SphereSimulatorEmbree sim;
+sim.setModel(sensor_model);
 sim.setMap(map);
-sim.setModel(velo_model);
 
 // 100 Transformations between base and map. e.g. poses of the robot
 rm::Memory<rm::Transform, rm::RAM> Tbm(100);
-
 for(size_t i=0; i < Tbm.size(); i++)
 {
     rm::Transform T = rm::Transform::Identity();
@@ -95,18 +98,19 @@ using ResultT = rm::Bundle<
     rm::Hits<rm::RAM>, 
     rm::Ranges<rm::RAM>
 >;
-// querying every attribute with 'rm::IntAttrAll' instead of 'ResultT'
+// for querying all attributes at once we provide the 'rm::IntAttrAll'-type 
+// instead of 'ResultT' for convenience
 
-ResultT result = sim.simulate<ResultT>(poses);
+ResultT result = sim.simulate<ResultT>(Tbm);
 // result.hits, result.ranges contain the resulting attribute buffers
 std::cout << "printing the first ray's range: " << result.ranges[0] << std::endl;
 
 // or slice the results for the scan of pose 5
-auto ranges5 = result.ranges(5 * model.size(), 6 * model.size());
+auto ranges5 = result.ranges(5 * sensor_model.size(), 6 * sensor_model.size());
 std::cout << "printing the first ray's range of the fifth scan: " << ranges5[0] << std::endl;
 ```
 
-More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki). More examples can be found here: https://github.com/aock/rmagine_examples.
+More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki). More examples can be found here: https://github.com/amock/rmagine_examples.
 
 ## Citation
 

@@ -143,7 +143,7 @@ if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
 
 endif()
 
-set(CUDA_STANDARD 17)
+# set(CUDA_STANDARD 14)
 
 include(CheckLanguage)
 

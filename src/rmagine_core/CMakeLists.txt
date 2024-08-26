@@ -44,14 +44,13 @@ target_link_libraries(rmagine-core
     ${OpenMP_CXX_LIBRARIES}
 )
 
-target_compile_features(rmagine-core PRIVATE cxx_std_17)
-
 set_target_properties(rmagine-core
   PROPERTIES
     EXPORT_NAME core
     SOVERSION ${rmagine_VERSION_MAJOR}
     VERSION ${rmagine_VERSION}
     COMPONENT core
+    CXX_STANDARD 17
 )
 
 # TODO: do this:

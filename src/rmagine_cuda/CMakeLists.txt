@@ -44,11 +44,22 @@ add_dependencies(rmagine-cuda
     rmagine-core
 )
 
+# enable_language(CUDA)
+# target_compile_features(rmagine-cuda PUBLIC cxx_std_17 cuda_std_17)
+
+# Problem: We need CUDA C++17 support, since some template functions 
+# have constexpr etc. Ubuntu 20s standard cmake (version 3.16) does not support 
+# to set the cuda standard higher than 14. This is not a clean solution.
+# Clean solution:
+# 1. Make a warning for Ubuntu 20 / cmake 3.16 solution to compile at own risk.
+# 2. Compile for newer Ubtunu/cmake versions with a proper target property
 set_target_properties(rmagine-cuda
     PROPERTIES
-    EXPORT_NAME cuda
-    SOVERSION ${rmagine_VERSION_MAJOR}
-    VERSION ${rmagine_VERSION}
+        EXPORT_NAME cuda
+        SOVERSION ${rmagine_VERSION_MAJOR}
+        VERSION ${rmagine_VERSION}
+        # CUDA_STANDARD 17 -> only works for 
+        # CXX_STANDARD 17
 )
 
 add_library(rmagine::cuda ALIAS rmagine-cuda)

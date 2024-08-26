@@ -105,6 +105,9 @@ target_include_directories(rmagine-optix PUBLIC
 #     ${OptiX_INCLUDE_DIRS}
 # )
 
+# Must be public, since headers contain optionals
+# target_compile_features(rmagine-optix PUBLIC cxx_std_17)
+
 target_link_libraries(rmagine-optix
     ${OptiX_LIBRARIES}
     rmagine-cuda

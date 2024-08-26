@@ -43,13 +43,14 @@ add_dependencies(rmagine-embree
     rmagine-core
 )
 
-target_compile_features(rmagine-embree PRIVATE cxx_std_17)
+# target_compile_features(rmagine-embree PUBLIC cxx_std_17)
 
 set_target_properties(rmagine-embree
     PROPERTIES
-    EXPORT_NAME embree
-    SOVERSION ${rmagine_VERSION_MAJOR}
-    VERSION ${rmagine_VERSION}
+      EXPORT_NAME embree
+      SOVERSION ${rmagine_VERSION_MAJOR}
+      VERSION ${rmagine_VERSION}
+      # CXX_STANDARD 17
 )
 
 add_library(rmagine::embree ALIAS rmagine-embree)
