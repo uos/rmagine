@@ -1256,7 +1256,7 @@ Matrix_<DataT, Rows, Cols>::operator EulerAngles_<DataT>() const
     // pitch (y-axis)
     if (fabs(sB) >= 1.0)
     {
-        e.pitch = copysignf(M_PI / 2, sB); // use 90 degrees if out of range
+        e.pitch = copysignf(M_PI_2, sB); // use 90 degrees if out of range
     } else {
         e.pitch = asinf(sB);
     }

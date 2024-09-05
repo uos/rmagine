@@ -78,4 +78,13 @@ Transform_<DataT> Transform_<DataT>::pow(const DataT& exp) const
     return res;
 }
 
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
+Transform_<DataT>::operator Matrix_<DataT, 4, 4>() const 
+{
+    Matrix_<DataT, 4, 4> M;
+    M.set(*this);
+    return M;
+}
+
 } // namespace rmagine

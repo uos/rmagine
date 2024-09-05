@@ -107,6 +107,20 @@ struct Transform_
         return mult(v);
     }
 
+    /////////////////////
+    // CASTING
+
+    /**
+     * @brief Transform -> Matrix4x4
+     * 
+     * @return Matrix_<DataT> 
+     */
+    RMAGINE_INLINE_FUNCTION
+    operator Matrix_<DataT, 4, 4>() const;
+
+    /**
+     * @brief Internal data type cast
+     */
     template<typename ConvT>
     Transform_<ConvT> cast() const
     {
