@@ -71,6 +71,8 @@ unsigned int adaptorF_custom_accessVector3Value(
   const rmagine::Face& f, 
   unsigned int ind);
 
+size_t adaptorF_size(const rmagine::Face& f);
+
 
 #include "mesh_types.tcc"
 
