@@ -1267,6 +1267,18 @@ Matrix_<DataT, Rows, Cols>::operator EulerAngles_<DataT>() const
     return e;
 }
 
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, Rows, Cols>::operator Transform_<DataT>() const 
+{
+    static_assert(Rows == 4 && Cols == 4);
+    
+    Transform_<DataT> T;
+    T.set(*this);
+    return T;
+}
+
+
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 
 template<typename ConvT>
