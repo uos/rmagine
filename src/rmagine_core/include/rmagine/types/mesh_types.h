@@ -53,7 +53,29 @@ struct Face {
     unsigned int v0;
     unsigned int v1;
     unsigned int v2;
+
+    // Other access functions
+    // use with care! No out of range checks
+    RMAGINE_INLINE_FUNCTION
+    unsigned int operator[](const size_t& idx) const;
+
+    RMAGINE_INLINE_FUNCTION
+    unsigned int& operator[](const size_t& idx);
 };
+
+// IMPL
+RMAGINE_INLINE_FUNCTION
+unsigned int Face::operator[](const size_t& idx) const
+{
+    return *((&v0)+idx);
+}
+
+RMAGINE_INLINE_FUNCTION
+unsigned int& Face::operator[](const size_t& idx)
+{
+    return *((&v0)+idx);
+}
+
 
 } // namespace rmagine
 
