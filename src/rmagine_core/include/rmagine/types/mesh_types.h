@@ -67,12 +67,9 @@ struct Face {
 
 
 // Polyscope field access
-static unsigned int adaptorF_custom_accessVector3Value(
+unsigned int adaptorF_custom_accessVector3Value(
   const rmagine::Face& f, 
-  unsigned int ind) 
-{
-  return f[ind];
-}
+  unsigned int ind);
 
 
 #include "mesh_types.tcc"
