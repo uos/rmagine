@@ -43,6 +43,8 @@
 #define RMAGINE_TYPES_MESH_TYPES_H
 
 #include <rmagine/math/types.h>
+#include <tuple>
+#include <type_traits>
 
 namespace rmagine
 {
@@ -73,6 +75,37 @@ unsigned int adaptorF_custom_accessVector3Value(
 
 size_t adaptorF_size(const rmagine::Face& f);
 
+namespace std
+{
+
+// Custom get function for MyStruct, index 0 (for `int`)
+template <std::size_t I>
+decltype(auto) get(rmagine::Face& f) {
+    if constexpr (I == 0) return (f.v0);
+    else if constexpr (I == 1) return (f.v1);
+    else if constexpr (I == 2) return (f.v2);
+    else static_assert(I < 3, "Index out of bounds");
+}
+
+template <std::size_t I>
+decltype(auto) get(const rmagine::Face& f) {
+    if constexpr (I == 0) return (f.v0);
+    else if constexpr (I == 1) return (f.v1);
+    else if constexpr (I == 2) return (f.v2);
+    else static_assert(I < 3, "Index out of bounds");
+}
+
+
+} // namespace std
+
+
+
+
+// namespace std
+// {
+
+
+// } // namespace std
 
 #include "mesh_types.tcc"
 
