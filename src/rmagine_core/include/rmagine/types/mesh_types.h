@@ -63,20 +63,19 @@ struct Face {
     unsigned int& operator[](const size_t& idx);
 };
 
-// IMPL
-RMAGINE_INLINE_FUNCTION
-unsigned int Face::operator[](const size_t& idx) const
-{
-    return *((&v0)+idx);
-}
-
-RMAGINE_INLINE_FUNCTION
-unsigned int& Face::operator[](const size_t& idx)
-{
-    return *((&v0)+idx);
-}
-
-
 } // namespace rmagine
+
+
+// Polyscope field access
+static unsigned int adaptorF_custom_accessVector3Value(
+  const rmagine::Face& f, 
+  unsigned int ind) 
+{
+  return f[ind];
+}
+
+
+#include "mesh_types.tcc"
+
 
 #endif // RMAGINE_TYPES_MESH_TYPES_H
