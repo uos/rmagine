@@ -59,24 +59,30 @@ struct Face {
     // Other access functions
     // use with care! No out of range checks
     RMAGINE_INLINE_FUNCTION
-    unsigned int operator[](const size_t& idx) const;
+    const unsigned int& operator[](const size_t& idx) const;
 
     RMAGINE_INLINE_FUNCTION
     unsigned int& operator[](const size_t& idx);
+
+    RMAGINE_INLINE_FUNCTION
+    constexpr size_t size() const
+    {
+      return 3;
+    }
 };
 
 } // namespace rmagine
 
-namespace std
-{
+// namespace std
+// {
 
-template <std::size_t I>
-unsigned int& get(rmagine::Face& f);
+// template <std::size_t I>
+// unsigned int& get(rmagine::Face& f);
 
-template <std::size_t I>
-const unsigned int& get(const rmagine::Face& f);
+// template <std::size_t I>
+// const unsigned int& get(const rmagine::Face& f);
 
-} // namespace std
+// } // namespace std
 
 
 #include "mesh_types.tcc"
