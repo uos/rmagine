@@ -73,19 +73,6 @@ struct Face {
 
 } // namespace rmagine
 
-// namespace std
-// {
-
-// template <std::size_t I>
-// unsigned int& get(rmagine::Face& f);
-
-// template <std::size_t I>
-// const unsigned int& get(const rmagine::Face& f);
-
-// } // namespace std
-
-
 #include "mesh_types.tcc"
-
 
 #endif // RMAGINE_TYPES_MESH_TYPES_H
