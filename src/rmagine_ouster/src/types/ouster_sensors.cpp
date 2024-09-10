@@ -36,7 +36,7 @@ O1DnModel o1dn_from_ouster_meta_file(std::string filename)
 
     const float lidar_origin_to_beam_origin_mm = ouster_config["lidar_origin_to_beam_origin_mm"].asFloat();
 
-    std::cout << "Loading Ouster Lidar: " << lidar_width << "x" << lidar_height << ". " << lidar_frequency << "hz" << std::endl;
+    // std::cout << "Loading Ouster Lidar: " << lidar_width << "x" << lidar_height << ". " << lidar_frequency << "hz" << std::endl;
 
     model.width = lidar_width;
     model.height = lidar_height;
