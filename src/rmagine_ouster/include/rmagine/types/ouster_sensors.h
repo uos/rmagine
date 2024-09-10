@@ -45,7 +45,7 @@
 namespace rmagine
 {
 
-O1DnModel o1dn_from_ouster_config(std::string filename);
+O1DnModel o1dn_from_ouster_meta_file(std::string filename);
 
 } // namespace rmagine
 
