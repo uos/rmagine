@@ -21,6 +21,9 @@ void O1DnSimulatorEmbree::simulate(
     SimulationFlags flags = SimulationFlags::Zero();
     set_simulation_flags_<RAM>(ret, flags);
 
+    const float range_min = m_model->range.min;
+    const float range_max = m_model->range.max;
+
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
@@ -52,8 +55,8 @@ void O1DnSimulatorEmbree::simulate(
                 rayhit.ray.dir_x = ray_dir_m.x;
                 rayhit.ray.dir_y = ray_dir_m.y;
                 rayhit.ray.dir_z = ray_dir_m.z;
-                rayhit.ray.tnear = 0;
-                rayhit.ray.tfar = std::numeric_limits<float>::infinity();
+                rayhit.ray.tnear = 0; // if set to m_model->range.min we would scan through near occlusions
+                rayhit.ray.tfar = range_max;
                 rayhit.ray.mask = -1;
                 rayhit.ray.flags = 0;
                 rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -67,7 +70,12 @@ void O1DnSimulatorEmbree::simulate(
                     {
                         if(flags.hits)
                         {
-                            ret.Hits<RAM>::hits[glob_id] = 1;
+                            if(rayhit.ray.tfar >= range_min)
+                            {
+                                ret.Hits<RAM>::hits[glob_id] = 1;
+                            } else {
+                                ret.Hits<RAM>::hits[glob_id] = 0;
+                            }
                         }
                     }
 
