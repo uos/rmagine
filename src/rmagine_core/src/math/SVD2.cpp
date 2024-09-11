@@ -730,6 +730,8 @@ void svd2(
     float eps = std::numeric_limits<float>::epsilon();
     u = a;
 
+    // FIRST PART
+
     // i = 0;
     // l = 2;
     scale = fabs(u(0,0)) + fabs(u(1,0)) + fabs(u(2,0));
@@ -795,8 +797,6 @@ void svd2(
     anorm = fabs(w(0, 0));
     // anorm = MAX(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
     
-    
-
     // i = 1;
     // l = 3;
     rv1.y = scale * g;
@@ -811,7 +811,7 @@ void svd2(
         s = u(1,1) * u(1,1) + u(2,1) * u(2,1);
         f = u(1,1);
         g = -SIGN(sqrt(s),f);
-        h = f*g-s;
+        h = f * g - s;
         u(1,1) = f-g;
         
         f = (u(1,1) * u(1,2) + u(2,1) * u(2,2)) / h;
@@ -823,88 +823,93 @@ void svd2(
     }
     
     w(1, 1) = scale * g;
+    g = s = scale = 0.0;
     
     scale = abs(u(1,2));
     if(scale > 0.0)
     {
-        u(1, 2) /= scale;
-        s = u(1, 2) * u(1, 2);
+        u(1,2) /= scale;
+        s = u(1,2) * u(1,2);
         
         f = u(1, 2);
         g = -SIGN(sqrt(s), f);
         h = f * g - s;
-        u(1, 2) = f - g;
+        u(1,2) = f - g;
 
         rv1.z = u(1,2) / h;
-        s = u(2, 2) * u(1, 2);
+        s = u(2,2) * u(1,2);
 
-        u(2, 2) += s * rv1.z;
-        u(1, 2) *= scale;
+        u(2,2) += s * rv1.z;
+        u(1,2) *= scale;
     }
 
     anorm = MAX(anorm, (abs(w(1, 1)) + abs(rv1.y)));
     
+    rv1.z = scale * g;
 
-
-    // i = 2;
+    scale = abs(u(2, 2));
+    if(scale > 0.0) 
     {
-        // l = 4;
-        rv1.z = scale * g;
-        
-        scale = abs(u(2, 2));
+        u(2, 2) /= scale;
+        s = u(2, 2) * u(2, 2);
+        f = u(2, 2);
+        g = -SIGN(sqrt(s),f);
+        h = f * g - s;
 
-        if(scale != 0.0) 
-        {
-            u(2, 2) /= scale;
-            s = u(2, 2) * u(2, 2);
-            f = u(2, 2);
-            g = -SIGN(sqrt(s),f);
-            h = f * g - s;
-
-            u(2, 2) = f - g;
-            u(2, 2) *= scale;
-        }
-        
-        w(2, 2) = scale * g;
-        g = s = scale = 0.0;
-        
-        anorm = MAX(anorm, (abs(w(2, 2))+abs(rv1.z)));
+        u(2, 2) = f - g;
+        u(2, 2) *= scale;
     }
+    
+    w(2, 2) = scale * g;
+    g = s = scale = 0.0;
+    
+    anorm = MAX(anorm, (abs(w(2, 2))+abs(rv1.z)));
+
+    // SECOND PART    
+    v(2, 2) = 1.0;
+    g = rv1.z;
+
+    // i = 1;
+    // l = 2;
+    if(fabs(g) > 0.0)
+    {
+        v(2,1) = (u(1,2) / u(1,2)) / g;
+        s = u(1,2) * v(2,2);
+        v(2,2) += s * v(2,1);
+    }
+    v(1,2) = 0.0;
+    v(2,1) = 0.0;
+    v(1,1) = 1.0;
+
+    g = rv1.y;
+
+    // l = 1;
+    // i = 0;
+    if(fabs(g) > 0.0)
+    {
+        v(1,0) = (u(0,1) / u(0,1)) / g;
+        v(2,0) = (u(0,2) / u(0,1)) / g;
+
+        s = u(0,1) * v(1,1) + u(0,2) * v(2,1);
+        v(1,1) += s * v(1,0);
+        v(2,1) += s * v(2,0);
+
+        s = u(0,1) * v(1,2) + u(0,2) * v(2,2);
+        v(1,2) += s * v(1,0);
+        v(2,2) += s * v(2,0);
+    }
+    v(0,1) = 0.0;
+    v(1,0) = 0.0;
+    v(0,2) = 0.0;
+    v(2,0) = 0.0;
+    v(0,0) = 1.0;
+    g = rv1.x;
+
 
     int i, l;
 
-    for(i=n-1; i>=0; i--)
-    {
-        if(i < n-1) 
-        {
-            if(g != 0.0)
-            {
-                for(j=l; j<n; j++)
-                {
-                    v(j,i) = (u(i,j)/u(i,l)) / g;
-                }
-                for(j=l; j<n; j++)
-                {
-                    for (s=0.0,k=l;k<n;k++) 
-                    {
-                        s += u(i,k) * v(k,j);
-                    }
-                    for (k=l; k<n; k++)
-                    {
-                        v(k,j) += s * v(k,i);
-                    }
-                }
-            }
-            for (j=l; j<n; j++) 
-            {
-                v(i,j) = 0.0;
-                v(j,i) = 0.0;
-            }
-        }
-        v(i,i) = 1.0;
-        g = rv1[i];
-        l = i;
-    }
+    l = 0;
+
     for(i=MIN(m,n)-1; i>=0; i--)
     {
         l = i+1;
