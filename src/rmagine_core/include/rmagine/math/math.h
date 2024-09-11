@@ -49,13 +49,73 @@
 namespace rmagine
 {
 
+///////
+// TODO: Integrate the following functions better / somewhere else
+//////
+template<class T>
+RMAGINE_INLINE_FUNCTION
+T SQR(const T a) {return a*a;}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+const T &MAX(const T &a, const T &b)
+    {return b > a ? (b) : (a);}
+
+RMAGINE_INLINE_FUNCTION
+float MAX(const double &a, const float &b)
+    {return b > a ? (b) : float(a);}
+
+RMAGINE_INLINE_FUNCTION
+float MAX(const float &a, const double &b)
+    {return b > a ? float(b) : (a);}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+const T &MIN(const T &a, const T &b)
+    {return b < a ? (b) : (a);}
+
+RMAGINE_INLINE_FUNCTION
+float MIN(const double &a, const float &b)
+    {return b < a ? (b) : float(a);}
+
+RMAGINE_INLINE_FUNCTION
+float MIN(const float &a, const double &b)
+    {return b < a ? float(b) : (a);}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+T SIGN(const T &a, const T &b)
+    {return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
+
+RMAGINE_INLINE_FUNCTION
+float SIGN(const float &a, const double &b)
+    {return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
+
+RMAGINE_INLINE_FUNCTION
+float SIGN(const double &a, const float &b)
+    {return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+void SWAP(T &a, T &b)
+    {T dum=a; a=b; b=dum;}
+
+template<typename T>
+RMAGINE_INLINE_FUNCTION
+T PYTHAG(const T a, const T b)
+{
+    T absa = abs(a);
+    T absb = abs(b);
+    return (absa > absb ? absa * sqrt(1.0+SQR(absb/absa)) :
+        (absb == 0.0 ? 0.0 : absb * sqrt(1.0+SQR(absa/absb))));
+}
+
 
 template<typename DataT>
 Vector3_<DataT> min(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
 
 template<typename DataT>
 Vector3_<DataT> max(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
-
 
 /////////////
 // #multNxN
@@ -370,6 +430,29 @@ Memory<Matrix3x3, RAM> cov(
     const MemoryView<Vector, RAM>& v1,
     const MemoryView<Vector, RAM>& v2
 );
+
+/**
+ * @brief decompose A = UWV* using singular value decomposition
+ */
+void svd(
+    const MemoryView<Matrix3x3, RAM>& As,
+    MemoryView<Matrix3x3, RAM>& Us,
+    MemoryView<Matrix3x3, RAM>& Ws,
+    MemoryView<Matrix3x3, RAM>& Vs
+);
+
+/**
+ * @brief decompose A = UWV* using singular value decomposition
+ * 
+ * w is a vector which is the diagonal of matrix W
+ */
+void svd(
+    const MemoryView<Matrix3x3, RAM>& As,
+    MemoryView<Matrix3x3, RAM>& Us,
+    MemoryView<Vector3, RAM>& ws,
+    MemoryView<Matrix3x3, RAM>& Vs
+);
+
 
 } // namespace rmagine
 

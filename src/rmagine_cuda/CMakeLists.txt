@@ -1,10 +1,13 @@
 message(STATUS "Building Cuda dependend code. Library: rmagine-cuda")
 
+# add_library(rmagine-cuda SHARED
+
 set(RMAGINE_CUDA_SRCS
     src/types/MemoryCuda.cu
     # math
     src/math/math.cu
     src/math/math_batched.cu
+    src/math/linalg.cu
     src/math/SVDCuda.cpp
     # util
     src/util/cuda/CudaContext.cpp
@@ -58,6 +61,7 @@ set_target_properties(rmagine-cuda
         EXPORT_NAME cuda
         SOVERSION ${rmagine_VERSION_MAJOR}
         VERSION ${rmagine_VERSION}
+        CUDA_SEPARABLE_COMPILATION ON
         # CUDA_STANDARD 17 -> only works for 
         # CXX_STANDARD 17
 )

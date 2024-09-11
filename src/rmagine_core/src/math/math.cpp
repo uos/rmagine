@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include "rmagine/math/linalg.h"
+
 namespace rmagine {
 
 
@@ -695,6 +697,40 @@ Memory<Matrix3x3, RAM> cov(
     Memory<Matrix3x3, RAM> C(1);
     cov(v1, v2, C);
     return C;
+}
+
+/**
+ * @brief decompose A = UWV* using singular value decomposition
+ */
+void svd(
+    const MemoryView<Matrix3x3, RAM>& As,
+    MemoryView<Matrix3x3, RAM>& Us,
+    MemoryView<Matrix3x3, RAM>& Ws,
+    MemoryView<Matrix3x3, RAM>& Vs)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<As.size(); i++)
+    {
+        svd(As[i], Us[i], Ws[i], Vs[i]);
+    }
+}
+
+/**
+ * @brief decompose A = UWV* using singular value decomposition
+ * 
+ * w is a vector which is the diagonal of matrix W
+ */
+void svd(
+    const MemoryView<Matrix3x3, RAM>& As,
+    MemoryView<Matrix3x3, RAM>& Us,
+    MemoryView<Vector3, RAM>& ws,
+    MemoryView<Matrix3x3, RAM>& Vs)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<As.size(); i++)
+    {
+        svd(As[i], Us[i], ws[i], Vs[i]);
+    }
 }
 
 

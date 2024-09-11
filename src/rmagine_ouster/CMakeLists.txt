@@ -24,7 +24,7 @@ target_link_libraries(rmagine-ouster
     Eigen3::Eigen
     ${Boost_LIBRARIES}
     ${OpenMP_CXX_LIBRARIES}
-    JsonCpp::JsonCpp
+    jsoncpp
 )
 
 set_target_properties(rmagine-ouster

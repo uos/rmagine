@@ -1,9 +1,12 @@
 #include "rmagine/math/math.cuh"
 #include "rmagine/math/math.h"
 #include "rmagine/math/types.h"
+#include "rmagine/math/linalg.h"
+#include "rmagine/util/cuda/CudaDebug.hpp"
 
 namespace rmagine 
 {
+
 
 ////////
 // Generic Kernel
@@ -508,6 +511,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Quaternion, VRAM_CUDA> multNxN(
@@ -528,6 +532,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), c.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNxN(
@@ -548,6 +553,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (T1.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(T1.raw(), T2.raw(), Tr.raw(), T1.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Transform, VRAM_CUDA> multNxN(
@@ -567,6 +573,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (T.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(T.raw(), x.raw(), c.raw(), T.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNxN(
@@ -586,6 +593,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M1.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(M1.raw(), M2.raw(), Mr.raw(), M1.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> multNxN(
@@ -605,6 +613,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M1.size() + blockSize - 1) / blockSize;
     multNxN_conv_kernel<<<gridSize, blockSize>>>(M1.raw(), M2.raw(), Qres.raw(), M1.size());
+    RM_CUDA_DEBUG();
 }
 
 void multNxN(
@@ -615,6 +624,7 @@ void multNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(M.raw(), x.raw(), c.raw(), M.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNxN(
@@ -637,6 +647,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     multNxN_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Quaternion, VRAM_CUDA> multNx1(
@@ -657,6 +668,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNx1(
@@ -676,6 +688,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (T1.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(T1.raw(), t2.raw(), Tr.raw(), T1.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Transform, VRAM_CUDA> multNx1(
@@ -695,6 +708,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (T.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(T.raw(), x.raw(), c.raw(), T.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNx1(
@@ -714,6 +728,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M1.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(M1.raw(), m2.raw(), Mr.raw(), M1.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> multNx1(
@@ -733,6 +748,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(M.raw(), x.raw(), C.raw(), M.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNx1(
@@ -752,6 +768,7 @@ void multNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M.size() + blockSize - 1) / blockSize;
     multNx1_kernel<<<gridSize, blockSize>>>(M.raw(), x.raw(), C.raw(), M.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> multNx1(
@@ -774,6 +791,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (B.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(a.raw(), B.raw(), C.raw(), B.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Quaternion, VRAM_CUDA> mult1xN(
@@ -793,6 +811,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (B.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(a.raw(), B.raw(), C.raw(), B.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> mult1xN(
@@ -812,6 +831,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (T2.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(t1.raw(), T2.raw(), Tr.raw(), T2.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Transform, VRAM_CUDA> mult1xN(
@@ -831,6 +851,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (X.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(t.raw(), X.raw(), C.raw(), X.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> mult1xN(
@@ -850,6 +871,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (M2.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(m1.raw(), M2.raw(), Mr.raw(), M2.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> mult1xN(
@@ -869,6 +891,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (X.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(m.raw(), X.raw(), C.raw(), X.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> mult1xN(
@@ -888,6 +911,7 @@ void mult1xN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (X.size() + blockSize - 1) / blockSize;
     mult1xN_kernel<<<gridSize, blockSize>>>(m.raw(), X.raw(), C.raw(), X.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> mult1xN(
@@ -909,6 +933,7 @@ void addNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     addNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> addNxN(
@@ -928,6 +953,7 @@ void addNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     addNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<float, VRAM_CUDA> addNxN(
@@ -950,6 +976,7 @@ void subNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     subNxN_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> subNxN(
@@ -969,6 +996,7 @@ void subNx1(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     subNx1_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> subNx1(
@@ -989,6 +1017,7 @@ void transpose(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     transpose_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> transpose(
@@ -1006,6 +1035,7 @@ void transpose(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     transpose_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix4x4, VRAM_CUDA> transpose(
@@ -1024,6 +1054,7 @@ void transposeInplace(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     transposeInplace_kernel<<<gridSize, blockSize>>>(A.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 //////
@@ -1035,6 +1066,7 @@ void invert(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> invert(
@@ -1052,6 +1084,7 @@ void invert(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix4x4, VRAM_CUDA> invert(
@@ -1069,6 +1102,7 @@ void invert(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     invert_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Transform, VRAM_CUDA> invert(
@@ -1089,6 +1123,7 @@ void divNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxN_conv_kernel<float><<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> divNxN(
@@ -1108,6 +1143,7 @@ void divNxN(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxN_conv_kernel<float><<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> divNxN(
@@ -1129,6 +1165,7 @@ void divNxNIgnoreZeros(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxNIgnoreZeros_conv_kernel<float><<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> divNxNIgnoreZeros(
@@ -1148,6 +1185,7 @@ void divNxNIgnoreZeros(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxNIgnoreZeros_conv_kernel<float><<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> divNxNIgnoreZeros(
@@ -1167,6 +1205,7 @@ void divNxNIgnoreZeros(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxNIgnoreZeros_conv_kernel<float><<<gridSize, blockSize>>>(A.raw(), B.raw(), C.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<float, VRAM_CUDA> divNxNIgnoreZeros(
@@ -1187,6 +1226,7 @@ void divNxNInplace(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNxNInplace_kernel<<<gridSize, blockSize>>>(A.raw(), B.raw(), A.size());
+    RM_CUDA_DEBUG();
 }
 
 void divNxNInplace(
@@ -1207,6 +1247,7 @@ void divNx1Inplace(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
     divNx1Inplace_kernel<<<gridSize, blockSize>>>(A.raw(), B, A.size());
+    RM_CUDA_DEBUG();
 }
 
 void divNx1Inplace(
@@ -1228,6 +1269,7 @@ void convert(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (from.size() + blockSize - 1) / blockSize;
     convert_kernel<<<gridSize, blockSize>>>(from.raw(), to.raw(), from.size());
+    RM_CUDA_DEBUG();
 }
 
 void convert(
@@ -1245,6 +1287,7 @@ void copy(const MemoryView<unsigned int, VRAM_CUDA>& from,
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (from.size() + blockSize - 1) / blockSize;
     convert_kernel<<<gridSize, blockSize>>>(from.raw(), to.raw(), from.size());
+    RM_CUDA_DEBUG();
 }
 
 ////////
@@ -1267,6 +1310,7 @@ void pack(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (R.size() + blockSize - 1) / blockSize;
     pack_kernel<<<gridSize, blockSize>>>(R.raw(), t.raw(), T.raw(), R.size());
+    RM_CUDA_DEBUG();
 }
 
 ////////
@@ -1279,6 +1323,7 @@ void multNxNTransposed(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (m1.size() + blockSize - 1) / blockSize;
     covParts_kernel<<<gridSize, blockSize>>>(m1.raw(), m2.raw(), Cs.raw(), m1.size());
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
@@ -1299,6 +1344,7 @@ void multNxNTransposed(
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (m1.size() + blockSize - 1) / blockSize;
     covParts_kernel<<<gridSize, blockSize>>>(m1.raw(), m2.raw(), mask.raw(), Cs.raw(), m1.size());
+    RM_CUDA_DEBUG();
 }
     
 Memory<Matrix3x3, VRAM_CUDA> multNxNTransposed(
@@ -1318,6 +1364,7 @@ void normalizeInplace(MemoryView<Quaternion, VRAM_CUDA>& q)
     constexpr unsigned int blockSize = 1024;
     const unsigned int gridSize = (q.size() + blockSize - 1) / blockSize;
     normalizeInplace_kernel<<<gridSize, blockSize>>>(q.raw(), q.size());
+    RM_CUDA_DEBUG();
 }
 
 ///////
@@ -1340,6 +1387,7 @@ void setIdentity(MemoryView<Quaternion, VRAM_CUDA>& qs)
     constexpr unsigned int blockSize = 1024;
     const unsigned int gridSize = (qs.size() + blockSize - 1) / blockSize;
     setIdentity_kernel<<<gridSize, blockSize>>>(qs.raw(), qs.size());
+    RM_CUDA_DEBUG();
 }
 
 void setIdentity(MemoryView<Transform, VRAM_CUDA>& Ts)
@@ -1347,6 +1395,7 @@ void setIdentity(MemoryView<Transform, VRAM_CUDA>& Ts)
     constexpr unsigned int blockSize = 1024;
     const unsigned int gridSize = (Ts.size() + blockSize - 1) / blockSize;
     setIdentity_kernel<<<gridSize, blockSize>>>(Ts.raw(), Ts.size());
+    RM_CUDA_DEBUG();
 }
 
 void setIdentity(MemoryView<Matrix3x3, VRAM_CUDA>& Ms)
@@ -1354,6 +1403,7 @@ void setIdentity(MemoryView<Matrix3x3, VRAM_CUDA>& Ms)
     constexpr unsigned int blockSize = 1024;
     const unsigned int gridSize = (Ms.size() + blockSize - 1) / blockSize;
     setIdentity_kernel<<<gridSize, blockSize>>>(Ms.raw(), Ms.size());
+    RM_CUDA_DEBUG();
 }
 
 void setIdentity(MemoryView<Matrix4x4, VRAM_CUDA>& Ms)
@@ -1361,6 +1411,7 @@ void setIdentity(MemoryView<Matrix4x4, VRAM_CUDA>& Ms)
     constexpr unsigned int blockSize = 1024;
     const unsigned int gridSize = (Ms.size() + blockSize - 1) / blockSize;
     setIdentity_kernel<<<gridSize, blockSize>>>(Ms.raw(), Ms.size());
+    RM_CUDA_DEBUG();
 }
 
 void setZeros(MemoryView<Matrix3x3, VRAM_CUDA>& Ms)
@@ -1381,6 +1432,7 @@ void sum(
     MemoryView<Vector, VRAM_CUDA>& s)
 {
     sum_kernel<1024> <<<1, 1024>>>(data.raw(), s.raw(), data.size() );
+    RM_CUDA_DEBUG();
 }
 
 Memory<Vector, VRAM_CUDA> sum(
@@ -1417,6 +1469,7 @@ void cov(
     MemoryView<Matrix3x3, VRAM_CUDA>& C)
 {
     cov_kernel<1024> <<<1, 1024>>>(v1.raw(), v2.raw(), C.raw(), v1.size() );
+    RM_CUDA_DEBUG();
 }
 
 Memory<Matrix3x3, VRAM_CUDA> cov(
@@ -1429,15 +1482,62 @@ Memory<Matrix3x3, VRAM_CUDA> cov(
     return C;
 }
 
-void svd(
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& As,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Us,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Ws,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Vs
-)
+
+__global__ void svd_kernel(
+    const Matrix3x3* As,
+    Matrix3x3* Us,
+    Matrix3x3* Ws,
+    Matrix3x3* Vs, 
+    unsigned int N)
 {
-    std::cout << "CUDA SVD!" << std::endl;
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    // printf("hello\n");
+    if(id < N)
+    {
+        svd(As[id], Us[id], Ws[id], Vs[id]);
+    }
 }
 
+void svd(
+    const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Ws,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Vs
+)
+{
+    // std::cout << "SVD CUDA!" << std::endl;
+    constexpr unsigned int blockSize = 512;
+    const unsigned int gridSize = (As.size() + blockSize - 1) / blockSize;
+    svd_kernel<<<gridSize, blockSize>>>(As.raw(), Us.raw(), Ws.raw(), Vs.raw(), As.size());
+    RM_CUDA_DEBUG();
+}
+
+__global__ void svd_kernel(
+    const Matrix3x3* As,
+    Matrix3x3* Us,
+    Vector3* ws,
+    Matrix3x3* Vs,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    // printf("hello\n");
+    if(id < N)
+    {
+        svd(As[id], Us[id], ws[id], Vs[id]);
+    }
+}
+
+void svd(
+    const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+    MemoryView<Vector3, VRAM_CUDA>& ws,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Vs
+)
+{
+    constexpr unsigned int blockSize = 512;
+    const unsigned int gridSize = (As.size() + blockSize - 1) / blockSize;
+    svd_kernel<<<gridSize, blockSize>>>(As.raw(), Us.raw(), ws.raw(), Vs.raw(), As.size());
+    RM_CUDA_DEBUG();
+}
 
 } // namespace rmagine

@@ -44,9 +44,17 @@
 #ifdef __CUDA_ARCH__
 #define RMAGINE_FUNCTION __host__ __device__
 #define RMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
+#define RMAGINE_HOST_FUNCTION __host__
+#define RMAGINE_INLINE_HOST_FUNCTION __inline__ __host__
+#define RMAGINE_DEVICE_FUNCTION __device__
+#define RMAGINE_INLINE_DEVICE_FUNCTION __inline__ __device__
 #else
 #define RMAGINE_FUNCTION
 #define RMAGINE_INLINE_FUNCTION inline
+#define RMAGINE_HOST_FUNCTION 
+#define RMAGINE_INLINE_HOST_FUNCTION inline
+#define RMAGINE_DEVICE_FUNCTION 
+#define RMAGINE_INLINE_DEVICE_FUNCTION inline
 #endif
 
 #endif // RMAGINE_TYPES_SHARED_FUNCTIONS_H

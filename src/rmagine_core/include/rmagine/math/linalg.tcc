@@ -1,4 +1,5 @@
 #include <rmagine/math/types.h>
+#include <rmagine/math/math.h>
 
 namespace rmagine
 {

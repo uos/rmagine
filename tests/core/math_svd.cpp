@@ -9,7 +9,7 @@
 #include <rmagine/util/exceptions.h>
 #include <rmagine/util/prints.h>
 
-#include <rmagine/math/SVD2.hpp>
+#include <rmagine/math/linalg.h>
 
 #include <Eigen/Dense>
 
@@ -275,7 +275,7 @@ void parallelTest()
     double el_eigen, el_rmagine, el_rmagine2;
 
     sw();
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
@@ -305,7 +305,7 @@ void parallelTest()
     rm::Memory<rm::Matrix3x3> res_rm(num_objects);
 
     sw();
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
@@ -329,6 +329,71 @@ void parallelTest()
     std::cout << "- summed error: " << err_rmagine << std::endl;
 }
 
+void parallelTest2()
+{
+    std::cout << "parallelTest2" << std::endl;
+
+    size_t num_objects = 1000000;
+    std::cout << "parallelTest. Computing SVD of " << num_objects << " 3x3 matrices" << std::endl;
+    // correct num_objects objects in parallel
+    
+
+    std::vector<Eigen::Matrix3f> covs_eigen(num_objects);
+    rm::Memory<rm::Matrix3x3, rm::RAM> covs_rm(num_objects);
+    rm::Memory<rm::Matrix3x3, rm::RAM> Us(num_objects);
+    rm::Memory<rm::Matrix3x3, rm::RAM> Ws(num_objects);
+    rm::Memory<rm::Matrix3x3, rm::RAM> Vs(num_objects);
+
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        rm::Matrix3x3 Arm;
+        Eigen::Matrix3f Aeig = Eigen::Matrix3f::Random(3, 3);
+        for(size_t i=0; i<3; i++)
+        {
+            for(size_t j=0; j<3; j++)
+            {
+                Arm(i, j) = Aeig(i, j);
+            }
+        }
+
+        covs_eigen[obj_id] = Aeig;
+        covs_rm[obj_id] = Arm;
+        Us[obj_id] = rm::Matrix3x3::Zeros();
+        Ws[obj_id] = rm::Matrix3x3::Zeros();
+        Vs[obj_id] = rm::Matrix3x3::Zeros();
+    }
+
+    std::cout << "First Mat: " << std::endl;
+    std::cout << covs_rm[0] << std::endl;
+
+
+    rm::StopWatch sw;
+    double el_rmagine;
+
+
+    sw();
+    svd(covs_rm, Us, Ws, Vs);
+    el_rmagine = sw();
+    
+
+    rm::Memory<rm::Matrix3x3> res_rm(num_objects);
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        auto uvt_rm = Us[obj_id] * Ws[obj_id] * Vs[obj_id].T();
+        res_rm[obj_id] = uvt_rm;
+    }
+    
+    float err_rmagine = 0.0;
+    for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
+    {
+        err_rmagine += compute_error(covs_rm[obj_id], res_rm[obj_id]);
+    }
+    
+    std::cout << "Rmagine:" << std::endl;
+    std::cout << "- run time: " << el_rmagine << " s" << std::endl;
+    std::cout << "- summed error: " << err_rmagine << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
@@ -339,6 +404,7 @@ int main(int argc, char** argv)
 
 
     parallelTest();
+    parallelTest2();
 
 
     return 0;

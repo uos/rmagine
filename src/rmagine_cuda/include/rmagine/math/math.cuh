@@ -544,14 +544,26 @@ Memory<Matrix3x3, VRAM_CUDA> cov(
 );
 
 /**
- * @brief decompose A = UWV* using singular velue decomposition
+ * @brief decompose A = UWV* using singular value decomposition
  */
 void svd(
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& As,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Us,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Ws,
-    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Vs
-    );
+    const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Ws,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Vs
+);
+
+/**
+ * @brief decompose A = UWV* using singular value decomposition
+ * 
+ * w is a vector which is the diagonal of matrix W
+ */
+void svd(
+    const MemoryView<Matrix3x3, VRAM_CUDA>& As,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Us,
+    MemoryView<Vector3, VRAM_CUDA>& ws,
+    MemoryView<Matrix3x3, VRAM_CUDA>& Vs
+);
 
 
 } // namespace rmagine

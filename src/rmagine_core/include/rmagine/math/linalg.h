@@ -41,6 +41,7 @@
 #define RMAGINE_MATH_LINALG_H
 
 #include "types.h"
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine
 {
@@ -53,8 +54,10 @@ namespace rmagine
  * @param scale   scale vector
  * @return Matrix4x4   composed 4x4 transformation matrix
  */
+RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale);
 
+RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
 
 /**
@@ -65,6 +68,7 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param S 3x3 scale matrix
  */
+RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
 
 /**
@@ -75,6 +79,7 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param scale scale vector
  */
+RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
 
 /**
@@ -86,6 +91,7 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
+RMAGINE_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
 
 /**
@@ -97,8 +103,69 @@ Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
+RMAGINE_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac);
 
+
+// Numerical Recipes
+// M = MatrixT::rows()
+// N = MatrixT::cols()
+// 
+// Warning: Numerical Recipes has different SVD matrix shapes
+// than Wikipedia
+template<typename MatrixT>
+struct svd_dims {
+    using U = MatrixT; // same as input
+    using w = Matrix_<typename MatrixT::Type, MatrixT::cols(), 1>;
+    using W = Matrix_<typename MatrixT::Type, MatrixT::cols(), MatrixT::cols()>;
+    using V = Matrix_<typename MatrixT::Type, MatrixT::cols(), MatrixT::cols()>;
+};
+
+/**
+ * @brief own SVD implementation. 
+ * Why use it? 
+ * - ~2x faster than Eigen
+ * - SOON: Works insided of CUDA kernels
+ *
+ */
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+void svd(
+    const Matrix_<DataT, Rows, Cols>& A, 
+    Matrix_<DataT, Rows, Cols>& U,
+    Matrix_<DataT, Cols, Cols>& W, // matrix
+    Matrix_<DataT, Cols, Cols>& V
+);
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+void svd(
+    const Matrix_<DataT, Rows, Cols>& A,
+    Matrix_<DataT, Rows, Cols>& U,
+    Matrix_<DataT, Cols, 1>& w, // vector version (Cols should be something with max)
+    Matrix_<DataT, Cols, Cols>& V
+);
+
+/**
+ * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
+ *
+ */
+RMAGINE_FUNCTION
+void svd(
+    const Matrix3x3& A,
+    Matrix3x3& U,
+    Matrix3x3& W,
+    Matrix3x3& V
+);
+
+RMAGINE_FUNCTION
+void svd(
+    const Matrix3x3& A, 
+    Matrix3x3& U,
+    Vector3& w,
+    Matrix3x3& V
+);
+
 } // namespace rmagine
+
+#include "linalg.tcc"
 
 #endif // RMAGINE_MATH_MATH_LINALG_H
