@@ -126,6 +126,13 @@ struct ObjectIds {
 };
 
 
+/**
+ * @brief Convenience object if we want to access all attributes at intersection
+ * 
+ * WARNING: use with care; It causes slower runtime in contrast to a more specific 
+ *          choice of attributes
+ * 
+ */
 template<typename MemT>
 using IntAttrAll = Bundle<
     Hits<MemT>,

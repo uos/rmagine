@@ -396,9 +396,20 @@ struct OnDnModel_ {
     {
         return {buffer_id % width, buffer_id / width};
     }
+
+    // shall we implement buffer access here?
+    // template<typename DataT> 
+    // MemoryView<DataT> get(MemoryView<DataT>& data, uint32_t id)
+    // {
+    //     return data(id * size(), id * size() + size());
+    // }
 };
 
 using OnDnModel = OnDnModel_<RAM>;
+
+
+// template<typename ModelT, typename MemT>
+// MemoryView<MemT::DataT> slice(const ModelT& model, MemT )
 
 
 } // namespace rmagine
