@@ -261,6 +261,9 @@ void parallelTest()
         covs_rm[obj_id] = Arm;
     }
 
+    std::cout << "First Mat: " << std::endl;
+    std::cout << covs_rm[0] << std::endl;
+
 
     // C -> SVD -> UWT* -> U * W * T* -> C
 
