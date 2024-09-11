@@ -17,8 +17,8 @@ void O1DnSimulatorEmbree::simulate(
     const Transform& Tbm,
     BundleT& ret) const
 {
-    MemoryView<Transform, RAM> Tbm_mem(&Tbm, 1);
     // TODO: change parallelization scheme for single simulations?
+    const MemoryView<const Transform, RAM> Tbm_mem(&Tbm, 1);
     simulate(Tbm_mem, ret);
 }
 
@@ -35,6 +35,15 @@ BundleT O1DnSimulatorEmbree::simulate(
 template<typename BundleT>
 void O1DnSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm,
+    BundleT& ret) const
+{
+    const MemoryView<const Transform, RAM> Tbm_const(Tbm.raw(), Tbm.size());
+    simulate(Tbm, ret);
+}
+
+template<typename BundleT>
+void O1DnSimulatorEmbree::simulate(
+    const MemoryView<const Transform, RAM>& Tbm,
     BundleT& ret) const
 {
     SimulationFlags flags = SimulationFlags::Zero();
@@ -237,6 +246,16 @@ void O1DnSimulatorEmbree::simulate(
 template<typename BundleT>
 BundleT O1DnSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm) const
+{
+    BundleT res;
+    resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());
+    simulate(Tbm, res);
+    return res;
+}
+
+template<typename BundleT>
+BundleT O1DnSimulatorEmbree::simulate(
+    const MemoryView<const Transform, RAM>& Tbm) const
 {
     BundleT res;
     resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), Tbm.size());

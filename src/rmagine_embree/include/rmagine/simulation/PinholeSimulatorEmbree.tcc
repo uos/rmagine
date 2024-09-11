@@ -18,8 +18,8 @@ void PinholeSimulatorEmbree::simulate(
     const Transform& Tbm,
     BundleT& ret) const
 {
-    MemoryView<Transform, RAM> Tbm_mem(&Tbm, 1);
     // TODO: change parallelization scheme for single simulations?
+    const MemoryView<const Transform, RAM> Tbm_mem(&Tbm, 1);
     simulate(Tbm_mem, ret);
 }
 
@@ -36,6 +36,15 @@ BundleT PinholeSimulatorEmbree::simulate(
 template<typename BundleT>
 void PinholeSimulatorEmbree::simulate(
     const MemoryView<Transform, RAM>& Tbm,
+    BundleT& ret) const
+{
+    const MemoryView<const Transform, RAM> Tbm_const(Tbm.raw(), Tbm.size());
+    simulate(Tbm, ret);
+}
+
+template<typename BundleT>
+void PinholeSimulatorEmbree::simulate(
+    const MemoryView<const Transform, RAM>& Tbm,
     BundleT& ret) const
 {
     SimulationFlags flags = SimulationFlags::Zero();

@@ -112,6 +112,17 @@ public:
     void setModel(const MemoryView<O1DnModel_<RAM>, RAM>& model);
     void setModel(const O1DnModel_<RAM>& model);
 
+    inline Memory<O1DnModel_<RAM>, RAM> model() const
+    {
+        return m_model;
+    }
+
+    inline EmbreeMapPtr map() const 
+    {
+        return m_map;
+    }
+
+
     /**
      * @brief Simulate from one pose
      * 
@@ -137,37 +148,14 @@ public:
         BundleT& ret) const;
 
     template<typename BundleT>
+    void simulate(const MemoryView<const Transform, RAM>& Tbm,
+        BundleT& ret) const;
+
+    template<typename BundleT>
     BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
 
-
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    void simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<float, RAM>& ranges) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    Memory<float, RAM> simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    void simulateHits(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<uint8_t, RAM>& hits) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    Memory<uint8_t, RAM> simulateHits(
-        const MemoryView<Transform, RAM>& Tbm) const;
-
-    inline Memory<O1DnModel_<RAM>, RAM> model() const
-    {
-        return m_model;
-    }
-
-    inline EmbreeMapPtr map() const 
-    {
-        return m_map;
-    }
+    template<typename BundleT>
+    BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
 
 protected:
     EmbreeMapPtr m_map;
