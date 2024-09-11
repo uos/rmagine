@@ -269,10 +269,10 @@ void parallelTest()
     std::vector<Eigen::Matrix3f> res_eigen(num_objects);
 
     rm::StopWatch sw;
-    double el_eigen, el_rmagine;
+    double el_eigen, el_rmagine, el_rmagine2;
 
     sw();
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
@@ -302,7 +302,7 @@ void parallelTest()
     rm::Memory<rm::Matrix3x3> res_rm(num_objects);
 
     sw();
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
@@ -324,6 +324,33 @@ void parallelTest()
     std::cout << "Rmagine:" << std::endl;
     std::cout << "- run time: " << el_rmagine << " s" << std::endl;
     std::cout << "- summed error: " << err_rmagine << std::endl;
+
+
+    rm::Memory<rm::Matrix3x3> res_rm2(num_objects);
+
+    sw();
+    // #pragma omp parallel for
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
+        rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
+        rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
+        rm::svd2(covs_rm[obj_id], Urm, Wrm, Vrm);
+        auto uvt_rm = Urm * Wrm * Vrm.T();
+        res_rm2[obj_id] = uvt_rm;
+    }
+    el_rmagine2 = sw();
+
+    float err_rmagine2 = 0.0;
+    for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
+    {
+        err_rmagine2 += compute_error(covs_rm[obj_id], res_rm2[obj_id]);
+    }
+
+
+    std::cout << "Rmagine Opti:" << std::endl;
+    std::cout << "- run time: " << el_rmagine2 << " s" << std::endl;
+    std::cout << "- summed error: " << err_rmagine2 << std::endl;
 
 
 }
