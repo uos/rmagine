@@ -329,31 +329,31 @@ void parallelTest()
     std::cout << "- summed error: " << err_rmagine << std::endl;
 
 
-    rm::Memory<rm::Matrix3x3> res_rm2(num_objects);
+    // rm::Memory<rm::Matrix3x3> res_rm2(num_objects);
 
-    sw();
-    // #pragma omp parallel for
-    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
-    {
-        rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
-        rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
-        rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
-        rm::svd2(covs_rm[obj_id], Urm, Wrm, Vrm);
-        auto uvt_rm = Urm * Wrm * Vrm.T();
-        res_rm2[obj_id] = uvt_rm;
-    }
-    el_rmagine2 = sw();
+    // sw();
+    // // #pragma omp parallel for
+    // for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    // {
+    //     rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
+    //     rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
+    //     rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
+    //     rm::svd2(covs_rm[obj_id], Urm, Wrm, Vrm);
+    //     auto uvt_rm = Urm * Wrm * Vrm.T();
+    //     res_rm2[obj_id] = uvt_rm;
+    // }
+    // el_rmagine2 = sw();
 
-    float err_rmagine2 = 0.0;
-    for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
-    {
-        err_rmagine2 += compute_error(covs_rm[obj_id], res_rm2[obj_id]);
-    }
+    // float err_rmagine2 = 0.0;
+    // for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
+    // {
+    //     err_rmagine2 += compute_error(covs_rm[obj_id], res_rm2[obj_id]);
+    // }
 
 
-    std::cout << "Rmagine Opti:" << std::endl;
-    std::cout << "- run time: " << el_rmagine2 << " s" << std::endl;
-    std::cout << "- summed error: " << err_rmagine2 << std::endl;
+    // std::cout << "Rmagine Opti:" << std::endl;
+    // std::cout << "- run time: " << el_rmagine2 << " s" << std::endl;
+    // std::cout << "- summed error: " << err_rmagine2 << std::endl;
 
 
 }

@@ -166,20 +166,12 @@ void svd(
 );
 
 RMAGINE_FUNCTION
-void svd2(
-    const Matrix3x3& A,
+void svd(
+    const Matrix3x3& A, 
     Matrix3x3& U,
-    Matrix3x3& W,
+    Vector3& w,
     Matrix3x3& V
 );
-
-// RMAGINE_FUNCTION
-// void svd(
-//     const Matrix3x3& A, 
-//     Matrix3x3& U,
-//     Vector3& w,
-//     Matrix3x3& V
-// );
 
 
 } // namespace rmagine
