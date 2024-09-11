@@ -8,6 +8,7 @@ set(RMAGINE_CORE_SRCS
     src/math/math.cpp
     src/math/linalg.cpp
     src/math/SVD.cpp
+    src/math/SVD2.cpp
     # Types
     src/types/Memory.cpp
     src/types/conversions.cpp
