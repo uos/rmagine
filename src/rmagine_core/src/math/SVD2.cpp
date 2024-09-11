@@ -975,7 +975,124 @@ void svd2(
     int i, l;
 
     // PART 4: Opti
-    for(k=n-1; k>=0; k--) 
+
+    k = 2;
+    {
+        for(its=0; its<max_iterations; its++) 
+        {
+            flag=true;
+            for(l=2; l>=0; l--) 
+            {
+                nm = l-1;
+                if(l == 0 || abs(rv1[l]) <= eps*anorm) {
+                    flag=false;
+                    break;
+                }
+                if(abs(w(nm, nm)) <= eps*anorm) 
+                {
+                    break;
+                }
+            }
+            if(flag) 
+            {
+                c=0.0;
+                s=1.0;
+                for(i=l; i<3; i++) 
+                {
+                    f = s*rv1[i];
+                    rv1[i] = c*rv1[i];
+                    if(abs(f) <= eps*anorm) 
+                    {
+                        break;
+                    }
+                    g = w(i, i);
+                    h = PYTHAG(f,g);
+                    w(i, i) = h;
+                    h = 1.0/h;
+                    c = g*h;
+                    s = -f*h;
+                    for(j=0; j<m; j++)
+                    {
+                        y = u(j,nm);
+                        z = u(j,i);
+                        u(j,nm) = y*c+z*s;
+                        u(j,i) = z*c-y*s;
+                    }
+                }
+            }
+            z = w(2, 2);
+            if (l == 2)
+            {
+                if (z < 0.0)
+                {
+                    w(2, 2) = -z;
+                    for (j=0; j<3; j++) 
+                    {
+                        v(j,2) = -v(j,2);
+                    }
+                }
+                break;
+            }
+            if (its == max_iterations - 1) 
+            {
+                throw std::runtime_error("no convergence in 30 svdcmp iterations");
+            }
+            x = w(l, l);
+            nm = 1;
+            y = w(1, 1);
+            g = rv1.y;
+            h = rv1.z;
+            f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
+            g = PYTHAG(f, 1.f);
+            f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+            c = s = 1.f;
+            for (j=l; j<2; j++) 
+            {
+                i = j+1;
+                g = rv1[i];
+                y = w(i, i);
+                h = s*g;
+                g = c*g;
+                z = PYTHAG(f,h);
+                rv1[j] = z;
+                c = f/z;
+                s = h/z;
+                f = x*c+g*s;
+                g = g*c-x*s;
+                h = y*s;
+                y *= c;
+                for (jj=0;jj<n;jj++)
+                {
+                    x = v(jj,j);
+                    z = v(jj,i);
+                    v(jj,j) = x*c+z*s;
+                    v(jj,i) = z*c-x*s;
+                }
+                z = PYTHAG(f,h);
+                w(j, j) = z;
+                if (z) 
+                {
+                    z = 1.f/z;
+                    c = f*z;
+                    s = h*z;
+                }
+                f = c*g+s*y;
+                x = c*y-s*g;
+                for (jj=0;jj<m;jj++)
+                {
+                    y = u(jj,j);
+                    z = u(jj,i);
+                    u(jj,j) = y*c+z*s;
+                    u(jj,i) = z*c-y*s;
+                }
+            }
+            rv1[l] = 0.f;
+            rv1[k] = f;
+            w(k, k) = x;
+        }
+    }
+
+    k = 1;
     {
         for(its=0; its<max_iterations; its++) 
         {
@@ -1025,7 +1142,123 @@ void svd2(
                 if (z < 0.0)
                 {
                     w(k, k) = -z;
-                    for (j=0;j<n;j++) 
+                    for (j=0;j<3;j++) 
+                    {
+                        v(j,k) = -v(j,k);
+                    }
+                }
+                break;
+            }
+            if (its == max_iterations - 1) 
+            {
+                throw std::runtime_error("no convergence in 30 svdcmp iterations");
+            }
+            x = w(l, l);
+            nm = k-1;
+            y = w(nm, nm);
+            g = rv1[nm];
+            h = rv1[k];
+            f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
+            g = PYTHAG(f, 1.f);
+            f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+            c = s = 1.f;
+            for (j=l;j<=nm;j++) 
+            {
+                i = j+1;
+                g = rv1[i];
+                y = w(i, i);
+                h = s*g;
+                g = c*g;
+                z = PYTHAG(f,h);
+                rv1[j] = z;
+                c = f/z;
+                s = h/z;
+                f = x*c+g*s;
+                g = g*c-x*s;
+                h = y*s;
+                y *= c;
+                for (jj=0;jj<n;jj++)
+                {
+                    x = v(jj,j);
+                    z = v(jj,i);
+                    v(jj,j) = x*c+z*s;
+                    v(jj,i) = z*c-x*s;
+                }
+                z = PYTHAG(f,h);
+                w(j, j) = z;
+                if (z) 
+                {
+                    z = 1.f/z;
+                    c = f*z;
+                    s = h*z;
+                }
+                f = c*g+s*y;
+                x = c*y-s*g;
+                for (jj=0;jj<m;jj++)
+                {
+                    y = u(jj,j);
+                    z = u(jj,i);
+                    u(jj,j) = y*c+z*s;
+                    u(jj,i) = z*c-y*s;
+                }
+            }
+            rv1[l] = 0.f;
+            rv1[k] = f;
+            w(k, k) = x;
+        }
+    }
+
+    k = 0;
+    {
+        for(its=0; its<max_iterations; its++) 
+        {
+            flag=true;
+            for(l=k; l>=0; l--) 
+            {
+                nm=l-1;
+                if (l == 0 || abs(rv1[l]) <= eps*anorm) {
+                    flag=false;
+                    break;
+                }
+                if (abs(w(nm, nm)) <= eps*anorm) 
+                {
+                    break;
+                }
+            }
+            if(flag) 
+            {
+                c=0.0;
+                s=1.0;
+                for(i=l; i<k+1; i++) 
+                {
+                    f = s*rv1[i];
+                    rv1[i] = c*rv1[i];
+                    if(abs(f) <= eps*anorm) 
+                    {
+                        break;
+                    }
+                    g = w(i, i);
+                    h = PYTHAG(f,g);
+                    w(i, i) = h;
+                    h = 1.0/h;
+                    c = g*h;
+                    s = -f*h;
+                    for(j=0; j<m; j++)
+                    {
+                        y = u(j,nm);
+                        z = u(j,i);
+                        u(j,nm) = y*c+z*s;
+                        u(j,i) = z*c-y*s;
+                    }
+                }
+            }
+            z = w(k, k);
+            if (l == k)
+            {
+                if (z < 0.0)
+                {
+                    w(k, k) = -z;
+                    for (j=0;j<3;j++) 
                     {
                         v(j,k) = -v(j,k);
                     }
