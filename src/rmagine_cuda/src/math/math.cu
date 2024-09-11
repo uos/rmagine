@@ -1429,5 +1429,15 @@ Memory<Matrix3x3, VRAM_CUDA> cov(
     return C;
 }
 
+void svd(
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& As,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Us,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Ws,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Vs
+)
+{
+    std::cout << "CUDA SVD!" << std::endl;
+}
+
 
 } // namespace rmagine

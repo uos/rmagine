@@ -543,6 +543,16 @@ Memory<Matrix3x3, VRAM_CUDA> cov(
     const MemoryView<Vector, VRAM_CUDA>& v2
 );
 
+/**
+ * @brief decompose A = UWV* using singular velue decomposition
+ */
+void svd(
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& As,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Us,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Ws,
+    const MemoryView<rm::Matrix3x3, VRAM_CUDA>& Vs
+    );
+
 
 } // namespace rmagine
 
