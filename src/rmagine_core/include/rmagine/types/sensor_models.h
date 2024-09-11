@@ -179,6 +179,12 @@ struct SphericalModel
     {
         return phi_id * theta.size + theta_id;
     }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id)
+    {
+        return {buffer_id % theta.size, buffer_id / theta.size};
+    }
 };
 
 using LiDARModel = SphericalModel;
@@ -250,6 +256,11 @@ struct PinholeModel {
         return vid * width + hid;
     }
 
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id)
+    {
+        return {buffer_id % width, buffer_id / width};
+    }
 };
 // Distortion? Fisheye / radial-tangential ? 
 
@@ -257,20 +268,20 @@ using CameraModel = PinholeModel;
 using DepthCameraModel = PinholeModel;
 
 // TODO: distortion
-struct RadialTangentialDistortion {
-    // TODO
-};
+// struct RadialTangentialDistortion {
+//     // TODO
+// };
 
-struct FisheyeDistortion {
+// struct FisheyeDistortion {
 
-};
+// };
 
 
-struct CylindricModel {
-    static constexpr char name[] = "Cylinder";
-    // TODO
+// struct CylindricModel {
+//     static constexpr char name[] = "Cylinder";
+//     // TODO
     
-};
+// };
 
 template<typename MemT>
 struct O1DnModel_ {
@@ -304,12 +315,6 @@ struct O1DnModel_ {
     }
 
     RMAGINE_INLINE_FUNCTION
-    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
-    {
-        return vid * getWidth() + hid;
-    }
-
-    RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 
     {
         return orig;
@@ -319,6 +324,18 @@ struct O1DnModel_ {
     Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
         return dirs[getBufferId(vid, hid)];
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id)
+    {
+        return {buffer_id % width, buffer_id / width};
     }
 };
 
@@ -356,13 +373,6 @@ struct OnDnModel_ {
         return getWidth() * getHeight();
     }
 
-
-    RMAGINE_INLINE_FUNCTION
-    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
-    {
-        return vid * getWidth() + hid;
-    }
-
     RMAGINE_INLINE_FUNCTION
     Vector getOrigin(uint32_t vid, uint32_t hid) const 
     {
@@ -375,6 +385,17 @@ struct OnDnModel_ {
         return dirs[getBufferId(vid, hid)];
     }
 
+    RMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id)
+    {
+        return {buffer_id % width, buffer_id / width};
+    }
 };
 
 using OnDnModel = OnDnModel_<RAM>;

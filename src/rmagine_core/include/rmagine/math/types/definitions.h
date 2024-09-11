@@ -41,6 +41,8 @@ struct AABB_;
 
 
 using Vector2f = Vector2_<float>;
+using Vector2u = Vector2_<uint32_t>;
+using Vector2i = Vector2_<int32_t>;
 using Vector3f = Vector3_<float>;
 using Matrix2x2f = Matrix_<float, 2, 2>;
 using Matrix3x3f = Matrix_<float, 3, 3>;
@@ -79,16 +81,11 @@ using AABB = AABB_<DefaultFloatType>;
 using Vector = Vector3;
 using Point = Vector;
 
+// @amock TODO: how to define a pixel? unsigned or signed?
+// - projection operations can result in negative pixels
+// using Pixel = Vector2u;
+// using Pixel = Vector2i;
 
-
-// struct Vector2;
-// struct Vector3;
-// struct EulerAngles;
-// struct Quaternion;
-// struct Transform;
-// struct Matrix3x3;
-// struct Matrix4x4;
-// struct AABB;
 
 } // namespace rmagine
 
