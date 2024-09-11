@@ -981,19 +981,28 @@ void svd2(
         for(its=0; its<max_iterations; its++) 
         {
             flag=true;
-            for(l=2; l>=0; l--) 
+
+            l=2;
+            if(abs(rv1.z) <= eps*anorm)
             {
-                nm = l-1;
-                if(l == 0 || abs(rv1[l]) <= eps*anorm) {
-                    flag=false;
-                    break;
-                }
-                if(abs(w(nm, nm)) <= eps*anorm) 
+                l=2;
+                flag=false;
+            }
+            else if(abs(w(1, 1)) > eps*anorm)
+            {
+                l=1;
+                if(abs(rv1.y) <= eps*anorm) 
                 {
-                    break;
+                    flag=false;
+                }
+                else if(abs(w(0, 0)) > eps*anorm) 
+                {
+                    l=0;
+                    flag = false;
                 }
             }
-            if(flag) 
+            
+            if(flag)
             {
                 c=0.0;
                 s=1.0;
@@ -1013,17 +1022,17 @@ void svd2(
                     s = -f*h;
                     for(j=0; j<m; j++)
                     {
-                        y = u(j,nm);
+                        y = u(j,l-1);
                         z = u(j,i);
-                        u(j,nm) = y*c+z*s;
+                        u(j,l-1) = y*c+z*s;
                         u(j,i) = z*c-y*s;
                     }
                 }
             }
             z = w(2, 2);
-            if (l == 2)
+            if(l == 2)
             {
-                if (z < 0.0)
+                if(z < 0.0)
                 {
                     w(2, 2) = -z;
                     for (j=0; j<3; j++) 
@@ -1033,12 +1042,11 @@ void svd2(
                 }
                 break;
             }
-            if (its == max_iterations - 1) 
+            if(its == max_iterations - 1) 
             {
                 throw std::runtime_error("no convergence in 30 svdcmp iterations");
             }
             x = w(l, l);
-            nm = 1;
             y = w(1, 1);
             g = rv1.y;
             h = rv1.z;
@@ -1087,8 +1095,8 @@ void svd2(
                 }
             }
             rv1[l] = 0.f;
-            rv1[k] = f;
-            w(k, k) = x;
+            rv1.z = f;
+            w(2, 2) = x;
         }
     }
 
