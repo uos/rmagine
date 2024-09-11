@@ -39,7 +39,7 @@ void SphereSimulatorEmbree::simulate(
     BundleT& ret) const
 {
     const MemoryView<const Transform, RAM> Tbm_const(Tbm.raw(), Tbm.size());
-    simulate(Tbm, ret);
+    simulate(Tbm_const, ret);
 }
 
 template<typename BundleT>
@@ -52,6 +52,7 @@ void SphereSimulatorEmbree::simulate(
 
     const float range_min = m_model->range.min;
     const float range_max = m_model->range.max;
+    
 
     #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)

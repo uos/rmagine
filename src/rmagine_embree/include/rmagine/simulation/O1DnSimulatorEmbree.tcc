@@ -38,7 +38,7 @@ void O1DnSimulatorEmbree::simulate(
     BundleT& ret) const
 {
     const MemoryView<const Transform, RAM> Tbm_const(Tbm.raw(), Tbm.size());
-    simulate(Tbm, ret);
+    simulate(Tbm_const, ret);
 }
 
 template<typename BundleT>
