@@ -63,7 +63,7 @@ void OnDnSimulatorEmbree::simulate(
         const Transform Tms_ = Tsm_.inv();
 
         const unsigned int glob_shift = pid * m_model->size();
-
+        
         for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
             for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
@@ -120,7 +120,7 @@ void OnDnSimulatorEmbree::simulate(
                     {
                         if(flags.points)
                         {
-                            Vector pint = ray_dir_s * rayhit.ray.tfar;
+                            Vector pint = ray_dir_s * rayhit.ray.tfar + ray_orig_s;
                             ret.Points<RAM>::points[glob_id] = pint;
                         }
                     }
