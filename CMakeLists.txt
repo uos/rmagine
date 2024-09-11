@@ -201,7 +201,7 @@ endif(CUDA_FOUND)
 
 message(STATUS "${BoldCyan}Components build:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
-  message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
+    message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
 endforeach()
 
 #### TESTS

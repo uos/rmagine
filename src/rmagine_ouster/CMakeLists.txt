@@ -1,8 +1,6 @@
 
 message(STATUS "Building Core. Library: rmagine")
 
-find_package(jsoncpp REQUIRED)
-
 set(RMAGINE_CORE_SRCS
     # Types
     src/types/ouster_sensors.cpp
@@ -26,7 +24,7 @@ target_link_libraries(rmagine-ouster
     Eigen3::Eigen
     ${Boost_LIBRARIES}
     ${OpenMP_CXX_LIBRARIES}
-    jsoncpp
+    JsonCpp::JsonCpp
 )
 
 set_target_properties(rmagine-ouster
