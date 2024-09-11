@@ -417,14 +417,13 @@ void SVD2::reorder()
 //     return Matrix3x3::Zeros();
 // }
 
-// RMAGINE_FUNCTION
-void mysvd(
+RMAGINE_FUNCTION
+void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
     Matrix3x3& w,
     Matrix3x3& v)
 {
-    
     // TODO: test
     constexpr unsigned int m = 3;
     constexpr unsigned int n = 3;
@@ -440,6 +439,21 @@ void mysvd(
     g = scale = anorm = 0.0;
     float eps = std::numeric_limits<float>::epsilon();
     u = a;
+
+    // i = 0;
+    // {
+
+    // }
+
+    // i = 1;
+    // {
+
+    // }
+
+    // i = 2;
+    // {
+
+    // }
 
     for(i=0; i < n; i++) 
     {

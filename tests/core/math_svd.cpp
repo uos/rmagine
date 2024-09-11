@@ -308,7 +308,7 @@ void parallelTest()
         rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
         rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
         rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
-        rm::mysvd(covs_rm[obj_id], Urm, Wrm, Vrm);
+        rm::svd(covs_rm[obj_id], Urm, Wrm, Vrm);
         auto uvt_rm = Urm * Wrm * Vrm.T();
         res_rm[obj_id] = uvt_rm;
     }

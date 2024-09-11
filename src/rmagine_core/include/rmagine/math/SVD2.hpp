@@ -157,8 +157,8 @@ void svd(
  * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
  *
  */
-// RMAGINE_FUNCTION
-void mysvd(
+RMAGINE_FUNCTION
+void svd(
     const Matrix3x3& A,
     Matrix3x3& U,
     Matrix3x3& W,
