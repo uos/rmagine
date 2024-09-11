@@ -17,7 +17,6 @@ namespace rmagine
 
 // Forward declarations
 
-
 template<typename DataT>
 struct Vector2_;
 
