@@ -131,9 +131,10 @@ void PinholeSimulatorEmbree::simulate(
                                     rayhit.hit.Ng_y,
                                     rayhit.hit.Ng_z
                                 };
-                            
+                            // nint in map frame
                             nint.normalizeInplace();
                             nint = Tms_.R * nint;
+                            // nint in sensor frame
 
                             // flip?
                             if(ray_dir_s.dot(nint) > 0.0)
