@@ -119,7 +119,7 @@ void O1DnSimulatorEmbree::simulate(
                     {
                         if(flags.points)
                         {
-                            Vector pint = ray_dir_s * rayhit.ray.tfar;
+                            Vector pint = ray_dir_s * rayhit.ray.tfar + ray_orig_s;
                             ret.Points<RAM>::points[glob_id] = pint;
                         }
                     }
