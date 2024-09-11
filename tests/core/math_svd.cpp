@@ -1,7 +1,7 @@
 #include <iostream>
 
 
-#include "rmagine/math/types.h"
+#include <rmagine/math/types.h>
 
 #include <rmagine/math/math.h>
 #include <rmagine/util/StopWatch.hpp>
@@ -17,6 +17,33 @@
 #include <string.h>
 
 namespace rm = rmagine;
+
+
+float compute_error(Eigen::Matrix3f gt, Eigen::Matrix3f m)
+{
+    float ret = 0.0;
+    for(size_t i=0; i<3; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            ret += abs(gt(i, j) - m(i, j));
+        }
+    }
+    return ret;
+}
+
+float compute_error(rm::Matrix3x3 gt, rm::Matrix3x3 m)
+{
+    float ret = 0.0;
+    for(size_t i=0; i<3; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            ret += abs(gt(i, j) - m(i, j));
+        }
+    }
+    return ret;
+}
 
 Eigen::Matrix3f& eigen_view(rm::Matrix3x3& M)
 {
@@ -36,8 +63,6 @@ void testSVD(const rm::Matrix_<DataT, Rows, Cols>& A)
     using UMatT = typename rm::svd_dims<AMatT>::U;
     using WMatT = typename rm::svd_dims<AMatT>::W;
     using VMatT = typename rm::svd_dims<AMatT>::V;
-
-
 
     UMatT U = UMatT::Zeros();
     WMatT W = WMatT::Zeros();
@@ -133,8 +158,9 @@ void runtimeTest()
 
 
 template<int N, int M>
-void equalityTest()
+void accuracyTest()
 {
+    std::cout << "Accuracy Test" << std::endl;
     rm::Matrix_<float, N, M> Arm;
 
     Eigen::Matrix<float, N, M> Aeig = Eigen::Matrix<float, N, M>::Random(N, M);
@@ -149,8 +175,8 @@ void equalityTest()
     rm::StopWatch sw;
     double el_eig, el_rm;
 
-    std::cout << "A: " << std::endl;
-    std::cout << Aeig << std::endl;
+    // std::cout << "A: " << std::endl;
+    // std::cout << Aeig << std::endl;
 
     Eigen::JacobiSVD<Eigen::Matrix<float, N, M> > svdeig(Aeig, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
@@ -164,10 +190,11 @@ void equalityTest()
     // std::cout << "Seig: " << std::endl;
     // std::cout << Seig << std::endl;
 
-    std::cout << "Eigen: " << std::endl;
+
+    // std::cout << "Eigen: " << std::endl;
     auto uvt_eig = svdeig.matrixU() * Seig * svdeig.matrixV().transpose();
 
-    std::cout << uvt_eig << std::endl;
+    // std::cout << uvt_eig << std::endl;
 
     float error_eig = 0.0;
     for(size_t i=0; i<N; i++)
@@ -178,7 +205,7 @@ void equalityTest()
         }
     }
 
-    std::cout << "- error: " << error_eig << std::endl;
+    std::cout << "- Eigen JacobiSVD error: " << error_eig << std::endl;
 
     using AMat = rm::Matrix_<float, N, M>;
     using UMat = typename rm::svd_dims<AMat>::U;
@@ -193,8 +220,8 @@ void equalityTest()
 
     auto uvt_rm = Urm * Wrm * Vrm.T();
 
-    std::cout << "Rmagine: " << std::endl;
-    std::cout << uvt_rm << std::endl;
+    // std::cout << "Rmagine: " << std::endl;
+    // std::cout << uvt_rm << std::endl;
 
     float error_rm = 0.0;
     for(size_t i=0; i<N; i++)
@@ -205,7 +232,99 @@ void equalityTest()
         }
     }
 
-    std::cout << "- error: " << error_eig << std::endl;
+    std::cout << "- Rmagine error: " << error_eig << std::endl;
+}
+
+
+void parallelTest()
+{
+    std::cout << "parallelTest" << std::endl;
+    // correct num_objects objects in parallel
+    size_t num_objects = 1000000;
+
+    std::vector<Eigen::Matrix3f> covs_eigen(num_objects);
+    rm::Memory<rm::Matrix3x3, rm::RAM> covs_rm(num_objects);
+
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        rm::Matrix3x3 Arm;
+        Eigen::Matrix3f Aeig = Eigen::Matrix3f::Random(3, 3);
+        for(size_t i=0; i<3; i++)
+        {
+            for(size_t j=0; j<3; j++)
+            {
+                Arm(i, j) = Aeig(i, j);
+            }
+        }
+
+        covs_eigen[obj_id] = Aeig;
+        covs_rm[obj_id] = Arm;
+    }
+
+
+    // C -> SVD -> UWT* -> U * W * T* -> C
+
+    std::cout << "Start computing SVD of " << num_objects << " 3x3 matrices" << std::endl;
+
+    std::vector<Eigen::Matrix3f> res_eigen(num_objects);
+
+    rm::StopWatch sw;
+    double el_eigen, el_rmagine;
+
+    sw();
+    #pragma omp parallel for
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
+            Eigen::ComputeFullU | Eigen::ComputeFullV);
+        auto s = svdeig.singularValues();
+        Eigen::Matrix3f Seig = Eigen::Matrix3f::Zero();
+        for(size_t i=0; i<s.rows(); i++)
+        {
+            Seig(i, i) = s(i);
+        }
+        auto uvt_eig = svdeig.matrixU() * Seig * svdeig.matrixV().transpose();
+        res_eigen[obj_id] = uvt_eig;
+    }
+    el_eigen = sw();
+
+    float err_eigen = 0.0;
+    for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
+    {
+        err_eigen += compute_error(covs_eigen[obj_id], res_eigen[obj_id]);
+    }
+
+    std::cout << "Eigen:" << std::endl;
+    std::cout << "- run time: " << el_eigen << " s" << std::endl;
+    std::cout << "- summed error: " << err_eigen << std::endl;
+
+
+    rm::Memory<rm::Matrix3x3> res_rm(num_objects);
+
+    sw();
+    #pragma omp parallel for
+    for(size_t obj_id=0; obj_id<num_objects; obj_id++)
+    {
+        rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
+        rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
+        rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
+        rm::mysvd(covs_rm[obj_id], Urm, Wrm, Vrm);
+        auto uvt_rm = Urm * Wrm * Vrm.T();
+        res_rm[obj_id] = uvt_rm;
+    }
+    el_rmagine = sw();
+    
+    
+    float err_rmagine = 0.0;
+    for(size_t obj_id = 0; obj_id < num_objects; obj_id++)
+    {
+        err_rmagine += compute_error(covs_rm[obj_id], res_rm[obj_id]);
+    }
+    
+    std::cout << "Rmagine:" << std::endl;
+    std::cout << "- run time: " << el_rmagine << " s" << std::endl;
+    std::cout << "- summed error: " << err_rmagine << std::endl;
+
 
 }
 
@@ -213,12 +332,12 @@ int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
 
-    
-    svdTestWithPrints();
-
+    // svdTestWithPrints();
     runtimeTest<20, 30>();
-    equalityTest<5, 10>();
+    accuracyTest<20, 30>();
 
+
+    parallelTest();
 
 
     return 0;

@@ -231,9 +231,9 @@ void svd(
                 }
                 break;
             }
-            if (its == 29) 
+            if (its == max_iterations - 1) 
             {
-                throw std::runtime_error("no convergence in 30 svdcmp iterations");
+                throw std::runtime_error("no convergence after max svdcmp iterations");
             }
             x = w(l, l);
             nm = k-1;
@@ -463,7 +463,7 @@ void svd(
     }
     for(k=n-1; k>=0; k--) 
     {
-        for(its=0; its<30; its++) 
+        for(its=0; its<max_iterations; its++) 
         {
             flag=true;
             for(l=k; l>=0; l--) 
@@ -518,7 +518,7 @@ void svd(
                 }
                 break;
             }
-            if (its == 29) 
+            if (its == max_iterations - 1) 
             {
                 throw std::runtime_error("no convergence in 30 svdcmp iterations");
             }

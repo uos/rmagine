@@ -41,6 +41,7 @@
 #ifndef RMAGINE_MATH_SVD2_HPP
 #define RMAGINE_MATH_SVD2_HPP
 
+#include <rmagine/types/shared_functions.h>
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/math/types.h>
 #include <memory>
@@ -94,7 +95,6 @@ inline T PYTHAG(const T a, const T b)
         (absb == 0.0 ? 0.0 : absb * sqrt(1.0+SQR(absa/absb))));
 }
 
-
 class SVD2
 {
 public:
@@ -114,9 +114,14 @@ private:
 	float eps, tsh;
 };
 
+using SVD2Ptr = std::shared_ptr<SVD2>;
+
 // Numerical Recipes
 // M = MatrixT::rows()
 // N = MatrixT::cols()
+// 
+// Warning: Numerical Recipes has different SVD matrix shapes
+// than Wikipedia
 template<typename MatrixT>
 struct svd_dims {
     using U = MatrixT; // same as input
@@ -125,25 +130,13 @@ struct svd_dims {
     using V = Matrix_<typename MatrixT::Type, MatrixT::cols(), MatrixT::cols()>;
 };
 
-// Wikipedia: M = USV*
-// - M: mxn
-// - U: mxm
-// - S: mxn
-// - V*: nxn - V: nxn
-
 /**
- *
- * @brief own SVD implementation 
+ * @brief own SVD implementation. 
+ * Why use it? 
+ * - ~2x faster than Eigen
+ * - SOON: Works insided of CUDA kernels
  *
  */
-template<typename DataT, unsigned int Rows, unsigned int Cols>
-void svd(
-    const Matrix_<DataT, Rows, Cols>& A,
-    Matrix_<DataT, Rows, Cols>& U,
-    Matrix_<DataT, Cols, 1>& w, // vector version (Cols should be something with max)
-    Matrix_<DataT, Cols, Cols>& V
-);
-
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 void svd(
     const Matrix_<DataT, Rows, Cols>& A, 
@@ -152,7 +145,34 @@ void svd(
     Matrix_<DataT, Cols, Cols>& V
 );
 
-using SVD2Ptr = std::shared_ptr<SVD2>;
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+void svd(
+    const Matrix_<DataT, Rows, Cols>& A,
+    Matrix_<DataT, Rows, Cols>& U,
+    Matrix_<DataT, Cols, 1>& w, // vector version (Cols should be something with max)
+    Matrix_<DataT, Cols, Cols>& V
+);
+
+/**
+ * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
+ *
+ */
+// RMAGINE_FUNCTION
+void mysvd(
+    const Matrix3x3& A,
+    Matrix3x3& U,
+    Matrix3x3& W,
+    Matrix3x3& V
+);
+
+// RMAGINE_FUNCTION
+// void svd(
+//     const Matrix3x3& A, 
+//     Matrix3x3& U,
+//     Vector3& w,
+//     Matrix3x3& V
+// );
+
 
 } // namespace rmagine
 
