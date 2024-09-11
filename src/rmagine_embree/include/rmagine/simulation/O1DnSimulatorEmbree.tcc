@@ -12,6 +12,25 @@
 namespace rmagine
 {
 
+template<typename BundleT>
+void O1DnSimulatorEmbree::simulate(
+    const Transform& Tbm,
+    BundleT& ret) const
+{
+    MemoryView<Transform, RAM> Tbm_mem(&Tbm, 1);
+    // TODO: change parallelization scheme for single simulations?
+    simulate(Tbm_mem, ret);
+}
+
+template<typename BundleT>
+BundleT O1DnSimulatorEmbree::simulate(
+    const Transform& Tbm) const
+{
+    BundleT res;
+    resize_memory_bundle<RAM>(res, m_model->getWidth(), m_model->getHeight(), 1);
+    simulate(Tbm, res);
+    return res;
+}
 
 template<typename BundleT>
 void O1DnSimulatorEmbree::simulate(

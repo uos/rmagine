@@ -116,7 +116,26 @@ public:
     void setModel(const MemoryView<PinholeModel, RAM>& model);
     void setModel(const PinholeModel& model);
 
-    // Generic Version
+    /**
+     * @brief Simulate from one pose
+     * 
+     * @tparam BundleT 
+     * @param Tbm 
+     * @param ret 
+     */
+    template<typename BundleT>
+    void simulate(const Transform& Tbm, BundleT& ret) const;
+
+    template<typename BundleT>
+    BundleT simulate(const Transform& Tbm) const;
+
+    /**
+     * @brief Simulate for multiple poses at once
+     * 
+     * @tparam BundleT 
+     * @param Tbm 
+     * @param ret 
+     */
     template<typename BundleT>
     void simulate(const MemoryView<Transform, RAM>& Tbm,
         BundleT& ret) const;

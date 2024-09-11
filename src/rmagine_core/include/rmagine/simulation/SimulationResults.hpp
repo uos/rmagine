@@ -97,7 +97,6 @@ struct FaceIds {
     Memory<unsigned int, MemT> face_ids;
 };
 
-
 /**
  * @brief GeomIds computed by the simulators
  * 
@@ -156,7 +155,7 @@ template<typename MemT, typename BundleT>
 static void resize_memory_bundle(BundleT& res, 
     unsigned int W,
     unsigned int H,
-    unsigned int N )
+    unsigned int N = 1 )
 {
     if constexpr(BundleT::template has<Hits<MemT> >())
     {
@@ -194,24 +193,6 @@ static void resize_memory_bundle(BundleT& res,
     }
 }
 
-// template<typename BundleT>
-// static void resize_memory_bundle(BundleT& res, 
-//     unsigned int W,
-//     unsigned int H,
-//     unsigned int N )
-// {
-//     resize_memory_bundle_<RAM>(res, W, H, N);
-// }
-
-template<typename MemT, typename BundleT>
-[[deprecated("Use resize_memory_bundle() instead.")]]
-void resizeMemoryBundle(BundleT& res, 
-    unsigned int W,
-    unsigned int H,
-    unsigned int N )
-{
-    resize_memory_bundle<BundleT>(res, W, H, N);
-}
 
 } // namespace rmagine
 
