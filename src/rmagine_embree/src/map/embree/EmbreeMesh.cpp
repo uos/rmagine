@@ -322,6 +322,4 @@ void EmbreeMesh::apply()
     }
 }
 
-// pt2ConstMember = &EmbreeMesh::closestPointFunc2; 
-
 } // namespace rmagine
