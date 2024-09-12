@@ -52,4 +52,16 @@ void cudaAssert(
    const char* func,
    int line);
 
+#ifdef NDEBUG
+    #define RM_CUDA_DEBUG() 
+#else  // NDEBUG
+    #define RM_CUDA_DEBUG() \
+    cudaError_t err = cudaGetLastError(); \
+    if (err != cudaSuccess)  \
+    { \
+        printf("Error: %s\n", cudaGetErrorString(err)); \
+        throw std::runtime_error(cudaGetErrorString(err)); \
+    }
+#endif // defined NDEBUG
+
 #endif // RMAGINE_UTIL_CUDA_DEBUG_HPP

@@ -35,3 +35,11 @@ target_link_libraries(rmagine_tests_core_quaternion
 )
 
 add_test(NAME core_quaternion COMMAND rmagine_tests_core_quaternion)
+
+# 4. SVD
+add_executable(rmagine_tests_core_math_svd math_svd.cpp)
+target_link_libraries(rmagine_tests_core_math_svd
+    rmagine::core
+)
+
+add_test(NAME core_math_svd COMMAND rmagine_tests_core_math_svd)

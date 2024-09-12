@@ -26,3 +26,11 @@ target_link_libraries(rmagine_tests_cuda_memory_slicing
 
 add_test(NAME cuda_memory_slicing COMMAND rmagine_tests_cuda_memory_slicing)
 
+
+# 4. SVD
+add_executable(rmagine_tests_cuda_math_svd math_svd.cpp)
+target_link_libraries(rmagine_tests_cuda_math_svd
+    rmagine::cuda
+)
+
+add_test(NAME cuda_math_svd COMMAND rmagine_tests_cuda_math_svd)

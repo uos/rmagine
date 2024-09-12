@@ -334,6 +334,17 @@ struct Matrix_ {
     operator EulerAngles_<DataT>() const;
 
     /**
+     * @brief Transformation Matrix -> Transform
+     * WARNING: The matrix has to be isometric, i.e. composed only of
+     * rotational and translational components. If it has e.g. scalar
+     * components use the "decompose" function instead
+     * 
+     * @return Transform_<DataT>
+     */
+    RMAGINE_INLINE_FUNCTION
+    operator Transform_<DataT>() const;
+
+    /**
      * @brief Data Type Cast to ConvT
      * 
      * @tparam ConvT 

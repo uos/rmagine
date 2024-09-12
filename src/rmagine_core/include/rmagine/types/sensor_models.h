@@ -149,6 +149,12 @@ struct SphericalModel
     }
 
     RMAGINE_INLINE_FUNCTION
+    uint32_t getSize() const 
+    {
+        return getWidth() * getHeight();
+    }
+
+    RMAGINE_INLINE_FUNCTION
     float getPhi(uint32_t phi_id) const
     {
         return phi.getValue(phi_id);
@@ -178,6 +184,32 @@ struct SphericalModel
     uint32_t getBufferId(uint32_t phi_id, uint32_t theta_id) const 
     {
         return phi_id * theta.size + theta_id;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id) const
+    {
+        return {buffer_id % theta.size, buffer_id / theta.size};
+    }
+
+    // slice horizontal line. vertical is not currently not possible because of memory layout
+    template<typename DataT, typename MemT>
+    MemoryView<DataT, MemT> getRow(const MemoryView<DataT, MemT>& mem, uint32_t vid) const 
+    {
+        return mem.slice(vid * getWidth(), (vid+1) * getWidth());
+    }
+
+    // for RAM we can access single elements of a buffer
+    template<typename DataT>
+    DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
+
+    template<typename DataT>
+    DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
     }
 };
 
@@ -211,6 +243,12 @@ struct PinholeModel {
 
     RMAGINE_INLINE_FUNCTION
     uint32_t size() const
+    {
+        return getWidth() * getHeight();
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    uint32_t getSize() const 
     {
         return getWidth() * getHeight();
     }
@@ -250,6 +288,31 @@ struct PinholeModel {
         return vid * width + hid;
     }
 
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id) const
+    {
+        return {buffer_id % width, buffer_id / width};
+    }
+
+    // slice horizontal line. vertical is not currently not possible because of memory layout
+    template<typename DataT, typename MemT>
+    MemoryView<DataT, MemT> getRow(const MemoryView<DataT, MemT>& mem, uint32_t vid) const 
+    {
+        return mem.slice(vid * getWidth(), (vid+1) * getWidth());
+    }
+
+    // for RAM we can access single elements of a buffer
+    template<typename DataT>
+    DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
+
+    template<typename DataT>
+    DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
 };
 // Distortion? Fisheye / radial-tangential ? 
 
@@ -257,20 +320,20 @@ using CameraModel = PinholeModel;
 using DepthCameraModel = PinholeModel;
 
 // TODO: distortion
-struct RadialTangentialDistortion {
-    // TODO
-};
+// struct RadialTangentialDistortion {
+//     // TODO
+// };
 
-struct FisheyeDistortion {
+// struct FisheyeDistortion {
 
-};
+// };
 
 
-struct CylindricModel {
-    static constexpr char name[] = "Cylinder";
-    // TODO
+// struct CylindricModel {
+//     static constexpr char name[] = "Cylinder";
+//     // TODO
     
-};
+// };
 
 template<typename MemT>
 struct O1DnModel_ {
@@ -298,15 +361,15 @@ struct O1DnModel_ {
     }
 
     RMAGINE_INLINE_FUNCTION
-    uint32_t size() const 
+    uint32_t getSize() const 
     {
         return getWidth() * getHeight();
     }
 
     RMAGINE_INLINE_FUNCTION
-    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    uint32_t size() const 
     {
-        return vid * getWidth() + hid;
+        return getWidth() * getHeight();
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -319,6 +382,38 @@ struct O1DnModel_ {
     Vector getDirection(uint32_t vid, uint32_t hid) const 
     {
         return dirs[getBufferId(vid, hid)];
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id) const
+    {
+        return {buffer_id % width, buffer_id / width};
+    }
+
+    // slice horizontal line. vertical is not currently not possible because of memory layout
+    template<typename DataT, typename MemT_>
+    MemoryView<DataT, MemT_> getRow(const MemoryView<DataT, MemT_>& mem, uint32_t vid) const 
+    {
+        return mem.slice(vid * getWidth(), (vid+1) * getWidth());
+    }
+
+    // for RAM we can access single elements of a buffer
+    template<typename DataT>
+    DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
+
+    template<typename DataT>
+    DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
     }
 };
 
@@ -351,16 +446,15 @@ struct OnDnModel_ {
     }
 
     RMAGINE_INLINE_FUNCTION
-    uint32_t size() const 
+    uint32_t getSize() const 
     {
         return getWidth() * getHeight();
     }
 
-
     RMAGINE_INLINE_FUNCTION
-    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    uint32_t size() const 
     {
-        return vid * getWidth() + hid;
+        return getWidth() * getHeight();
     }
 
     RMAGINE_INLINE_FUNCTION
@@ -375,10 +469,50 @@ struct OnDnModel_ {
         return dirs[getBufferId(vid, hid)];
     }
 
+    RMAGINE_INLINE_FUNCTION
+    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+    {
+        return vid * getWidth() + hid;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Vector2u getPixelCoord(uint32_t buffer_id) const
+    {
+        return {buffer_id % width, buffer_id / width};
+    }
+
+    // slice horizontal line. vertical is not currently not possible because of memory layout
+    template<typename DataT, typename MemT_>
+    MemoryView<DataT, MemT_> getRow(MemoryView<DataT, MemT_>& mem, uint32_t vid) const 
+    {
+        return mem.slice(vid * getWidth(), (vid+1) * getWidth());
+    }
+
+    // for CPU we can access single elements of a buffer
+    template<typename DataT>
+    DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
+
+    template<typename DataT>
+    DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+    {
+        return mem[getBufferId(vid, hid)];
+    }
 };
 
 using OnDnModel = OnDnModel_<RAM>;
 
+
+template<typename ModelT, typename DataT, typename MemT>
+MemoryView<DataT, MemT> slice( 
+    const MemoryView<DataT, MemT>& mem,
+    const ModelT& model,
+    const uint32_t pose_id)
+{
+    return mem.slice(model.getSize() * pose_id, model.getSize() * (pose_id + 1));
+}
 
 } // namespace rmagine
 

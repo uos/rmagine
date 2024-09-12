@@ -92,8 +92,6 @@ public:
 
     void initVertexNormals();
 
-    bool closestPointFunc2(RTCPointQueryFunctionArguments* args);
-
     // PUBLIC ATTRIBUTES
     MemoryView<Face, RAM> faces() const;
     MemoryView<Vertex, RAM> vertices() const;
@@ -103,9 +101,6 @@ public:
     MemoryView<const Vertex, RAM> verticesTransformed() const;
     MemoryView<const Vector, RAM> faceNormalsTransformed() const;
     
-    
-    
-
     void computeFaceNormals();
 
     /**
@@ -137,10 +132,6 @@ private:
     Vertex* m_vertices_transformed;
     Memory<Vector, RAM> m_face_normals_transformed;
     Memory<Vector, RAM> m_vertex_normals_transformed;
-
-    // boost::function<bool (RTCPointQueryFunctionArguments*)> m_closest_point_func;
-    // RTCPointQueryFunction* m_closest_point_func_raw;
-
 };
 
 using EmbreeMeshPtr = std::shared_ptr<EmbreeMesh>;

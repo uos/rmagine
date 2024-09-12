@@ -245,6 +245,31 @@ struct Vector3_
     {   
         return multEwise(b);
     }
+
+    // Use with care!
+    RMAGINE_INLINE_FUNCTION
+    DataT& operator[](const size_t& idx)
+    {
+        return *(&x + idx);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    const DataT& operator[](const size_t& idx) const
+    {
+        return *(&x + idx);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    DataT& operator()(const size_t& idx)
+    {
+        return *(&x + idx);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    const DataT& operator()(const size_t& idx) const
+    {
+        return *(&x + idx);
+    }
 };
 
 } // namespace rmagine

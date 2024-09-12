@@ -93,8 +93,6 @@ private:
         static constexpr bool value = has_type<F, elems>::type::value;
     };
 
-
-
     template <typename T, typename Tuple>
     struct Index;
 

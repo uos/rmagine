@@ -12,6 +12,7 @@ set(RMAGINE_CORE_SRCS
     src/types/Memory.cpp
     src/types/conversions.cpp
     src/types/sensors.cpp
+    src/types/mesh_types.cpp
     # Util
     src/util/synthetic.cpp
     src/util/assimp/helper.cpp

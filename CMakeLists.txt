@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.2.5)# TODO update this version when merging into main-branch
+    VERSION 2.2.6)# TODO update this version when merging into main-branch
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
@@ -114,6 +114,9 @@ endif(OPENMP_FOUND)
 ########################################
 ## Optional Deps
 
+# for ouster config loading
+find_package(jsoncpp)
+
 ######################################
 ## CUDA: For Optix                  ##
 ######################################
@@ -178,6 +181,11 @@ set(RMAGINE_STATIC_LIBRARIES)
 ### RMAGINE CORE LIB
 add_subdirectory(src/rmagine_core)
 
+### RMAGINE OUSTER LIB
+if(jsoncpp_FOUND)
+    add_subdirectory(src/rmagine_ouster)
+endif(jsoncpp_FOUND)
+
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)
   add_subdirectory(src/rmagine_embree)
@@ -193,7 +201,7 @@ endif(CUDA_FOUND)
 
 message(STATUS "${BoldCyan}Components build:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
-  message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
+    message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
 endforeach()
 
 #### TESTS

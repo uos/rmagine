@@ -39,12 +39,22 @@
 #include <iostream>
 #include <cstring>
 #include <type_traits>
+#include <exception>
 
 #include <rmagine/types/shared_functions.h>
 
 namespace rmagine {
 
 struct RAM;
+
+class MemoryResizeError : public std::runtime_error {
+public:
+  MemoryResizeError()
+  :std::runtime_error("rmagine: cannot resize memory view!")
+  {
+
+  }
+};
 
 template<typename DataT, typename MemT = RAM>
 class MemoryView {
@@ -126,6 +136,11 @@ public:
         return m_size;
     }
 
+    // Shall we introduce this? 
+    // virtual void resize(size_t N) {
+    //     throw MemoryResizeError();
+    // }
+
     MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end)
     {
         return MemoryView<DataT, MemT>(m_mem + idx_start, idx_end - idx_start);
@@ -173,6 +188,7 @@ public:
 
     ~Memory();
 
+    // virtual void resize(size_t N);
     void resize(size_t N);
 
     // Copy for assignment of same MemT

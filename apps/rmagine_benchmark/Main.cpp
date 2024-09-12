@@ -116,7 +116,7 @@ int main(int argc, char** argv)
         // Define what to simulate
         double velos_per_second_mean = 0.0;
 
-        std::cout << "- range of last ray: " << cpu_sim->simulateRanges(Tbm)[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
+        // std::cout << "- range of last ray: " << cpu_sim->simulateRanges(Tbm)[Tbm.size() * model->phi.size * model->theta.size - 1] << std::endl;
         std::cout << "-- Starting Benchmark --" << std::endl;
 
         // predefine result buffer

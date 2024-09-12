@@ -38,6 +38,12 @@ struct Transform_
     RMAGINE_INLINE_FUNCTION
     void setIdentity();
 
+    /**
+     * @brief Setting the transform from an 4x4 transformation matrix
+     * WARNING matrix must be isometric, i.e. must only contain
+     * rotational and translational parts (not scale). Otherwise,
+     * use "decompose" function
+     */
     RMAGINE_INLINE_FUNCTION
     void set(const Matrix_<DataT, 4, 4>& M);
 
@@ -76,13 +82,6 @@ struct Transform_
     RMAGINE_INLINE_FUNCTION
     Transform_<DataT> pow(const DataT& exp) const;
 
-    // OPERATORS
-    RMAGINE_INLINE_FUNCTION
-    void operator=(const Matrix_<DataT, 4, 4>& M)
-    {
-        set(M);
-    }
-
     RMAGINE_INLINE_FUNCTION
     Transform_<DataT> operator~() const
     {
@@ -108,6 +107,20 @@ struct Transform_
         return mult(v);
     }
 
+    /////////////////////
+    // CASTING
+
+    /**
+     * @brief Transform -> Matrix4x4
+     * 
+     * @return Matrix_<DataT> 
+     */
+    RMAGINE_INLINE_FUNCTION
+    operator Matrix_<DataT, 4, 4>() const;
+
+    /**
+     * @brief Internal data type cast
+     */
     template<typename ConvT>
     Transform_<ConvT> cast() const
     {

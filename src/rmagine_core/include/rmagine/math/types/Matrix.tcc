@@ -1256,7 +1256,7 @@ Matrix_<DataT, Rows, Cols>::operator EulerAngles_<DataT>() const
     // pitch (y-axis)
     if (fabs(sB) >= 1.0)
     {
-        e.pitch = copysignf(M_PI / 2, sB); // use 90 degrees if out of range
+        e.pitch = copysignf(M_PI_2, sB); // use 90 degrees if out of range
     } else {
         e.pitch = asinf(sB);
     }
@@ -1266,6 +1266,18 @@ Matrix_<DataT, Rows, Cols>::operator EulerAngles_<DataT>() const
 
     return e;
 }
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, Rows, Cols>::operator Transform_<DataT>() const 
+{
+    static_assert(Rows == 4 && Cols == 4);
+    
+    Transform_<DataT> T;
+    T.set(*this);
+    return T;
+}
+
 
 
 template<typename DataT, unsigned int Rows, unsigned int Cols> 

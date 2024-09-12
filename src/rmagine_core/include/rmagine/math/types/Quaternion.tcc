@@ -182,8 +182,6 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 Quaternion_<DataT>::operator EulerAngles_<DataT>() const 
 {
-    constexpr DataT PI_HALF = M_PI / 2.0;
-
     // TODO: check
     // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     // checked once
@@ -215,7 +213,7 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     // pitch (y-axis)
     if (fabs(sinp) >= 1.0f)
     {
-        e.pitch = copysign(PI_HALF, sinp); // use 90 degrees if out of range
+        e.pitch = copysign(M_PI_2, sinp); // use 90 degrees if out of range
     } else {
         e.pitch = asin(sinp);
     }

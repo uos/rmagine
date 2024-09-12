@@ -1,130 +1,37 @@
-#include "rmagine/math/linalg.h"
-#include "rmagine/types/Memory.hpp"
-#include <assert.h>
-
-#include <Eigen/Dense>
-
-#include "rmagine/math/math.h"
+#include <rmagine/math/types.h>
+#include <rmagine/math/linalg.h>
+#include <cuda_runtime.h>
 
 namespace rmagine
 {
 
-RMAGINE_HOST_FUNCTION
-Matrix4x4 compose(const Transform& T, const Vector3& scale)
-{
-    Matrix4x4 M;
-    M.set(T);
-
-    Matrix4x4 S;
-    S.setIdentity();
-    S(0,0) = scale.x;
-    S(1,1) = scale.y;
-    S(2,2) = scale.z;
-
-    return M * S;
-}
-
-RMAGINE_HOST_FUNCTION
-Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
-{
-    Matrix4x4 M;
-    M.set(T);
-
-    Matrix4x4 S_;
-    S_.setZeros();
-    for(size_t i=0; i<3; i++)
-    {
-        for(size_t j=0; j<3; j++)
-        {
-            S_(i,j) = S(i,j);
-        }
-    }
-    S_(3,3) = 1.0;
-
-    return M * S_;
-}
-
-RMAGINE_HOST_FUNCTION
-void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
-{
-    Eigen::Matrix4f Meig;
-    for(size_t i=0; i<4; i++)
-    {
-        for(size_t j=0; j<4; j++)
-        {
-            Meig(i, j) = M(i, j);
-        }
-    }
-
-    Eigen::Affine3f A;
-    A.matrix() = Meig;
-
-
-    Eigen::Matrix3f Reig;
-    Eigen::Matrix3f Seig;
-    A.computeRotationScaling(&Reig, &Seig);
-    
-    Eigen::Vector3f t = A.translation();
-    
-    Matrix3x3 R;
-    for(size_t i=0; i<3; i++)
-    {
-        for(size_t j=0; j<3; j++)
-        {
-            R(i,j) = Reig(i,j);
-            S(i,j) = Seig(i,j);
-        }
-    }
-
-    T.t = {t.x(), t.y(), t.z()};
-    T.R.set(R);
-}
-
-RMAGINE_HOST_FUNCTION
-void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
-{
-    Matrix3x3 S;
-    decompose(M, T, S);
-
-    // TODO: check if S is diagonal
-
-    scale.x = S(0,0);
-    scale.y = S(1,1);
-    scale.z = S(2,2);
-}
-
-RMAGINE_HOST_FUNCTION
-Quaternion polate(const Quaternion& A, const Quaternion& B, float fac)
-{
-    return A * A.to(B).pow(fac);
-}
-
-RMAGINE_HOST_FUNCTION
-Transform polate(const Transform& A, const Transform& B, float fac)
-{
-    return A * A.to(B).pow(fac);
-}
-
-
-RMAGINE_HOST_FUNCTION
+RMAGINE_DEVICE_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
     Matrix3x3& w,
     Matrix3x3& v)
 {
+    // printf("SVDD\n");
+
+    
     // TODO: test
-    constexpr unsigned int max_iterations = 20;
+    const unsigned int max_iterations = 20;
     
     // additional memory required
     bool flag;
     int its, j, jj;
     float anorm, c, f, g, h, s, scale, x, y, z;
     
-    Vector3 rv1 = Vector3::Zeros();
+    Vector3 rv1;
+    rv1.x = 0.0;
+    rv1.y = 0.0;
+    rv1.z = 0.0;
+
+    
     
     g = s = scale = anorm = 0.0;
-    float eps = __FLT_EPSILON__;
+    const float eps = __FLT_EPSILON__;
     u = a;
 
     // FIRST PART
@@ -242,6 +149,8 @@ void svd(
 
     anorm = MAX(anorm, (abs(w(1, 1)) + abs(rv1.y)));
     
+    
+
     rv1.z = scale * g;
 
     scale = abs(u(2, 2));
@@ -370,36 +279,30 @@ void svd(
 
     int i, l;
 
+    
+
     // PART 4: Opti
 
     // k = 2;
-    for(its=0; its<max_iterations; its++) 
+    for(int its=0; its<max_iterations; its++) 
     {
-        // flag=true;
-        // l = 2;
-        // if(MIN(fabs(rv1.z), fabs(w(1,1))) > eps*anorm)
-        // {
-        //     l = 1;
-        //     if(MIN(fabs(rv1.y),abs(w(0,0))) > eps*anorm)
-        //     {
-        //         l = 0;
-        //     }
-        // }
+        // printf("First Iter %d/%d\n", its, max_iterations);
+        // return;
 
         flag=true;
         l=2;
-        if(abs(rv1.z) <= eps*anorm)
+        if(fabs(rv1.z) <= eps*anorm)
         {
             flag=false;
         }
-        else if(abs(w(1,1)) > eps*anorm)
+        else if(fabs(w(1,1)) > eps*anorm)
         {
             l=1;
-            if(abs(rv1.y) <= eps*anorm) 
+            if(fabs(rv1.y) <= eps*anorm) 
             {
                 flag=false;
             }
-            else if(abs(w(0,0)) > eps*anorm) 
+            else if(fabs(w(0,0)) > eps*anorm) 
             {
                 l=0;
                 flag = false;
@@ -414,7 +317,7 @@ void svd(
             {
                 f = s*rv1[i];
                 rv1[i] = c*rv1[i];
-                if(abs(f) <= eps*anorm) 
+                if(fabs(f) <= eps*anorm) 
                 {
                     break;
                 }
@@ -504,6 +407,7 @@ void svd(
         w(2,2) = x;
     }
 
+    
 
     for(its=0; its<max_iterations; its++) 
     {
@@ -641,7 +545,8 @@ void svd(
     }
 }
 
-RMAGINE_HOST_FUNCTION
+
+RMAGINE_DEVICE_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
@@ -649,19 +554,19 @@ void svd(
     Matrix3x3& v)
 {
     // TODO: test
-    constexpr unsigned int m = 3;
-    constexpr unsigned int n = 3;
+    // constexpr unsigned int m = 3;
+    // constexpr unsigned int n = 3;
     constexpr unsigned int max_iterations = 20;
     
     // additional memory required
     bool flag;
-    int its, j, jj, k, nm;
+    int its, j, jj;
     float anorm, c, f, g, h, s, scale, x, y, z;
     
     Vector3 rv1 = Vector3::Zeros();
     
     g = s = scale = anorm = 0.0;
-    float eps = std::numeric_limits<float>::epsilon();
+    float eps = __FLT_EPSILON__;
     u = a;
 
     // FIRST PART
@@ -961,7 +866,7 @@ void svd(
                 h = 1.0/h;
                 c = g*h;
                 s = -f*h;
-                for(j=0; j<m; j++)
+                for(j=0; j<3; j++)
                 {
                     y = u(j,l-1);
                     z = u(j,i);
@@ -985,7 +890,7 @@ void svd(
         if(its == max_iterations - 1) 
         {
             // std::cout << "no convergence in " << max_iterations << " svdcmp iterations" << std::endl;
-            throw std::runtime_error("no convergence in max svdcmp iterations");
+            // throw std::runtime_error("no convergence in max svdcmp iterations");
         }
         x = w(l);
         y = w.y;
@@ -1027,7 +932,7 @@ void svd(
             }
             f = c*g+s*y;
             x = c*y-s*g;
-            for (jj=0;jj<m;jj++)
+            for (jj=0;jj<3;jj++)
             {
                 y = u(jj,j);
                 z = u(jj,i);
@@ -1073,7 +978,7 @@ void svd(
                 h = 1.0/h;
                 c = g*h;
                 s = -f*h;
-                for(j=0; j<m; j++)
+                for(j=0; j<3; j++)
                 {
                     y = u(j,l-1);
                     z = u(j,i);
@@ -1097,8 +1002,8 @@ void svd(
         }
         if(its == max_iterations - 1) 
         {
-            std::cout << "no convergence in " << max_iterations << " svdcmp iterations" << std::endl;
-            throw std::runtime_error("no convergence in max svdcmp iterations");
+        //     std::cout << "no convergence in " << max_iterations << " svdcmp iterations" << std::endl;
+        //     throw std::runtime_error("no convergence in max svdcmp iterations");
         }
 
         x = w(l);

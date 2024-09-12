@@ -116,33 +116,6 @@ public:
     void setModel(const MemoryView<SphericalModel, RAM>& model);
     void setModel(const SphericalModel& model);
 
-    // Generic Version
-    template<typename BundleT>
-    void simulate(const MemoryView<Transform, RAM>& Tbm,
-        BundleT& ret) const;
-
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    void simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<float, RAM>& ranges) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    Memory<float, RAM> simulateRanges(
-        const MemoryView<Transform, RAM>& Tbm) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    void simulateHits(
-        const MemoryView<Transform, RAM>& Tbm, 
-        MemoryView<uint8_t, RAM>& hits) const;
-
-    // [[deprecated("Use simulate<AttrT>() instead.")]]
-    Memory<uint8_t, RAM> simulateHits(
-        const MemoryView<Transform, RAM>& Tbm) const;
-    
-
     inline Memory<SphericalModel, RAM> model() const
     {
       return m_model;
@@ -152,6 +125,40 @@ public:
     {
         return m_map;
     }
+
+    /**
+     * @brief Simulate from one pose
+     * 
+     * @tparam BundleT 
+     * @param Tbm 
+     * @param ret 
+     */
+    template<typename BundleT>
+    void simulate(const Transform& Tbm, BundleT& ret) const;
+
+    template<typename BundleT>
+    BundleT simulate(const Transform& Tbm) const;
+
+    /**
+     * @brief Simulate for multiple poses at once
+     * 
+     * @tparam BundleT 
+     * @param Tbm 
+     * @param ret 
+     */
+    template<typename BundleT>
+    void simulate(const MemoryView<Transform, RAM>& Tbm,
+        BundleT& ret) const;
+
+    template<typename BundleT>
+    void simulate(const MemoryView<const Transform, RAM>& Tbm,
+        BundleT& ret) const;
+
+    template<typename BundleT>
+    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
+
+    template<typename BundleT>
+    BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
 
 protected:
     EmbreeMapPtr m_map;

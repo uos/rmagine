@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, University Osnabrück
+ * Copyright (c) 2024, University Osnabrück
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,51 +28,25 @@
 /**
  * @file
  * 
- * @brief Math type that are required for meshes
+ * @brief Predefined Sensor Models
  *
- * @date 03.10.2022
+ * @date 10.09.2024
  * @author Alexander Mock
  * 
- * @copyright Copyright (c) 2022, University Osnabrück. All rights reserved.
+ * @copyright Copyright (c) 2024, University Osnabrück. All rights reserved.
  * This project is released under the 3-Clause BSD License.
  * 
  */
+#ifndef RMAGINE_TYPES_OUSTER_SENSORS_H
+#define RMAGINE_TYPES_OUSTER_SENSORS_H
 
-
-#ifndef RMAGINE_TYPES_MESH_TYPES_H
-#define RMAGINE_TYPES_MESH_TYPES_H
-
-#include <rmagine/math/types.h>
-#include <tuple>
-#include <type_traits>
+#include <rmagine/types/sensor_models.h>
 
 namespace rmagine
 {
 
-using Vertex = Point;
-
-struct Face {
-    unsigned int v0;
-    unsigned int v1;
-    unsigned int v2;
-
-    // Other access functions
-    // use with care! No out of range checks
-    RMAGINE_INLINE_FUNCTION
-    const unsigned int& operator[](const size_t& idx) const;
-
-    RMAGINE_INLINE_FUNCTION
-    unsigned int& operator[](const size_t& idx);
-
-    RMAGINE_INLINE_FUNCTION
-    constexpr size_t size() const
-    {
-      return 3;
-    }
-};
+O1DnModel o1dn_from_ouster_meta_file(std::string filename);
 
 } // namespace rmagine
 
-#include "mesh_types.tcc"
-
-#endif // RMAGINE_TYPES_MESH_TYPES_H
+#endif // RMAGINE_TYPES_OUSTER_SENSORS_H
