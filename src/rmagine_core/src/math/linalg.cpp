@@ -129,6 +129,14 @@ void svd(
     float eps = std::numeric_limits<float>::epsilon();
     u = a;
 
+    // set non diagonal elements to zero
+    w(0,1) = 0.0;
+    w(0,2) = 0.0;
+    w(1,0) = 0.0;
+    w(1,2) = 0.0;
+    w(2,0) = 0.0;
+    w(2,1) = 0.0;
+
     // FIRST PART
 
     // i = 0;
@@ -265,7 +273,7 @@ void svd(
     anorm = max(anorm, (abs(w(2, 2))+abs(rv1.z)));
 
     // SECOND PART    
-    v(2, 2) = 1.0;
+    v(2,2) = 1.0;
     g = rv1.z;
 
     // i = 1;

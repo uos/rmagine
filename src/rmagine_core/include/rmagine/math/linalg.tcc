@@ -144,7 +144,7 @@ void svd(
     {
         l = i+1;
         g = w(i, i);
-        for(j=l;j<n;j++) 
+        for(j=l;j<n;j++)
         {
             u(i,j) = 0.0;
         }
