@@ -113,7 +113,9 @@ void svd(
     Matrix3x3& w,
     Matrix3x3& v)
 {
-    // TODO: test
+    // TODOs:
+    // check if SVD can be faster done for covariance matrix, i.e. symmetric matrices (positive definite)
+    // a(x,y) == a(y,x)
     constexpr unsigned int max_iterations = 20;
     
     // additional memory required

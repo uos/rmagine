@@ -372,7 +372,7 @@ void svd(
                 g = -sign(sqrt(s),f);
                 h = f*g-s;
                 u(i,l-1) = f-g;
-                for(k=l-1;k<n;k++)
+                for(k=l-1; k<n; k++)
                 {
                     rv1[k] = u(i,k) / h;
                 }
