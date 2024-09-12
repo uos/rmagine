@@ -15,6 +15,8 @@ Rmagine
   <a href="https://github.com/uos/rmagine/issues">Issues</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://github.com/amock/rmagine_examples">Examples</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/amock/rmagine_viewer">Viewer</a>
   <br />
 </div>
 
@@ -127,6 +129,7 @@ Please reference the following papers when using the Rmagine library in your sci
 ```
 
 ## Rmagine-accelerated Applications
+- [rmagine_viewer](https://github.com/amock/rmagine_viewer)
 - [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
 - [RMCL](https://github.com/uos/rmcl)
 - [radarays_ros](https://github.com/uos/radarays_ros)
