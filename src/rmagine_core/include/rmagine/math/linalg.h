@@ -188,6 +188,11 @@ Transform umeyama_transform(
         // intermediate storage needed (yet)
         Matrix3x3 U, S, V;
         svd(C, U, S, V);
+        S.setIdentity();
+        if(U.det() * V.det() < 0)
+        {
+            S(2, 2) = -1;
+        }
         ret.R.set(U * S * V.transpose());
         ret.R.normalizeInplace();
         ret.t = m - ret.R * d;
