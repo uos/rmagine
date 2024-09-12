@@ -116,7 +116,7 @@ More detailed examples explaining each step and how to customize it to your need
 
 Please reference the following papers when using the Rmagine library in your scientific work.
 
-```latex
+```bib
 @inproceedings{mock2023rmagine,
   title={{Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}}, 
   author={Mock, Alexander and Wiemann, Thomas and Hertzberg, Joachim},
