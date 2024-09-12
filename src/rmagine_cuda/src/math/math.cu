@@ -1566,6 +1566,18 @@ void umeyama_transform(
     RM_CUDA_DEBUG();
 }
 
+Memory<Transform, VRAM_CUDA> umeyama_transform(
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs,
+    const MemoryView<unsigned int, VRAM_CUDA>& n_meas)
+{
+    Memory<Transform, VRAM_CUDA> ret(ds.size());
+    umeyama_transform(ret, ds, ms, Cs, n_meas);
+    return ret;
+}
+
+
 __global__ void umeyama_transform_kernel(
     Transform* Ts,
     const Vector3* ds,
@@ -1592,6 +1604,14 @@ void umeyama_transform(
     RM_CUDA_DEBUG();
 }
 
-
+Memory<Transform, VRAM_CUDA> umeyama_transform(
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs)
+{
+    Memory<Transform, VRAM_CUDA> ret(ds.size());
+    umeyama_transform(ret, ds, ms, Cs);
+    return ret;
+}
 
 } // namespace rmagine

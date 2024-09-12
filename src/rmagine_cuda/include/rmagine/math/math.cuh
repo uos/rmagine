@@ -583,6 +583,13 @@ void umeyama_transform(
     const MemoryView<unsigned int, VRAM_CUDA>& n_meas
 );
 
+Memory<Transform, VRAM_CUDA> umeyama_transform(
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs,
+    const MemoryView<unsigned int, VRAM_CUDA>& n_meas
+);
+
 /**
  * @brief computes the optimal transformations according to Umeyama's algorithm 
  * for a list of partitions [(m,d,C,N), ...]
@@ -593,7 +600,14 @@ void umeyama_transform(
     MemoryView<Transform, VRAM_CUDA>& Ts,
     const MemoryView<Vector3, VRAM_CUDA>& ds,
     const MemoryView<Vector3, VRAM_CUDA>& ms,
-    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs);
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs
+);
+
+Memory<Transform, VRAM_CUDA> umeyama_transform(
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs
+);
 
 
 } // namespace rmagine

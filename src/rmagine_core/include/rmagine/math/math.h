@@ -498,6 +498,13 @@ void umeyama_transform(
     const MemoryView<unsigned int, RAM>& n_meas
 );
 
+Memory<Transform, RAM> umeyama_transform(
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs,
+    const MemoryView<unsigned int, RAM>& n_meas
+);
+
 /**
  * @brief computes the optimal transformations according to Umeyama's algorithm 
  * for a list of partitions [(m,d,C,N), ...]
@@ -508,8 +515,14 @@ void umeyama_transform(
     MemoryView<Transform, RAM>& Ts,
     const MemoryView<Vector3, RAM>& ds,
     const MemoryView<Vector3, RAM>& ms,
-    const MemoryView<Matrix3x3, RAM>& Cs);
+    const MemoryView<Matrix3x3, RAM>& Cs
+);
 
+Memory<Transform, RAM> umeyama_transform(
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs
+);
 
 
 } // namespace rmagine

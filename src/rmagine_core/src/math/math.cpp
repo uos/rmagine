@@ -748,6 +748,17 @@ void umeyama_transform(
     }
 }
 
+Memory<Transform, RAM> umeyama_transform(
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs,
+    const MemoryView<unsigned int, RAM>& n_meas)
+{
+    Memory<Transform, RAM> ret(ds.size());
+    umeyama_transform(ret, ds, ms, Cs, n_meas);
+    return ret;
+}
+
 void umeyama_transform(
     MemoryView<Transform, RAM>& Ts,
     const MemoryView<Vector3, RAM>& ds,
@@ -759,6 +770,16 @@ void umeyama_transform(
     {
         Ts[i] = umeyama_transform(ds[i], ms[i], Cs[i]);
     }
+}
+
+Memory<Transform, RAM> umeyama_transform(
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs)
+{
+    Memory<Transform, RAM> ret(ds.size());
+    umeyama_transform(ret, ds, ms, Cs);
+    return ret;
 }
 
 
