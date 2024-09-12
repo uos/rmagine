@@ -1,5 +1,5 @@
 
-message(STATUS "Building Core. Library: rmagine")
+message(STATUS "Building Ouster Component. Library: rmagine-ouster")
 
 set(RMAGINE_CORE_SRCS
     # Types

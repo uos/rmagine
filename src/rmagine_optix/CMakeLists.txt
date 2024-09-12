@@ -1,4 +1,4 @@
-message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine_optix")
+message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine-optix")
 
 # Optix Kernels
 set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
