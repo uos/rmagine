@@ -150,6 +150,10 @@ We are open to all contributions. These can be issues, pull requests or feedback
 
 ## News
 
+### Sep 12th 2024
+
+Alongside the new version 2.2.6 we released a minimal viewer that demonstrates the sensor models of rmagine. Check it out here: [https://github.com/amock/rmagine_viewer](https://github.com/amock/rmagine_viewer).
+
 ### Dec 5th 2023
 
 New version 2.2.2 is available now and brings convenience updates for ROS-users. Just place Rmagine into your ROS-workspace and it will compile. Via `find_package(rmagine COMPONENTS [...])` you can still find Rmagine's components as if you would install it globally on your system. We tested it with 
