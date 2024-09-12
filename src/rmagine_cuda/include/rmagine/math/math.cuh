@@ -566,6 +566,36 @@ void svd(
 );
 
 
+/**
+ * @brief computes the optimal transformations according to Umeyama's algorithm 
+ * for a list of partitions [(m,d,C,N), ...]
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ * 
+ * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the 
+ *                standard Umeyama algorithm is performed
+ */
+void umeyama_transform(
+    MemoryView<Transform, VRAM_CUDA>& Ts,
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs,
+    const MemoryView<unsigned int, VRAM_CUDA>& n_meas
+);
+
+/**
+ * @brief computes the optimal transformations according to Umeyama's algorithm 
+ * for a list of partitions [(m,d,C,N), ...]
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ */
+void umeyama_transform(
+    MemoryView<Transform, VRAM_CUDA>& Ts,
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs);
+
+
 } // namespace rmagine
 
 #endif // RMAGINE_MATH_MATH_CUH

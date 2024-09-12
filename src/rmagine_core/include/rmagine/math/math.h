@@ -481,6 +481,37 @@ void svd(
 );
 
 
+/**
+ * @brief computes the optimal transformations according to Umeyama's algorithm 
+ * for a list of partitions [(m,d,C,N), ...]
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ * 
+ * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the 
+ *                standard Umeyama algorithm is performed
+ */
+void umeyama_transform(
+    MemoryView<Transform, RAM>& Ts,
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs,
+    const MemoryView<unsigned int, RAM>& n_meas
+);
+
+/**
+ * @brief computes the optimal transformations according to Umeyama's algorithm 
+ * for a list of partitions [(m,d,C,N), ...]
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ */
+void umeyama_transform(
+    MemoryView<Transform, RAM>& Ts,
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs);
+
+
+
 } // namespace rmagine
 
 #include "math.tcc"

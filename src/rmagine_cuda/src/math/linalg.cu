@@ -24,11 +24,17 @@ void svd(
     float anorm, c, f, g, h, s, scale, x, y, z;
     
     Vector3 rv1;
-    rv1.x = 0.0;
-    rv1.y = 0.0;
-    rv1.z = 0.0;
+    rv1.x = 0.f;
+    rv1.y = 0.f;
+    rv1.z = 0.f;
 
-    
+    // set all non diagonal elements to zero
+    w(0,1) = 0.f;
+    w(0,2) = 0.f;
+    w(1,0) = 0.f;
+    w(1,2) = 0.f;
+    w(2,0) = 0.f;
+    w(2,1) = 0.f;
     
     g = s = scale = anorm = 0.0;
     const float eps = __FLT_EPSILON__;

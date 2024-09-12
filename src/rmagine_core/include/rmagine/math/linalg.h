@@ -164,6 +164,42 @@ void svd(
     Matrix3x3& V
 );
 
+
+/**
+ * @brief computes the optimal transformation according to Umeyama's algorithm 
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ * 
+ * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
+ * 
+ */
+RMAGINE_INLINE_FUNCTION
+Transform umeyama_transform(
+    const Vector3& d,
+    const Vector3& m,
+    const Matrix3x3& C,
+    const unsigned int n_meas = 1
+)
+{
+    Transform ret;
+
+    if(n_meas > 0)
+    {
+        // intermediate storage needed (yet)
+        Matrix3x3 U, S, V;
+        svd(C, U, S, V);
+        ret.R.set(U * S * V.transpose());
+        ret.R.normalizeInplace();
+        ret.t = m - ret.R * d;
+    } else {
+        ret.setIdentity();
+    }
+
+    return ret;
+}
+
+
+
 } // namespace rmagine
 
 #include "linalg.tcc"

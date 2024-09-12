@@ -734,4 +734,32 @@ void svd(
 }
 
 
+void umeyama_transform(
+    MemoryView<Transform, RAM>& Ts,
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs,
+    const MemoryView<unsigned int, RAM>& n_meas)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<Cs.size(); i++)
+    {
+        Ts[i] = umeyama_transform(ds[i], ms[i], Cs[i], n_meas[i]);
+    }
+}
+
+void umeyama_transform(
+    MemoryView<Transform, RAM>& Ts,
+    const MemoryView<Vector3, RAM>& ds,
+    const MemoryView<Vector3, RAM>& ms,
+    const MemoryView<Matrix3x3, RAM>& Cs)
+{
+    #pragma omp parallel for
+    for(size_t i=0; i<Cs.size(); i++)
+    {
+        Ts[i] = umeyama_transform(ds[i], ms[i], Cs[i]);
+    }
+}
+
+
 } // namespace rmagine

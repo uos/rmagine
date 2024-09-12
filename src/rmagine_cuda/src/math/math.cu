@@ -1491,7 +1491,6 @@ __global__ void svd_kernel(
     unsigned int N)
 {
     const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    // printf("hello\n");
     if(id < N)
     {
         svd(As[id], Us[id], Ws[id], Vs[id]);
@@ -1505,7 +1504,6 @@ void svd(
     MemoryView<Matrix3x3, VRAM_CUDA>& Vs
 )
 {
-    // std::cout << "SVD CUDA!" << std::endl;
     constexpr unsigned int blockSize = 512;
     const unsigned int gridSize = (As.size() + blockSize - 1) / blockSize;
     svd_kernel<<<gridSize, blockSize>>>(As.raw(), Us.raw(), Ws.raw(), Vs.raw(), As.size());
@@ -1520,7 +1518,6 @@ __global__ void svd_kernel(
     unsigned int N)
 {
     const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    // printf("hello\n");
     if(id < N)
     {
         svd(As[id], Us[id], ws[id], Vs[id]);
@@ -1539,5 +1536,62 @@ void svd(
     svd_kernel<<<gridSize, blockSize>>>(As.raw(), Us.raw(), ws.raw(), Vs.raw(), As.size());
     RM_CUDA_DEBUG();
 }
+
+
+__global__ void umeyama_transform_kernel(
+    Transform* Ts,
+    const Vector3* ds,
+    const Vector3* ms,
+    const Matrix3x3* Cs,
+    const unsigned int* n_meas,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        Ts[id] = umeyama_transform(ds[id], ms[id], Cs[id], n_meas[id]);
+    }
+}
+
+void umeyama_transform(
+    MemoryView<Transform, VRAM_CUDA>& Ts,
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs,
+    const MemoryView<unsigned int, VRAM_CUDA>& n_meas)
+{
+    constexpr unsigned int blockSize = 256;
+    const unsigned int gridSize = (Ts.size() + blockSize - 1) / blockSize;
+    umeyama_transform_kernel<<<gridSize, blockSize>>>(Ts.raw(), ds.raw(), ms.raw(), Cs.raw(), n_meas.raw(), Ts.size());
+    RM_CUDA_DEBUG();
+}
+
+__global__ void umeyama_transform_kernel(
+    Transform* Ts,
+    const Vector3* ds,
+    const Vector3* ms,
+    const Matrix3x3* Cs,
+    unsigned int N)
+{
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        Ts[id] = umeyama_transform(ds[id], ms[id], Cs[id]);
+    }
+}
+
+void umeyama_transform(
+    MemoryView<Transform, VRAM_CUDA>& Ts,
+    const MemoryView<Vector3, VRAM_CUDA>& ds,
+    const MemoryView<Vector3, VRAM_CUDA>& ms,
+    const MemoryView<Matrix3x3, VRAM_CUDA>& Cs)
+{
+    constexpr unsigned int blockSize = 256;
+    const unsigned int gridSize = (Ts.size() + blockSize - 1) / blockSize;
+    umeyama_transform_kernel<<<gridSize, blockSize>>>(Ts.raw(), ds.raw(), ms.raw(), Cs.raw(), Ts.size());
+    RM_CUDA_DEBUG();
+}
+
+
 
 } // namespace rmagine
