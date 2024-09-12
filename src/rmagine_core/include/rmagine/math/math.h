@@ -52,62 +52,89 @@ namespace rmagine
 ///////
 // TODO: Integrate the following functions better / somewhere else
 //////
-template<class T>
-RMAGINE_INLINE_FUNCTION
-T SQR(const T a) {return a*a;}
+// template<class T>
+// RMAGINE_INLINE_FUNCTION
+// T SQR(const T a) {return a*a;}
 
 template<class T>
 RMAGINE_INLINE_FUNCTION
-const T &MAX(const T &a, const T &b)
-    {return b > a ? (b) : (a);}
-
-RMAGINE_INLINE_FUNCTION
-float MAX(const double &a, const float &b)
-    {return b > a ? (b) : float(a);}
-
-RMAGINE_INLINE_FUNCTION
-float MAX(const float &a, const double &b)
-    {return b > a ? float(b) : (a);}
+T sqr(const T a) 
+{
+    return a*a;
+};
 
 template<class T>
 RMAGINE_INLINE_FUNCTION
-const T &MIN(const T &a, const T &b)
-    {return b < a ? (b) : (a);}
+const T &max(const T &a, const T &b)
+{
+    return b > a ? (b) : (a);
+}
 
 RMAGINE_INLINE_FUNCTION
-float MIN(const double &a, const float &b)
-    {return b < a ? (b) : float(a);}
+float max(const double &a, const float &b)
+{
+    return b > a ? (b) : float(a);
+}
 
 RMAGINE_INLINE_FUNCTION
-float MIN(const float &a, const double &b)
-    {return b < a ? float(b) : (a);}
-
-template<class T>
-RMAGINE_INLINE_FUNCTION
-T SIGN(const T &a, const T &b)
-    {return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
-
-RMAGINE_INLINE_FUNCTION
-float SIGN(const float &a, const double &b)
-    {return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
-
-RMAGINE_INLINE_FUNCTION
-float SIGN(const double &a, const float &b)
-    {return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));}
+float max(const float &a, const double &b)
+{
+    return b > a ? float(b) : (a);
+}
 
 template<class T>
 RMAGINE_INLINE_FUNCTION
-void SWAP(T &a, T &b)
-    {T dum=a; a=b; b=dum;}
+const T& min(const T &a, const T &b)
+{
+    return b < a ? (b) : (a);
+}
+
+RMAGINE_INLINE_FUNCTION
+float min(const double &a, const float &b)
+{
+    return b < a ? (b) : float(a);
+}
+
+RMAGINE_INLINE_FUNCTION
+float min(const float &a, const double &b)
+{
+    return b < a ? float(b) : (a);
+}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+T sign(const T &a, const T &b)
+{
+    return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);
+}
+
+RMAGINE_INLINE_FUNCTION
+float sign(const float &a, const double &b)
+{
+    return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);
+}
+
+RMAGINE_INLINE_FUNCTION
+float sign(const double &a, const float &b)
+{
+    return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));
+}
+
+template<class T>
+RMAGINE_INLINE_FUNCTION
+void swap(T &a, T &b)
+{
+    T dum=a; a=b; b=dum;
+}
 
 template<typename T>
 RMAGINE_INLINE_FUNCTION
-T PYTHAG(const T a, const T b)
+T pythag(const T a, const T b)
 {
-    T absa = abs(a);
-    T absb = abs(b);
-    return (absa > absb ? absa * sqrt(1.0+SQR(absb/absa)) :
-        (absb == 0.0 ? 0.0 : absb * sqrt(1.0+SQR(absa/absb))));
+    const T absa = abs(a);
+    const T absb = abs(b);
+    return (absa > absb ? absa * sqrt(1.0+sqr(absb/absa)) :
+        (absb == 0.0 ? 0.0 : absb * sqrt(1.0+sqr(absa/absb))));
 }
 
 

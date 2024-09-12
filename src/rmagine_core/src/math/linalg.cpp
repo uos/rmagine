@@ -124,7 +124,7 @@ void svd(
     Vector3 rv1 = Vector3::Zeros();
     
     g = s = scale = anorm = 0.0;
-    float eps = __FLT_EPSILON__;
+    float eps = std::numeric_limits<float>::epsilon();
     u = a;
 
     // FIRST PART
@@ -140,7 +140,7 @@ void svd(
 
         s = u(0,0) * u(0,0) + u(1,0) * u(1,0) + u(2,0) * u(2,0);
         f = u(0,0);
-        g = -SIGN(sqrt(s), f);
+        g = -sign(sqrt(s), f);
         h = f * g - s;
 
         u(0, 0) = f - g;
@@ -172,7 +172,7 @@ void svd(
         s = u(0,1) * u(0,1) + u(0,2) * u(0,2);
 
         f = u(0, 1);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g-s;
         u(0, 1) = f - g;
 
@@ -192,7 +192,7 @@ void svd(
     }
     
     anorm = fabs(w(0, 0));
-    // anorm = MAX(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
+    // anorm = max(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
     
     // i = 1;
     // l = 3;
@@ -207,7 +207,7 @@ void svd(
 
         s = u(1,1) * u(1,1) + u(2,1) * u(2,1);
         f = u(1,1);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g - s;
         u(1,1) = f-g;
         
@@ -229,7 +229,7 @@ void svd(
         s = u(1,2) * u(1,2);
         
         f = u(1, 2);
-        g = -SIGN(sqrt(s), f);
+        g = -sign(sqrt(s), f);
         h = f * g - s;
         u(1,2) = f - g;
 
@@ -240,7 +240,7 @@ void svd(
         u(1,2) *= scale;
     }
 
-    anorm = MAX(anorm, (abs(w(1, 1)) + abs(rv1.y)));
+    anorm = max(anorm, (abs(w(1, 1)) + abs(rv1.y)));
     
     rv1.z = scale * g;
 
@@ -250,7 +250,7 @@ void svd(
         u(2, 2) /= scale;
         s = u(2, 2) * u(2, 2);
         f = u(2, 2);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g - s;
 
         u(2, 2) = f - g;
@@ -260,7 +260,7 @@ void svd(
     w(2, 2) = scale * g;
     g = s = scale = 0.0;
     
-    anorm = MAX(anorm, (abs(w(2, 2))+abs(rv1.z)));
+    anorm = max(anorm, (abs(w(2, 2))+abs(rv1.z)));
 
     // SECOND PART    
     v(2, 2) = 1.0;
@@ -377,10 +377,10 @@ void svd(
     {
         // flag=true;
         // l = 2;
-        // if(MIN(fabs(rv1.z), fabs(w(1,1))) > eps*anorm)
+        // if(min(fabs(rv1.z), fabs(w(1,1))) > eps*anorm)
         // {
         //     l = 1;
-        //     if(MIN(fabs(rv1.y),abs(w(0,0))) > eps*anorm)
+        //     if(min(fabs(rv1.y),abs(w(0,0))) > eps*anorm)
         //     {
         //         l = 0;
         //     }
@@ -419,7 +419,7 @@ void svd(
                     break;
                 }
                 g = w(i, i);
-                h = PYTHAG(f,g);
+                h = pythag(f,g);
                 w(i, i) = h;
                 h = 1.0/h;
                 c = g*h;
@@ -448,16 +448,16 @@ void svd(
         }
         if(its == max_iterations - 1) 
         {
-            // std::cout << "no convergence in " << max_iterations << " svdcmp iterations" << std::endl;
-            // throw std::runtime_error("no convergence in max svdcmp iterations");
+            std::cout << "no convergence in " << max_iterations << " svdcmp iterations" << std::endl;
+            throw std::runtime_error("no convergence in max svdcmp iterations");
         }
         x = w(l,l);
         y = w(1,1);
         g = rv1.y;
         h = rv1.z;
         f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
-        g = PYTHAG(f, 1.f);
-        f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+        g = pythag(f, 1.f);
+        f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
         c = s = 1.f;
         for (j=l; j<2; j++) 
         {
@@ -466,7 +466,7 @@ void svd(
             y = w(i, i);
             h = s*g;
             g = c*g;
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             rv1[j] = z;
             c = f/z;
             s = h/z;
@@ -481,7 +481,7 @@ void svd(
                 v(jj,j) = x*c+z*s;
                 v(jj,i) = z*c-x*s;
             }
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             w(j,j) = z;
             if(z>0.0) 
             {
@@ -532,7 +532,7 @@ void svd(
                     break;
                 }
                 g = w(i,i);
-                h = PYTHAG(f,g);
+                h = pythag(f,g);
                 w(i, i) = h;
                 h = 1.0/h;
                 c = g*h;
@@ -570,8 +570,8 @@ void svd(
         g = rv1.x;
         h = rv1.y;
         f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
-        g = PYTHAG(f, 1.f);
-        f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+        g = pythag(f, 1.f);
+        f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
         c = s = 1.f;
 
         if(l == 0)
@@ -580,7 +580,7 @@ void svd(
             y = w(1,1);
             h = s*g;
             g = c*g;
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             rv1.x = z;
             c = f/z;
             s = h/z;
@@ -606,7 +606,7 @@ void svd(
             v(2,1) = z*c-x*s;
 
 
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             w(0,0) = z;
             if(z>0.f)
             {
@@ -649,8 +649,6 @@ void svd(
     Matrix3x3& v)
 {
     // TODO: test
-    constexpr unsigned int m = 3;
-    constexpr unsigned int n = 3;
     constexpr unsigned int max_iterations = 20;
     
     // additional memory required
@@ -677,7 +675,7 @@ void svd(
 
         s = u(0,0) * u(0,0) + u(1,0) * u(1,0) + u(2,0) * u(2,0);
         f = u(0,0);
-        g = -SIGN(sqrt(s), f);
+        g = -sign(sqrt(s), f);
         h = f * g - s;
 
         u(0, 0) = f - g;
@@ -709,7 +707,7 @@ void svd(
         s = u(0,1) * u(0,1) + u(0,2) * u(0,2);
 
         f = u(0, 1);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g-s;
         u(0, 1) = f - g;
 
@@ -729,7 +727,7 @@ void svd(
     }
     
     anorm = fabs(w.x);
-    // anorm = MAX(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
+    // anorm = max(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
     
     // i = 1;
     // l = 3;
@@ -744,7 +742,7 @@ void svd(
 
         s = u(1,1) * u(1,1) + u(2,1) * u(2,1);
         f = u(1,1);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g - s;
         u(1,1) = f-g;
         
@@ -766,7 +764,7 @@ void svd(
         s = u(1,2) * u(1,2);
         
         f = u(1, 2);
-        g = -SIGN(sqrt(s), f);
+        g = -sign(sqrt(s), f);
         h = f * g - s;
         u(1,2) = f - g;
 
@@ -777,7 +775,7 @@ void svd(
         u(1,2) *= scale;
     }
 
-    anorm = MAX(anorm, (abs(w.y) + abs(rv1.y)));
+    anorm = max(anorm, (abs(w.y) + abs(rv1.y)));
     
     rv1.z = scale * g;
 
@@ -787,7 +785,7 @@ void svd(
         u(2, 2) /= scale;
         s = u(2, 2) * u(2, 2);
         f = u(2, 2);
-        g = -SIGN(sqrt(s),f);
+        g = -sign(sqrt(s),f);
         h = f * g - s;
 
         u(2, 2) = f - g;
@@ -797,7 +795,7 @@ void svd(
     w.z = scale * g;
     g = s = scale = 0.0;
     
-    anorm = MAX(anorm, (abs(w.z)+abs(rv1.z)));
+    anorm = max(anorm, (abs(w.z)+abs(rv1.z)));
 
     // SECOND PART    
     v(2, 2) = 1.0;
@@ -914,10 +912,10 @@ void svd(
     {
         // flag=true;
         // l = 2;
-        // if(MIN(fabs(rv1.z), fabs(w(1,1))) > eps*anorm)
+        // if(min(fabs(rv1.z), fabs(w(1,1))) > eps*anorm)
         // {
         //     l = 1;
-        //     if(MIN(fabs(rv1.y),abs(w(0,0))) > eps*anorm)
+        //     if(min(fabs(rv1.y),abs(w(0,0))) > eps*anorm)
         //     {
         //         l = 0;
         //     }
@@ -956,12 +954,12 @@ void svd(
                     break;
                 }
                 g = w(i);
-                h = PYTHAG(f,g);
+                h = pythag(f,g);
                 w(i) = h;
                 h = 1.0/h;
                 c = g*h;
                 s = -f*h;
-                for(j=0; j<m; j++)
+                for(j=0; j<3; j++)
                 {
                     y = u(j,l-1);
                     z = u(j,i);
@@ -992,8 +990,8 @@ void svd(
         g = rv1.y;
         h = rv1.z;
         f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
-        g = PYTHAG(f, 1.f);
-        f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+        g = pythag(f, 1.f);
+        f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
         c = s = 1.f;
         for (j=l; j<2; j++)
         {
@@ -1002,7 +1000,7 @@ void svd(
             y = w(i);
             h = s*g;
             g = c*g;
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             rv1[j] = z;
             c = f/z;
             s = h/z;
@@ -1017,9 +1015,9 @@ void svd(
                 v(jj,j) = x*c+z*s;
                 v(jj,i) = z*c-x*s;
             }
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             w(j) = z;
-            if(z>0.0) 
+            if(z > 0.f) 
             {
                 z = 1.f/z;
                 c = f*z;
@@ -1027,7 +1025,7 @@ void svd(
             }
             f = c*g+s*y;
             x = c*y-s*g;
-            for (jj=0;jj<m;jj++)
+            for (jj=0;jj<3;jj++)
             {
                 y = u(jj,j);
                 z = u(jj,i);
@@ -1068,12 +1066,12 @@ void svd(
                     break;
                 }
                 g = w(i);
-                h = PYTHAG(f,g);
+                h = pythag(f,g);
                 w(i) = h;
                 h = 1.0/h;
                 c = g*h;
                 s = -f*h;
-                for(j=0; j<m; j++)
+                for(j=0; j<3; j++)
                 {
                     y = u(j,l-1);
                     z = u(j,i);
@@ -1106,8 +1104,8 @@ void svd(
         g = rv1.x;
         h = rv1.y;
         f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.f*h*y);
-        g = PYTHAG(f, 1.f);
-        f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+        g = pythag(f, 1.f);
+        f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
         c = s = 1.f;
 
         if(l == 0)
@@ -1116,7 +1114,7 @@ void svd(
             y = w.y;
             h = s*g;
             g = c*g;
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             rv1.x = z;
             c = f/z;
             s = h/z;
@@ -1142,7 +1140,7 @@ void svd(
             v(2,1) = z*c-x*s;
 
 
-            z = PYTHAG(f,h);
+            z = pythag(f,h);
             w.x = z;
             if(z>0.f)
             {

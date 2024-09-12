@@ -45,7 +45,7 @@ void svd(
                     s += u(k,i) * u(k,i);
                 }
                 f = u(i,i);
-                g = -SIGN(sqrt(s),f);
+                g = -sign(sqrt(s),f);
                 h = f*g-s;
                 u(i,i) = f-g;
                 for(j=l-1;j<n;j++) 
@@ -82,7 +82,7 @@ void svd(
                     s += u(i,k) * u(i,k);
                 }
                 f = u(i, l-1);
-                g = -SIGN(sqrt(s),f);
+                g = -sign(sqrt(s),f);
                 h = f*g-s;
                 u(i,l-1) = f-g;
                 for(k=l-1;k<n;k++)
@@ -106,7 +106,7 @@ void svd(
                 }
             }
         }
-        anorm = MAX(anorm, (abs(w(i, i))+abs(rv1[i])));
+        anorm = max(anorm, (abs(w(i, i))+abs(rv1[i])));
     }
     for(i=n-1; i>=0; i--)
     {
@@ -140,7 +140,7 @@ void svd(
         g = rv1[i];
         l = i;
     }
-    for(i=MIN(m,n)-1; i>=0; i--)
+    for(i=min(m,n)-1; i>=0; i--)
     {
         l = i+1;
         g = w(i, i);
@@ -205,7 +205,7 @@ void svd(
                         break;
                     }
                     g = w(i, i);
-                    h = PYTHAG(f,g);
+                    h = pythag(f,g);
                     w(i, i) = h;
                     h = 1.0/h;
                     c = g*h;
@@ -242,8 +242,8 @@ void svd(
             g = rv1[nm];
             h = rv1[k];
             f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y);
-            g = PYTHAG(f, (DataT)1.0);
-            f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+            g = pythag(f, (DataT)1.0);
+            f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
             c = s = 1.0;
             for (j=l; j<=nm; j++) 
             {
@@ -252,7 +252,7 @@ void svd(
                 y = w(i, i);
                 h = s*g;
                 g = c*g;
-                z = PYTHAG(f,h);
+                z = pythag(f,h);
                 rv1[j] = z;
                 c = f/z;
                 s = h/z;
@@ -267,7 +267,7 @@ void svd(
                     v(jj,j) = x*c+z*s;
                     v(jj,i) = z*c-x*s;
                 }
-                z = PYTHAG(f,h);
+                z = pythag(f,h);
                 w(j, j) = z;
                 if (z) 
                 {
@@ -332,7 +332,7 @@ void svd(
                     s += u(k,i) * u(k,i);
                 }
                 f = u(i,i);
-                g = -SIGN(sqrt(s),f);
+                g = -sign(sqrt(s),f);
                 h = f*g-s;
                 u(i,i) = f-g;
                 for(j=l-1;j<n;j++) 
@@ -369,7 +369,7 @@ void svd(
                     s += u(i,k) * u(i,k);
                 }
                 f = u(i, l-1);
-                g = -SIGN(sqrt(s),f);
+                g = -sign(sqrt(s),f);
                 h = f*g-s;
                 u(i,l-1) = f-g;
                 for(k=l-1;k<n;k++)
@@ -393,7 +393,7 @@ void svd(
                 }
             }
         }
-        anorm = MAX(anorm, (abs(w(i, 0))+abs(rv1[i])));
+        anorm = max(anorm, (abs(w(i, 0))+abs(rv1[i])));
     }
     for(i=n-1; i>=0; i--)
     {
@@ -427,7 +427,7 @@ void svd(
         g = rv1[i];
         l = i;
     }
-    for(i=MIN(m,n)-1; i>=0; i--)
+    for(i=min(m,n)-1; i>=0; i--)
     {
         l = i+1;
         g = w(i, 0);
@@ -492,7 +492,7 @@ void svd(
                         break;
                     }
                     g = w(i, 0);
-                    h = PYTHAG(f,g);
+                    h = pythag(f,g);
                     w(i, 0) = h;
                     h = 1.0/h;
                     c = g*h;
@@ -529,8 +529,8 @@ void svd(
             g = rv1[nm];
             h = rv1[k];
             f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y);
-            g = PYTHAG(f, (DataT)1.0);
-            f = ((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
+            g = pythag(f, (DataT)1.0);
+            f = ((x-z)*(x+z)+h*((y/(f+sign(g,f)))-h))/x;
             c = s = 1.0;
             for (j=l;j<=nm;j++) 
             {
@@ -539,7 +539,7 @@ void svd(
                 y = w(i, 0);
                 h = s*g;
                 g = c*g;
-                z = PYTHAG(f,h);
+                z = pythag(f,h);
                 rv1[j] = z;
                 c = f/z;
                 s = h/z;
@@ -554,7 +554,7 @@ void svd(
                     v(jj,j) = x*c+z*s;
                     v(jj,i) = z*c-x*s;
                 }
-                z = PYTHAG(f,h);
+                z = pythag(f,h);
                 w(j, 0) = z;
                 if (z) 
                 {
