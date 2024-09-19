@@ -46,6 +46,36 @@
 namespace rmagine
 {
 
+/**
+ * @brief implement this class to receive events from a changing optix scene
+ * 
+ * Example:
+ * 
+ * @code{cpp}
+ * class MyOptixSceneEventReceiver : public OptixSceneEventReceiver
+ * {
+ * public:
+ *     virtual onCommitDone() override
+ *     {
+ *         std::cout << "Scene has changed!" << std::endl;
+ *     }
+ * };
+ * @endcode
+ * 
+ * your OptixSceneEventReceiver you can then use like
+ * 
+ * @code{cpp}
+ * 
+ * OptixMapPtr gpu_map = import_optix_map(path_to_mesh);
+ * 
+ * auto rec = std::make_shared<MyOptixSceneEventReceiver>();
+ * gpu_map->scene()->addEventReceiver(rec);
+ * 
+ * @endcode
+ * 
+ * The example code prints "Scene has changed!" on every commit of the scene.
+ * 
+ */
 class OptixSceneEventReceiver
 : std::enable_shared_from_this<OptixSceneEventReceiver>
 {

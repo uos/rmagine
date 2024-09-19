@@ -204,6 +204,50 @@ Transform umeyama_transform(
 }
 
 
+// TODO: for 
+// RMAGINE_INLINE_FUNCTION
+// void linear_system(
+//     Matrix_<float, 3, 6>& Jr,
+//     Vector3f& residual,
+//     const Vector3f& Pd,
+//     const Vector3f& Pm)
+// {
+//     // TODO: test
+//     // Jr top 3x3 = Identity
+//     Jr(0,0) = 1.0; Jr(1,0) = 0.0; Jr(2,0) = 0.0;
+//     Jr(0,1) = 0.0; Jr(1,1) = 1.0; Jr(2,1) = 0.0;
+//     Jr(0,2) = 0.0; Jr(1,2) = 0.0; Jr(2,2) = 1.0;
+
+//     // Jr bottom 3x3 = -1 * hat(Pd)
+//     Jr(0,3) =   0.0; Jr(1,3) =  Pd.z; Jr(2,3) = -Pd.y;
+//     Jr(0,4) = -Pd.z; Jr(1,4) =   0.0; Jr(2,4) =  Pd.x;
+//     Jr(0,5) =  Pd.y; Jr(1,5) = -Pd.x; Jr(2,5) =   0.0;
+
+//     residual = Pd - Pm;
+// }
+
+// RMAGINE_INLINE_FUNCTION
+// void linear_system(
+//     Matrix_<float, 3, 6>& Jr,
+//     Vector3f& residual,
+//     const Vector3f& Pd,
+//     const Vector3f& Pm,
+//     const Vector3f& Nm)
+// {
+
+// }
+
+// Collection of minimization strategies
+//
+// Umeyama
+// 
+// https://github.com/pglira/simpleICP
+// P2L minimization
+// (Pd x Nm) * {rx,ry,rz} + Nm * {tx,ty,tz} = Nm * (Pm - Pd)
+// -> A*x = b
+// 
+
+
 
 } // namespace rmagine
 
