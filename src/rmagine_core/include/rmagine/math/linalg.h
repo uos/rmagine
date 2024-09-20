@@ -41,6 +41,7 @@
 #define RMAGINE_MATH_LINALG_H
 
 #include "types.h"
+#include "math.h"
 #include <rmagine/types/shared_functions.h>
 
 namespace rmagine
@@ -204,38 +205,139 @@ Transform umeyama_transform(
 }
 
 
-// TODO: for 
-// RMAGINE_INLINE_FUNCTION
-// void linear_system(
-//     Matrix_<float, 3, 6>& Jr,
-//     Vector3f& residual,
-//     const Vector3f& Pd,
-//     const Vector3f& Pm)
-// {
-//     // TODO: test
-//     // Jr top 3x3 = Identity
-//     Jr(0,0) = 1.0; Jr(1,0) = 0.0; Jr(2,0) = 0.0;
-//     Jr(0,1) = 0.0; Jr(1,1) = 1.0; Jr(2,1) = 0.0;
-//     Jr(0,2) = 0.0; Jr(1,2) = 0.0; Jr(2,2) = 1.0;
+RMAGINE_INLINE_FUNCTION
+Matrix3x3 so3_hat(Vector3f v)
+{
+    Matrix3x3 M;
+    M(0,0) =  0.0; M(1,0) = -v.z; M(2,0) =  v.y;
+    M(0,1) =  v.z; M(1,1) =  0.0; M(2,1) = -v.x;
+    M(0,2) = -v.y; M(1,2) =  v.x; M(2,2) =  0.0;
+    return M;
+}
 
-//     // Jr bottom 3x3 = -1 * hat(Pd)
-//     Jr(0,3) =   0.0; Jr(1,3) =  Pd.z; Jr(2,3) = -Pd.y;
-//     Jr(0,4) = -Pd.z; Jr(1,4) =   0.0; Jr(2,4) =  Pd.x;
-//     Jr(0,5) =  Pd.y; Jr(1,5) = -Pd.x; Jr(2,5) =   0.0;
+RMAGINE_INLINE_FUNCTION
+float GM_weight(
+    const float kernel_scale,
+    const float residual2)
+{
+    return sqr(kernel_scale) / sqr(kernel_scale + residual2);
+}
 
-//     residual = Pd - Pm;
-// }
+// TODO: test 
+RMAGINE_INLINE_FUNCTION
+void p2p_jacobian_and_residual(
+    Matrix_<float, 3, 6>& Jr, // [out] Jacobian 
+    Matrix_<float, 3, 1>& residual, // [out] residual
+    const Vector3f& Pm, // model point
+    const Vector3f& Pd) // dataset point
+{
+    // this is slightly different from kiss icp
+    // TODO: test
 
-// RMAGINE_INLINE_FUNCTION
-// void linear_system(
-//     Matrix_<float, 3, 6>& Jr,
-//     Vector3f& residual,
-//     const Vector3f& Pd,
-//     const Vector3f& Pm,
-//     const Vector3f& Nm)
-// {
+    // Jr top 3x3 = Identity
+    Jr(0,0) = 1.0; Jr(1,0) = 0.0; Jr(2,0) = 0.0;
+    Jr(0,1) = 0.0; Jr(1,1) = 1.0; Jr(2,1) = 0.0;
+    Jr(0,2) = 0.0; Jr(1,2) = 0.0; Jr(2,2) = 1.0;
 
-// }
+    // Jr bottom 3x3 = -1 * hat(Pd) -> only hat
+    Jr(0,3) =   0.0; Jr(1,3) = -Pd.z; Jr(2,3) =  Pd.y;
+    Jr(0,4) =  Pd.z; Jr(1,4) =   0.0; Jr(2,4) = -Pd.x;
+    Jr(0,5) = -Pd.y; Jr(1,5) =  Pd.x; Jr(2,5) =   0.0;
+
+    const Vector3f res_vec = Pm - Pd; // Pm <- Pd
+    residual(0,0) = res_vec.x;
+    residual(1,0) = res_vec.y;
+    residual(2,0) = res_vec.z;
+}
+
+
+RMAGINE_INLINE_FUNCTION
+void p2l_jacobian_and_residual(
+    Matrix_<float, 1, 6>& J, // [out] Jacobian
+    float& residual, // [out] residual
+    const Vector3f& Pm, // model point 
+    const Vector3f& Nm, // model normal
+    const Vector3f& Pd) // dataset point
+{
+    // this is slightly different from kiss icp
+    // TODO: test
+
+    // TODO: test if we should better write Pm - Pd
+    residual = (Pd - Pm).dot(Nm);
+    // put this outside?
+    // const float w = GM_weight(5.0, residual);
+
+    const Vector3f PdNm = Pd.cross(Nm);
+
+    J(0,0) = PdNm.x;
+    J(0,1) = PdNm.y;
+    J(0,2) = PdNm.z;
+    J(0,3) = Nm.x;
+    J(0,4) = Nm.y;
+    J(0,5) = Nm.z;
+}
+
+
+/**
+ * @brief Build a Gauss-Newton linear system of the form 
+ * (J^T * W * J) * x = (J^T * W * r)
+ * using point to point metric (P2P)
+ */
+RMAGINE_INLINE_FUNCTION
+void build_linear_system(
+    Matrix_<float, 6, 6>& JTwJ,
+    Matrix_<float, 6, 1>& JTwr,
+    const MemoryView<Vector, RAM>& model_points, 
+    const MemoryView<Vector, RAM>& dataset_points)
+{
+    // TODO:
+    // - test
+    // - make reduction from this
+    for(size_t i=0; i<model_points.size(); i++)
+    {
+        Matrix_<float, 3, 6> J;
+        Matrix_<float, 3, 1> r;
+        
+        p2p_jacobian_and_residual(J, r, 
+          model_points[i], dataset_points[i]);
+
+        float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
+        float w = GM_weight(5.0, residual2);
+        JTwJ += (J.T() * w) * J; 
+        JTwr += (J.T() * w) * r;
+    }
+}
+
+
+/**
+ * @brief Build a Gauss-Newton linear system of the form 
+ * (J^T * W * J) * x = (J^T * W * r)
+ * using point to plane metric (P2L)
+ */
+RMAGINE_INLINE_FUNCTION
+void build_linear_system(
+    Matrix_<float, 6, 6>& JTwJ,
+    Matrix_<float, 6, 1>& JTwr,
+    const MemoryView<Vector, RAM>& model_points,
+    const MemoryView<Vector, RAM>& model_normals, 
+    const MemoryView<Vector, RAM>& dataset_points)
+{
+    // TODO:
+    // - test
+    // - make reduction from this
+    for(size_t i=0; i<model_points.size(); i++)
+    {
+        Matrix_<float, 1, 6> J;
+        float r;
+        p2l_jacobian_and_residual(J, r, 
+          model_points[i], model_normals[i], dataset_points[i]);
+
+        float weight = GM_weight(5.0, r);
+        JTwJ += (J.T() * weight) * J; 
+        JTwr += (J.T() * weight) * r;
+    }
+}
+
 
 // Collection of minimization strategies
 //
@@ -246,8 +348,6 @@ Transform umeyama_transform(
 // (Pd x Nm) * {rx,ry,rz} + Nm * {tx,ty,tz} = Nm * (Pm - Pd)
 // -> A*x = b
 // 
-
-
 
 } // namespace rmagine
 
