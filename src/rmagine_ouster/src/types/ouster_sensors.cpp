@@ -1,6 +1,6 @@
 #include "rmagine/types/ouster_sensors.h"
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <fstream>
 
 namespace rmagine {
