@@ -98,7 +98,7 @@ Quaternion_<DataT> Quaternion_<DataT>::pow(const DataT& scalar) const
     // imag_len = sqrt(1 - w^2) for normalized quaternions
     // = sin(acos(w))
     // hmm. mayber better use an epsilon here
-    if(imag_len > DataT(0))
+    if(imag_len > DataT(0.00001) )
     {
         // sin(acos(a)) / |imag(q)| 
         // = sqrt(1-a^2) / sqrt(q_x^2 + q_y^2 + q_z^2)
