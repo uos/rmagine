@@ -115,7 +115,13 @@ endif(OPENMP_FOUND)
 ## Optional Deps
 
 # for ouster config loading
-find_package(jsoncpp)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+
+if(TARGET PkgConfig::jsoncpp) # for downwards compatibility
+    set(JSONCPP_INCLUDDE_DIRS "")
+    set(JSONCPP_LIBRARIES PkgConfig::jsoncpp)
+endif()
 
 ######################################
 ## CUDA: For Optix                  ##
@@ -182,9 +188,9 @@ set(RMAGINE_STATIC_LIBRARIES)
 add_subdirectory(src/rmagine_core)
 
 ### RMAGINE OUSTER LIB
-if(jsoncpp_FOUND)
+if(JSONCPP_FOUND)
     add_subdirectory(src/rmagine_ouster)
-endif(jsoncpp_FOUND)
+endif(JSONCPP_FOUND)
 
 ### RMAGINE EMBREE LIB
 if(embree_FOUND)

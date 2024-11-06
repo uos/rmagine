@@ -16,6 +16,7 @@ target_include_directories(rmagine-ouster
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
     ${ASSIMP_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-ouster
@@ -24,7 +25,7 @@ target_link_libraries(rmagine-ouster
     Eigen3::Eigen
     ${Boost_LIBRARIES}
     ${OpenMP_CXX_LIBRARIES}
-    jsoncpp
+    ${JSONCPP_LIBRARIES}
 )
 
 set_target_properties(rmagine-ouster
