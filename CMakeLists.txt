@@ -130,6 +130,7 @@ endif()
 # I am aware find_package(CUDA) is deprecated.
 # - TODO: support find_package(CUDAToolkit) as well
 # -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
+# - TODO: this becomes quite messy. make a seperate file from this
 
 # default flags are not set when including cuda
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
@@ -155,11 +156,58 @@ endif()
 # set(CUDA_STANDARD 14)
 
 include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    message(STATUS "Cuda language available!")
 
-find_package(CUDA)
-if(CUDA_FOUND)
-    enable_language(CUDA)
-endif(CUDA_FOUND)
+    find_package(CUDAToolkit QUIET)
+    if(CUDAToolkit_FOUND)
+        message(STATUS "Found Cuda Toolkit!")
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DEVICE_LIBRARY "")
+        set(CUDA_INCLUDE_DIRS "") # is in target instead
+    else()
+        find_package(CUDA)
+        if(CUDA_FOUND)
+            message(STATUS "Found Cuda!")
+            enable_language(CUDA)
+            set(CUDA_DEVICE_LIBRARY cuda)
+        else()
+            message(STATUS "Neither CudaToolkit nor CUDA found!")
+        endif(CUDA_FOUND)
+    endif(CUDAToolkit_FOUND)
+endif(CMAKE_CUDA_COMPILER)
+
+
+find_package(CUDAToolkit QUIET)
+if(CUDAToolkit_FOUND)
+    message(STATUS "Found Cuda Toolkit!")
+    check_language(CUDA)
+    if(CMAKE_CUDA_COMPILER)
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DEVICE_LIBRARY "")
+        set(CUDA_INCLUDE_DIRS "") # is in target instead
+    endif(CMAKE_CUDA_COMPILER)
+else()
+    find_package(CUDA)
+    if(CUDA_FOUND)
+        message(STATUS "Found Cuda!")
+        enable_language(CUDA)
+        set(CUDA_DEVICE_LIBRARY cuda)
+    else()
+        message(STATUS "Neither CudaToolkit nor ")
+    endif(CUDA_FOUND)
+endif(CUDAToolkit_FOUND)
+
+
 
 ######################################
 ## OptiX: RTX Raycasting ##

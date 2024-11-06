@@ -40,7 +40,7 @@ target_link_libraries(rmagine-cuda
     ${CUDA_LIBRARIES}
     ${CUDA_cusolver_LIBRARY}
     ${CUDA_cublas_LIBRARY}
-    cuda
+    ${CUDA_DEVICE_LIBRARY}
 )
 
 add_dependencies(rmagine-cuda
