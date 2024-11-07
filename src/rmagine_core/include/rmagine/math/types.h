@@ -51,5 +51,6 @@
 #include "types/Transform.hpp"
 #include "types/Vector2.hpp"
 #include "types/Vector3.hpp"
+#include "types/CrossStatistics.hpp"
 
 #endif // RMAGINE_MATH_TYPES_H

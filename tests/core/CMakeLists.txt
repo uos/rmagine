@@ -43,3 +43,12 @@ target_link_libraries(rmagine_tests_core_math_svd
 )
 
 add_test(NAME core_math_svd COMMAND rmagine_tests_core_math_svd)
+
+# 5. STATISTICS
+add_executable(rmagine_tests_core_math_statistics math_statistics.cpp)
+target_link_libraries(rmagine_tests_core_math_statistics
+    rmagine::core
+)
+
+add_test(NAME core_math_statistics COMMAND rmagine_tests_core_math_statistics)
+

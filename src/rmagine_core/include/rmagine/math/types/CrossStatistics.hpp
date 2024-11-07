@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief Euler Angles
+ * @brief CrossStatistics
  *
  * @date 03.10.2024
  * @author Alexander Mock
@@ -37,91 +37,74 @@
  * This project is released under the 3-Clause BSD License.
  * 
  */
-#ifndef RMAGINE_MATH_EULER_ANGLES_HPP
-#define RMAGINE_MATH_EULER_ANGLES_HPP
+#ifndef RMAGINE_MATH_CROSS_STATISTICS_HPP
+#define RMAGINE_MATH_CROSS_STATISTICS_HPP
 
-#include "definitions.h"
+#include "Vector3.hpp"
+#include "Matrix.hpp"
 #include <rmagine/types/shared_functions.h>
-#include <initializer_list>
-#include <iostream>
+#include "definitions.h"
 
 namespace rmagine
 {
 
-/**
- * @brief EulerAngles type
- * 
- */
 template<typename DataT>
-struct EulerAngles_ 
+struct CrossStatistics_
 {
-    // DATA
-    DataT roll;     // x-axis
-    DataT pitch;    // y-axis
-    DataT yaw;      // z-axis
+    Vector3_<DataT>       dataset_mean;
+    Vector3_<DataT>       model_mean;
+    Matrix_<DataT, 3, 3>  covariance;
+    unsigned int          n_meas; // number of samples
 
 
-    // Functions
     RMAGINE_FUNCTION
-    static EulerAngles_<DataT> Identity()
+    static CrossStatistics_<DataT> Identity()
     {
-        EulerAngles_<DataT> ret;
-        ret.setIdentity();
+        CrossStatistics_<DataT> ret;
+        ret.dataset_mean = {0.0, 0.0, 0.0};
+        ret.model_mean = {0.0, 0.0, 0.0};
+        ret.covariance = Matrix_<DataT, 3, 3>::Identity();
+        ret.n_meas = 0;
+        return ret;
+    }
+
+    RMAGINE_FUNCTION
+    static CrossStatistics_<DataT> Init(
+        const Vector3_<DataT>& d, 
+        const Vector3_<DataT>& m)
+    {
+        CrossStatistics_<DataT> ret;
+        ret.dataset_mean = d;
+        ret.model_mean = m;
+        ret.covariance = m.multT(d);
+        ret.n_meas = 1;
         return ret;
     }
 
     RMAGINE_INLINE_FUNCTION
-    void setIdentity();
+    CrossStatistics_<DataT> add(const CrossStatistics_<DataT>& o) const;
 
     RMAGINE_INLINE_FUNCTION
-    void set(const Quaternion_<DataT>& q);
-
-    RMAGINE_INLINE_FUNCTION
-    void set(const Matrix_<DataT, 3, 3>& M);
-
-    RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
-
-    //////////////////
-    // Operators
-
-    RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> operator*(const Vector3_<DataT>& v) const 
+    CrossStatistics_<DataT> operator+(const CrossStatistics_<DataT>& o) const
     {
-        return mult(v);
+        return add(o);
     }
 
-    ///////////////
-    // CASTING
-
-    /**
-     * @brief EulerAngles -> Quaternion
-     * 
-     * @return Quaternion_<DataT> 
-     */
     RMAGINE_INLINE_FUNCTION
-    operator Quaternion_<DataT>() const;
+    void addInplace(const CrossStatistics_<DataT>& o);
 
-    /**
-     * @brief EulerAngles -> Rotation Matrix
-     * 
-     * @return Matrix_<DataT, 3, 3> 
-     */
     RMAGINE_INLINE_FUNCTION
-    operator Matrix_<DataT, 3, 3>() const;
-
-    /**
-     * @brief Data Type Cast to ConvT
-     * 
-     * @tparam ConvT 
-     */
-    template<typename ConvT>
-    RMAGINE_INLINE_FUNCTION
-    EulerAngles_<ConvT> cast() const;
+    CrossStatistics_<DataT>& operator+=(const CrossStatistics_& o)
+	{
+        addInplace(o);
+        return *this;
+	}
 };
 
-} // rmagine
+using CrossStatistics = CrossStatistics_<float>;
 
-#include "EulerAngles.tcc"
+} // namespace rmagine
 
-#endif // RMAGINE_MATH_EULER_ANGLES_HPPs
+#include "CrossStatistics.tcc"
+
+#endif // RMAGINE_MATH_CROSS_STATISTICS_HPP
