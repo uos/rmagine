@@ -49,81 +49,46 @@
 namespace rmagine
 {
 
-struct UmeyamaReductionParams 
+struct UmeyamaReductionConstraints 
 {
+    ///
+    // Ignore all correspondences larger than `max_dist`
     float max_dist;
+    
+    ///
+    // Ignore dataset ids except for `dataset_id`
+    unsigned int dataset_id;
+    
+    /// 
+    // Ignore model ids except for `model_id`
+    unsigned int model_id;
 };
-
-RMAGINE_FUNCTION
-template<typename DataT>
-CrossStatistics_<DataT> merge(
-    const CrossStatistics_<DataT>& stats_a, 
-    const CrossStatistics_<DataT>& stats_b)
-{
-    CrossStatistics_<DataT> ret;
-    ret.n_meas = stats_a.n_meas + stats_b.n_meas;
-    
-    const DataT w1 = static_cast<DataT>(stats_a.n_meas) / static_cast<DataT>(ret.n_meas);
-    const DataT w2 = static_cast<DataT>(stats_b.n_meas) / static_cast<DataT>(ret.n_meas);
-
-    ret.dataset_mean = stats_a.dataset_mean * w1 + stats_b.dataset_mean * w2;
-    ret.model_mean = stats_a.model_mean * w1 + stats_b.model_mean * w2;
-
-    const Matrix_<DataT, 3,3> P1 = stats_a.covariance * w1 + stats_b.covariance * w2;
-    const Matrix_<DataT, 3,3> P2 = (stats_a.model_mean - ret.model_mean).multT(stats_a.dataset_mean - ret.dataset_mean) * w1 
-                                 + (stats_b.model_mean - ret.model_mean).multT(stats_b.dataset_mean - ret.dataset_mean) * w2;
-    ret.covariance = P1 + P2;
-    return ret;
-}
-
-RMAGINE_FUNCTION
-template<typename DataT>
-CrossStatistics_<DataT> add_correspondence(
-    const CrossStatistics_<DataT>& stats, 
-    const Vector& d, 
-    const Vector& m)
-{
-    CrossStatistics_<DataT> ret;
-    ret.n_meas = stats.n_meas + 1;
-    
-    const DataT w1 = static_cast<float>(stats.n_meas) / static_cast<float>(ret.n_meas);
-    const DataT w2 = 1.0 / static_cast<float>(ret.n_meas);
-
-    ret.dataset_mean = stats.dataset_mean * w1 + d * w2;
-    ret.model_mean = stats.model_mean * w1 + m * w2;
-
-    const Matrix_<DataT, 3, 3> P1 = (m - ret.model_mean).multT(d - ret.dataset_mean);
-    const Matrix_<DataT, 3, 3> P2 = (stats.model_mean - ret.model_mean).multT(stats.dataset_mean - ret.dataset_mean);
-
-    ret.covariance = stats.covariance * w1 + P1 * w2 + P2 * w1;
-    return ret;
-}
 
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params,
+    const UmeyamaReductionConstraints params,
     CrossStatistics& statistics);
 
 CrossStatistics statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params);
+    const UmeyamaReductionConstraints params);
 
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params,
+    const UmeyamaReductionConstraints params,
     CrossStatistics& statistics);
 
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params);
+    const UmeyamaReductionConstraints params);
 
 } // namespace rmagine
 

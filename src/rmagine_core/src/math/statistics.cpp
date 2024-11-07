@@ -4,31 +4,52 @@
 #include <assert.h>
 
 #include "rmagine/math/math.h"
-
 #include "rmagine/math/omp.h"
 
 namespace rmagine
 {
+
+bool alwaysFalse()
+{
+    std::cout << "BLA!!!" << std::endl;
+    return false;
+}
 
 RMAGINE_HOST_FUNCTION
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params,
+    const UmeyamaReductionConstraints params,
     CrossStatistics& stats)
 {
-    stats.dataset_mean = {0.0f, 0.0f, 0.0f};
-    stats.model_mean = {0.0f, 0.0f, 0.0f};
-    stats.covariance = Matrix3x3::Zeros();
-    stats.n_meas = 0;
+    stats = statistics_p2p(pre_transform, dataset, model, params);
+}
+
+RMAGINE_HOST_FUNCTION
+CrossStatistics statistics_p2p(
+    const Transform& pre_transform,
+    const PointCloudView_<RAM>& dataset,
+    const PointCloudView_<RAM>& model,
+    const UmeyamaReductionConstraints params)
+{
+    CrossStatistics stats;
 
     #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
         // figure out if distance is too high
-        if(dataset.mask[i] > 0 && model.mask[i] > 0)
+        if(    (dataset.mask.empty() || dataset.mask[i] > 0)
+            && (model.mask.empty()   || model.mask[i]   > 0)
+            && (dataset.ids.empty()  || dataset.ids[i] == params.dataset_id)
+            && (model.ids.empty()    || model.ids[i]   == params.model_id)
+            )
         {
+            if(!dataset.ids.empty())
+            {
+                std::cout << "Hello! Dataset Id " << dataset.ids[i] << ", mask id: " << dataset.mask[i] << std::endl;
+            }
+
             const Vector Di = pre_transform * dataset.points[i]; // read
             const Vector Mi = model.points[i]; // read
 
@@ -42,18 +63,8 @@ void statistics_p2p(
             }
         }
     }
-}
 
-RMAGINE_HOST_FUNCTION
-CrossStatistics statistics_p2p(
-    const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params)
-{
-    CrossStatistics statistics;
-    statistics_p2p(pre_transform, dataset, model, params, statistics);
-    return statistics;
+    return stats;
 }
 
 RMAGINE_HOST_FUNCTION
@@ -61,19 +72,30 @@ void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params,
+    const UmeyamaReductionConstraints params,
     CrossStatistics& stats)
 {
-    stats.dataset_mean = {0.0f, 0.0f, 0.0f};
-    stats.model_mean = {0.0f, 0.0f, 0.0f};
-    stats.covariance = Matrix3x3::Zeros();
-    stats.n_meas = 0;
+    stats = statistics_p2l(pre_transform, dataset, model, params);
+}
+
+RMAGINE_HOST_FUNCTION
+CrossStatistics statistics_p2l(
+    const Transform& pre_transform,
+    const PointCloudView_<RAM>& dataset,
+    const PointCloudView_<RAM>& model,
+    const UmeyamaReductionConstraints params)
+{
+    CrossStatistics stats = CrossStatistics::Identity();;
 
     #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
         // figure out if distance is too high
-        if(dataset.mask[i] > 0 && model.mask[i] > 0)
+        if(    (dataset.mask.empty() || dataset.mask[i] > 0)
+            && (model.mask.empty()   || model.mask[i]   > 0)
+            && (dataset.ids.empty()  || dataset.ids[i] == params.dataset_id)
+            && (model.ids.empty()    || model.ids[i]   == params.model_id)
+            )
         {
             const Vector Di = pre_transform * dataset.points[i]; // read
             const Vector Ii = model.points[i]; // read
@@ -92,18 +114,8 @@ void statistics_p2l(
             }
         }
     }
-}
 
-RMAGINE_HOST_FUNCTION
-CrossStatistics statistics_p2l(
-    const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
-    const UmeyamaReductionParams params)
-{
-    CrossStatistics statistics;
-    statistics_p2l(pre_transform, dataset, model, params, statistics);
-    return statistics;
+    return stats;
 }
 
 } // namespace rmagine 

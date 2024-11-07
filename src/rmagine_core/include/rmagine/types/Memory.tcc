@@ -4,6 +4,14 @@ namespace rmagine
 {
 
 //// MEMORY VIEW
+// template<typename DataT, typename MemT>
+// MemoryView<DataT, MemT>::MemoryView()
+// :m_mem(nullptr)
+// ,m_size(0)
+// {
+//     // std::cout << "[MemoryView::MemoryView(DataT*, size_t)]" << std::endl;
+// }
+
 template<typename DataT, typename MemT>
 MemoryView<DataT, MemT>::MemoryView(DataT* mem, size_t N)
 :m_mem(mem)
@@ -42,7 +50,7 @@ MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<Dat
         throw std::runtime_error("MemoryView MemT2 assignment of different sizes");
     }
     #endif // NDEBUG
-    copy(o, *this);
+    copy(o, *this);   
     return *this;
 }
 

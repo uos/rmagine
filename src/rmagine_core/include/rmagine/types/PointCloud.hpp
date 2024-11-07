@@ -50,10 +50,10 @@ namespace rmagine
 template<typename MemT>
 struct PointCloud_
 {
-    Memory<Vector, MemT>  points;
-    Memory<unsigned int,    MemT>  mask;
-    Memory<Vector, MemT>  normals;
-    Memory<unsigned int,    MemT>  segment_ids;
+    Memory<Vector, MemT>        points;
+    Memory<unsigned int, MemT>  mask;
+    Memory<Vector, MemT>        normals;
+    Memory<unsigned int, MemT>  ids;
 };
 
 using PointCloud = PointCloud_<RAM>;
@@ -61,10 +61,10 @@ using PointCloud = PointCloud_<RAM>;
 template<typename MemT>
 struct PointCloudView_
 {
-    Memory<Vector, MemT>  points;
-    Memory<unsigned int,    MemT>  mask;
-    Memory<Vector, MemT>  normals;
-    Memory<unsigned int,    MemT>  segment_ids;
+    MemoryView<Vector, MemT>        points; // required
+    MemoryView<unsigned int, MemT>  mask    = MemoryView<unsigned int, MemT>::Empty();
+    MemoryView<Vector, MemT>        normals = MemoryView<Vector, MemT>::Empty();
+    MemoryView<unsigned int, MemT>  ids     = MemoryView<unsigned int, MemT>::Empty();
 };
 
 // default: RAM
