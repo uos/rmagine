@@ -241,6 +241,70 @@ void test_reduction_order()
     std::cout << "test_reduction() success!" << std::endl;
 }
 
+
+void test_paper()
+{
+    std::cout << "Recreating Paper Example MICP-L Fig 3." << std::endl;
+  
+    rm::CrossStatistics c11, c12, c13, c14;
+    
+    c11.dataset_mean = {1.0, 0.0, 0.0};
+    c11.model_mean   = {3.0, 0.0, 0.0};
+    c11.covariance.setZeros();
+    c11.n_meas = 1;
+
+    c12.dataset_mean = {5.0, 0.0, 0.0};
+    c12.model_mean   = {1.0, 0.0, 0.0};
+    c12.covariance.setZeros();
+    c12.n_meas = 1;
+
+    c13.dataset_mean = {6.0, 0.0, 0.0};
+    c13.model_mean   = {4.0, 0.0, 0.0};
+    c13.covariance.setZeros();
+    c13.n_meas = 1;
+
+    c14.dataset_mean = {8.0, 0.0, 0.0};
+    c14.model_mean   = {8.0, 0.0, 0.0};
+    c14.covariance.setZeros();
+    c14.n_meas = 1;
+
+    // make the reduction: second level of the tree
+    rm::CrossStatistics c21, c22;
+
+    // the next two lines can be executed in parallel
+    c21 = c11 + c12;
+    c22 = c13 + c14;
+
+    // third level
+    rm::CrossStatistics c31;
+    c31 = c21 + c22;
+
+    printStats(c31);
+
+    rm::CrossStatistics gt = rm::CrossStatistics::Identity();
+    gt.dataset_mean = {5.0, 0.0, 0.0};
+    gt.model_mean = {4.0, 0.0, 0.0};
+    gt.covariance.setZeros();
+    gt.covariance(0,0) = 4.0;
+    gt.n_meas = 4;
+
+    if(!equal(c31, gt))
+    {
+        std::cout << "ERROR" << std::endl;
+        std::cout << "Result:" << std::endl;
+        printStats(c31);
+
+        std::cout << "GT:"  << std::endl;
+        printStats(gt);
+        throw std::runtime_error("PAPER EXAMPLE WONT WORK WITH THIS CODE!");
+    }
+
+    std::cout << "test_paper() success!" << std::endl;
+}
+
+
+// from here on everything goes wrong
+
 void test_parallel_reduce()
 {
     rm::StopWatch sw;
@@ -373,66 +437,6 @@ void test_func()
     
 }
 
-void test_paper()
-{
-    std::cout << "Recreating Paper Example MICP-L Fig 3." << std::endl;
-  
-    rm::CrossStatistics c11, c12, c13, c14;
-    
-    c11.dataset_mean = {1.0, 0.0, 0.0};
-    c11.model_mean   = {3.0, 0.0, 0.0};
-    c11.covariance.setZeros();
-    c11.n_meas = 1;
-
-    c12.dataset_mean = {5.0, 0.0, 0.0};
-    c12.model_mean   = {1.0, 0.0, 0.0};
-    c12.covariance.setZeros();
-    c12.n_meas = 1;
-
-    c13.dataset_mean = {6.0, 0.0, 0.0};
-    c13.model_mean   = {4.0, 0.0, 0.0};
-    c13.covariance.setZeros();
-    c13.n_meas = 1;
-
-    c14.dataset_mean = {8.0, 0.0, 0.0};
-    c14.model_mean   = {8.0, 0.0, 0.0};
-    c14.covariance.setZeros();
-    c14.n_meas = 1;
-
-    // make the reduction: second level of the tree
-    rm::CrossStatistics c21, c22;
-
-    // the next two lines can be executed in parallel
-    c21 = c11 + c12;
-    c22 = c13 + c14;
-
-    // third level
-    rm::CrossStatistics c31;
-    c31 = c21 + c22;
-
-    printStats(c31);
-
-    if(fabs(c31.covariance(0,0) - 4.0) > 0.0001)
-    {
-        throw std::runtime_error("PAPER EXAMPLE WONT WORK WITH THIS CODE!");
-    }
-
-    if(fabs(c31.dataset_mean.x - 5.0) > 0.0001)
-    {
-        throw std::runtime_error("PAPER EXAMPLE WONT WORK WITH THIS CODE!");
-    }
-
-    if(fabs(c31.model_mean.x - 4.0) > 0.0001)
-    {
-        throw std::runtime_error("PAPER EXAMPLE WONT WORK WITH THIS CODE!");
-    }
-
-    if(c31.n_meas != 4)
-    {
-        throw std::runtime_error("PAPER EXAMPLE WONT WORK WITH THIS CODE!");
-    }
-
-}
 
 int main(int argc, char** argv)
 {
@@ -440,17 +444,15 @@ int main(int argc, char** argv)
 
     std::cout << "STATS TEST" << std::endl;
 
+    // This is essentially checking if the math is correct
     test_incremental();
     test_reduction_order();
-
-    // test_parallel_reduce();
-
+    test_paper();
 
 
-    // test_func();
-
-    // test_paper();
-
+    // THIS goes wrong!
+    test_parallel_reduce();
+    test_func();
 
     return 0;
 }
