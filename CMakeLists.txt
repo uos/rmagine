@@ -183,32 +183,6 @@ if(CMAKE_CUDA_COMPILER)
 endif(CMAKE_CUDA_COMPILER)
 
 
-find_package(CUDAToolkit QUIET)
-if(CUDAToolkit_FOUND)
-    message(STATUS "Found Cuda Toolkit!")
-    check_language(CUDA)
-    if(CMAKE_CUDA_COMPILER)
-        enable_language(CUDA)
-        set(CUDA_FOUND True)
-        set(CUDA_LIBRARIES CUDA::cudart)
-        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
-        set(CUDA_cublas_LIBRARY CUDA::cublas)
-        set(CUDA_DEVICE_LIBRARY "")
-        set(CUDA_INCLUDE_DIRS "") # is in target instead
-    endif(CMAKE_CUDA_COMPILER)
-else()
-    find_package(CUDA)
-    if(CUDA_FOUND)
-        message(STATUS "Found Cuda!")
-        enable_language(CUDA)
-        set(CUDA_DEVICE_LIBRARY cuda)
-    else()
-        message(STATUS "Neither CudaToolkit nor ")
-    endif(CUDA_FOUND)
-endif(CUDAToolkit_FOUND)
-
-
-
 ######################################
 ## OptiX: RTX Raycasting ##
 ######################################
