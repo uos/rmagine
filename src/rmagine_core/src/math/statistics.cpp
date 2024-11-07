@@ -33,7 +33,7 @@ CrossStatistics statistics_p2p(
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params)
 {
-    CrossStatistics stats;
+    CrossStatistics stats = CrossStatistics::Identity();
 
     #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)
@@ -45,11 +45,6 @@ CrossStatistics statistics_p2p(
             && (model.ids.empty()    || model.ids[i]   == params.model_id)
             )
         {
-            if(!dataset.ids.empty())
-            {
-                std::cout << "Hello! Dataset Id " << dataset.ids[i] << ", mask id: " << dataset.mask[i] << std::endl;
-            }
-
             const Vector Di = pre_transform * dataset.points[i]; // read
             const Vector Mi = model.points[i]; // read
 
@@ -78,6 +73,7 @@ void statistics_p2l(
     stats = statistics_p2l(pre_transform, dataset, model, params);
 }
 
+
 RMAGINE_HOST_FUNCTION
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,
@@ -85,7 +81,7 @@ CrossStatistics statistics_p2l(
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params)
 {
-    CrossStatistics stats = CrossStatistics::Identity();;
+    CrossStatistics stats;// = CrossStatistics::Identity();
 
     #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)

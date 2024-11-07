@@ -17,7 +17,7 @@
 
 namespace rm = rmagine;
 
-size_t n_points = 10000000;
+size_t n_points = 1000*10000;
 
 void test_incremental()
 {
@@ -82,24 +82,37 @@ bool is_valid(T a)
     return a == a;
 }
 
-void checkStats(rm::CrossStatistics stats)
+void printStats(rm::CrossStatistics stats)
 {
     std::cout << "CrossStatistics: " << std::endl;
     std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
     std::cout << "- model mean: " << stats.model_mean << std::endl;
     std::cout << "- cov: " << stats.covariance << std::endl;
     std::cout << "- n meas: " << stats.n_meas << std::endl; 
+}
 
+void checkStats(rm::CrossStatistics stats)
+{
     // check for nans
+    if(!is_valid(stats.dataset_mean.x)){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.dataset_mean.y)){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.dataset_mean.z)){throw std::runtime_error("ERROR: NAN");};
+    
+    if(!is_valid(stats.model_mean.x)){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.model_mean.y)){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.model_mean.z)){throw std::runtime_error("ERROR: NAN");};
 
-    if(!is_valid(stats.dataset_mean.x)){throw std::runtime_error("ERR");};
-    if(!is_valid(stats.dataset_mean.y)){throw std::runtime_error("ERR");};
-    if(!is_valid(stats.dataset_mean.z)){throw std::runtime_error("ERR");};
-    if(!is_valid(stats.model_mean.x)){throw std::runtime_error("ERR");};
-    if(!is_valid(stats.model_mean.y)){throw std::runtime_error("ERR");};
-    if(!is_valid(stats.model_mean.z)){throw std::runtime_error("ERR");};
+    if(!is_valid(stats.covariance(0,0))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(0,1))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(0,2))){throw std::runtime_error("ERROR: NAN");};
 
+    if(!is_valid(stats.covariance(1,0))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(1,1))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(1,2))){throw std::runtime_error("ERROR: NAN");};
 
+    if(!is_valid(stats.covariance(2,0))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(2,1))){throw std::runtime_error("ERROR: NAN");};
+    if(!is_valid(stats.covariance(2,2))){throw std::runtime_error("ERROR: NAN");};
 }
 
 void test_func()
@@ -129,6 +142,8 @@ void test_func()
         // dataset_ids[i] = 0;
     }
 
+    dataset_ids[1] = 2;
+
     ////
     // mask: 0 1 0 1 0 1 0 1
     // ids:  0 1 2 3 0 1 2 3
@@ -151,49 +166,35 @@ void test_func()
     rm::CrossStatistics stats = rm::statistics_p2p(Tpre, dataset, model, params);
     el = sw();    
 
-
-
-
     std::cout << "statistics_p2p: " << el << " s" << std::endl;
 
-    std::cout << n_points << std::endl;
-
+    printStats(stats);
     checkStats(stats);
+    if(stats.n_meas != n_points){throw std::runtime_error("ERROR: Too many points");}
 
-   
+       
+    sw();
+    stats = rm::statistics_p2p(Tpre, 
+        {.points = dataset_points, .mask=dataset_mask},  // dataset
+        {.points = model_points}, // model
+        params);
+    el = sw();
 
+    printStats(stats);
+    checkStats(stats);
+    if(stats.n_meas != n_points/2){throw std::runtime_error("ERROR: Too many points");}
 
+    params.dataset_id = 2;
+    sw();
+    stats = rm::statistics_p2p(Tpre, 
+        {.points = dataset_points, .mask=dataset_mask, .ids=dataset_ids},  // dataset
+        {.points = model_points}, // model
+        params);
+    el = sw();
 
-    
-    // sw();
-    // stats = rm::statistics_p2p(Tpre, 
-    //     {.points = dataset_points, .mask=dataset_mask},  // dataset
-    //     {.points = model_points}, // model
-    //     params);
-    // el = sw();
-
-    // std::cout << "Result: " << std::endl;
-    // std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
-    // std::cout << "- model mean: " << stats.model_mean << std::endl;
-    // std::cout << "- cov: " << stats.covariance << std::endl;
-    // std::cout << "- n meas: " << stats.n_meas << std::endl; 
-
-
-    // params.dataset_id = 2;
-    // sw();
-    // stats = rm::statistics_p2p(Tpre, 
-    //     {.points = dataset_points, .mask=dataset_mask, .ids=dataset_ids},  // dataset
-    //     {.points = model_points}, // model
-    //     params);
-    // el = sw();
-
-    // std::cout << "Result: " << std::endl;
-    // std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
-    // std::cout << "- model mean: " << stats.model_mean << std::endl;
-    // std::cout << "- cov: " << stats.covariance << std::endl;
-    // std::cout << "- n meas: " << stats.n_meas << std::endl; 
-
-    
+    printStats(stats);
+    checkStats(stats);
+    // if(stats.n_meas != 0){throw std::runtime_error("ERROR: Too many points");}
     
 }
 
@@ -204,16 +205,11 @@ int main(int argc, char** argv)
     std::cout << "STATS TEST" << std::endl;
 
 
-    // test_incremental();
+    test_incremental();
 
-    // test_parallel_reduce();
+    test_parallel_reduce();
 
     test_func();
-
-
-    
-
-
 
     return 0;
 }
