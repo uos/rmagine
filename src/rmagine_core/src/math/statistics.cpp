@@ -6,6 +6,8 @@
 #include "rmagine/math/math.h"
 #include "rmagine/math/omp.h"
 
+#include <rmagine/util/prints.h>
+
 namespace rmagine
 {
 
@@ -35,10 +37,9 @@ CrossStatistics statistics_p2p(
 {
     CrossStatistics stats = CrossStatistics::Identity();
 
-    #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
+    // #pragma omp parallel for reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
-        // figure out if distance is too high
         if(    (dataset.mask.empty() || dataset.mask[i] > 0)
             && (model.mask.empty()   || model.mask[i]   > 0)
             && (dataset.ids.empty()  || dataset.ids[i] == params.dataset_id)
@@ -58,6 +59,8 @@ CrossStatistics statistics_p2p(
             }
         }
     }
+
+    // std::cout << stats.covariance << std::endl;
 
     return stats;
 }
@@ -83,7 +86,7 @@ CrossStatistics statistics_p2l(
 {
     CrossStatistics stats;// = CrossStatistics::Identity();
 
-    #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
+    // #pragma omp parallel for shared(pre_transform, dataset, model, params) reduction(+: stats)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
         // figure out if distance is too high

@@ -56,6 +56,17 @@ struct CrossStatistics_
     Matrix_<DataT, 3, 3>  covariance;
     unsigned int          n_meas; // number of samples
 
+    // RMAGINE_FUNCTION
+    // static CrossStatistics_<DataT> IdentityWithPrint()
+    // {
+    //     std::cout << "Call Identity" << std::endl;
+    //     CrossStatistics_<DataT> ret;
+    //     ret.dataset_mean = {0.0, 0.0, 0.0};
+    //     ret.model_mean = {0.0, 0.0, 0.0};
+    //     ret.covariance = Matrix_<DataT, 3, 3>::Identity();
+    //     ret.n_meas = 0;
+    //     return ret;
+    // }
 
     RMAGINE_FUNCTION
     static CrossStatistics_<DataT> Identity()
@@ -63,7 +74,7 @@ struct CrossStatistics_
         CrossStatistics_<DataT> ret;
         ret.dataset_mean = {0.0, 0.0, 0.0};
         ret.model_mean = {0.0, 0.0, 0.0};
-        ret.covariance = Matrix_<DataT, 3, 3>::Identity();
+        ret.covariance.setZeros();
         ret.n_meas = 0;
         return ret;
     }
@@ -76,7 +87,7 @@ struct CrossStatistics_
         CrossStatistics_<DataT> ret;
         ret.dataset_mean = d;
         ret.model_mean = m;
-        ret.covariance = m.multT(d);
+        ret.covariance.setZeros();
         ret.n_meas = 1;
         return ret;
     }
