@@ -110,6 +110,10 @@ struct CrossStatistics_
         addInplace(o);
         return *this;
 	}
+
+
+    RMAGINE_INLINE_FUNCTION
+    void addInplace2(const CrossStatistics_<DataT>& o);
 };
 
 using CrossStatistics = CrossStatistics_<float>;
