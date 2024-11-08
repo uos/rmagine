@@ -28,100 +28,29 @@
 /**
  * @file
  * 
- * @brief Euler Angles
+ * @brief Optimization Functions
  *
- * @date 03.10.2024
+ * @date 03.10.2022
  * @author Alexander Mock
  * 
  * @copyright Copyright (c) 2024, University Osnabrück. All rights reserved.
  * This project is released under the 3-Clause BSD License.
  * 
  */
-#ifndef RMAGINE_MATH_EULER_ANGLES_HPP
-#define RMAGINE_MATH_EULER_ANGLES_HPP
+#ifndef RMAGINE_MATH_OPTIMIZATION_H
+#define RMAGINE_MATH_OPTIMIZATION_H
 
-#include "definitions.h"
+#include "types.h"
+#include "math.h"
 #include <rmagine/types/shared_functions.h>
-#include <initializer_list>
-#include <iostream>
+#include "linalg.h"
 
 namespace rmagine
 {
 
-/**
- * @brief EulerAngles type
- * 
- */
-template<typename DataT>
-struct EulerAngles_ 
-{
-    // DATA
-    DataT roll;     // x-axis
-    DataT pitch;    // y-axis
-    DataT yaw;      // z-axis
 
 
-    // Functions
-    RMAGINE_FUNCTION
-    static EulerAngles_<DataT> Identity()
-    {
-        EulerAngles_<DataT> ret;
-        ret.setIdentity();
-        return ret;
-    }
 
-    RMAGINE_INLINE_FUNCTION
-    void setIdentity();
+} // namespace rmagine
 
-    RMAGINE_INLINE_FUNCTION
-    void set(const Quaternion_<DataT>& q);
-
-    RMAGINE_INLINE_FUNCTION
-    void set(const Matrix_<DataT, 3, 3>& M);
-
-    RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
-
-    //////////////////
-    // Operators
-
-    RMAGINE_INLINE_FUNCTION
-    Vector3_<DataT> operator*(const Vector3_<DataT>& v) const 
-    {
-        return mult(v);
-    }
-
-    ///////////////
-    // CASTING
-
-    /**
-     * @brief EulerAngles -> Quaternion
-     * 
-     * @return Quaternion_<DataT> 
-     */
-    RMAGINE_INLINE_FUNCTION
-    operator Quaternion_<DataT>() const;
-
-    /**
-     * @brief EulerAngles -> Rotation Matrix
-     * 
-     * @return Matrix_<DataT, 3, 3> 
-     */
-    RMAGINE_INLINE_FUNCTION
-    operator Matrix_<DataT, 3, 3>() const;
-
-    /**
-     * @brief Data Type Cast to ConvT
-     * 
-     * @tparam ConvT 
-     */
-    template<typename ConvT>
-    RMAGINE_INLINE_FUNCTION
-    EulerAngles_<ConvT> cast() const;
-};
-
-} // rmagine
-
-#include "EulerAngles.tcc"
-
-#endif // RMAGINE_MATH_EULER_ANGLES_HPPs
+#endif // RMAGINE_MATH_OPTIMIZATION_H

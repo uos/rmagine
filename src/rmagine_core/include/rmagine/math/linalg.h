@@ -43,6 +43,7 @@
 #include "types.h"
 #include "math.h"
 #include <rmagine/types/shared_functions.h>
+#include <rmagine/types/PointCloud.hpp>
 
 namespace rmagine
 {
@@ -225,7 +226,7 @@ float GM_weight(
 
 // TODO: test 
 RMAGINE_INLINE_FUNCTION
-void p2p_jacobian_and_residual(
+void jacobian_and_residual_p2p(
     Matrix_<float, 3, 6>& Jr, // [out] Jacobian 
     Matrix_<float, 3, 1>& residual, // [out] residual
     const Vector3f& Pm, // model point
@@ -252,7 +253,7 @@ void p2p_jacobian_and_residual(
 
 
 RMAGINE_INLINE_FUNCTION
-void p2l_jacobian_and_residual(
+void jacobian_and_residual_p2l(
     Matrix_<float, 1, 6>& J, // [out] Jacobian
     float& residual, // [out] residual
     const Vector3f& Pm, // model point 
@@ -284,7 +285,7 @@ void p2l_jacobian_and_residual(
  * using point to point metric (P2P)
  */
 RMAGINE_INLINE_FUNCTION
-void build_linear_system(
+void build_linear_system_p2p(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,
     const MemoryView<Vector, RAM>& model_points, 
@@ -298,7 +299,7 @@ void build_linear_system(
         Matrix_<float, 3, 6> J;
         Matrix_<float, 3, 1> r;
         
-        p2p_jacobian_and_residual(J, r, 
+        jacobian_and_residual_p2p(J, r, 
           model_points[i], dataset_points[i]);
 
         float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
@@ -309,13 +310,16 @@ void build_linear_system(
 }
 
 
+
+
+
 /**
  * @brief Build a Gauss-Newton linear system of the form 
  * (J^T * W * J) * x = (J^T * W * r)
  * using point to plane metric (P2L)
  */
 RMAGINE_INLINE_FUNCTION
-void build_linear_system(
+void build_linear_system_p2l(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,
     const MemoryView<Vector, RAM>& model_points,
@@ -329,7 +333,7 @@ void build_linear_system(
     {
         Matrix_<float, 1, 6> J;
         float r;
-        p2l_jacobian_and_residual(J, r, 
+        jacobian_and_residual_p2l(J, r, 
           model_points[i], model_normals[i], dataset_points[i]);
 
         float weight = GM_weight(5.0, r);
@@ -338,6 +342,53 @@ void build_linear_system(
     }
 }
 
+RMAGINE_INLINE_FUNCTION
+void build_linear_system_p2p(
+    Matrix_<float, 6, 6>& JTwJ,
+    Matrix_<float, 6, 1>& JTwr,
+    const PointCloudView_<RAM>& model, 
+    const PointCloudView_<RAM>& dataset)
+{   
+    // TODO:
+    // - test
+    // - make reduction from this
+    for(size_t i=0; i<model.points.size(); i++)
+    {
+        Matrix_<float, 3, 6> J;
+        Matrix_<float, 3, 1> r;
+        
+        jacobian_and_residual_p2p(J, r, 
+          model.points[i], dataset.points[i]);
+
+        float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
+        float w = GM_weight(5.0, residual2);
+        JTwJ += (J.T() * w) * J; 
+        JTwr += (J.T() * w) * r;
+    }
+}
+
+RMAGINE_INLINE_FUNCTION
+void build_linear_system_p2l(
+    Matrix_<float, 6, 6>& JTwJ,
+    Matrix_<float, 6, 1>& JTwr,
+    const PointCloudView_<RAM>& model,
+    const PointCloudView_<RAM>& dataset)
+{   
+    // TODO:
+    // - test
+    // - make reduction from this
+    for(size_t i=0; i<model.points.size(); i++)
+    {
+        Matrix_<float, 1, 6> J;
+        float r;
+        jacobian_and_residual_p2l(J, r, 
+          model.points[i], model.normals[i], dataset.points[i]);
+
+        float weight = GM_weight(5.0, r);
+        JTwJ += (J.T() * weight) * J; 
+        JTwr += (J.T() * weight) * r;
+    }
+}
 
 // Collection of minimization strategies
 //

@@ -7,6 +7,8 @@ set(RMAGINE_CORE_SRCS
     # # Math
     src/math/math.cpp
     src/math/linalg.cpp
+    src/math/statistics.cpp
+    src/math/optimization.cpp
     src/math/SVD.cpp
     # Types
     src/types/Memory.cpp

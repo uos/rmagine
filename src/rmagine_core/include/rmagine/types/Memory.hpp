@@ -62,12 +62,24 @@ public:
     using DataType = DataT;
     using MemType = MemT;
     
+    // use this 
     MemoryView() = delete;
+
+    static MemoryView<DataT, MemT> Empty()
+    {
+        return MemoryView<DataT, MemT>(nullptr, 0);
+    }
 
     MemoryView(DataT* mem, size_t N);
 
     // no virtual: we dont want to destruct memory of a view
     ~MemoryView();
+
+    RMAGINE_INLINE_FUNCTION
+    bool empty() const 
+    {
+        return m_mem == nullptr;
+    }
 
     // Copy for assignment of same MemT
     MemoryView<DataT, MemT>& operator=(
