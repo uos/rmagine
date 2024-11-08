@@ -49,5 +49,10 @@
 #pragma omp declare reduction( + : rmagine::Matrix4x4 : omp_out += omp_in )
 #pragma omp declare reduction( + : rmagine::CrossStatistics : omp_out += omp_in ) // initializer(omp_priv = rmagine::CrossStatistics::Identity())
 
+#pragma omp declare reduction( + : rmagine::Vector3_<double> : omp_out += omp_in )
+#pragma omp declare reduction( + : rmagine::Matrix_<double, 3, 3> : omp_out += omp_in )
+#pragma omp declare reduction( + : rmagine::Matrix_<double, 4, 4> : omp_out += omp_in )
+#pragma omp declare reduction( + : rmagine::CrossStatistics_<double> : omp_out += omp_in ) // initializer(omp_priv = rmagine::CrossStatistics::Identity())
+
 
 #endif // RMAGINE_MATH_OMP_H

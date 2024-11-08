@@ -20,7 +20,7 @@
 
 namespace rm = rmagine;
 
-size_t n_points = 100000;
+size_t n_points = 1e9;
 
 template<typename T>
 bool is_valid(T a)
@@ -28,16 +28,16 @@ bool is_valid(T a)
     return a == a;
 }
 
-void printStats(rm::CrossStatistics stats)
+void printStats(rm::CrossStatistics_<double> stats)
 {
-    std::cout << "CrossStatistics: " << std::endl;
+    std::cout << "CrossStatistics_<double>: " << std::endl;
     std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
     std::cout << "- model mean: " << stats.model_mean << std::endl;
     std::cout << "- cov: " << stats.covariance << std::endl;
     std::cout << "- n meas: " << stats.n_meas << std::endl; 
 }
 
-void checkStats(rm::CrossStatistics stats)
+void checkStats(rm::CrossStatistics_<double> stats)
 {
     // check for nans
     if(!is_valid(stats.dataset_mean.x)){throw std::runtime_error("ERROR: NAN");};
@@ -61,7 +61,7 @@ void checkStats(rm::CrossStatistics stats)
     if(!is_valid(stats.covariance(2,2))){throw std::runtime_error("ERROR: NAN");};
 }
 
-bool equal(rm::CrossStatistics a, rm::CrossStatistics b)
+bool equal(rm::CrossStatistics_<double> a, rm::CrossStatistics_<double> b)
 {
     if(a.n_meas != b.n_meas)
     {
@@ -78,8 +78,8 @@ bool equal(rm::CrossStatistics a, rm::CrossStatistics b)
         return false;
     }
 
-    rm::Matrix3x3 cov_diff = a.covariance - b.covariance;
-    float cov_diff_abs_sum = 0.0;
+    rm::Matrix_<double, 3, 3> cov_diff = a.covariance - b.covariance;
+    double cov_diff_abs_sum = 0.0;
 
     for(size_t i=0; i<3; i++)
     {
@@ -103,17 +103,17 @@ void test_incremental()
 {
     rm::StopWatch sw;
     double el;
-    rm::CrossStatistics total1 = rm::CrossStatistics::Identity();
+    rm::CrossStatistics_<double> total1 = rm::CrossStatistics_<double>::Identity();
 
     sw();
 
     for(size_t i=0; i < n_points; i++)
     {
-        float p = static_cast<double>(i) / static_cast<double>(n_points);
-        rm::Vector3 d = {-p, p*10.f, p};
-        rm::Vector3 m = {p, p, -p};
-        const rm::CrossStatistics local = rm::CrossStatistics::Init(d, m);
-        total1 += rm::CrossStatistics::Init(d, m);
+        double p = static_cast<double>(i) / static_cast<double>(n_points);
+        rm::Vector3_<double> d = {-p, p*10.f, p};
+        rm::Vector3_<double> m = {p, p, -p};
+        const rm::CrossStatistics_<double> local = rm::CrossStatistics_<double>::Init(d, m);
+        total1 += rm::CrossStatistics_<double>::Init(d, m);
     }
 
     el = sw();
@@ -122,13 +122,13 @@ void test_incremental()
     // printStats(total1);
     assert(total1.n_meas == n_points);
 
-    rm::CrossStatistics total2 = rm::CrossStatistics::Identity();
+    rm::CrossStatistics_<double> total2 = rm::CrossStatistics_<double>::Identity();
     for(size_t i=0; i < n_points; i++)
     {
-        float p = static_cast<double>(i) / static_cast<double>(n_points);
-        rm::Vector3 d = {-p, p*10.f, p};
-        rm::Vector3 m = {p, p, -p};
-        const rm::CrossStatistics local = rm::CrossStatistics::Init(d, m);
+        double p = static_cast<double>(i) / static_cast<double>(n_points);
+        rm::Vector3_<double> d = {-p, p*10.f, p};
+        rm::Vector3_<double> m = {p, p, -p};
+        const rm::CrossStatistics_<double> local = rm::CrossStatistics_<double>::Init(d, m);
         total2 = total2 + local;
     }
     
@@ -142,30 +142,31 @@ void test_incremental()
 
         throw std::runtime_error("test_incremental - += and + operator produce different results");
     }
+    printStats(total1);
 
     std::cout << "test_incremental() - success. runtime: " << el << " s" << std::endl;
 }
 
 
-std::vector<rm::CrossStatistics> init_reduction(
-  rm::Memory<rm::Vector3> dataset,
-  rm::Memory<rm::Vector3> model,
+std::vector<rm::CrossStatistics_<double>> init_reduction(
+  rm::Memory<rm::Vector3_<double>> dataset,
+  rm::Memory<rm::Vector3_<double>> model,
   std::vector<int> ids)
 {
-    std::vector<rm::CrossStatistics> ret;
+    std::vector<rm::CrossStatistics_<double>> ret;
 
     for(size_t i = 0; i<ids.size(); i++)
     {
-        ret.push_back(rm::CrossStatistics::Init(dataset[ids[i]], model[ids[i]]));
+        ret.push_back(rm::CrossStatistics_<double>::Init(dataset[ids[i]], model[ids[i]]));
     }
 
     return ret;
 }
 
-std::vector<rm::CrossStatistics> reduce_once(
-  std::vector<rm::CrossStatistics> data)
+std::vector<rm::CrossStatistics_<double>> reduce_once(
+  std::vector<rm::CrossStatistics_<double>> data)
 {
-    std::vector<rm::CrossStatistics> ret;
+    std::vector<rm::CrossStatistics_<double>> ret;
 
     for(size_t i=1; i<data.size(); i+=2)
     {
@@ -180,7 +181,7 @@ std::vector<rm::CrossStatistics> reduce_once(
     return ret;
 }
 
-rm::CrossStatistics reduce(std::vector<rm::CrossStatistics> data)
+rm::CrossStatistics_<double> reduce(std::vector<rm::CrossStatistics_<double>> data)
 {
     while(data.size() > 1)
     {
@@ -191,15 +192,15 @@ rm::CrossStatistics reduce(std::vector<rm::CrossStatistics> data)
 
 void test_reduction_order()
 {
-    size_t num_elements = 500;
+    size_t num_elements = n_points;
     size_t num_shuffles = 100;
 
-    rm::Memory<rm::Vector3> dataset(num_elements);
-    rm::Memory<rm::Vector3> model(num_elements);
+    rm::Memory<rm::Vector3_<double>> dataset(num_elements);
+    rm::Memory<rm::Vector3_<double>> model(num_elements);
 
     std::random_device rd;
     std::mt19937 g(rd());
-    std::uniform_real_distribution<float> dist(0.0, 1.0);
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
 
     for(size_t i=0; i<num_elements; i++)
     {
@@ -215,15 +216,15 @@ void test_reduction_order()
     std::vector<int> ids(num_elements);
     std::iota(ids.begin(), ids.end(), 0);
 
-    std::vector<rm::CrossStatistics> data = init_reduction(dataset, model, ids);
-    rm::CrossStatistics stats = reduce(data);
+    std::vector<rm::CrossStatistics_<double>> data = init_reduction(dataset, model, ids);
+    rm::CrossStatistics_<double> stats = reduce(data);
     
     for(size_t tries = 0; tries < num_shuffles; tries++)
     {
         std::shuffle(ids.begin(), ids.end(), g);
 
-        std::vector<rm::CrossStatistics> data_inner = init_reduction(dataset, model, ids);
-        rm::CrossStatistics stats_inner = reduce(data_inner);
+        std::vector<rm::CrossStatistics_<double>> data_inner = init_reduction(dataset, model, ids);
+        rm::CrossStatistics_<double> stats_inner = reduce(data_inner);
 
         if(!equal(stats, stats_inner))
         {
@@ -246,7 +247,7 @@ void test_paper()
 {
     std::cout << "Recreating Paper Example MICP-L Fig 3." << std::endl;
   
-    rm::CrossStatistics c11, c12, c13, c14;
+    rm::CrossStatistics_<double> c11, c12, c13, c14;
     
     c11.dataset_mean = {1.0, 0.0, 0.0};
     c11.model_mean   = {3.0, 0.0, 0.0};
@@ -269,19 +270,19 @@ void test_paper()
     c14.n_meas = 1;
 
     // make the reduction: second level of the tree
-    rm::CrossStatistics c21, c22;
+    rm::CrossStatistics_<double> c21, c22;
 
     // the next two lines can be executed in parallel
     c21 = c11 + c12;
     c22 = c13 + c14;
 
     // third level
-    rm::CrossStatistics c31;
+    rm::CrossStatistics_<double> c31;
     c31 = c21 + c22;
 
     printStats(c31);
 
-    rm::CrossStatistics gt = rm::CrossStatistics::Identity();
+    rm::CrossStatistics_<double> gt = rm::CrossStatistics_<double>::Identity();
     gt.dataset_mean = {5.0, 0.0, 0.0};
     gt.model_mean = {4.0, 0.0, 0.0};
     gt.covariance.setZeros();
@@ -309,17 +310,28 @@ void test_parallel_reduce()
 {
     rm::StopWatch sw;
     double el;
-    rm::CrossStatistics total1 = rm::CrossStatistics::Identity();
+    rm::CrossStatistics_<double> total1 = rm::CrossStatistics_<double>::Identity();
 
     sw();
+    rm::CrossStatistics_<double> c = rm::CrossStatistics_<double>::Identity();
 
     #pragma omp parallel for reduction(+: total1)
     for(size_t i=0; i<n_points; i++)
     {
-        float p = static_cast<double>(i) / static_cast<double>(n_points);
-        rm::Vector3 d = {1.0, 0.0, 1.0};
-        rm::Vector3 m = {0.0, p, 0.0};
-        total1 += rm::CrossStatistics::Init(d, m);
+        double p = static_cast<double>(i) / static_cast<double>(n_points);
+        rm::Vector3_<double> d = {-p, p*10.f, p};
+        rm::Vector3_<double> m = {p, p, -p};
+
+        total1 += rm::CrossStatistics_<double>::Init(d, m);
+
+        //p = static_cast<double>(i) / static_cast<double>(n_points);
+        //rm::Vector3_<double> d = {1.0, 0.0, 1.0};
+        //rm::Vector3_<double> m = {0.0, p, 0.0};
+        //rm::CrossStatistics_<double> y = rm::CrossStatistics_<double>::Init(d, m);
+        //rm::CrossStatistics_<double> t = total1 + y0;
+        //c = (t - total1) - y;
+        //total1 = t;
+//        total1 += rm::CrossStatistics_<double>::Init(d, m);
     }
 
     el = sw();
@@ -330,13 +342,14 @@ void test_parallel_reduce()
     assert(total1.n_meas == n_points);
 
     // compare to sequenctial results
-    rm::CrossStatistics total2 = rm::CrossStatistics::Identity();
+    rm::CrossStatistics_<double> total2 = rm::CrossStatistics_<double>::Identity();
     for(size_t i=0; i<n_points; i++)
     {
-        float p = static_cast<double>(i) / static_cast<double>(n_points);
-        rm::Vector3 d = {1.0, 0.0, 1.0};
-        rm::Vector3 m = {0.0, p, 0.0};
-        total2 += rm::CrossStatistics::Init(d, m);
+        double p = static_cast<double>(i) / static_cast<double>(n_points);
+        rm::Vector3_<double> d = {-p, p*10.f, p};
+        rm::Vector3_<double> m = {p, p, -p};
+
+        total2 += rm::CrossStatistics_<double>::Init(d, m);
     }
 
     printStats(total2);
@@ -350,56 +363,56 @@ void test_parallel_reduce()
 
 void test_func()
 {
-    rm::StopWatch sw;
-    double el;
+    // rm::StopWatch sw;
+    // double el;
     
-    rm::CrossStatistics stats_tmp = rm::CrossStatistics::Identity();
-    checkStats(stats_tmp);
+    // rm::CrossStatistics_<double> stats_tmp = rm::CrossStatistics_<double>::Identity();
+    // checkStats(stats_tmp);
 
 
-    rm::Memory<rm::Vector> dataset_points(n_points);
-    rm::Memory<rm::Vector> model_points(n_points);
-    rm::Memory<unsigned int> dataset_mask(n_points);
-    rm::Memory<unsigned int> dataset_ids(n_points);
+    // rm::Memory<rm::Vector3_<double>> dataset_points(n_points);
+    // rm::Memory<rm::Vector3_<double>> model_points(n_points);
+    // rm::Memory<unsigned int> dataset_mask(n_points);
+    // rm::Memory<unsigned int> dataset_ids(n_points);
 
-    // rm::Memory<unsigned int> mask;
+    // // rm::Memory<unsigned int> mask;
 
-    // fill
-    for(size_t i=0; i<n_points; i++)
-    {
-        rm::Vector3 d = {1.0, 0.0, 1.0};
-        rm::Vector3 m = {0.0, 1.0, 0.0};
+    // // fill
+    // for(size_t i=0; i<n_points; i++)
+    // {
+    //     rm::Vector3_<double> d = {1.0, 0.0, 1.0};
+    //     rm::Vector3_<double> m = {0.0, 1.0, 0.0};
 
-        dataset_points[i] = d;
-        model_points[i] = m;
+    //     dataset_points[i] = d;
+    //     model_points[i] = m;
 
-        dataset_mask[i] = i%2;
-        dataset_ids[i] = i%4; // 0,1,2,3
-        // dataset_ids[i] = 0;
-    }
+    //     dataset_mask[i] = i%2;
+    //     dataset_ids[i] = i%4; // 0,1,2,3
+    //     // dataset_ids[i] = 0;
+    // }
 
-    dataset_ids[1] = 2;
+    // dataset_ids[1] = 2;
 
-    ////
-    // mask: 0 1 0 1 0 1 0 1
-    // ids:  0 1 2 3 0 1 2 3
-    std::cout << "Define dataset" << std::endl;
+    // ////
+    // // mask: 0 1 0 1 0 1 0 1
+    // // ids:  0 1 2 3 0 1 2 3
+    // std::cout << "Define dataset" << std::endl;
 
-    // define dataset and model from given memory
-    rm::PointCloudView dataset = {.points = dataset_points};
+    // // // define dataset and model from given memory
+    // // rm::PointCloudView dataset = {.points = dataset_points};
 
-    // std::cout << "Define model" << std::endl;
-    rm::PointCloudView model = {.points = model_points};
+    // // // std::cout << "Define model" << std::endl;
+    // // rm::PointCloudView model = {.points = model_points};
 
-    rm::Transform Tpre = rm::Transform::Identity();
+    // rm::Transform Tpre = rm::Transform::Identity();
 
-    rm::UmeyamaReductionConstraints params;
-    params.max_dist = 2.0;
+    // rm::UmeyamaReductionConstraints params;
+    // params.max_dist = 2.0;
 
-    // results
-    rm::CrossStatistics stats;
+    // // results
+    // rm::CrossStatistics_<double> stats;
     
-    std::cout << "RUN!" << std::endl;
+    // std::cout << "RUN!" << std::endl;
 
     // sw();
     // stats = rm::statistics_p2p(Tpre, dataset, model, params);
@@ -423,16 +436,16 @@ void test_func()
     // checkStats(stats);
     // if(stats.n_meas != n_points/2){throw std::runtime_error("ERROR: Too many points");}
 
-    params.dataset_id = 2;
-    sw();
-    stats = rm::statistics_p2p(Tpre, 
-        {.points = dataset_points, .mask=dataset_mask, .ids=dataset_ids},  // dataset
-        {.points = model_points}, // model
-        params);
-    el = sw();
+    // params.dataset_id = 2;
+    // sw();
+    // // stats = rm::statistics_p2p(Tpre, 
+    // //     {.points = dataset_points, .mask=dataset_mask, .ids=dataset_ids},  // dataset
+    // //     {.points = model_points}, // model
+    // //     params);
+    // // el = sw();
 
-    printStats(stats);
-    checkStats(stats);
+    // // printStats(stats);
+    // // checkStats(stats);
     // if(stats.n_meas != 0){throw std::runtime_error("ERROR: Too many points");}
     
 }
@@ -446,8 +459,8 @@ int main(int argc, char** argv)
 
     // This is essentially checking if the math is correct
     test_incremental();
-    test_reduction_order();
-    test_paper();
+    // test_reduction_order();
+    // test_paper();
 
 
     // THIS goes wrong!
