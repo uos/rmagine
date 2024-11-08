@@ -105,12 +105,12 @@ bool equal(rm::CrossStatistics_<DataT> a, rm::CrossStatistics_<DataT> b)
 
 
 template<typename DataT>
-void compute_precision(size_t n_points)
+DataT compute_iterative_precision(size_t n_points)
 {
     // test iterative precision for 1D case
 
     // gauss
-    double mean_exact = static_cast<double>(n_points - 1) / static_cast<double>(2 * n_points);
+    DataT mean_exact = static_cast<double>(n_points - 1) / static_cast<double>(2 * n_points);
  
 
     DataT mean_iterative(0.0);
@@ -121,30 +121,31 @@ void compute_precision(size_t n_points)
     {
         const DataT val = static_cast<double>(i) / static_cast<double>(n_points);
         const DataT alpha = static_cast<double>(1) / static_cast<double>(mean_n_meas + 1);
-
         mean_iterative = mean_iterative * (1.0 - alpha) + val * alpha;
         mean_n_meas++;
     }
 
 
-    DataT sum_iterative(0.0);
-    size_t sum_n_meas = 0;
+    // DataT sum_iterative(0.0);
+    // size_t sum_n_meas = 0;
 
-    for(size_t i=0; i<n_points; i++)
-    {
-        const DataT val = static_cast<double>(i) / static_cast<double>(n_points);
-        sum_iterative = sum_iterative + val;
-        sum_n_meas++;
-    }
+    // for(size_t i=0; i<n_points; i++)
+    // {
+    //     const DataT val = static_cast<double>(i) / static_cast<double>(n_points);
+    //     sum_iterative = sum_iterative + val;
+    //     sum_n_meas++;
+    // }
 
-    DataT mean_iterative_sum = sum_iterative / static_cast<double>(sum_n_meas);
+    // DataT mean_iterative_sum = sum_iterative / static_cast<double>(sum_n_meas);
 
-    std::cout << "Precision Stats:" << std::endl;
-    std::cout << "- exact: " << mean_exact << std::endl;
-    std::cout << "- iterative: " << mean_iterative << std::endl;
-    std::cout << "- iterative (sum): " << mean_iterative_sum << std::endl;
+    // std::cout << "Precision Stats:" << std::endl;
+    // std::cout << "- exact: " << mean_exact << std::endl;
+    // std::cout << "- iterative: " << mean_iterative << std::endl;
+    // std::cout << "- iterative (sum): " << mean_iterative_sum << std::endl;
 
     // std::cout << ""
+
+    return abs(mean_exact - mean_iterative);
 }
 
 std::vector<rm::CrossStatistics_<double>> init_reduction(
@@ -181,11 +182,13 @@ std::vector<rm::CrossStatistics_<DataT> > reduce_once(
     return ret;
 }
 
-
-
 template<typename DataT>
 void test_incremental()
 {
+    DataT prec = compute_iterative_precision<DataT>(n_points);
+
+    std::cout << "PRECISION: " << prec << std::endl;
+
     // create data that is used by everyone
     std::vector<rm::CrossStatistics_<DataT> > dataset(n_points);
     
@@ -232,27 +235,7 @@ void test_incremental()
         throw std::runtime_error("test_incremental - += and + operator produce different results");
     }
 
-    rm::CrossStatistics_<DataT> total3 = rm::CrossStatistics_<DataT>::Identity();
-    for(size_t i=0; i < n_points; i++)
-    {
-        total3.addInplace2(dataset[i]);
-    }
-
-    std::cout << "total3" << std::endl;
-    printStats(total3);
-
-    if(!equal(total1, total3))
-    {
-        std::cout << "MUST BE THE SAME: 1 != 3" << std::endl;
-    
-        printStats(total1);
-        printStats(total3);
-
-        throw std::runtime_error("test_incremental - += and + operator produce different results");
-    }
-    
     rm::CrossStatistics_<DataT> total4 = rm::CrossStatistics_<DataT>::Identity();
-
     {
         std::vector<rm::CrossStatistics_<DataT> > dataset_reduced = dataset;
         while(dataset_reduced.size() > 1)
@@ -265,8 +248,6 @@ void test_incremental()
 
     std::cout << "total4" << std::endl;
     printStats(total4);
-
-
 
     std::cout << "test_incremental() - success. runtime: " << el << " s" << std::endl;
 }
@@ -453,8 +434,9 @@ void test_parallel_reduce()
 }
 
 
-void test_func()
+void test_p2p()
 {
+    std::cout << "TEST P2P" << std::endl;
     rm::StopWatch sw;
     double el;
     
@@ -544,6 +526,98 @@ void test_func()
 }
 
 
+void test_p2l()
+{
+    std::cout << "TEST P2L" << std::endl;
+    rm::StopWatch sw;
+    double el;
+    
+    rm::CrossStatistics_<double> stats_tmp = rm::CrossStatistics_<double>::Identity();
+    checkStats(stats_tmp);
+
+
+    rm::Memory<rm::Vector3> dataset_points(n_points);
+    rm::Memory<rm::Vector3> model_points(n_points);
+    rm::Memory<rm::Vector3> model_normals(n_points);
+    rm::Memory<unsigned int> dataset_mask(n_points);
+    rm::Memory<unsigned int> dataset_ids(n_points);
+
+    // rm::Memory<unsigned int> mask;
+
+    // fill
+    for(size_t i=0; i<n_points; i++)
+    {
+        float p = static_cast<double>(i) / static_cast<double>(n_points);
+        rm::Vector3 d = {-p, p*10.f, p};
+        rm::Vector3 m = {p, p, -p};
+
+        dataset_points[i] = d;
+        model_points[i] = m;
+        model_normals[i] = {0.0, 0.0, 1.0};
+
+        dataset_mask[i] = i%2;
+        dataset_ids[i] = i%4; // 0,1,2,3
+        // dataset_ids[i] = 0;
+    }
+
+    // dataset_ids[1] = 2;
+
+    ////
+    // mask: 0 1 0 1 0 1 0 1
+    // ids:  0 1 2 3 0 1 2 3
+    std::cout << "Define dataset" << std::endl;
+
+    // define dataset and model from given memory
+    rm::PointCloudView dataset = {.points = dataset_points};
+
+    // std::cout << "Define model" << std::endl;
+    rm::PointCloudView model = {.points = model_points, .normals = model_normals};
+
+    rm::Transform Tpre = rm::Transform::Identity();
+
+    rm::UmeyamaReductionConstraints params;
+    params.max_dist = 20000.0;
+
+    // results
+    rm::CrossStatistics stats;
+    
+    std::cout << "RUN!" << std::endl;
+
+    sw();
+    stats = rm::statistics_p2l(Tpre, dataset, model, params);
+    el = sw();
+
+    std::cout << "statistics_p2l: " << el << " s" << std::endl;
+
+    printStats(stats);
+    checkStats(stats);
+    if(stats.n_meas != n_points){throw std::runtime_error("ERROR: Too many points");}
+
+       
+    sw();
+    stats = rm::statistics_p2l(Tpre, 
+        {.points = dataset_points, .mask=dataset_mask},  // dataset
+        {.points = model_points, .normals = model_normals}, // model
+        params);
+    el = sw();
+
+    printStats(stats);
+    checkStats(stats);
+    if(stats.n_meas != n_points/2){throw std::runtime_error("ERROR: Too many points");}
+
+    params.dataset_id = 2;
+    sw();
+    stats = rm::statistics_p2l(Tpre, 
+        {.points = dataset_points, .mask=dataset_mask, .ids=dataset_ids},  // dataset
+        {.points = model_points, .normals = model_normals}, // model
+        params);
+    el = sw();
+
+    printStats(stats);
+    checkStats(stats);
+    if(stats.n_meas != 0){throw std::runtime_error("ERROR: Too many points");}
+}
+
 int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
@@ -552,12 +626,20 @@ int main(int argc, char** argv)
 
     // This is essentially checking if the math is correct
 
-    // std::cout << "DOUBLE!" << std::endl;
-    // test_incremental<double>();
-    // test_parallel_reduce<double>();
+    std::cout << "DOUBLE!" << std::endl;
+    test_paper<double>();
+    test_incremental<double>();
+    test_parallel_reduce<double>();
+
+    std::cout << "FLOAT!" << std::endl;
+    test_paper<float>();
+    test_incremental<float>();
     
     
-    
+    test_p2p(); // down to 0.0341 s for 10000000 elements
+    test_p2l();
+
+
     // compute_precision<float>(n_points);
     // compute_precision<double>(n_points);
 
@@ -566,7 +648,7 @@ int main(int argc, char** argv)
     // std::cout << "FLOAT!" << std::endl;
     // test_incremental<float>();
     // std::cout << "------------------------" << std::endl;
-    test_func();
+    // test_func();
 
     return 0;
 }
