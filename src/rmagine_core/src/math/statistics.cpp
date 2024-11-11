@@ -40,6 +40,8 @@ CrossStatistics statistics_p2p(
     Vector3 model_mean = Vector3::Zeros();
     unsigned int n_meas = 0;
 
+    // TODO: test transform reduce
+
     #pragma omp parallel for reduction(+: dataset_mean, model_mean, n_meas)
     for(size_t i=0; i<dataset.points.size(); i++)
     {

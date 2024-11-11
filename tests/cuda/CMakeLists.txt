@@ -34,3 +34,11 @@ target_link_libraries(rmagine_tests_cuda_math_svd
 )
 
 add_test(NAME cuda_math_svd COMMAND rmagine_tests_cuda_math_svd)
+
+# 5. Statistics
+add_executable(rmagine_tests_cuda_math_statistics math_statistics.cpp)
+target_link_libraries(rmagine_tests_cuda_math_statistics
+    rmagine::cuda
+)
+
+add_test(NAME cuda_math_statistics COMMAND rmagine_tests_cuda_math_statistics)

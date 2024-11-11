@@ -93,12 +93,21 @@ struct CrossStatistics_
     void addInplace(const CrossStatistics_<DataT>& o);
 
     RMAGINE_INLINE_FUNCTION
+    void addInplace(volatile CrossStatistics_<DataT>& o) volatile;
+
+    RMAGINE_INLINE_FUNCTION
     CrossStatistics_<DataT>& operator+=(const CrossStatistics_& o)
-	{
+    {
         addInplace(o);
         return *this;
-	}
+    }
 
+    RMAGINE_INLINE_FUNCTION
+    volatile CrossStatistics_<DataT>& operator+=(volatile CrossStatistics_<DataT>& o) volatile
+    {
+        addInplace(o);
+        return *this;
+    }
 
     RMAGINE_INLINE_FUNCTION
     void addInplace2(const CrossStatistics_<DataT>& o);

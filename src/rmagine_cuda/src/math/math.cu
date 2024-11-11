@@ -402,7 +402,12 @@ __global__ void normalizeInplace_kernel(
     Quaternion* q,
     unsigned int N)
 {
-    
+    // TODO: this was empty. test this
+    const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if(id < N)
+    {
+        q[id].normalizeInplace();
+    }
 }
 
 
@@ -421,6 +426,8 @@ __global__ void sum_kernel(
     sdata[tid] *= 0.0;
     for(unsigned int i=0; i<rows; i++)
     {
+        // TODO check: Shouldn't this be 'globId + blockSize * i < N'?
+        // or: 'tid + blockSize * i < blockSize'
         if(tid + blockSize * i < N)
         {
             sdata[threadIdx.x] += data[globId + blockSize * i];

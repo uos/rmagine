@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief Statistics Functions
+ * @brief Statistics Functions - CUDA
  *
  * @date 03.10.2024
  * @author Alexander Mock
@@ -37,59 +37,46 @@
  * This project is released under the 3-Clause BSD License.
  * 
  */
-#ifndef RMAGINE_MATH_STATISTICS_H
-#define RMAGINE_MATH_STATISTICS_H
 
-#include "types.h"
-#include "math.h"
-#include <rmagine/types/shared_functions.h>
-#include "linalg.h"
+#ifndef RMAGINE_MATH_STATISTICS_CUH
+#define RMAGINE_MATH_STATISTICS_CUH
 
+
+#include <rmagine/math/statistics.h>
+#include <rmagine/types/MemoryCuda.hpp>
+
+// CUDA extension for statistics.h
 
 namespace rmagine
 {
 
-struct UmeyamaReductionConstraints 
-{
-    ///
-    // Ignore all correspondences larger than `max_dist`
-    float max_dist;
-    
-    ///
-    // Ignore dataset ids except for `dataset_id`
-    unsigned int dataset_id;
-    
-    /// 
-    // Ignore model ids except for `model_id`
-    unsigned int model_id;
-};
-
 void statistics_p2p(
     const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params,
     CrossStatistics& statistics);
 
 CrossStatistics statistics_p2p(
     const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params);
 
 void statistics_p2l(
     const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params,
     CrossStatistics& statistics);
 
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,
-    const PointCloudView_<RAM>& dataset,
-    const PointCloudView_<RAM>& model,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params);
+
 
 } // namespace rmagine
 
-#endif // RMAGINE_MATH_STATISTICS_H
+#endif // RMAGINE_MATH_STATISTICS_CUH

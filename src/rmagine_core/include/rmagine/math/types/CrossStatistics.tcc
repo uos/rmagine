@@ -47,4 +47,28 @@ void CrossStatistics_<DataT>::addInplace(const CrossStatistics_<DataT>& o)
     n_meas = n_meas_new;
 }
 
+template<typename DataT> 
+RMAGINE_INLINE_FUNCTION
+void CrossStatistics_<DataT>::addInplace(volatile CrossStatistics_<DataT>& o) volatile
+{
+    const unsigned int n_meas_new = n_meas + o.n_meas;
+    
+    // numerical critical
+    volatile DataT w1 = static_cast<double>(n_meas) / static_cast<double>(n_meas_new);
+    volatile DataT w2 = static_cast<double>(o.n_meas) / static_cast<double>(n_meas_new);
+    
+    // volatile Vector3_<DataT> dataset_mean_new = dataset_mean * w1 + o.dataset_mean * w2;
+    // volatile Vector3_<DataT> model_mean_new   = model_mean * w1 + o.model_mean * w2;
+
+    // volatile Matrix_<DataT, 3,3> P1 = covariance * w1 + o.covariance * w2;
+    // volatile Matrix_<DataT, 3,3> P2 = (model_mean - model_mean_new).multT(dataset_mean - dataset_mean_new) * w1 
+    //                              + (o.model_mean - model_mean_new).multT(o.dataset_mean - dataset_mean_new) * w2;
+
+    // model_mean.x = model_mean_new.x;
+    // model_mean = model_mean_new;
+    // dataset_mean = dataset_mean_new;
+    // covariance = P1 + P2;
+    // n_meas = n_meas_new;
+}
+
 } // namespace rmagine
