@@ -410,51 +410,6 @@ __global__ void normalizeInplace_kernel(
     }
 }
 
-
-template<unsigned int blockSize, typename T>
-__global__ void sum_kernel(
-    const T* data,
-    T* res,
-    unsigned int N)
-{
-    __shared__ T sdata[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = N * blockIdx.x + threadIdx.x;
-    const unsigned int rows = (N + blockSize - 1) / blockSize;
-
-    sdata[tid] *= 0.0;
-    for(unsigned int i=0; i<rows; i++)
-    {
-        // TODO check: Shouldn't this be 'globId + blockSize * i < N'?
-        // or: 'tid + blockSize * i < blockSize'
-        if(tid + blockSize * i < N)
-        {
-            sdata[threadIdx.x] += data[globId + blockSize * i];
-        }
-    }
-    __syncthreads();
-
-    for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
-    {
-        if(tid < s)
-        {
-            sdata[tid] += sdata[tid + s];
-        }
-        __syncthreads();
-    }
-
-    if(tid < blockSize / 2 && tid < 32)
-    {
-        warpReduce<blockSize>(sdata, tid);
-    }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x] = sdata[0];
-    }
-}
-
 template<unsigned int blockSize>
 __global__ void cov_kernel(
     const Vector* v1,
@@ -1434,6 +1389,81 @@ void setZeros(MemoryView<Matrix4x4, VRAM_CUDA>& Ms)
 //////////
 // #sum
 // TODO: check perfomance of sum_kernel
+template<unsigned int sharedMemElements, typename T>
+__global__ void sum_kernel(
+    const T* data,
+    T* res,
+    unsigned int N)
+{
+    // first reduce data down to 'blockSize' shared blocks
+    // 
+    // example: 
+    // - N=12 elements: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    // - blockSize=4 shared blocks
+    // 
+    // 1. step
+    // sdata[0] = red( 1, 2, 3) =  6  | tid = 0, bid
+    // sdata[1] = red( 4, 5, 6) = 15  | tid = 1
+    // sdata[2] = red( 7, 8, 9) = 24  | tid = 2
+    // sdata[3] = red(10,11,12) = 34  | tid = 3
+    // 
+    // 2. reduce inside shared mem
+    // sdata[0] += sdata[2]
+    // sdata[1] += sdata[3]
+    // __sync
+    // sdata[0] += sdata[1]
+    
+    // the inner [1, 2, 3] is 'rows' which can be calculates 
+    
+    __shared__ T sdata[sharedMemElements];
+    const unsigned int rows = (N + sharedMemElements - 1) / sharedMemElements; 
+    
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+
+    const unsigned int globId = N * bid + tid;
+
+    sdata[tid] *= 0.0;
+    for(unsigned int i=0; i<rows; i++)
+    {
+        // TODO check: Shouldn't this be 'globId + blockSize * i < N'?
+        // or: 'tid + blockSize * i < blockSize'
+        if(tid + sharedMemElements * i < N)
+        {
+            sdata[tid] += data[globId + sharedMemElements * i];
+        }
+    }
+    __syncthreads();
+
+    // for(unsigned int s = sharedMemElements / 2; s > 32; s >>= 1)
+    // {
+    //     if(tid < s)
+    //     {
+    //         sdata[tid] += sdata[tid + s];
+    //     }
+    //     __syncthreads();
+    // }
+
+    // if(tid < sharedMemElements / 2 && tid < 32)
+    // {
+    //     warpReduce<sharedMemElements>(sdata, tid);
+    // }
+
+    for(unsigned int s = sharedMemElements / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid == 0)
+    {
+        res[blockIdx.x] = sdata[0];
+    }
+}
+
 void sum(
     const MemoryView<Vector, VRAM_CUDA>& data,
     MemoryView<Vector, VRAM_CUDA>& s)
@@ -1446,6 +1476,22 @@ Memory<Vector, VRAM_CUDA> sum(
     const MemoryView<Vector, VRAM_CUDA>& data)
 {
     Memory<Vector, VRAM_CUDA> s(1);
+    sum(data, s);
+    return s;
+}
+
+void sum(
+    const MemoryView<int, VRAM_CUDA>& data,
+    MemoryView<int, VRAM_CUDA>& s)
+{
+    sum_kernel<1024> <<<1, 1024>>>(data.raw(), s.raw(), data.size());
+    RM_CUDA_DEBUG();
+}
+
+Memory<int, VRAM_CUDA> sum(
+    const MemoryView<int, VRAM_CUDA>& data)
+{
+    Memory<int, VRAM_CUDA> s(1);
     sum(data, s);
     return s;
 }

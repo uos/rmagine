@@ -2,6 +2,8 @@
 #include <rmagine/math/statistics.h>
 #include <rmagine/math/statistics.cuh>
 
+#include <rmagine/math/math.cuh>
+
 #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/util/prints.h>
 
@@ -9,7 +11,7 @@
 namespace rm = rmagine;
 
 // size_t n_points = 1000;
-size_t n_points = 10000000;
+size_t n_points = 1000*1000;
 
 template<typename T>
 bool is_valid(T a)
@@ -63,7 +65,7 @@ void test1()
   rm::Memory<unsigned int> dataset_mask(n_points);
   rm::Memory<unsigned int> dataset_ids(n_points);
   
-  for(size_t i=0; i<n_points; i++)
+  for(size_t i=1; i <= n_points; i++)
   {
       float p = static_cast<double>(i) / static_cast<double>(n_points);
       rm::Vector3 d = {-p, p*10.f, p};
@@ -92,15 +94,18 @@ void test1()
 
   rm::UmeyamaReductionConstraints params;
   params.max_dist = 20000.0;
+  
 
-  rm::CrossStatistics stats;
+  auto _ = rm::statistics_p2p(Tpre, dataset, model, params);
 
-
+  rm::Memory<rm::CrossStatistics, rm::VRAM_CUDA> stats_gpu(1);
   sw();
-  stats = rm::statistics_p2p(Tpre, dataset, model, params);
+  rm::statistics_p2p(Tpre, dataset, model, params, stats_gpu);
   el = sw();
 
-  printStats(stats);
+  rm::Memory<rm::CrossStatistics> stats = stats_gpu;
+
+  printStats(stats[0]);
 
   std::cout << "Runtime: " << el << " s" << std::endl;
 
@@ -109,10 +114,73 @@ void test1()
 }
 
 
+void test2()
+{
+    size_t n_elements = n_points;
+    rm::StopWatch sw;
+    double el;
+
+    rm::Memory<int, rm::RAM> seq(n_elements);
+    for(int i=1; i <= n_elements; i++)
+    {
+      seq[i-1] = 1;
+    }
+
+    rm::Memory<int, rm::VRAM_CUDA> seq_gpu = seq;
+    rm::Memory<int, rm::VRAM_CUDA> val_gpu(2);
+
+    // compute sum and download
+    
+    sw();
+    rm::sum(seq_gpu, val_gpu);
+    el = sw();
+    
+
+    sw();
+    rm::sum(seq_gpu, val_gpu);
+    el = sw();
+
+    // download
+    rm::Memory<int, rm::RAM> val = val_gpu;
+
+
+    std::cout << "Sum: " << val[0] << ", runtime " << el << " s" << std::endl;
+
+    std::cout << val[1] << std::endl;
+
+    std::cout << "GT:  " << (n_elements * n_elements + n_elements) / 2 << std::endl;
+    // std::cout << "GT:  " << n_elements << std::endl;
+
+
+    std::cout << "int max: " << std::numeric_limits<int>::max() << std::endl;
+    std::cout << "i32 max: " << std::numeric_limits<int32_t>::max() << std::endl;
+    // std::cout << "f32 max: " << std::numeric_limits<float>::max() << std::endl;
+
+
+
+}
+
+
+void preinit_cuda()
+{
+  int x = 1;
+  rm::Memory<int, rm::VRAM_CUDA> bla = rm::MemoryView<int, rm::RAM>(&x, 1);
+
+  rm::Memory<int, rm::RAM> y = rm::sum(bla);
+
+  std::cout << y[0] << std::endl;
+}
+
 int main(int argc, char** argv)
 {
-  test1();
+
+  // preinit cuda
+  preinit_cuda();
   
+
+  test1();
+
+  // test2();
 
 
 

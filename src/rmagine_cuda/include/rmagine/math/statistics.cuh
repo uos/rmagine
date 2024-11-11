@@ -55,6 +55,13 @@ void statistics_p2p(
     const PointCloudView_<VRAM_CUDA>& dataset,
     const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params,
+    MemoryView<CrossStatistics, VRAM_CUDA>& stats);
+
+void statistics_p2p(
+    const Transform& pre_transform,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
+    const UmeyamaReductionConstraints params,
     CrossStatistics& statistics);
 
 CrossStatistics statistics_p2p(

@@ -519,6 +519,13 @@ void sum(
 Memory<Vector, VRAM_CUDA> sum(
     const MemoryView<Vector, VRAM_CUDA>& data);
 
+void sum(
+    const MemoryView<int, VRAM_CUDA>& data,
+    MemoryView<int, VRAM_CUDA>& s);
+
+Memory<int, VRAM_CUDA> sum(
+    const MemoryView<int, VRAM_CUDA>& data);
+
 //////////
 // #mean
 void mean(
