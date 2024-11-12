@@ -57,9 +57,9 @@ int main(int argc, char** argv)
         );
 
         float range = last_scan[model.getBufferId((model.phi.size) / 2, 0)];
+
         // std::cout << range << std::endl;
-        float error = std::fabs(range - 0.500076);
-                                                        
+        float error = std::fabs(range - 0.500076); 
         if(error > 0.0001)                                              
         {                                                           
             std::stringstream ss;

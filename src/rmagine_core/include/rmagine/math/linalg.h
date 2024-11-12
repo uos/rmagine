@@ -205,6 +205,41 @@ Transform umeyama_transform(
     return ret;
 }
 
+/**
+ * @brief computes the optimal transformation according to Umeyama's algorithm 
+ * 
+ * Note: sometimes referred to as Kabsch/Umeyama
+ * 
+ * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
+ * 
+ */
+RMAGINE_INLINE_FUNCTION
+Transform umeyama_transform(
+    const CrossStatistics& stats)
+{
+    Transform ret;
+
+    if(stats.n_meas > 0)
+    {
+        // intermediate storage needed (yet)
+        Matrix3x3 U, S, V;
+        svd(stats.covariance, U, S, V);
+        S.setIdentity();
+        if(U.det() * V.det() < 0)
+        {
+            S(2, 2) = -1;
+        }
+        ret.R.set(U * S * V.transpose());
+        ret.R.normalizeInplace();
+        ret.t = stats.model_mean - ret.R * stats.dataset_mean;
+    } else {
+        ret.setIdentity();
+    }
+
+    return ret;
+}
+
+
 
 RMAGINE_INLINE_FUNCTION
 Matrix3x3 so3_hat(Vector3f v)

@@ -11,7 +11,7 @@ if(embree_FOUND)
 message(STATUS "Building tests for Embree backend")
 
 # ADD TESTS FOR EMBREE HERE
-add_subdirectory(embree_sim)
+add_subdirectory(embree)
 
 endif(embree_FOUND)
 
@@ -26,7 +26,7 @@ message(STATUS "Building tests for OptiX backend")
 
 # ADD TESTS FOR OPTIX HERE
 
-add_subdirectory(optix_sim)
+add_subdirectory(optix)
 
 endif(OptiX_FOUND)
 

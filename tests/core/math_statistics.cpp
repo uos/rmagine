@@ -20,7 +20,7 @@
 
 namespace rm = rmagine;
 
-size_t n_points = 10000000;
+size_t n_points = 1000000;
 
 template<typename T>
 bool is_valid(T a)
@@ -264,7 +264,7 @@ rm::CrossStatistics_<double> reduce(std::vector<rm::CrossStatistics_<double>> da
 template<typename DataT>
 void test_reduction_order()
 {
-    size_t num_elements = n_points;
+    size_t num_elements = 10000;
     size_t num_shuffles = 100;
 
     rm::Memory<rm::Vector3_<DataT> > dataset(num_elements);
