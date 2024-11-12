@@ -44,6 +44,7 @@
 #include "math.h"
 #include <rmagine/types/shared_functions.h>
 #include "linalg.h"
+#include <unordered_map>
 
 
 namespace rmagine
@@ -73,6 +74,8 @@ struct UmeyamaReductionConstraints
  * - set mask of dataset or model to 0 at index=X to ignore the correspondence X
  * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
  * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
+ * 
+ * See: "MICP-L: Mesh-based ICP for Robot Localization using Hardware-Accelerated Ray Casting"
  * 
  * @param[in] pre_transform use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
  * @param[in] dataset  PointCloudView pointing to buffers of the dataset
@@ -110,6 +113,8 @@ CrossStatistics statistics_p2p(
  * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
  * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
  * 
+ * See: "MICP-L: Mesh-based ICP for Robot Localization using Hardware-Accelerated Ray Casting"
+ * 
  * @param[in] pre_transform use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
  * @param[in] dataset  PointCloudView pointing to buffers of the dataset
  * @param[in] model    PointCloudView pointing to buffers of the model
@@ -135,6 +140,56 @@ CrossStatistics statistics_p2l(
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params);
+
+
+/**
+ * @brief Find out cross statistics between dataset and model, where the model consists of several objects (intances or geometries)
+ * 
+ * Given an unsegmented scan and an initial guess of the scene, we can compute a cross statistic between the scan and the model's objects.
+ * It returns one cross statistic per object id. Which can be used to deform the scene in a computationally efficient manner.
+ * See: "Mesh-based Object Tracking for Dynamic Semantic 3D Scene Graphs via Ray Tracing"
+ * 
+ * This version requires a pre-allocated view of the correct size. For a more dynamic variant use the statistics_p2l_ow with the map return.
+ * 
+ * MemoryView<CrossStatistics>& stats:
+ * it is most efficient for the object ids to be dense in order to not waste memory
+ * e.g model_object_ids could look like this:
+ * [-,-,-,0,2,-,-,-,1,-,-,-,-,3] -> requires 3 memory
+ * but not like this
+ * [-,-,-,1000,-,1] -> requires 1000 memory
+ * 
+ * @param pre_transform
+ * @param dataset 
+ * @param model 
+ * @param params 
+ * @param[out] stats A list of stats
+ */
+void statistics_p2l_ow(
+    const PointCloudView_<RAM>& dataset,
+    const PointCloudView_<RAM>& model,
+    const MemoryView<Transform>& model_pretransforms,
+    const UmeyamaReductionConstraints params,
+    MemoryView<CrossStatistics>& stats);
+
+/**
+ * @brief Find out cross statistics between dataset and model, where the model consists of several objects (intances or geometries)
+ * 
+ * Given an unsegmented scan and an initial guess of the scene, we can compute a cross statistic between the scan and the model's objects.
+ * It returns one cross statistic per object id. Which can be used to deform the scene in a computationally efficient manner.
+ * See: "Mesh-based Object Tracking for Dynamic Semantic 3D Scene Graphs via Ray Tracing"
+ * 
+ * @param pre_transform
+ * @param dataset 
+ * @param model 
+ * @param params 
+ * @return std::unordered_map<unsigned int, CrossStatistics> 
+ */
+// std::unordered_map<unsigned int, CrossStatistics> statistics_p2l_ow(
+//     const PointCloudView_<RAM>& dataset,
+//     const Transform& pre_transform,
+//     const PointCloudView_<RAM>& model,
+//     const UmeyamaReductionConstraints params);
+
 
 } // namespace rmagine
 

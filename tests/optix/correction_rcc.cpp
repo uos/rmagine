@@ -147,7 +147,6 @@ int main(int argc, char** argv)
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
 
             // printStats(stats);
-
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
             Tpre = Tpre * Tpre_next;
         }
@@ -164,7 +163,7 @@ int main(int argc, char** argv)
     if(fabs(Tdiff.t.z) > 0.001)
     {
         std::stringstream ss;
-        ss << "Embree Correction RCC results wrong!";
+        ss << "OptiX Correction RCC results wrong!";
         RM_THROW(rm::EmbreeException, ss.str());
     }
 
