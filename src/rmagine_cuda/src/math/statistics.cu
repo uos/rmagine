@@ -55,143 +55,7 @@ __global__ void sum_kernel(
     }
 }
 
-
-
-template<unsigned int blockSize>
-__global__ void statistics_p2p_kernel_old(
-    const Vector*   dataset_points,
-    const unsigned int* dataset_mask,
-    const unsigned int* dataset_ids,
-    const Transform pre_transform,
-    const Vector*   model_points,
-    const unsigned int* model_mask,
-    const unsigned int* model_ids,
-    const UmeyamaReductionConstraints params,
-    unsigned int N,
-    CrossStatistics* res)
-{    
-    __shared__ Matrix3x3    sdata_cov[blockSize];
-    __shared__ Vector3      sdata_dataset_mean[blockSize];
-    __shared__ Vector3      sdata_model_mean[blockSize];
-    __shared__ unsigned int sdata_nmeas[blockSize];
-    
-    const unsigned int tid = threadIdx.x;
-    const unsigned int globId = N * blockIdx.x + threadIdx.x;
-    const unsigned int rows = (N + blockSize - 1) / blockSize;
-
-    Vector d_mean = {0.0, 0.0, 0.0};
-    Vector m_mean = {0.0, 0.0, 0.0};
-    unsigned int n_corr = 0;
-    Matrix3x3 C;
-    C.setZeros();
-
-    // CrossStatistics cross_stats = CrossStatistics::Identity();
-    for(unsigned int i=0; i<rows; i++)
-    {
-        // TODO: check if this if-statement is correct:
-        // before 'tid + blockSize * i < N' but I think that's wrong
-        if(tid + blockSize * i < N)
-        {
-            const unsigned int inner_id = globId + blockSize * i;
-
-            if(    (dataset_mask == NULL || dataset_mask[inner_id] > 0)
-                && (model_mask == NULL   || model_mask[inner_id]   > 0)
-                && (dataset_ids == NULL  || dataset_ids[inner_id] == params.dataset_id)
-                && (model_ids == NULL    || model_ids[inner_id]   == params.model_id)
-                )
-            {
-                const Vector Di = pre_transform * dataset_points[inner_id]; // read
-                const Vector Mi = model_points[inner_id]; // read
-
-                const float N_1 = static_cast<float>(n_corr);
-                const float N = static_cast<float>(n_corr + 1);
-                const float w1 = N_1 / N;
-                const float w2 = 1.0 / N;
-
-                const Vector d_mean_old = d_mean;
-                const Vector m_mean_old = m_mean;
-
-                const Vector d_mean_new = d_mean_old * w1 + Di * w2; 
-                const Vector m_mean_new = m_mean_old * w1 + Mi * w2;
-
-                const Matrix3x3 P1 = (m_mean_old - m_mean_new).multT(d_mean_old - d_mean_new);
-                const Matrix3x3 P2 = (Mi - m_mean_new).multT(Di - d_mean_new);
-
-                const float dist = (Mi - Di).l2normSquared();
-
-                if(dist < params.max_dist * params.max_dist)
-                {
-                    // write
-                    d_mean = d_mean_new;
-                    m_mean = m_mean_new;
-                    C = (C + P1) * w1 + P2 * w2;
-                    n_corr = n_corr + 1;
-                }
-            }
-        }
-    }
-
-    sdata_cov[tid] = C;
-    sdata_dataset_mean[tid] = d_mean;
-    sdata_model_mean[tid] = m_mean;
-    sdata_nmeas[tid] = n_corr;
-
-    __syncthreads();
-
-    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
-    {
-        if(tid < s)
-        {
-            // sdata_cov += sdata_cov[tid + s];
-            // sdata[tid] += sdata[tid + s];
-
-            // read
-            const Vector cs1_dataset_mean = sdata_dataset_mean[tid];
-            const Vector cs1_model_mean = sdata_model_mean[tid];
-            const Matrix3x3 cs1_cov = sdata_cov[tid];
-            const unsigned int cs1_nmeas = sdata_nmeas[tid];
-
-            const Vector cs2_dataset_mean = sdata_dataset_mean[tid + s];
-            const Vector cs2_model_mean = sdata_model_mean[tid + s];
-            const Matrix3x3 cs2_cov = sdata_cov[tid + s];
-            const unsigned int cs2_nmeas = sdata_nmeas[tid + s];
-
-            // compute
-            const unsigned int cs3_nmeas = static_cast<float>(cs1_nmeas + cs2_nmeas);
-
-            const float w1 = static_cast<float>(cs1_nmeas) / static_cast<float>(cs3_nmeas);
-            const float w2 = static_cast<float>(cs2_nmeas) / static_cast<float>(cs3_nmeas);
-
-            const Vector cs3_dataset_mean = cs1_dataset_mean * w1 + cs2_dataset_mean * w2; 
-            const Vector cs3_model_mean = cs1_model_mean * w1 + cs2_model_mean * w2;
-
-            auto P1 = (cs1_model_mean - cs3_model_mean).multT(cs1_dataset_mean - cs3_dataset_mean);
-            auto P2 = (cs2_model_mean - cs3_model_mean).multT(cs2_dataset_mean - cs3_dataset_mean);
-            
-            // write
-            sdata_dataset_mean[tid] = cs3_dataset_mean;
-            sdata_model_mean[tid] = cs3_model_mean;
-            sdata_cov[tid] = (cs1_cov + P1) * w1 + (cs2_cov + P2) * w2;
-            sdata_nmeas[tid] = cs3_nmeas;
-        }
-        __syncthreads();
-    }
-
-    // if(tid < blockSize / 2 && tid < 32)
-    // {
-    //     warpReduce<blockSize>(sdata, tid);
-    // }
-
-    if(tid == 0)
-    {
-        res[blockIdx.x].dataset_mean = sdata_dataset_mean[0];
-        res[blockIdx.x].model_mean = sdata_model_mean[0];
-        res[blockIdx.x].covariance = sdata_cov[0];
-        res[blockIdx.x].n_meas = sdata_nmeas[0];
-    }
-}
-
-template<unsigned int blockSize>
+template<unsigned int nMemElems>
 __global__ void statistics_p2p_kernel(
     const Vector*   dataset_points,
     const unsigned int* dataset_mask,
@@ -204,8 +68,18 @@ __global__ void statistics_p2p_kernel(
     unsigned int N,
     CrossStatistics* res)
 {
-    __shared__ CrossStatistics sdata[blockSize];
-    const unsigned int rows = (N + blockSize - 1) / blockSize;
+    __shared__ CrossStatistics sdata[nMemElems];
+
+    const unsigned int n_threads = blockDim.x;
+    const unsigned int n_blocks = gridDim.x;
+
+    const unsigned int total_threads = n_threads * n_blocks;
+    const unsigned int n_rows = (N + total_threads - 1) / total_threads;
+    const unsigned int n_elems_per_block = n_rows * nMemElems;
+
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+    const unsigned int glob_shift = n_elems_per_block * bid;
     
     // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     // reshape:
@@ -217,14 +91,13 @@ __global__ void statistics_p2p_kernel(
     // [6, 15, 24, 33]
     // [21, 57]
     // [78]
-    const unsigned int tid = threadIdx.x;
 
     CrossStatistics cross_stats = CrossStatistics::Identity();
     sdata[tid] = CrossStatistics::Identity();
 
-    for(unsigned int i=0; i<rows; i++)
+    for(unsigned int i=0; i<n_rows; i++)
     {
-        const unsigned int data_id = tid + blockSize * i;
+        const unsigned int data_id = glob_shift + i * nMemElems + tid; // advance one row
         // TODO: check if this if-statement is correct:
         // before 'tid + blockSize * i < N' but I think that's wrong
         if(data_id < N)
@@ -251,7 +124,7 @@ __global__ void statistics_p2p_kernel(
     // sdata[tid] = cross_stats;
     __syncthreads();
 
-    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)
     {
         if(tid < s)
         {
@@ -262,92 +135,9 @@ __global__ void statistics_p2p_kernel(
 
     if(tid == 0)
     {
-        res[blockIdx.x] = sdata[0];
+        res[bid] = sdata[0];
     }
 }
-
-template<unsigned int nSharedElements>
-__global__ void statistics_p2p_kernel_new(
-    const Vector*   dataset_points,
-    const unsigned int* dataset_mask,
-    const unsigned int* dataset_ids,
-    const Transform pre_transform,
-    const Vector*   model_points,
-    const unsigned int* model_mask,
-    const unsigned int* model_ids,
-    const UmeyamaReductionConstraints params,
-    unsigned int N,
-    CrossStatistics* res)
-{
-    __shared__ CrossStatistics sdata[nSharedElements];
-
-    // const unsigned int rows = 3;
-
-
-    const unsigned int rows = (N + nSharedElements - 1) / nSharedElements;
-
-    
-    // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    // reshape:
-    // --- blockSize ---
-    // [1,  4,  7, 10]  |
-    // [2,  5,  8, 11]  | rows
-    // [3,  6,  9, 12]  |
-    //  |   |   |   |     init reduce to shared mem
-    // [6, 15, 24, 33]
-    // [21, 57]
-    // [78]
-
-    const unsigned int tid = threadIdx.x;
-    // const unsigned int globId = N * blockIdx.x + tid;
-    
-
-    CrossStatistics cross_stats = CrossStatistics::Identity();
-    sdata[tid] = CrossStatistics::Identity();
-    for(unsigned int i=0; i<rows; i++)
-    {
-        const unsigned int data_id = tid + nSharedElements * i;
-        // TODO: check if this if-statement is correct:
-        // before 'tid + blockSize * i < N' but I think that's wrong
-        if(data_id < N)
-        {
-            if(    (dataset_mask == NULL || dataset_mask[data_id] > 0)
-                && (model_mask == NULL   || model_mask[data_id]   > 0)
-                && (dataset_ids == NULL  || dataset_ids[data_id] == params.dataset_id)
-                && (model_ids == NULL    || model_ids[data_id]   == params.model_id)
-                )
-            {
-                const Vector Di = pre_transform * dataset_points[data_id]; // read
-                const Vector Mi = model_points[data_id]; // read
-
-                const float dist = (Mi - Di).l2normSquared();
-
-                if(dist < params.max_dist * params.max_dist)
-                {
-                    sdata[tid] += CrossStatistics::Init(Di, Mi);
-                }
-            }
-        }
-    }
-    // sdata[tid] = cross_stats;
-    __syncthreads();
-
-    
-    // for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
-    // {
-    //     if(tid < s)
-    //     {
-    //         sdata[tid] += sdata[tid + s];
-    //     }
-    //     __syncthreads();
-    // }
-
-    // if(tid == 0)
-    // {
-    //     res[blockIdx.x] = sdata[0];
-    // }
-}
-
 
 void statistics_p2p(
     const Transform& pre_transform,
@@ -356,7 +146,10 @@ void statistics_p2p(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics, VRAM_CUDA>& stats)
 {
-    statistics_p2p_kernel<512> <<<1, 512>>>(
+    const unsigned int n_outputs = stats.size(); // also number of blocks
+    constexpr unsigned int n_threads = 1024; // also shared mem
+
+    statistics_p2p_kernel<n_threads> <<<n_outputs, n_threads>>>(
         dataset.points.raw(), dataset.mask.raw(), dataset.ids.raw(), 
         pre_transform,
         model.points.raw(), model.mask.raw(), model.ids.raw(),
@@ -371,16 +164,15 @@ void statistics_p2p(
     const PointCloudView_<VRAM_CUDA>& dataset,
     const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params,
-    CrossStatistics& statistics)
+    CrossStatistics& stats)
 {
-    // std::cout << "UPLOAD!" << std::endl;
-
-    // upload statistics
-    MemoryView<CrossStatistics, RAM> stats_view(&statistics, 1);
+    // create a memory view on existing RAM
+    MemoryView<CrossStatistics, RAM> stats_view(&stats, 1);
+    // to upload it to GPU
     Memory<CrossStatistics, VRAM_CUDA> stats_gpu = stats_view;
-
+    // to write results to it
     statistics_p2p(pre_transform, dataset, model, params, stats_gpu);
-
+    // download to view and therefore update 'stats' with it
     stats_view = stats_gpu;
 }
 
@@ -395,14 +187,131 @@ CrossStatistics statistics_p2p(
     return ret;
 }
 
+
+template<unsigned int nMemElems>
+__global__ void statistics_p2l_kernel(
+    const Vector*   dataset_points,
+    const unsigned int* dataset_mask,
+    const unsigned int* dataset_ids,
+    const Transform pre_transform,
+    const Vector*   model_points,
+    const Vector*   model_normals,
+    const unsigned int* model_mask,
+    const unsigned int* model_ids,
+    const UmeyamaReductionConstraints params,
+    unsigned int N,
+    CrossStatistics* res)
+{
+    __shared__ CrossStatistics sdata[nMemElems];
+
+    const unsigned int n_threads = blockDim.x;
+    const unsigned int n_blocks = gridDim.x;
+
+    const unsigned int total_threads = n_threads * n_blocks;
+    const unsigned int n_rows = (N + total_threads - 1) / total_threads;
+    const unsigned int n_elems_per_block = n_rows * nMemElems;
+
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+    const unsigned int glob_shift = n_elems_per_block * bid;
+    
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    // reshape:
+    // --- blockSize ---
+    // [1,  4,  7, 10]  |
+    // [2,  5,  8, 11]  | rows
+    // [3,  6,  9, 12]  |
+    //  |   |   |   |     init reduce to shared mem
+    // [6, 15, 24, 33]
+    // [21, 57]
+    // [78]
+
+    CrossStatistics cross_stats = CrossStatistics::Identity();
+    sdata[tid] = CrossStatistics::Identity();
+
+    for(unsigned int i=0; i<n_rows; i++)
+    {
+        const unsigned int data_id = glob_shift + i * nMemElems + tid; // advance one row
+        // TODO: check if this if-statement is correct:
+        // before 'tid + blockSize * i < N' but I think that's wrong
+        if(data_id < N)
+        {
+            if(    (dataset_mask == NULL || dataset_mask[data_id] > 0)
+                && (model_mask == NULL   || model_mask[data_id]   > 0)
+                && (dataset_ids == NULL  || dataset_ids[data_id] == params.dataset_id)
+                && (model_ids == NULL    || model_ids[data_id]   == params.model_id)
+                )
+            {
+                const Vector Di = pre_transform * dataset_points[i]; // read
+                const Vector Ii = model_points[i]; // read
+                const Vector Ni = model_normals[i];
+
+                const float signed_plane_dist = (Ii - Di).dot(Ni);
+
+                if(fabs(signed_plane_dist) < params.max_dist)
+                {
+                    // nearest point on model
+                    const Vector Mi = Di + Ni * signed_plane_dist;
+                    // add Di -> Mi correspondence
+                    sdata[tid] += CrossStatistics::Init(Di, Mi);
+                }
+            }
+        }
+    }
+    // sdata[tid] = cross_stats;
+    __syncthreads();
+
+    for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid == 0)
+    {
+        res[bid] = sdata[0];
+    }
+}
+
+
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<VRAM_CUDA>& dataset,
     const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params,
-    CrossStatistics& statistics)
+    MemoryView<CrossStatistics, VRAM_CUDA>& stats)
 {
-    
+    const unsigned int n_outputs = stats.size(); // also number of blocks
+    constexpr unsigned int n_threads = 1024; // also shared mem
+
+    statistics_p2l_kernel<n_threads> <<<n_outputs, n_threads>>>(
+        dataset.points.raw(), dataset.mask.raw(), dataset.ids.raw(), 
+        pre_transform,
+        model.points.raw(), model.normals.raw(), model.mask.raw(), model.ids.raw(),
+        params,
+        dataset.points.size(),
+        stats.raw()
+        );
+}
+
+void statistics_p2l(
+    const Transform& pre_transform,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
+    const UmeyamaReductionConstraints params,
+    CrossStatistics& stats)
+{
+    // create a memory view on existing RAM
+    MemoryView<CrossStatistics, RAM> stats_view(&stats, 1);
+    // to upload it to GPU
+    Memory<CrossStatistics, VRAM_CUDA> stats_gpu = stats_view;
+    // to write results to it
+    statistics_p2l(pre_transform, dataset, model, params, stats_gpu);
+    // download to view and therefore update 'stats' with it
+    stats_view = stats_gpu;
 }
 
 CrossStatistics statistics_p2l(
@@ -412,7 +321,7 @@ CrossStatistics statistics_p2l(
     const UmeyamaReductionConstraints params)
 {
     CrossStatistics ret = CrossStatistics::Identity();
-    
+    statistics_p2l(pre_transform, dataset, model, params, ret);
     return ret;
 }
 

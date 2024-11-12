@@ -64,12 +64,35 @@ struct UmeyamaReductionConstraints
     unsigned int model_id;
 };
 
+/**
+ * @brief Reducing dataset and model to the cross statistics using point to point (P2P) distances.
+ * 
+ * The N dataset and model points are reduced to a single cross statistic. 
+ * The resulting statistical parameters can passed to a SVD to estimate the transformation between dataset and model (Umeyama).
+ * There several options to mask dataset and model
+ * - set mask of dataset or model to 0 at index=X to ignore the correspondence X
+ * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
+ * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
+ * 
+ * @param[in] pre_transform use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
+ * @param[in] dataset  PointCloudView pointing to buffers of the dataset
+ * @param[in] model    PointCloudView pointing to buffers of the model
+ * @param[in] params   Constraints that need to be satisfied to 
+ * @param[out] stats    Resulting statistics
+ */
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params,
-    CrossStatistics& statistics);
+    MemoryView<CrossStatistics>& stats);
+
+void statistics_p2p(
+    const Transform& pre_transform,
+    const PointCloudView_<RAM>& dataset,
+    const PointCloudView_<RAM>& model,
+    const UmeyamaReductionConstraints params,
+    CrossStatistics& stats);
 
 CrossStatistics statistics_p2p(
     const Transform& pre_transform,
@@ -77,12 +100,35 @@ CrossStatistics statistics_p2p(
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params);
 
+/**
+ * @brief Reducing dataset and model to the cross statistics using point to plane (P2L) distances.
+ * 
+ * The N dataset and model points are reduced to a single cross statistic. 
+ * The resulting statistical parameters can passed to a SVD to estimate the transformation between dataset and model (Umeyama).
+ * There several options to mask dataset and model
+ * - set mask of dataset or model to 0 at index=X to ignore the correspondence X
+ * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
+ * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
+ * 
+ * @param[in] pre_transform use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
+ * @param[in] dataset  PointCloudView pointing to buffers of the dataset
+ * @param[in] model    PointCloudView pointing to buffers of the model
+ * @param[in] params   Constraints that need to be satisfied to 
+ * @param[out] stats    Resulting statistics
+ */
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params,
-    CrossStatistics& statistics);
+    MemoryView<CrossStatistics>& stats);
+
+void statistics_p2l(
+    const Transform& pre_transform,
+    const PointCloudView_<RAM>& dataset,
+    const PointCloudView_<RAM>& model,
+    const UmeyamaReductionConstraints params,
+    CrossStatistics& stats);
 
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,

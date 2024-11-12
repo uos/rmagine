@@ -94,8 +94,10 @@ void test1()
   rm::UmeyamaReductionConstraints params;
   params.max_dist = 20000.0;
   
-
+  std::cout << "WARMUP" << std::endl;
   auto _ = rm::statistics_p2p(Tpre, dataset, model, params);
+
+  std::cout << "P2P Test 1" << std::endl;
 
   rm::Memory<rm::CrossStatistics, rm::VRAM_CUDA> stats_gpu(1);
   sw();
@@ -115,57 +117,7 @@ void test1()
   // el = sw();
 
   // std::cout << "Sum: " << el << " s" << std::endl;
-
-
-
 }
-
-
-void test2()
-{
-    size_t n_elements = n_points;
-    rm::StopWatch sw;
-    double el;
-
-    rm::Memory<int, rm::RAM> seq(n_elements);
-    for(int i=1; i <= n_elements; i++)
-    {
-      seq[i-1] = 1;
-    }
-
-    rm::Memory<int, rm::VRAM_CUDA> seq_gpu = seq;
-    rm::Memory<int, rm::VRAM_CUDA> val_gpu(1);
-
-    // compute sum and download
-    
-    sw();
-    rm::sum(seq_gpu, val_gpu);
-    el = sw();
-    
-
-    sw();
-    rm::sum(seq_gpu, val_gpu);
-    el = sw();
-
-    // download
-    rm::Memory<int, rm::RAM> val = val_gpu;
-
-
-    std::cout << "Sum: " << val[0] << ", runtime " << el << " s" << std::endl;
-
-    std::cout << "GT:  " << (n_elements * n_elements + n_elements) / 2 << std::endl;
-    // std::cout << "GT:  " << n_elements << std::endl;
-
-
-    // std::cout << "int max: " << std::numeric_limits<int>::max() << std::endl;
-    // std::cout << "i32 max: " << std::numeric_limits<int32_t>::max() << std::endl;
-    // std::cout << "f32 max: " << std::numeric_limits<float>::max() << std::endl;
-
-
-
-}
-
-
 
 void preinit_cuda()
 {
@@ -177,21 +129,22 @@ void preinit_cuda()
   std::cout << y[0] << std::endl;
 }
 
-void test_example()
+void test_sum()
 {
     rm::StopWatch sw;
     double el;
 
-    rm::Memory<int> seq(1024 * 1024 * 10);
+    rm::Memory<int> seq(1920 * 1080 * 10);
+    // sames reducing 10 images of size 1920*1080
+    // -- just for imagination. if you really want to reduce 10 images, you should use a batch implemention
     for(size_t i=0; i<seq.size(); i++)
     {
       seq[i] = 1;
     }
     // 1, 2, 3, 4, .. 16
-
     rm::Memory<int, rm::VRAM_CUDA> seq_gpu = seq;
 
-    rm::Memory<int> seq_sum(1024);
+    rm::Memory<int> seq_sum(1080);
     for(size_t i=0; i<seq_sum.size(); i++)
     {
       seq_sum[i] = 0;
@@ -201,17 +154,27 @@ void test_example()
     rm::Memory<int, rm::VRAM_CUDA> seq_sum_gpu = seq_sum;
     rm::Memory<int, rm::VRAM_CUDA> total_gpu(1);
 
-    sw();
-    rm::sum2(seq_gpu, seq_sum_gpu);
-    rm::sum2(seq_sum_gpu, total_gpu);
-    el = sw();
+    std::cout << std::endl;
+    std::cout << "Warmup" << std::endl;
+    rm::sum(seq_gpu, total_gpu);
 
+    std::cout << std::endl;
+    std::cout << "TEST 1: Reduction in one block" << std::endl;
+    rm::sum(seq_gpu, total_gpu);
+    rm::Memory<int> total1 = total_gpu;
+
+    std::cout << total1[0] << " == " << seq.size() << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "TEST 2: Two-fold reduction. 1. Many blocks -> Result per block. 2. Reduce intermediate results per block." << std::endl;
     
-
-    rm::Memory<int> total = total_gpu;
-
-    std::cout << total[0] << std::endl;
-    std::cout << el << " s" << std::endl;
+    rm::sum(seq_gpu, seq_sum_gpu);
+    // std::cout << "-" << std::endl;
+    rm::sum(seq_sum_gpu, total_gpu);
+    rm::Memory<int> total2 = total_gpu;
+    std::cout << total2[0] << " == " << seq.size() << std::endl;
+    
+    // in my benchmarks, TEST 1 was still faster than TEST2
 }
 
 
@@ -228,7 +191,7 @@ int main(int argc, char** argv)
 
   // test2();
 
-  test_example();
+  test_sum();
 
 
 

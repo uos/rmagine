@@ -50,6 +50,29 @@
 namespace rmagine
 {
 
+/**
+ * @brief Reducing dataset and model to the cross statistics using point to point (P2P) distances. CUDA version.
+ * 
+ * The N dataset and model points are reduced to a single cross statistic. 
+ * The resulting statistical parameters can passed to a SVD to estimate the transformation between dataset and model (Umeyama).
+ * There several options to mask dataset and model
+ * - set mask of dataset or model to 0 at index=X to ignore the correspondence X
+ * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
+ * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
+ * 
+ * It differs slightly from the CPU version as you can provide statistics view with a size > 1.
+ * In that case the computation is splitted to N=size blocks on the GPU. The statistics view is then filled with the 
+ * intermediate results wich can be later reduced to a total result.
+ * 
+ * @param[in] pre_transform Use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
+ * @param[in] dataset       PointCloudView pointing to buffers of the dataset
+ * @param[in] model         PointCloudView pointing to buffers of the model
+ * @param[in] params        Constraints that need to be satisfied to 
+ * @param[out] stats        Resulting statistics
+ * 
+ * @warning This GPU version has internally a different structure to compute the reduction.
+ *          It shows a better numerical accuracy then the CPU conterpart.
+ */
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<VRAM_CUDA>& dataset,
@@ -69,6 +92,36 @@ CrossStatistics statistics_p2p(
     const PointCloudView_<VRAM_CUDA>& dataset,
     const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params);
+
+/**
+ * @brief Reducing dataset and model to the cross statistics using point to point (P2L) distances. CUDA version.
+ * 
+ * The N dataset and model points are reduced to a single cross statistic. 
+ * The resulting statistical parameters can passed to a SVD to estimate the transformation between dataset and model (Umeyama).
+ * There several options to mask dataset and model
+ * - set mask of dataset or model to 0 at index=X to ignore the correspondence X
+ * - set set id view of dataset or model to enable filtering by ID, which can be set via 'UmeyamaReductionConstraints'.
+ * - set max_dist of UmeyamaReductionConstraints for a maximum allowed distance
+ * 
+ * It differs slightly from the CPU version as you can provide statistics view with a size > 1.
+ * In that case the computation is splitted to N=size blocks on the GPU. The statistics view is then filled with the 
+ * intermediate results wich can be later reduced to a total result.
+ * 
+ * @param[in] pre_transform Use this transformation to pretransform the dataset. set to Transform::Identity() for no transform.
+ * @param[in] dataset       PointCloudView pointing to buffers of the dataset
+ * @param[in] model         PointCloudView pointing to buffers of the model
+ * @param[in] params        Constraints that need to be satisfied to 
+ * @param[out] stats        Resulting statistics
+ * 
+ * @warning This GPU version has internally a different structure to compute the reduction.
+ *          It shows a better numerical accuracy then the CPU conterpart.
+ */
+void statistics_p2l(
+    const Transform& pre_transform,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
+    const UmeyamaReductionConstraints params,
+    MemoryView<CrossStatistics, VRAM_CUDA>& stats);
 
 void statistics_p2l(
     const Transform& pre_transform,

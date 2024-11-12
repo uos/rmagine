@@ -527,9 +527,9 @@ Memory<int, VRAM_CUDA> sum(
     const MemoryView<int, VRAM_CUDA>& data);
 
 
-void sum2(
-  const MemoryView<int, VRAM_CUDA>& data,
-  MemoryView<int, VRAM_CUDA>& s);
+// void sum2(
+//   const MemoryView<int, VRAM_CUDA>& data,
+//   MemoryView<int, VRAM_CUDA>& s);
 
 //////////
 // #mean

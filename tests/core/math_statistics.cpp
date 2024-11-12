@@ -625,7 +625,6 @@ int main(int argc, char** argv)
     std::cout << "STATS TEST" << std::endl;
 
     // This is essentially checking if the math is correct
-
     std::cout << "DOUBLE!" << std::endl;
     test_paper<double>();
     test_incremental<double>();
@@ -634,17 +633,13 @@ int main(int argc, char** argv)
     std::cout << "FLOAT!" << std::endl;
     test_paper<float>();
     test_incremental<float>();
-    
-    
+        
     test_p2p(); // down to 0.0341 s for 10000000 elements
     test_p2l();
-
 
     // compute_precision<float>(n_points);
     // compute_precision<double>(n_points);
 
-
-    
     // std::cout << "FLOAT!" << std::endl;
     // test_incremental<float>();
     // std::cout << "------------------------" << std::endl;

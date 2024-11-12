@@ -50,6 +50,11 @@
 
 namespace rmagine {
 
+/**
+ * @brief SVD computed on GPU using cusolver
+ * 
+ * @warning This is becoming obsolute and will be removed in the next major version of rmagine. Use function of linag.h instead.
+ */
 class SVDCuda
 {
 public:
