@@ -58,11 +58,11 @@ __global__ void sum_kernel(
 template<unsigned int nMemElems>
 __global__ void statistics_p2p_kernel(
     const Vector*   dataset_points,
-    const unsigned int* dataset_mask,
+    const uint8_t* dataset_mask,
     const unsigned int* dataset_ids,
     const Transform pre_transform,
     const Vector*   model_points,
-    const unsigned int* model_mask,
+    const uint8_t* model_mask,
     const unsigned int* model_ids,
     const UmeyamaReductionConstraints params,
     unsigned int N,
@@ -147,7 +147,7 @@ void statistics_p2p(
     MemoryView<CrossStatistics, VRAM_CUDA>& stats)
 {
     const unsigned int n_outputs = stats.size(); // also number of blocks
-    constexpr unsigned int n_threads = 1024; // also shared mem
+    constexpr unsigned int n_threads = 512; // also shared mem
 
     statistics_p2p_kernel<n_threads> <<<n_outputs, n_threads>>>(
         dataset.points.raw(), dataset.mask.raw(), dataset.ids.raw(), 
@@ -187,16 +187,15 @@ CrossStatistics statistics_p2p(
     return ret;
 }
 
-
 template<unsigned int nMemElems>
 __global__ void statistics_p2l_kernel(
     const Vector*   dataset_points,
-    const unsigned int* dataset_mask,
+    const uint8_t* dataset_mask,
     const unsigned int* dataset_ids,
     const Transform pre_transform,
     const Vector*   model_points,
     const Vector*   model_normals,
-    const unsigned int* model_mask,
+    const uint8_t* model_mask,
     const unsigned int* model_ids,
     const UmeyamaReductionConstraints params,
     unsigned int N,
@@ -285,7 +284,7 @@ void statistics_p2l(
     MemoryView<CrossStatistics, VRAM_CUDA>& stats)
 {
     const unsigned int n_outputs = stats.size(); // also number of blocks
-    constexpr unsigned int n_threads = 1024; // also shared mem
+    constexpr unsigned int n_threads = 512; // also shared mem
 
     statistics_p2l_kernel<n_threads> <<<n_outputs, n_threads>>>(
         dataset.points.raw(), dataset.mask.raw(), dataset.ids.raw(), 

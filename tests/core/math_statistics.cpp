@@ -446,7 +446,7 @@ void test_p2p()
 
     rm::Memory<rm::Vector3> dataset_points(n_points);
     rm::Memory<rm::Vector3> model_points(n_points);
-    rm::Memory<unsigned int> dataset_mask(n_points);
+    rm::Memory<uint8_t> dataset_mask(n_points);
     rm::Memory<unsigned int> dataset_ids(n_points);
 
     // rm::Memory<unsigned int> mask;
@@ -539,7 +539,7 @@ void test_p2l()
     rm::Memory<rm::Vector3> dataset_points(n_points);
     rm::Memory<rm::Vector3> model_points(n_points);
     rm::Memory<rm::Vector3> model_normals(n_points);
-    rm::Memory<unsigned int> dataset_mask(n_points);
+    rm::Memory<uint8_t> dataset_mask(n_points);
     rm::Memory<unsigned int> dataset_ids(n_points);
 
     // rm::Memory<unsigned int> mask;

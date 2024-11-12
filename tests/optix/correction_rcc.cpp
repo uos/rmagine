@@ -3,76 +3,43 @@
 #include <cassert>
 #include <sstream>
 
-#include <rmagine/map/EmbreeMap.hpp>
-#include <rmagine/map/embree/embree_shapes.h>
-#include <rmagine/map/embree/EmbreeScene.hpp>
+#include <rmagine/map/OptixMap.hpp>
+#include <rmagine/map/optix/optix_shapes.h>
+#include <rmagine/map/optix/OptixScene.hpp>
 
-
-#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
+#include <rmagine/simulation/SphereSimulatorOptix.hpp>
 #include <rmagine/types/sensors.h>
 
-#include <rmagine/math/statistics.h>
+#include <rmagine/math/statistics.cuh>
 #include <rmagine/math/linalg.h>
 
 #include <rmagine/util/prints.h>
 #include <rmagine/util/exceptions.h>
 
-
-
 namespace rm = rmagine;
 
-// template<typename DataT>
-// void printStats(rm::CrossStatistics_<DataT> stats)
-// {
-//     std::cout << "CrossStatistics: " << std::endl;
-//     std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
-//     std::cout << "- model mean: " << stats.model_mean << std::endl;
-//     std::cout << "- cov: " << stats.covariance << std::endl;
-//     std::cout << "- n meas: " << stats.n_meas << std::endl; 
-// }
-
-rm::EmbreeMapPtr make_map()
+template<typename DataT>
+void printStats(rm::CrossStatistics_<DataT> stats)
 {
-    rm::EmbreeScenePtr scene = std::make_shared<rm::EmbreeScene>();
+    std::cout << "CrossStatistics: " << std::endl;
+    std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
+    std::cout << "- model mean: " << stats.model_mean << std::endl;
+    std::cout << "- cov: " << stats.covariance << std::endl;
+    std::cout << "- n meas: " << stats.n_meas << std::endl; 
+}
 
-    rm::EmbreeGeometryPtr mesh = std::make_shared<rm::EmbreeCube>();
+rm::OptixMapPtr make_map()
+{
+    rm::OptixScenePtr scene = std::make_shared<rm::OptixScene>();
+
+    rm::OptixGeometryPtr mesh = std::make_shared<rm::OptixCube>();
     // mesh->apply();
     mesh->commit();
     scene->add(mesh);
     scene->commit();
 
-    return std::make_shared<rm::EmbreeMap>(scene);
+    return std::make_shared<rm::OptixMap>(scene);
 }
-
-template<typename Tfrom, typename Tto>
-void cast(rm::MemoryView<Tfrom, rm::RAM> from, rm::MemoryView<Tto, rm::RAM> to)
-{
-    for(size_t i=0; i<from.size(); i++)
-    {
-        to[i] = static_cast<Tto>(from[i]);
-    }
-}
-
-unsigned int count(rm::MemoryView<uint8_t, rm::RAM> data)
-{
-    unsigned int ret = 0;
-    for(size_t i=0; i<data.size(); i++)
-    {
-        ret += data[i];
-    }
-    return ret;
-}
-
-// void printCorrespondences(
-//     const rm::PointCloudView& cloud_dataset,
-//     const rm::PointCloudView& cloud_model)
-// {
-//     std::cout << cloud_dataset.points.size() << " to " << cloud_model.points.size() << std::endl;
-//     for(size_t i=0; i<cloud_dataset.points.size(); i++)
-//     {
-//         std::cout << cloud_dataset.points[i] << " -> " << cloud_model.points[i] << std::endl;
-//     }
-// }
 
 rm::SphericalModel define_sensor_model()
 {
@@ -90,14 +57,33 @@ rm::SphericalModel define_sensor_model()
     return model;
 }
 
+template<typename Tfrom, typename Tto>
+void cast(rm::MemoryView<Tfrom, rm::RAM> from, rm::MemoryView<Tto, rm::RAM> to)
+{
+    for(size_t i=0; i<from.size(); i++)
+    {
+        to[i] = static_cast<Tto>(from[i]);
+    }
+}
+
+unsigned int count(rm::MemoryView<unsigned int, rm::RAM> data)
+{
+    unsigned int ret = 0;
+    for(size_t i=0; i<data.size(); i++)
+    {
+        ret += data[i];
+    }
+    return ret;
+}
+
 int main(int argc, char** argv)
 {
-    std::cout << "Correction Embree-RCC + CPU optimization" << std::endl;
+    std::cout << "Correction OptiX-RCC + GPU optimization" << std::endl;
 
     // create data
-    rm::SphereSimulatorEmbree sim;
+    rm::SphereSimulatorOptix sim;
 
-    rm::EmbreeMapPtr map = make_map();
+    rm::OptixMapPtr map = make_map();
     sim.setMap(map);
     
     auto sensor_model = define_sensor_model();
@@ -109,21 +95,18 @@ int main(int argc, char** argv)
     Tbm[0] = Tbm_gt;
 
     // define what we want to simulate and pre-malloc all buffers
-    rm::IntAttrAll<rm::RAM> dataset;
-    rm::resize_memory_bundle<rm::RAM>(dataset, sensor_model.getWidth(), sensor_model.getHeight(), 1);
+    rm::IntAttrAll<rm::VRAM_CUDA> dataset;
+    rm::resize_memory_bundle<rm::VRAM_CUDA>(dataset, sensor_model.getWidth(), sensor_model.getHeight(), 1);
     
     sim.setTsb(rm::Transform::Identity());
     sim.simulate(Tbm, dataset);
-    
-    rm::PointCloudView cloud_dataset = {
+
+    rm::PointCloudView_<rm::VRAM_CUDA> cloud_dataset = {
         .points = dataset.points,
         .mask = dataset.hits
     };
 
-    assert(count(dataset.hits) > 0);
-
-
-    /////////////////////////
+    ////////////////////////////
     // MICP params
     // correspondence searches
     size_t n_outer = 5;
@@ -131,17 +114,17 @@ int main(int argc, char** argv)
     size_t n_inner = 5;
     rm::UmeyamaReductionConstraints params;
     params.max_dist = 100.0;
-    ///////////////////////////
-
+    /////////////////////////////
+    
     // pose of robot
     rm::Transform Tbm_est = rm::Transform::Identity();
     Tbm_est.t.z = 0.1; // perturbe the pose
-    
+
     std::cout << "0: " << Tbm_est << " -> " << Tbm_gt << std::endl;
 
     // pre-create buffers for RCC
-    rm::IntAttrAll<rm::RAM> model;
-    rm::resize_memory_bundle<rm::RAM>(model, sensor_model.getWidth(), sensor_model.getHeight(), 1);
+    rm::IntAttrAll<rm::VRAM_CUDA> model;
+    rm::resize_memory_bundle<rm::VRAM_CUDA>(model, sensor_model.getWidth(), sensor_model.getHeight(), 1);
 
     for(size_t i=0; i<n_outer; i++)
     {
@@ -149,7 +132,7 @@ int main(int argc, char** argv)
         rm::MemoryView<rm::Transform> Tbm_est_view(&Tbm_est, 1);
         sim.simulate(Tbm_est_view, model);
 
-        rm::PointCloudView cloud_model = {
+        rm::PointCloudView_<rm::VRAM_CUDA> cloud_model = {
             .points = model.points,
             .mask = model.hits,
             .normals = model.normals
@@ -162,6 +145,9 @@ int main(int argc, char** argv)
         for(size_t j=0; j<n_inner; j++)
         {
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
+
+            // printStats(stats);
+
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
             Tpre = Tpre * Tpre_next;
         }
@@ -171,7 +157,6 @@ int main(int argc, char** argv)
         Tbm_est = Tbm_est * Tpre;
         std::cout << i+1 << ": " << Tbm_est << " -> " << Tbm_gt << std::endl;
     }
-
 
     // diff from one base frame to the other
     // transform from gt to estimation base frame
