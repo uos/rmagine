@@ -11,7 +11,8 @@
 namespace rm = rmagine;
 
 // size_t n_points = 1000;
-size_t n_points = 1000*1000;
+// size_t n_points = 1920*1080;
+size_t n_points = 1023;
 
 template<typename T>
 bool is_valid(T a)
@@ -65,7 +66,7 @@ void test1()
   rm::Memory<unsigned int> dataset_mask(n_points);
   rm::Memory<unsigned int> dataset_ids(n_points);
   
-  for(size_t i=1; i <= n_points; i++)
+  for(size_t i=0; i < n_points; i++)
   {
       float p = static_cast<double>(i) / static_cast<double>(n_points);
       rm::Vector3 d = {-p, p*10.f, p};
@@ -86,9 +87,7 @@ void test1()
   rm::Memory<rm::Vector3, rm::VRAM_CUDA> model_points_ = model_points;
 
   rm::PointCloudView_<rm::VRAM_CUDA> dataset = {.points = dataset_points_};
-
   rm::PointCloudView_<rm::VRAM_CUDA> model = {.points = model_points_};
-
 
   rm::Transform Tpre = rm::Transform::Identity();
 
@@ -109,6 +108,14 @@ void test1()
 
   std::cout << "Runtime: " << el << " s" << std::endl;
 
+  // rm::Memory<rm::Vector, rm::VRAM_CUDA> dataset_points_sum(1);
+
+  // sw();
+  // rm::sum(dataset_points_, dataset_points_sum);
+  // el = sw();
+
+  // std::cout << "Sum: " << el << " s" << std::endl;
+
 
 
 }
@@ -127,7 +134,7 @@ void test2()
     }
 
     rm::Memory<int, rm::VRAM_CUDA> seq_gpu = seq;
-    rm::Memory<int, rm::VRAM_CUDA> val_gpu(2);
+    rm::Memory<int, rm::VRAM_CUDA> val_gpu(1);
 
     // compute sum and download
     
@@ -146,19 +153,18 @@ void test2()
 
     std::cout << "Sum: " << val[0] << ", runtime " << el << " s" << std::endl;
 
-    std::cout << val[1] << std::endl;
-
     std::cout << "GT:  " << (n_elements * n_elements + n_elements) / 2 << std::endl;
     // std::cout << "GT:  " << n_elements << std::endl;
 
 
-    std::cout << "int max: " << std::numeric_limits<int>::max() << std::endl;
-    std::cout << "i32 max: " << std::numeric_limits<int32_t>::max() << std::endl;
+    // std::cout << "int max: " << std::numeric_limits<int>::max() << std::endl;
+    // std::cout << "i32 max: " << std::numeric_limits<int32_t>::max() << std::endl;
     // std::cout << "f32 max: " << std::numeric_limits<float>::max() << std::endl;
 
 
 
 }
+
 
 
 void preinit_cuda()
@@ -171,16 +177,58 @@ void preinit_cuda()
   std::cout << y[0] << std::endl;
 }
 
+void test_example()
+{
+    rm::StopWatch sw;
+    double el;
+
+    rm::Memory<int> seq(1024 * 1024 * 10);
+    for(size_t i=0; i<seq.size(); i++)
+    {
+      seq[i] = 1;
+    }
+    // 1, 2, 3, 4, .. 16
+
+    rm::Memory<int, rm::VRAM_CUDA> seq_gpu = seq;
+
+    rm::Memory<int> seq_sum(1024);
+    for(size_t i=0; i<seq_sum.size(); i++)
+    {
+      seq_sum[i] = 0;
+    }
+
+    // prepare extra memory
+    rm::Memory<int, rm::VRAM_CUDA> seq_sum_gpu = seq_sum;
+    rm::Memory<int, rm::VRAM_CUDA> total_gpu(1);
+
+    sw();
+    rm::sum2(seq_gpu, seq_sum_gpu);
+    rm::sum2(seq_sum_gpu, total_gpu);
+    el = sw();
+
+    
+
+    rm::Memory<int> total = total_gpu;
+
+    std::cout << total[0] << std::endl;
+    std::cout << el << " s" << std::endl;
+}
+
+
 int main(int argc, char** argv)
 {
+  // n_points = 1024;
+
 
   // preinit cuda
-  preinit_cuda();
+  // preinit_cuda();
   
 
-  test1();
+  // test1();
 
   // test2();
+
+  test_example();
 
 
 

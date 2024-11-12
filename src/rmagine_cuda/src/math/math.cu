@@ -1435,21 +1435,7 @@ __global__ void sum_kernel(
     }
     __syncthreads();
 
-    // for(unsigned int s = sharedMemElements / 2; s > 32; s >>= 1)
-    // {
-    //     if(tid < s)
-    //     {
-    //         sdata[tid] += sdata[tid + s];
-    //     }
-    //     __syncthreads();
-    // }
-
-    // if(tid < sharedMemElements / 2 && tid < 32)
-    // {
-    //     warpReduce<sharedMemElements>(sdata, tid);
-    // }
-
-    for(unsigned int s = sharedMemElements / 2; s > 0; s >>= 1)
+    for(unsigned int s = sharedMemElements / 2; s > 32; s >>= 1)
     {
         if(tid < s)
         {
@@ -1458,11 +1444,26 @@ __global__ void sum_kernel(
         __syncthreads();
     }
 
+    if(tid < sharedMemElements / 2 && tid < 32)
+    {
+        warpReduce<sharedMemElements>(sdata, tid);
+    }
+
+    // for(unsigned int s = sharedMemElements / 2; s > 0; s >>= 1)
+    // {
+    //     if(tid < s)
+    //     {
+    //         sdata[tid] += sdata[tid + s];
+    //     }
+    //     __syncthreads();
+    // }
+
     if(tid == 0)
     {
         res[blockIdx.x] = sdata[0];
     }
 }
+
 
 void sum(
     const MemoryView<Vector, VRAM_CUDA>& data,
@@ -1495,6 +1496,108 @@ Memory<int, VRAM_CUDA> sum(
     sum(data, s);
     return s;
 }
+
+// TODO - test this:
+// One block shared mem scheduling
+// global mem: [36, 100], reduce again
+// 
+// third:
+// --- blockSize ---
+// [ 1,  5,   9, 13, 17, 19]      |
+// [ 2,  6,  10, 14, ]      | rows
+// [ 3,  7,  11, 15]          |
+// [ 4,  8,  12, 16]              |
+//   |   |    |   |     init reduce to shared mem
+// [10, 26,  42, 58]
+// [36, 100, 17, 19]       S
+// [136, S , 17, ]
+
+
+template<unsigned int nMemElems, typename T>
+__global__ void sum2_kernel(
+    const T* data,
+    T* res,
+    unsigned int N)
+{
+    // sharedMemElements per block
+
+    // Many blocks stategy
+    // rows=2
+    // 
+    //   blockId=0                  blockId=1
+    // sharedMemElements |  -- sharedMemElements --- 
+    // [ 1,  3,  5,  7]    [9,  11, 13, 15]
+    // [ 2,  4,  6,  8]    [10, 12, 14, 16]
+    //   |   |   |   |       |   |   |   | 
+    // [ 3,  7, 11, 15]    [19, 23, 27, 31]
+    // [10, 26]            [42, 58]
+    // [36]                [100]
+    
+    __shared__ T sdata[nMemElems];
+
+    const unsigned int total_threads = nMemElems * blockDim.x;
+    const unsigned int n_rows = (N + total_threads - 1) / total_threads;
+    const unsigned int elemsPerBlock = n_rows * nMemElems;
+
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+    const unsigned int glob_shift = elemsPerBlock * bid;
+    
+    sdata[tid] *= 0.0;
+    for(unsigned int i=0; i<n_rows; i++)
+    {
+        const unsigned int data_id = glob_shift + i * nMemElems + tid; // advance one row
+        if(data_id < N)
+        {
+            sdata[tid] += data[data_id];
+        }
+    }
+    __syncthreads();
+
+    for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    if(tid == 0)
+    {
+        res[bid] = sdata[0];
+    }
+}
+
+void sum2(
+  const MemoryView<int, VRAM_CUDA>& data,
+  MemoryView<int, VRAM_CUDA>& s)
+{
+    // memory cells per block = 4
+    // rows: 2
+    // blocks: 1
+    // threads = 4 = memory cells per block
+    const unsigned int n_outputs = s.size(); // outputs
+    constexpr unsigned int n_threads = 1024;
+    const unsigned int total_threads = n_outputs * n_threads;
+
+    const unsigned int n_rows = (data.size() + total_threads - 1) / total_threads;
+    // constexpr unsigned int n_rows = 2;
+
+    std::cout << "Kernel parameters:" << std::endl;
+    std::cout << "- threads: " << n_threads << std::endl;
+    std::cout << "- outputs: " << n_outputs << std::endl;
+    std::cout << "- rows: " << n_rows << std::endl;
+    
+
+    std::cout << "Total elements: " << n_outputs * n_threads * n_rows << " >= " << data.size() << std::endl;
+
+
+
+    sum2_kernel<n_threads> <<<n_outputs, n_threads>>>(data.raw(), s.raw(), data.size());
+    RM_CUDA_DEBUG();
+}
+
 
 //////////
 // #mean
