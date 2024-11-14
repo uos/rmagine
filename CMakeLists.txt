@@ -168,7 +168,7 @@ if(CMAKE_CUDA_COMPILER)
         set(CUDA_LIBRARIES CUDA::cudart)
         set(CUDA_cusolver_LIBRARY CUDA::cusolver)
         set(CUDA_cublas_LIBRARY CUDA::cublas)
-        set(CUDA_DEVICE_LIBRARY "")
+        set(CUDA_DEVICE_LIBRARY CUDA::cuda_driver)
         set(CUDA_INCLUDE_DIRS "") # is in target instead
     else()
         find_package(CUDA)
