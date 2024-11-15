@@ -36,7 +36,7 @@ target_include_directories(rmagine-cuda
 )
 
 # TODO: use CUDA language instead of find_package
-target_link_libraries(rmagine-cuda
+target_link_libraries(rmagine-cuda PUBLIC
     rmagine-core
     ${CUDA_LIBRARIES}
     ${CUDA_cusolver_LIBRARY}
