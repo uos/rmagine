@@ -27,55 +27,46 @@ set(OPTIX_KERNEL_FILES
 
 get_target_property(RMAGINE_CORE_INCLUDES rmagine-core INTERFACE_INCLUDE_DIRECTORIES)
 
-
-# find_package(CUDA)
-# cuda_include_directories(
-#     ${RMAGINE_CORE_INCLUDES}
-#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-#     ${OptiX_INCLUDE_DIRS}
-# )
-
-# cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
-#     ${OPTIX_KERNEL_FILES}
-# )
-
-# set_property(TARGET myptx PROPERTY CUDA_PTX_COMPILATION ON)
-
 if(CUDAToolkit_FOUND)
+    # NEW VERSION
 
-    add_library(rmagine_optix_ptx OBJECT
+    add_library(rmagine_optix_cu_to_ptx OBJECT
         ${OPTIX_KERNEL_FILES}
     )
 
-    target_include_directories(rmagine_optix_ptx PRIVATE
+    target_include_directories(rmagine_optix_cu_to_ptx PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${OptiX_INCLUDE_DIRS}
     )
 
-    set_property(TARGET rmagine_optix_ptx PROPERTY CUDA_PTX_COMPILATION ON)
+    set_target_properties(rmagine_optix_cu_to_ptx 
+        PROPERTIES
+            CUDA_PTX_COMPILATION ON
+            # CUDA_ARCHITECTURES all
+    )
 
-    target_link_libraries(rmagine_optix_ptx
+    target_link_libraries(rmagine_optix_cu_to_ptx
         ${OptiX_LIBRARIES}
         rmagine-core
         rmagine-cuda
     )
 
-    message(STATUS "Generated some PTX files: rmagine_optix_ptx")
+    add_custom_target(rmagine_optix_ptx ALL
+        DEPENDS rmagine-core rmagine_optix_cu_to_ptx ${OPTIX_KERNEL_FILES}
+        SOURCES ${OPTIX_KERNEL_FILES}
+        VERBATIM)
 
-    # find_package(CUDA)
-    # cuda_include_directories(
-    #     ${RMAGINE_CORE_INCLUDES}
-    #     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    #     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-    #     ${OptiX_INCLUDE_DIRS}
-    # )
-
-    # cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
-    #     ${OPTIX_KERNEL_FILES}
-    # )
+    add_custom_command(
+        TARGET rmagine_optix_ptx POST_BUILD
+        COMMAND ${CMAKE_COMMAND} 
+            -DRMAGINE_SOURCE_DIR=${rmagine_SOURCE_DIR} 
+            -DRMAGINE_OPTIX_PTX_DIR=${RMAGINE_OPTIX_PTX_DIR}
+            -DOPTIX_KERNEL_FILES="${OPTIX_KERNEL_FILES}"
+            -P "${CMAKE_CURRENT_LIST_DIR}/cmake/CompileOptixKernelsCudaToolkit.cmake"
+    )
 
 else(CUDAToolkit_FOUND)
+    # THIS IS GOING TO BE OBSOLETE
 
     cuda_include_directories(
         ${RMAGINE_CORE_INCLUDES}
@@ -89,9 +80,9 @@ else(CUDAToolkit_FOUND)
     )
 
     add_custom_target(rmagine_optix_ptx ALL
-    DEPENDS rmagine-core ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
-    SOURCES ${OPTIX_KERNEL_FILES}
-    VERBATIM)
+        DEPENDS rmagine-core ${RMAGINE_OPTIX_PTX_FILES} ${OPTIX_KERNEL_FILES}
+        SOURCES ${OPTIX_KERNEL_FILES}
+        VERBATIM)
 
     add_custom_command(
         TARGET rmagine_optix_ptx POST_BUILD
@@ -103,8 +94,6 @@ else(CUDAToolkit_FOUND)
     )
 
 endif(CUDAToolkit_FOUND)
-
-
 
 
 
@@ -157,23 +146,12 @@ target_include_directories(rmagine-optix PUBLIC
     ${OptiX_INCLUDE_DIRS}
 )
 
-# target_include_directories(rmagine-optix PRIVATE
-#     ${OptiX_INCLUDE_DIRS}
-# )
-
 # Must be public, since headers contain optionals
 # target_compile_features(rmagine-optix PUBLIC cxx_std_17)
-
 target_link_libraries(rmagine-optix
     ${OptiX_LIBRARIES}
     rmagine-cuda
 )
-
-# target_link_libraries(rmagine-optix PRIVATE
-#     ${OptiX_LIBRARIES}
-#     rmagine-cuda
-# )
-
 
 add_dependencies(rmagine-optix
     rmagine_optix_ptx

@@ -41,7 +41,7 @@ target_link_libraries(rmagine-cuda
     ${CUDA_LIBRARIES}
     ${CUDA_cusolver_LIBRARY}
     ${CUDA_cublas_LIBRARY}
-    ${CUDA_DEVICE_LIBRARY}
+    ${CUDA_DRIVER_LIBRARY}
 )
 
 add_dependencies(rmagine-cuda
@@ -63,6 +63,7 @@ set_target_properties(rmagine-cuda
         SOVERSION ${rmagine_VERSION_MAJOR}
         VERSION ${rmagine_VERSION}
         CUDA_SEPARABLE_COMPILATION ON
+        # CUDA_ARCHITECTURES all
         # CUDA_STANDARD 17 -> only works for 
         # CXX_STANDARD 17
 )
