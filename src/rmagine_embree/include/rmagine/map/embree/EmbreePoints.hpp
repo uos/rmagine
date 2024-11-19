@@ -78,6 +78,17 @@ public:
 
     void init(unsigned int Npoints);
 
+    /**
+     * @brief Applies the geometry transform. Has to be called at least once.
+     * 
+     */
+    void apply();
+
+    MemoryView<PointWithRadius, RAM> points() const;
+
+    MemoryView<const PointWithRadius, RAM> pointsTransformed() const;    
+
+
     virtual EmbreeGeometryType type() const
     {
         return EmbreeGeometryType::POINTS;
@@ -85,7 +96,10 @@ public:
 
 protected:
     unsigned int m_num_points;
-    Memory<PointWithRadius> points;
+    Memory<PointWithRadius> m_points;
+
+private:
+    Memory<PointWithRadius> m_points_transformed;
 };
 
 using EmbreePointsPtr = std::shared_ptr<EmbreePoints>;

@@ -93,7 +93,7 @@ public:
     void initVertexNormals();
 
     // PUBLIC ATTRIBUTES
-    MemoryView<Face, RAM> faces() const;
+    MemoryView<Face, RAM>   faces() const;
     MemoryView<Vertex, RAM> vertices() const;
     MemoryView<Vector, RAM> vertexNormals() const;
     MemoryView<Vector, RAM> faceNormals() const;
