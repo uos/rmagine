@@ -32,10 +32,22 @@ EmbreePoints::~EmbreePoints()
 
 }
 
-void EmbreePoints::init(unsigned int Npoints)
+void EmbreePoints::init(unsigned int n_points)
 {
-    this->Npoints = Npoints;
-    points = (PointWithRadius*)rtcSetNewGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT4, sizeof(PointWithRadius), Npoints);
+    m_num_points = n_points;
+
+    points.resize(n_points);
+
+    // map to embree
+    rtcSetSharedGeometryBuffer(m_handle,
+                            RTC_BUFFER_TYPE_VERTEX,
+                            0, // slot
+                            RTC_FORMAT_FLOAT4, // RTCFormat
+                            static_cast<const void*>(points.raw()), // ptr
+                            0, // byteOffset
+                            sizeof(PointWithRadius), // byteStride
+                            m_num_points // itemCount
+                            );
 }
 
 } // namespace rmagine

@@ -83,8 +83,9 @@ public:
         return EmbreeGeometryType::POINTS;
     }
 
-    unsigned int Npoints;
-    PointWithRadius* points;
+protected:
+    unsigned int m_num_points;
+    Memory<PointWithRadius> points;
 };
 
 using EmbreePointsPtr = std::shared_ptr<EmbreePoints>;

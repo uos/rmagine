@@ -52,9 +52,10 @@ namespace rmagine
 using Vertex = Point;
 
 struct Face {
-    unsigned int v0;
-    unsigned int v1;
-    unsigned int v2;
+    // we need to use uint32_t to make a safely mem-map to e.g. embree
+    uint32_t v0;
+    uint32_t v1;
+    uint32_t v2;
 
     // Other access functions
     // use with care! No out of range checks

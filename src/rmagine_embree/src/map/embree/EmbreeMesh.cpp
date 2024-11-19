@@ -163,24 +163,33 @@ void EmbreeMesh::init(
     unsigned int Nvertices, 
     unsigned int Nfaces)
 {
+    // init buffers
     m_num_vertices = Nvertices;
     m_num_faces = Nfaces;
-
     m_vertices.resize(Nvertices);
+    m_vertices_transformed.resize(m_num_vertices);
+    m_faces.resize(Nfaces);
 
-    m_vertices_transformed = reinterpret_cast<Vertex*>(rtcSetNewGeometryBuffer(m_handle,
-                                                RTC_BUFFER_TYPE_VERTEX,
-                                                0,
-                                                RTC_FORMAT_FLOAT3,
-                                                sizeof(Vertex),
-                                                m_num_vertices));
+    // map to embree. If this works out, this may can seperated out quite easily
+    rtcSetSharedGeometryBuffer(m_handle,
+                            RTC_BUFFER_TYPE_VERTEX,
+                            0, // slot
+                            RTC_FORMAT_FLOAT3, // RTCFormat
+                            static_cast<const void*>(m_vertices_transformed.raw()), // ptr
+                            0, // byteOffset
+                            sizeof(Vector), // byteStride
+                            m_num_vertices // itemCount
+                            );                              
 
-    m_faces = reinterpret_cast<Face*>(rtcSetNewGeometryBuffer(m_handle,
-                                                    RTC_BUFFER_TYPE_INDEX,
-                                                    0,
-                                                    RTC_FORMAT_UINT3,
-                                                    sizeof(Face),
-                                                    m_num_faces));
+    rtcSetSharedGeometryBuffer(m_handle,
+                            RTC_BUFFER_TYPE_INDEX,
+                            0, // slot
+                            RTC_FORMAT_UINT3, // RTCFormat
+                            static_cast<const void*>(m_faces.raw()), // ptr
+                            0, // byteOffset
+                            sizeof(Face), // byteStride
+                            m_num_faces // itemCount
+                            );
 }
 
 void EmbreeMesh::init(
@@ -206,7 +215,10 @@ void EmbreeMesh::init(
 
     for(int i=0; i<m_num_faces; i++)
     {
-        m_faces[i] = {ai_faces[i].mIndices[0], ai_faces[i].mIndices[1], ai_faces[i].mIndices[2]};
+        m_faces[i] = {
+            static_cast<uint32_t>(ai_faces[i].mIndices[0]),
+            static_cast<uint32_t>(ai_faces[i].mIndices[1]),
+            static_cast<uint32_t>(ai_faces[i].mIndices[2])};
     }
 
     if(amesh->HasNormals())
@@ -232,7 +244,7 @@ void EmbreeMesh::initVertexNormals()
 
 MemoryView<Face, RAM> EmbreeMesh::faces() const
 {
-    return MemoryView<Face, RAM>(m_faces, m_num_faces);
+    return m_faces;
 }
 
 MemoryView<Vertex, RAM> EmbreeMesh::vertices() const
@@ -252,7 +264,7 @@ MemoryView<Vector, RAM> EmbreeMesh::faceNormals() const
 
 MemoryView<const Vertex, RAM> EmbreeMesh::verticesTransformed() const
 {
-    return MemoryView<const Vertex, RAM>(m_vertices_transformed, m_num_vertices);
+    return MemoryView<const Vertex, RAM>(m_vertices_transformed.raw(), m_num_faces);
 }
 
 MemoryView<const Vertex, RAM> EmbreeMesh::faceNormalsTransformed() const
