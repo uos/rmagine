@@ -35,9 +35,7 @@ EmbreePoints::~EmbreePoints()
 void EmbreePoints::init(unsigned int n_points)
 {
     m_num_points = n_points;
-
     m_points.resize(n_points);
-
     m_points_transformed.resize(n_points);
 
     // map to embree
@@ -58,6 +56,10 @@ void EmbreePoints::apply()
     {
         m_points_transformed[i].p = m_T * m_points[i].p;
         m_points_transformed[i].r = m_points[i].r;
+    }
+    if(anyParentCommittedOnce())
+    {
+        rtcUpdateGeometryBuffer(m_handle, RTC_BUFFER_TYPE_VERTEX, 0);
     }
 }
 
