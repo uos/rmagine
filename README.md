@@ -8,7 +8,7 @@ Rmagine
 <div align="center">
   <a href="https://github.com/uos/rmagine">Code</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://github.com/uos/rmagine/wiki">Documentation</a>
+  <a href="https://uos.github.io/rmagine_docs">Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://youtube.com/playlist?list=PL9wBuzh6ev07faQ13tXH9mhL5Wk6r34JM">Videos</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -39,7 +39,7 @@ Rmagine has been specifically developed to
 
 ## Installation / Usage
 
-See [Wiki](https://github.com/uos/rmagine/wiki) page for further instructions.
+See [Wiki](https://uos.github.io/rmagine_docs) page for further instructions.
 
 ## Example
 
@@ -112,7 +112,7 @@ auto ranges5 = result.ranges(5 * sensor_model.size(), 6 * sensor_model.size());
 std::cout << "printing the first ray's range of the fifth scan: " << ranges5[0] << std::endl;
 ```
 
-More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://github.com/uos/rmagine/wiki). More examples can be found here: https://github.com/amock/rmagine_examples.
+More detailed examples explaining each step and how to customize it to your needs are explained in the [Wiki](https://uos.github.io/rmagine_docs). More examples can be found here: https://github.com/amock/rmagine_examples.
 
 ## Citation
 
@@ -168,5 +168,5 @@ export OPTIX_INCLUDE_DIR=~/software/optix/NVIDIA-OptiX-SDK-7.4.0-linux64-x86_64/
 
 Especially if you place Rmagine into your ROS-workspace this option becomes very handy.
 
-[Older news ...](https://github.com/uos/rmagine/wiki/Extra-News)
+[Older news ...](https://uos.github.io/rmagine_docs/extra/news/)
 
