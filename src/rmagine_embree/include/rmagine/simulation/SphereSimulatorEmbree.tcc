@@ -54,7 +54,7 @@ void SphereSimulatorEmbree::simulate(
     const float range_max = m_model->range.max;
     
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
         const Transform Tbm_ = Tbm[pid];
