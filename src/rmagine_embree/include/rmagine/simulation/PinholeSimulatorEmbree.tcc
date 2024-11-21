@@ -1,6 +1,7 @@
 #include "PinholeSimulatorEmbree.hpp"
 #include <rmagine/simulation/SimulationResults.hpp>
 #include <limits>
+#include <omp.h>
 
 #include "embree_common.h"
 
@@ -53,7 +54,7 @@ void PinholeSimulatorEmbree::simulate(
     const float range_min = m_model->range.min;
     const float range_max = m_model->range.max;
 
-    #pragma omp parallel for
+    #pragma omp parallel for if(Tbm.size() >= omp_get_max_threads())
     for(size_t pid = 0; pid < Tbm.size(); pid++)
     {
         const Transform Tbm_ = Tbm[pid];
@@ -64,6 +65,7 @@ void PinholeSimulatorEmbree::simulate(
 
         const unsigned int glob_shift = pid * m_model->size();
 
+        #pragma omp parallel for if(Tbm.size() < omp_get_max_threads())
         for(unsigned int vid = 0; vid < m_model->getHeight(); vid++)
         {
             for(unsigned int hid = 0; hid < m_model->getWidth(); hid++)
