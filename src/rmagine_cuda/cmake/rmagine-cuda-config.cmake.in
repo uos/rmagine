@@ -14,8 +14,9 @@ else(@CUDAToolkit_FOUND@)
     find_dependency(CUDA)
 endif(@CUDAToolkit_FOUND@)
 
+include(CheckLanguage)
+check_language(CUDA)    
+
 check_required_components(cuda)
 
 set(rmagine_cuda_FOUND 1)
-
-
