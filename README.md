@@ -58,7 +58,7 @@ This examples shows how to simulate ranges of 100 Velodyne VLP-16 sensor using E
 namespace rm = rmagine;
 ```
 
-The following code loads a map "my_mesh.ply" and simulates 100 Velodyne VLP-16 scans from certain predefined poses. Hits and Ranges are chosen as return attributes.
+The following code loads a map "my_mesh.ply" and simulates 100 Velodyne VLP-16 scans from certain predefined poses. Hits and Ranges are chosen as intersection attributes.
 
 ```c++
 // loading a map from disk
@@ -134,10 +134,10 @@ Please reference the following papers when using the Rmagine library in your sci
 - [RMCL](https://github.com/uos/rmcl)
 - [radarays_ros](https://github.com/uos/radarays_ros)
 
-
 ## Contributions
 
-We are open to all contributions. These can be issues, pull requests or feedback that help us to improve this OpenSource project.
+We welcome contributions of all kinds, including issues, pull requests, and feedback, to help us enhance this OpenSource project.
+If you'd like to enhance the [documentation](https://uos.github.io/rmagine_docs/), whether by fixing spelling errors or adding examples, don't hesitate to submit issues or pull requests in the repository at https://github.com/uos/rmagine_docs.
 
 ## Build Status
 
