@@ -837,10 +837,6 @@ void test_transform_2()
     
     rm::Memory<rm::Vector3> dataset_s1_b = rm::mult1xN(make_view(T_s1_b), dataset_s1_s1);
     rm::Memory<rm::Vector3> model_s1_b = rm::mult1xN(make_view(T_b_m), dataset_s1_b);
-
-    rm::Memory<rm::Vector3> dataset_s2_b = rm::mult1xN(make_view(T_s2_b), dataset_s2_s2);
-    rm::Memory<rm::Vector3> model_s2_b = rm::mult1xN(make_view(T_b_m), dataset_s2_b);
-
     rm::CrossStatistics stats_s1_b = rm::statistics_p2p(rm::Transform::Identity(), 
         {.points = dataset_s1_b},  // dataset
         {.points = model_s1_b}, // model
@@ -848,14 +844,16 @@ void test_transform_2()
     std::cout << "stats_s1_b" << std::endl;
     printStats(stats_s1_b);
 
+    rm::Memory<rm::Vector3> dataset_s2_b = rm::mult1xN(make_view(T_s2_b), dataset_s2_s2);
+    rm::Memory<rm::Vector3> model_s2_b = rm::mult1xN(make_view(T_b_m), dataset_s2_b);
     rm::CrossStatistics stats_s2_b = rm::statistics_p2p(rm::Transform::Identity(), 
         {.points = dataset_s2_b},  // dataset
         {.points = model_s2_b}, // model
         params);
-    // std::cout << "stats_s2_b" << std::endl;
-    // printStats(stats_s2_b);
+    std::cout << "stats_s2_b" << std::endl;
+    printStats(stats_s2_b);
 
-    // stats_exp2 = stats_s1_b + stats_s2_b;
+    stats_exp2 = stats_s1_b + stats_s2_b;
   }
   
   
@@ -874,7 +872,8 @@ int main(int argc, char** argv)
 
     std::cout << "STATS TEST" << std::endl;
 
-    test_transform_1();
+    // test_transform_1();
+    test_transform_2();
     return 0;
 
     // This is essentially checking if the math is correct
