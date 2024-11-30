@@ -618,11 +618,264 @@ void test_p2l()
     if(stats.n_meas != 0){throw std::runtime_error("ERROR: Too many points");}
 }
 
+template<typename T>
+rm::MemoryView<T, rm::RAM> make_view(T& data)
+{
+  return rm::MemoryView<T>(&data, 1);
+}
+
+rm::CrossStatistics operator*(rm::Transform T, rm::CrossStatistics stats)
+{
+  rm::CrossStatistics res;
+
+  res.dataset_mean = T * stats.dataset_mean;
+  res.model_mean = T * stats.model_mean;
+  const rm::Matrix3x3 R = T.R;
+  res.covariance = R * stats.covariance * R.T();
+  res.n_meas = stats.n_meas;
+
+  return res; 
+}
+
+void test_transform_1()
+{
+    size_t n_points = 100;
+
+  std::cout << "TEST TRANSFORM" << std::endl;
+  std::cout << "- n_points: " << n_points << std::endl;
+
+  // Test Setup:
+  // given:
+  // - dataset of sensor 1 + transform from sensor 1 to base
+  // - transform from base to model
+  // 
+  // Experiment 1:
+  // 1. calculate CrossStatistics in sensor1 coords
+  // 2. Transform CrossStatistics to base coords
+  // 
+  // Experiment 2:
+  // 1. transform dataset to base coords
+  // 2. calculate CrossStatistics in base coords
+  //
+  // Aim: The resulting CrossStatistics of all experiments should be the same
+
+  rm::Memory<rm::Vector3> dataset_s1_s1(n_points);
+  
+  // fill
+  for(size_t i=0; i<n_points; i++)
+  {
+      float p = static_cast<double>(i) / 100.0;
+      rm::Vector3 d = {-p, p*10.f, p};
+      rm::Vector3 m = {p, p, -p};
+      dataset_s1_s1[i] = d;
+  }
+
+  // setup:
+  // sensor1 -> base
+  // sensor2 -> base
+  rm::Transform T_s1_b = {
+    .R = rm::EulerAngles{0.5, 1.0, 0.0},
+    .t = {1.0, 2.0, 3.0}
+  };
+
+  rm::Transform T_b_m = {
+    .R = rm::EulerAngles{0.0, 0.0, 1.0},
+    .t = {0.0, -5.0, 10.0}
+  };
+
+  rm::UmeyamaReductionConstraints params;
+  params.max_dist = 100000000.0;
+
+  std::cout << std::endl;
+  std::cout << "Experiment 1" << std::endl;
+  rm::CrossStatistics stats_exp1;
+  { // Experiment 1
+    rm::Transform T_s1_m = T_b_m * T_s1_b;
+    rm::Memory<rm::Vector3> model_s1_s1 = rm::mult1xN(make_view(T_s1_m), dataset_s1_s1);
+
+    rm::CrossStatistics stats_s1_s1 = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s1_s1},  // dataset
+        {.points = model_s1_s1}, // model
+        params);
+    std::cout << "stats_s1_s1" << std::endl;
+    printStats(stats_s1_s1);
+
+    rm::CrossStatistics stats_s1_b = T_s1_b * stats_s1_s1;
+    
+    stats_exp1 = stats_s1_b;
+  }
+
+  
+  printStats(stats_exp1);
+  
+  std::cout << std::endl;
+  std::cout << "Experiment 2:" << std::endl;
+  rm::CrossStatistics stats_exp2;
+  { // Experiment 2
+    
+    rm::Memory<rm::Vector3> dataset_s1_b = rm::mult1xN(make_view(T_s1_b), dataset_s1_s1);
+    rm::Memory<rm::Vector3> model_s1_b = rm::mult1xN(make_view(T_b_m), dataset_s1_b);
+
+    rm::CrossStatistics stats_s1_b = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s1_b},  // dataset
+        {.points = model_s1_b}, // model
+        params);
+    std::cout << "stats_s1_b" << std::endl;
+    printStats(stats_s1_b);
+
+    stats_exp2 = stats_s1_b;
+    // std::cout << "stats_s2_b" << std::endl;
+    // printStats(stats_s2_b);
+
+    // stats_exp2 = stats_s1_b + stats_s2_b;
+  }
+  
+  
+  printStats(stats_exp2);
+
+  // std::cout << dataset_sensor1[100] << " -> " << model_points[100] << std::endl;
+
+}
+
+void test_transform_2()
+{
+  size_t n_points = 100;
+
+  std::cout << "TEST TRANSFORM" << std::endl;
+  std::cout << "- n_points: " << n_points << std::endl;
+
+  // Test Setup:
+  // given:
+  // - dataset of sensor 1 + transform from sensor 1 to base
+  // - dataset of sensor 2 + transform from sensor 2 to base
+  // - transform from base to model
+  // 
+  // Experiment 1:
+  // 1. calculate CrossStatistics in sensor1 and sensor2 coords
+  // 2. Transform both CrossStatistics to base coords
+  // 3. Merge both CrossStatistics in base coords to the resulting CrossStatistics
+  // 
+  // Experiment 2:
+  // 1. transform both datasets into base coords
+  // 2. merge CrossStatistics per sensor in base coords
+  // 3. merge both sensor CrossStatistics in base coords to the resulting CrossStatistics
+  //
+  // Aim: The resulting CrossStatistics of all experiments should be the same
+
+  rm::Memory<rm::Vector3> dataset_s1_s1(n_points);
+  rm::Memory<rm::Vector3> dataset_s2_s2(n_points);
+  
+  // fill
+  for(size_t i=0; i<n_points; i++)
+  {
+      float p = static_cast<double>(i) / 100.0;
+      rm::Vector3 d = {-p, p*10.f, p};
+      rm::Vector3 m = {p, p, -p};
+      dataset_s1_s1[i] = d;
+      dataset_s2_s2[i] = m;
+  }
+
+  // setup:
+  // sensor1 -> base
+  // sensor2 -> base
+  rm::Transform T_s1_b = {
+    .R = rm::EulerAngles{0.5, 1.0, 0.0},
+    .t = {1.0, 2.0, 3.0}
+  };
+
+  rm::Transform T_s2_b = {
+    .R = rm::EulerAngles{0.5, 1.0, -2.0},
+    .t = {-1.0, -2.0, 2.0}
+  };
+
+  rm::Transform T_b_m = {
+    .R = rm::EulerAngles{0.0, 0.0, 1.0},
+    .t = {0.0, -5.0, 10.0}
+  };
+
+  rm::UmeyamaReductionConstraints params;
+  params.max_dist = 100000000.0;
+
+  std::cout << std::endl;
+  std::cout << "Experiment 1" << std::endl;
+  rm::CrossStatistics stats_exp1;
+  { // Experiment 1
+    rm::Transform T_s1_m = T_b_m * T_s1_b;
+    rm::Memory<rm::Vector3> model_s1_s1 = rm::mult1xN(make_view(T_s1_m), dataset_s1_s1);
+    
+    rm::Transform T_s2_m = T_b_m * T_s2_b;
+    rm::Memory<rm::Vector3> model_s2_s2 = rm::mult1xN(make_view(T_s2_m), dataset_s2_s2);
+
+    rm::CrossStatistics stats_s1_s1 = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s1_s1},  // dataset
+        {.points = model_s1_s1}, // model
+        params);
+    std::cout << "stats_s1_s1" << std::endl;
+    printStats(stats_s1_s1);
+
+    rm::CrossStatistics stats_s2_s2 = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s2_s2},  // dataset
+        {.points = model_s2_s2}, // model
+        params);
+
+    std::cout << "stats_s2_s2:" << std::endl;
+    printStats(stats_s2_s2);
+    
+    rm::CrossStatistics stats_s1_b = T_s1_b * stats_s1_s1;
+    rm::CrossStatistics stats_s2_b = T_s2_b * stats_s2_s2;
+
+    stats_exp1 = stats_s1_b + stats_s2_b;
+  }
+
+  
+  printStats(stats_exp1);
+  
+  std::cout << std::endl;
+  std::cout << "Experiment 2:" << std::endl;
+  rm::CrossStatistics stats_exp2;
+  { // Experiment 2
+    
+    rm::Memory<rm::Vector3> dataset_s1_b = rm::mult1xN(make_view(T_s1_b), dataset_s1_s1);
+    rm::Memory<rm::Vector3> model_s1_b = rm::mult1xN(make_view(T_b_m), dataset_s1_b);
+
+    rm::Memory<rm::Vector3> dataset_s2_b = rm::mult1xN(make_view(T_s2_b), dataset_s2_s2);
+    rm::Memory<rm::Vector3> model_s2_b = rm::mult1xN(make_view(T_b_m), dataset_s2_b);
+
+    rm::CrossStatistics stats_s1_b = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s1_b},  // dataset
+        {.points = model_s1_b}, // model
+        params);
+    std::cout << "stats_s1_b" << std::endl;
+    printStats(stats_s1_b);
+
+    rm::CrossStatistics stats_s2_b = rm::statistics_p2p(rm::Transform::Identity(), 
+        {.points = dataset_s2_b},  // dataset
+        {.points = model_s2_b}, // model
+        params);
+    // std::cout << "stats_s2_b" << std::endl;
+    // printStats(stats_s2_b);
+
+    // stats_exp2 = stats_s1_b + stats_s2_b;
+  }
+  
+  
+  printStats(stats_exp2);
+
+  // std::cout << dataset_sensor1[100] << " -> " << model_points[100] << std::endl;
+
+  
+
+
+}
+
 int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
 
     std::cout << "STATS TEST" << std::endl;
+
+    test_transform_1();
+    return 0;
 
     // This is essentially checking if the math is correct
     std::cout << "DOUBLE!" << std::endl;
@@ -644,6 +897,7 @@ int main(int argc, char** argv)
     // test_incremental<float>();
     // std::cout << "------------------------" << std::endl;
     // test_func();
+    test_transform_2();
 
     return 0;
 }
