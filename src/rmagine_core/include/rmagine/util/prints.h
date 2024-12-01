@@ -127,4 +127,17 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::MemoryView<Data
     return os;
 }
 
+template<typename DataT>
+inline std::ostream& operator<<(
+  std::ostream& os, const rmagine::CrossStatistics_<DataT>& stats)
+{
+  os << "CrossStatistics: \n";;
+  os << "- dataset mean: " << stats.dataset_mean << "\n";
+  os << "- model mean: " << stats.model_mean << "\n";
+  os << "- covariance: \n";
+  os << stats.covariance << "\n";
+  os << "- n meas: " << stats.n_meas << "\n";
+  return os;
+}
+
 #endif // RMAGINE_UTIL_PRINTS_H

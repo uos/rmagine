@@ -52,3 +52,11 @@ target_link_libraries(rmagine_tests_core_math_statistics
 
 add_test(NAME core_math_statistics COMMAND rmagine_tests_core_math_statistics)
 
+# 6. STATISTICS
+add_executable(rmagine_tests_core_math_cov_transform math_cov_transform.cpp)
+target_link_libraries(rmagine_tests_core_math_cov_transform
+    rmagine::core
+)
+
+add_test(NAME core_math_cov_transform COMMAND rmagine_tests_core_math_cov_transform)
+

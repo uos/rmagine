@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <rmagine/map/AssimpIO.hpp>
 
-using namespace rmagine;
+namespace rm = rmagine;
 
 int main(int argc, char** argv)
 {
@@ -21,20 +21,16 @@ int main(int argc, char** argv)
     std::cout << "Inputs: " << std::endl;
     std::cout << "- filename: " << filename << std::endl;
 
-    AssimpIO io;
+    rm::AssimpIO io;
     const aiScene* ascene = io.ReadFile(filename, 0);
 
     if(ascene)
     {
-        print(ascene);
+        rm::print(ascene);
     } else {
         std::cout << "Loading failed" << std::endl;
         std::cerr << io.Importer::GetErrorString() << std::endl;
-    
-        
     }
-
-    
 
     return 0;
 }

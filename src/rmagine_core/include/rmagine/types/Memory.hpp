@@ -182,6 +182,12 @@ protected:
 template<typename DataT, typename MemT = RAM>
 using MemView = MemoryView<DataT, MemT>;
 
+template<typename T>
+MemoryView<T, RAM> make_view(T& data)
+{
+  return MemoryView<T>(&data, 1);
+}
+
 template<typename DataT, typename MemT = RAM>
 class Memory : public MemoryView<DataT, MemT> {
 public:
