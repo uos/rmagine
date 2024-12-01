@@ -107,16 +107,15 @@ rm::CrossStatistics operator*(rm::Transform T, rm::CrossStatistics stats)
 void test_transform_1()
 {
   rm::Transform T_s1_b = {
-    .R = rm::EulerAngles{0.5, 1.0, 0.0},
-    .t = {1.0, 2.0, 3.0}
+    .R = rm::EulerAngles{0.0, 0.0, 0.0},
+    .t = {1.0, 0.0, 0.0}
   };
 
   // offset in base coords
   rm::Transform T_off_b = {
-    .R = rm::EulerAngles{0.0, 0.0, 1.0},
-    .t = {0.0, -5.0, 10.0}
+    .R = rm::EulerAngles{0.0, 0.0, 0.0},
+    .t = {0.0, 0.0, 1.0}
   };
-
 
   size_t n_points = 100;
   rm::Memory<rm::Vector3> dataset_s1_s1(n_points);
@@ -127,42 +126,33 @@ void test_transform_1()
       rm::Vector3 d = {-p, p*10.f, p};
       dataset_s1_s1[i] = d;
   }
+  rm::Vector3 mean_dataset_s1_s1 = rm::mean(dataset_s1_s1)[0];
+  
   // transform to base coords
-  rm::Memory<rm::Vector3> dataset_s1_b = rm::mult1xN(rm::make_view(T_s1_b),   dataset_s1_s1);
+  rm::Memory<rm::Vector3> dataset_s1_b = rm::mult1xN(rm::make_view(T_s1_b), dataset_s1_s1);
+  rm::Vector3 mean_dataset_s1_b = rm::mean(dataset_s1_b)[0];
 
   // transform offset to base coords
-  rm::Transform T_off_s1 = ~T_s1_b * T_off_b;
+  rm::Transform T_off_s1 = T_off_b * ~T_s1_b;
 
   // apply offsets in respective coordinate systems
   rm::Memory<rm::Vector3> model_s1_s1  = rm::mult1xN(rm::make_view(T_off_s1), dataset_s1_s1);
-  rm::Memory<rm::Vector3> model_s1_b   = rm::mult1xN(rm::make_view(T_off_b),  dataset_s1_b);
-
-  // calculate means of mode and dataset
-
-  // direct way
-  rm::Vector3 mean_dataset_s1_s1 = rm::mean(dataset_s1_s1)[0];
-  rm::Vector3 mean_dataset_s1_b = rm::mean(dataset_s1_b)[0];
-
   rm::Vector3 mean_model_s1_s1 = rm::mean(model_s1_s1)[0];
+  
+  rm::Memory<rm::Vector3> model_s1_b   = rm::mult1xN(rm::make_view(T_off_b),  dataset_s1_b);
   rm::Vector3 mean_model_s1_b = rm::mean(model_s1_b)[0];
-
 
   // transforming means instead
   rm::Vector3 mean_dataset_s1_s1_2 = ~T_s1_b * mean_dataset_s1_b;
   rm::Vector3 mean_dataset_s1_b_2  = T_s1_b * mean_dataset_s1_s1;
 
-  rm::Vector3 mean_model_s1_s1_2 = ~T_s1_b * mean_model_s1_b;
+  rm::Vector3 mean_model_s1_s1_2 = (~T_s1_b) * mean_model_s1_b;
   rm::Vector3 mean_model_s1_b_2  = T_s1_b * mean_model_s1_s1;
-
 
   std::cout << "Mean Dataset in 's1' coords: " << mean_dataset_s1_s1 << " == " << mean_dataset_s1_s1_2 << std::endl;
   std::cout << "Mean Dataset in  'b' coords: " << mean_dataset_s1_b << " == " << mean_dataset_s1_b_2 << std::endl;
   std::cout << "Mean Model   in 's1' coords: " << mean_model_s1_s1 << " == " << mean_model_s1_s1_2 << std::endl;
   std::cout << "Mean Model   in  'b' coords: " << mean_model_s1_b << " == " << mean_model_s1_b_2 << std::endl;
-  
-
-
-
 }
 
 void test_transform_2()
