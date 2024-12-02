@@ -46,6 +46,14 @@
 #include <rmagine/types/Memory.hpp>
 #include <typeinfo>       // operator typeid
 
+
+template<typename DataT>
+inline std::ostream& operator<<(std::ostream& os, const rmagine::Vector2_<DataT>& v)
+{
+    os << "v[" << v.x << "," << v.y << "]";
+    return os;
+}
+
 template<typename DataT>
 inline std::ostream& operator<<(std::ostream& os, const rmagine::Vector3_<DataT>& v)
 {
@@ -99,6 +107,54 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Transform_<Data
     return os;
 }
 
+template<typename DataT>
+inline std::ostream& operator<<(
+  std::ostream& os, const rmagine::Gaussian1D_<DataT>& g)
+{
+  os << "Gaussian1D: \n";;
+  os << "- mean: " << g.mean << "\n";
+  os << "- sigma: " << g.sigma << "\n";
+  os << "- n meas: " << g.n_meas << "\n";
+  return os;
+}
+
+template<typename DataT>
+inline std::ostream& operator<<(
+  std::ostream& os, const rmagine::Gaussian2D_<DataT>& g)
+{
+  os << "Gaussian2D: \n";;
+  os << "- mean: " << g.mean << "\n";
+  os << "- sigma: \n";
+  os << g.sigma << "\n";
+  os << "- n meas: " << g.n_meas << "\n";
+  return os;
+}
+
+template<typename DataT>
+inline std::ostream& operator<<(
+  std::ostream& os, const rmagine::Gaussian3D_<DataT>& g)
+{
+  os << "Gaussian2D: \n";;
+  os << "- mean: " << g.mean << "\n";
+  os << "- sigma: \n";
+  os << g.sigma << "\n";
+  os << "- n meas: " << g.n_meas << "\n";
+  return os;
+}
+
+template<typename DataT>
+inline std::ostream& operator<<(
+  std::ostream& os, const rmagine::CrossStatistics_<DataT>& stats)
+{
+  os << "CrossStatistics: \n";;
+  os << "- dataset mean: " << stats.dataset_mean << "\n";
+  os << "- model mean: " << stats.model_mean << "\n";
+  os << "- covariance: \n";
+  os << stats.covariance << "\n";
+  os << "- n meas: " << stats.n_meas << "\n";
+  return os;
+}
+
 template<typename DataT, typename MemT>
 inline std::ostream& operator<<(std::ostream& os, const rmagine::MemoryView<DataT, MemT> mem)
 {
@@ -127,17 +183,5 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::MemoryView<Data
     return os;
 }
 
-template<typename DataT>
-inline std::ostream& operator<<(
-  std::ostream& os, const rmagine::CrossStatistics_<DataT>& stats)
-{
-  os << "CrossStatistics: \n";;
-  os << "- dataset mean: " << stats.dataset_mean << "\n";
-  os << "- model mean: " << stats.model_mean << "\n";
-  os << "- covariance: \n";
-  os << stats.covariance << "\n";
-  os << "- n meas: " << stats.n_meas << "\n";
-  return os;
-}
 
 #endif // RMAGINE_UTIL_PRINTS_H

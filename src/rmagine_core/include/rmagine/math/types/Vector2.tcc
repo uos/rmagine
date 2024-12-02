@@ -79,6 +79,18 @@ void Vector2_<DataT>::multInplace(const DataT& s)
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, 2, 2> Vector2_<DataT>::multT(const Vector2_<DataT>& b) const
+{
+    Matrix_<DataT, 2, 2> C;
+    C(0,0) = x * b.x;
+    C(1,0) = y * b.x;
+    C(0,1) = x * b.y;
+    C(1,1) = y * b.y;
+    return C;
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 Vector2_<DataT> Vector2_<DataT>::div(const DataT& s) const 
 {
     return {x / s, y / s};

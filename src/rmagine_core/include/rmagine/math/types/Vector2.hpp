@@ -109,6 +109,9 @@ struct Vector2_
     void multInplace(const DataT& s);
 
     RMAGINE_INLINE_FUNCTION
+    Matrix_<DataT, 2, 2> multT(const Vector2_<DataT>& b) const;
+
+    RMAGINE_INLINE_FUNCTION
     Vector2_<DataT> div(const DataT& s) const;
 
     RMAGINE_INLINE_FUNCTION

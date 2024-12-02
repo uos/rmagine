@@ -60,3 +60,12 @@ target_link_libraries(rmagine_tests_core_math_cov_transform
 
 add_test(NAME core_math_cov_transform COMMAND rmagine_tests_core_math_cov_transform)
 
+
+# 7. GAUSSIANS
+add_executable(rmagine_tests_core_math_gaussians math_gaussians.cpp)
+target_link_libraries(rmagine_tests_core_math_gaussians
+    rmagine::core
+)
+
+add_test(NAME core_math_gaussians COMMAND rmagine_tests_core_math_gaussians)
+

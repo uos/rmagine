@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, University Osnabrück
+ * Copyright (c) 2024, University Osnabrück
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,32 +28,73 @@
 /**
  * @file
  * 
- * @brief Math datatypes and functions
+ * @brief Gaussian1D
  *
- * @date 03.10.2022
+ * @date 03.10.2024
  * @author Alexander Mock
  * 
- * @copyright Copyright (c) 2022, University Osnabrück. All rights reserved.
+ * @copyright Copyright (c) 2024, University Osnabrück. All rights reserved.
  * This project is released under the 3-Clause BSD License.
  * 
  */
+#ifndef RMAGINE_MATH_GAUSSIAN_2D_HPP
+#define RMAGINE_MATH_GAUSSIAN_2D_HPP
 
-#ifndef RMAGINE_MATH_TYPES_H
-#define RMAGINE_MATH_TYPES_H
+#include "definitions.h"
 
+namespace rmagine
+{
 
-#include <cstddef>
-#include "types/definitions.h"
-#include "types/AABB.hpp"
-#include "types/EulerAngles.hpp"
-#include "types/Matrix.hpp"
-#include "types/Quaternion.hpp"
-#include "types/Transform.hpp"
-#include "types/Vector2.hpp"
-#include "types/Vector3.hpp"
-#include "types/Gaussian1D.hpp"
-#include "types/Gaussian2D.hpp"
-#include "types/Gaussian3D.hpp"
-#include "types/CrossStatistics.hpp"
+template<typename DataT>
+struct Gaussian2D_
+{
+    Vector2_<DataT>       mean;
+    Matrix_<DataT, 2, 2>  sigma;
+    uint32_t n_meas;
 
-#endif // RMAGINE_MATH_TYPES_H
+    RMAGINE_FUNCTION
+    static Gaussian2D_<DataT> Identity()
+    {
+        Gaussian2D_<DataT> ret;
+        ret.mean = {0.0, 0.0};
+        ret.sigma.setZeros();
+        ret.n_meas = 0; // never measured
+        return ret;
+    }
+
+    RMAGINE_FUNCTION
+    static Gaussian2D_<DataT> Init(
+        const Vector2_<DataT>& measurement)
+    {
+        Gaussian2D_<DataT> ret;
+        ret.mean = measurement;
+        ret.sigma.setZeros();
+        ret.n_meas = 1;
+        return ret;
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Gaussian2D_<DataT> add(const Gaussian2D_<DataT>& o) const;
+
+    RMAGINE_INLINE_FUNCTION
+    Gaussian2D_<DataT> operator+(const Gaussian2D_<DataT>& o) const
+    {
+        return add(o);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    Gaussian2D_<DataT> operator+=(const Gaussian2D_<DataT>& o)
+    { 
+        const Gaussian2D_<DataT> res = add(o);
+        mean = res.mean;
+        sigma = res.sigma;
+        n_meas = res.n_meas;
+        return *this;
+    }
+};
+
+} // namespace rmagine
+
+#include "Gaussian2D.tcc"
+
+#endif // RMAGINE_MATH_GAUSSIAN_2D_HPP
