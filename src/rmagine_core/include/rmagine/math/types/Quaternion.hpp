@@ -43,6 +43,7 @@
 #include "definitions.h"
 #include <rmagine/types/shared_functions.h>
 #include <initializer_list>
+#include "CrossStatistics.hpp"
 
 namespace rmagine
 {
@@ -107,6 +108,13 @@ struct Quaternion_
     Quaternion_<DataT> to(const Quaternion_<DataT>& q2) const;
 
     /**
+     * 
+     * Element-wise product
+    */
+    RMAGINE_INLINE_FUNCTION
+    Quaternion_<DataT> mult(const DataT& scalar) const;
+
+    /**
      * @brief Rotate a vector with this quaternion
      * 
      * e.g. Hamiltion product
@@ -118,11 +126,11 @@ struct Quaternion_
     Vector3_<DataT> mult(const Vector3_<DataT>& p) const;
 
     /**
-     * 
-     * Element-wise product
-    */
+     * @brief Rotate cross statistics with this quaternion
+     */
     RMAGINE_INLINE_FUNCTION
-    Quaternion_<DataT> mult(const DataT& scalar) const;
+    CrossStatistics_<DataT> mult(const CrossStatistics_<DataT>& stats) const;
+
 
     RMAGINE_INLINE_FUNCTION
     DataT dot(const Quaternion_<DataT>& q) const;
@@ -181,6 +189,12 @@ struct Quaternion_
     Vector3_<DataT> operator*(const Vector3_<DataT>& p) const
     {
         return mult(p);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    CrossStatistics_<DataT> operator*(const CrossStatistics_<DataT>& stats) const
+    {
+        return mult(stats);
     }
 
     RMAGINE_INLINE_FUNCTION

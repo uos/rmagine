@@ -343,12 +343,8 @@ bool check_Matrix3x3()
         }
     }
 
-
-
-
     Matrix3x3 I = M_inv * M;
     Eigen::Matrix3f Ieig = Meig_inv * Meig;
-    
 
     for(size_t i=0; i<3; i++)
     {
@@ -400,8 +396,6 @@ bool check_Matrix4x4()
     // std::cout << Meig_shallow << std::endl;
 
     Matrix4x4 M_inv = M.inv();
-    
-
 
     // std::cout << "M = " << std::endl;
     // print(M);
@@ -412,7 +406,6 @@ bool check_Matrix4x4()
     
     // std::cout << "M_inv * M = " << std::endl;
     // print(I);
-
 
     Eigen::Matrix4f Meig(&M(0,0));
     Eigen::Matrix4f Meig_inv = Meig.inverse();

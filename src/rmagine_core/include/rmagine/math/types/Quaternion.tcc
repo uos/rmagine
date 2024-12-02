@@ -60,6 +60,13 @@ Quaternion_<DataT> Quaternion_<DataT>::to(const Quaternion_<DataT>& q2) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Quaternion_<DataT> Quaternion_<DataT>::mult(const DataT& scalar) const
+{
+    return {scalar * x, scalar * y, scalar * z, scalar * w};
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 {
     const Quaternion_<DataT> P{p.x, p.y, p.z, 0.0};
@@ -69,9 +76,15 @@ Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
-Quaternion_<DataT> Quaternion_<DataT>::mult(const DataT& scalar) const
+CrossStatistics_<DataT> Quaternion_<DataT>::mult(const CrossStatistics_<DataT>& stats) const
 {
-    return {scalar * x, scalar * y, scalar * z, scalar * w};
+    CrossStatistics_<DataT> res;
+    res.dataset_mean = mult(stats.dataset_mean);
+    res.model_mean = mult(stats.model_mean);
+    const Matrix_<DataT, 3, 3> M = *this;
+    res.covariance = M * stats.covariance * M.T();
+    res.n_meas = stats.n_meas;
+    return res;
 }
 
 template<typename DataT>

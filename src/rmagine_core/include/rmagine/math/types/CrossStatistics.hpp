@@ -113,8 +113,6 @@ struct CrossStatistics_
     void addInplace2(const CrossStatistics_<DataT>& o);
 };
 
-using CrossStatistics = CrossStatistics_<float>;
-
 } // namespace rmagine
 
 #include "CrossStatistics.tcc"

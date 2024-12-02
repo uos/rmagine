@@ -44,6 +44,7 @@
 #include <rmagine/types/shared_functions.h>
 #include "Vector3.hpp"
 #include "Quaternion.hpp"
+#include "CrossStatistics.hpp"
 
 namespace rmagine
 {
@@ -108,6 +109,9 @@ struct Transform_
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
 
+    RMAGINE_INLINE_FUNCTION
+    CrossStatistics_<DataT> mult(const CrossStatistics_<DataT>& stats) const;
+
     /**
      * @brief computes the diff transform Td to another transform T2
      * so that: this * Td = T2
@@ -144,6 +148,12 @@ struct Transform_
     Vector3_<DataT> operator*(const Vector3_<DataT>& v) const
     {
         return mult(v);
+    }
+
+    RMAGINE_INLINE_FUNCTION
+    CrossStatistics_<DataT> operator*(const CrossStatistics_<DataT>& stats) const
+    {
+        return mult(stats);
     }
 
     /////////////////////

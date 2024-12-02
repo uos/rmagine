@@ -63,6 +63,19 @@ Vector3_<DataT> Transform_<DataT>::mult(const Vector3_<DataT>& v) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+CrossStatistics_<DataT> Transform_<DataT>::mult(const CrossStatistics_<DataT>& stats) const
+{
+    CrossStatistics_<DataT> res;
+    res.dataset_mean = mult(stats.dataset_mean);
+    res.model_mean = mult(stats.model_mean);
+    const Matrix_<DataT, 3, 3> M = R; // TODO: can we do the two steps more efficient?
+    res.covariance = M * stats.covariance * M.T();
+    res.n_meas = stats.n_meas;
+    return res; 
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 Transform_<DataT> Transform_<DataT>::to(const Transform_<DataT>& T2) const
 {
     return inv().mult(T2);

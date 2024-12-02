@@ -38,6 +38,9 @@ struct Matrix_;
 template<typename DataT>
 struct AABB_;
 
+template<typename DataT>
+struct CrossStatistics_;
+
 
 using Vector2f = Vector2_<float>;
 using Vector2u = Vector2_<uint32_t>;
@@ -50,6 +53,7 @@ using Quaternionf = Quaternion_<float>;
 using EulerAnglesf = EulerAngles_<float>;
 using Transformf = Transform_<float>;
 using AABBf = AABB_<float>;
+using CrossStatisticsf = CrossStatistics_<float>;
 
 using Vector2d = Vector2_<double>;
 using Vector3d = Vector3_<double>;
@@ -60,6 +64,7 @@ using Quaterniond = Quaternion_<double>;
 using EulerAnglesd = EulerAngles_<double>;
 using Transformd = Transform_<double>;
 using AABBd = AABB_<double>;
+using CrossStatisticsd = CrossStatistics_<double>;
 
 #define DEFAULT_FP_PRECISION 32
 
@@ -75,6 +80,7 @@ using Quaternion = Quaternion_<DefaultFloatType>;
 using EulerAngles = EulerAngles_<DefaultFloatType>;
 using Transform = Transform_<DefaultFloatType>;
 using AABB = AABB_<DefaultFloatType>;
+using CrossStatistics = CrossStatistics_<DefaultFloatType>;
 
 // aliases
 using Vector = Vector3;
