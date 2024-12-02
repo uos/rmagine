@@ -63,6 +63,18 @@ Vector3_<DataT> Transform_<DataT>::mult(const Vector3_<DataT>& v) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Gaussian3D_<DataT> Transform_<DataT>::mult(const Gaussian3D_<DataT>& g) const
+{
+    Gaussian3D_<DataT> res;
+    res.mean = mult(g.mean);
+    const Matrix_<DataT, 3, 3> M = R; // TODO: can we do the two steps more efficient?
+    res.sigma = M * g.sigma * M.T();
+    res.n_meas = g.n_meas;
+    return res; 
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 CrossStatistics_<DataT> Transform_<DataT>::mult(const CrossStatistics_<DataT>& stats) const
 {
     CrossStatistics_<DataT> res;

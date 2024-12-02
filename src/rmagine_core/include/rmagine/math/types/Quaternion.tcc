@@ -76,6 +76,18 @@ Vector3_<DataT> Quaternion_<DataT>::mult(const Vector3_<DataT>& p) const
 
 template<typename DataT>
 RMAGINE_INLINE_FUNCTION
+Gaussian3D_<DataT> Quaternion_<DataT>::mult(const Gaussian3D_<DataT>& g) const
+{
+    Gaussian3D_<DataT> res;
+    res.mean = mult(g.mean);
+    const Matrix_<DataT, 3, 3> M = *this;
+    res.sigma = M * g.sigma * M.T();
+    res.n_meas = g.n_meas;
+    return res;
+}
+
+template<typename DataT>
+RMAGINE_INLINE_FUNCTION
 CrossStatistics_<DataT> Quaternion_<DataT>::mult(const CrossStatistics_<DataT>& stats) const
 {
     CrossStatistics_<DataT> res;

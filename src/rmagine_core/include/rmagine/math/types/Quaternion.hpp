@@ -43,6 +43,7 @@
 #include "definitions.h"
 #include <rmagine/types/shared_functions.h>
 #include <initializer_list>
+#include "Gaussian3D.hpp"
 #include "CrossStatistics.hpp"
 
 namespace rmagine
@@ -124,6 +125,12 @@ struct Quaternion_
      */
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const Vector3_<DataT>& p) const;
+
+    /**
+     * @brief Rotate gaussian with this quaternion
+     */
+    RMAGINE_INLINE_FUNCTION
+    Gaussian3D_<DataT> mult(const Gaussian3D_<DataT>& g) const;
 
     /**
      * @brief Rotate cross statistics with this quaternion

@@ -45,6 +45,7 @@
 #include "Vector3.hpp"
 #include "Quaternion.hpp"
 #include "CrossStatistics.hpp"
+#include "Gaussian3D.hpp"
 
 namespace rmagine
 {
@@ -108,6 +109,9 @@ struct Transform_
 
     RMAGINE_INLINE_FUNCTION
     Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
+
+    RMAGINE_INLINE_FUNCTION
+    Gaussian3D_<DataT> mult(const Gaussian3D_<DataT>& g) const;
 
     RMAGINE_INLINE_FUNCTION
     CrossStatistics_<DataT> mult(const CrossStatistics_<DataT>& stats) const;
