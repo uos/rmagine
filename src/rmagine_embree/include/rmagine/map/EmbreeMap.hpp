@@ -54,6 +54,8 @@
 #include <rmagine/math/math.h>
 #include <rmagine/types/mesh_types.h>
 
+#include <rmagine/map/Map.hpp>
+
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/math/assimp_conversions.h>
@@ -68,7 +70,7 @@
 namespace rmagine 
 {
 
-class EmbreeMap {
+class EmbreeMap : public Map {
 public:
     EmbreeMap(EmbreeDevicePtr device = embree_default_device());
     EmbreeMap(EmbreeScenePtr scene);

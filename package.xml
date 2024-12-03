@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>rmagine</name>
-  <version>2.2.10</version>
+  <version>2.2.11</version>
   <description>
   Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. The simulations can even be computed on embedded devices installed on a robot.
   </description>

@@ -48,3 +48,12 @@ target_link_libraries(rmagine_tests_embree_correction_rcc
 )
 
 add_test(NAME embree_correction_rcc COMMAND rmagine_tests_embree_correction_rcc)
+
+
+# 6. MAP CAST
+add_executable(rmagine_tests_embree_map_cast map_cast.cpp)
+target_link_libraries(rmagine_tests_embree_map_cast
+    rmagine::embree
+)
+
+add_test(NAME embree_map_cast COMMAND rmagine_tests_embree_map_cast)

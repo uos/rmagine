@@ -46,6 +46,8 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/mesh_types.h>
 
+#include <rmagine/map/Map.hpp>
+
 #include <unordered_map>
 
 #include <rmagine/util/cuda/CudaContext.hpp>
@@ -61,7 +63,8 @@
 namespace rmagine {
 
 class OptixMap 
-: public OptixEntity {
+: public Map
+, public OptixEntity {
 public:
     OptixMap(OptixScenePtr scene);
 
