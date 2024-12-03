@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+preferred-citation:
+  title: "Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots"
+  doi: "10.1109/ICRA48891.2023.10161388"
+  year: "2023"
+  type: conference-paper
+  conference: "2023 IEEE International Conference on Robotics and Automation (ICRA)"
+  url: https://kbs.informatik.uos.de/files/pdfs/icra2023_rmagine.pdf
+  codeurl: https://github.com/uos/rmagine
+  authors:
+    - family-names: Mock
+      given-names: Alexander
+      orcid: 0009-0004-7800-9774
+    - family-names: Wiemann
+      given-names: Thomas
+      orcid: 0000-0003-0710-872X
+    - family-names: Hertzberg
+      given-names: Joachim
+      orcid: 0000-0002-6371-9624
