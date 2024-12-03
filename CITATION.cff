@@ -4,7 +4,7 @@ preferred-citation:
   doi: "10.1109/ICRA48891.2023.10161388"
   year: "2023"
   type: conference-paper
-  conference: "2023 IEEE International Conference on Robotics and Automation (ICRA)"
+  collection-title: "IEEE International Conference on Robotics and Automation (ICRA)"
   url: https://kbs.informatik.uos.de/files/pdfs/icra2023_rmagine.pdf
   codeurl: https://github.com/uos/rmagine
   authors:
