@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief Gaussian1D
+ * @brief Gaussian3D
  *
  * @date 03.10.2024
  * @author Alexander Mock
