@@ -3,6 +3,173 @@
 namespace rmagine {
 
 
+///////////////////////////
+/// MatrixData
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT& MatrixData<DataT, Rows, Cols>::at(unsigned int row, unsigned int col)
+{
+  return data[col * Rows + row];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+volatile DataT& MatrixData<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) volatile
+{
+  return data[col * Rows + row];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) const
+{
+  return data[col * Rows + row];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) volatile const
+{
+  return data[col * Rows + row];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT& MatrixData<DataT, Rows, Cols>::operator()(unsigned int row, unsigned int col)
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+volatile DataT& MatrixData<DataT, Rows, Cols>::operator()(unsigned int row, unsigned int col) volatile
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::operator()(unsigned int row, unsigned int col) const
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::operator()(unsigned int row, unsigned int col) volatile const
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols> MatrixData<DataT, Rows, Cols>::slice(
+  unsigned int row, unsigned int col)
+{
+  return Slice<SliceRows, SliceCols>(&data[0], row, col);
+}
+
+
+
+///////////////////////////
+/// MatrixData::Slice
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::Slice(
+  MatrixData<DataT, Rows, Cols>* data, 
+  const unsigned int row, 
+  const unsigned int col)
+:data(data)
+,row_offset(row)
+,col_offset(col)
+{
+
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT& MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::at(
+  unsigned int row, unsigned int col)
+{
+  return data[(col_offset + col) * Rows + (row_offset + row)];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+volatile DataT& MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::at(
+  unsigned int row, unsigned int col) volatile
+{
+  return data[(col_offset + col) * Rows + (row_offset + row)];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::at(
+  unsigned int row, unsigned int col) const
+{
+  return data[(col_offset + col) * Rows + (row_offset + row)];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::at(
+  unsigned int row, unsigned int col) volatile const
+{
+  return data[(col_offset + col) * Rows + (row_offset + row)];
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT& MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::operator()(unsigned int row, unsigned int col)
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+volatile DataT& MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::operator()(unsigned int row, unsigned int col) volatile
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::operator()(unsigned int row, unsigned int col) const
+{
+  return at(row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+DataT MatrixData<DataT, Rows, Cols>::Slice<SliceRows, SliceCols>::operator()(unsigned int row, unsigned int col) volatile const
+{
+  return at(row, col);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 DataT& Matrix_<DataT, Rows, Cols>::at(unsigned int row, unsigned int col)

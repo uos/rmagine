@@ -55,22 +55,145 @@ struct MatrixMultInvalid {};
 struct MatrixAddInvalid {};
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
-struct MatrixView_ {
-  DataT* data;
-  const unsigned int col_offset;
-  const unsigned int row_offset;
+struct MatrixData;
 
-  
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+class MatrixData 
+{
+public:
+  using Type = MatrixData<DataT, Rows, Cols>;
+  using ConstType = MatrixData<std::add_const_t<DataT>, Rows, Cols>;
+  using VolatileType = MatrixData<std::add_volatile_t<DataT>, Rows, Cols>;
+
+  using MatrixData_Type = Type;
+  using MatrixData_ConstType = ConstType;
+  using MatrixData_VolatileType = VolatileType;
+
+  MatrixData() = default;
+
+  ////////////////////
+  // access functions
+  RMAGINE_INLINE_FUNCTION
+  DataT& at(unsigned int row, unsigned int col);
+
+  RMAGINE_INLINE_FUNCTION
+  volatile DataT& at(unsigned int row, unsigned int col) volatile;
+
+  RMAGINE_INLINE_FUNCTION
+  DataT at(unsigned int row, unsigned int col) const;
+
+  RMAGINE_INLINE_FUNCTION
+  DataT at(unsigned int row, unsigned int col) volatile const;
+
+  RMAGINE_INLINE_FUNCTION
+  DataT& operator()(unsigned int row, unsigned int col);
+
+  RMAGINE_INLINE_FUNCTION
+  volatile DataT& operator()(unsigned int row, unsigned int col) volatile;
+
+  RMAGINE_INLINE_FUNCTION
+  DataT operator()(unsigned int row, unsigned int col) const;
+
+  RMAGINE_INLINE_FUNCTION
+  DataT operator()(unsigned int row, unsigned int col) volatile const;
+
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  class Slice;
+
+  // TODO: do we need a const pointer container?
+  // template<unsigned int SliceRows, unsigned int SliceCols>
+  // using ConstSlice = typename ConstType::Slice;
+
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  RMAGINE_INLINE_FUNCTION
+  Slice<SliceRows, SliceCols> slice(unsigned int row, unsigned int col);
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  RMAGINE_INLINE_FUNCTION
+  const Slice<SliceRows, SliceCols> slice(unsigned int row, unsigned int col) const
+  {
+    return Slice<SliceRows, SliceCols>(&data[0], row, col);
+  }
+
+  // template<unsigned int SliceRows, unsigned int SliceCols>
+  // RMAGINE_INLINE_FUNCTION
+  // ConstSlice<SliceRows, SliceCols> slice(unsigned int row, unsigned int col) const
+  // {
+  //   return ConstSlice<SliceRows, SliceCols>(&data[0], row, col);
+  // }
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  class Slice
+  {
+    public:
+      Slice() = delete;
+      explicit Slice(MatrixData<DataT, Rows, Cols>* data, 
+        const unsigned int row,
+        const unsigned int col);
+
+      RMAGINE_INLINE_FUNCTION
+      DataT& at(unsigned int row, unsigned int col);
+
+      RMAGINE_INLINE_FUNCTION
+      volatile DataT& at(unsigned int row, unsigned int col) volatile;
+
+      RMAGINE_INLINE_FUNCTION
+      DataT at(unsigned int row, unsigned int col) const;
+
+      RMAGINE_INLINE_FUNCTION
+      DataT at(unsigned int row, unsigned int col) volatile const;
+
+      RMAGINE_INLINE_FUNCTION
+      DataT& operator()(unsigned int row, unsigned int col);
+
+      RMAGINE_INLINE_FUNCTION
+      volatile DataT& operator()(unsigned int row, unsigned int col) volatile;
+
+      RMAGINE_INLINE_FUNCTION
+      DataT operator()(unsigned int row, unsigned int col) const;
+
+      RMAGINE_INLINE_FUNCTION
+      DataT operator()(unsigned int row, unsigned int col) volatile const;
+
+
+      template<unsigned int SliceRowsNew, unsigned int SliceColsNew>
+      RMAGINE_INLINE_FUNCTION
+      Slice<SliceRowsNew, SliceColsNew> slice(unsigned int row, unsigned int col)
+      {
+        return Slice<SliceRowsNew, SliceColsNew>(data, row_offset + row, col_offset + col);
+      }
+
+      template<unsigned int SliceRowsNew, unsigned int SliceColsNew>
+      RMAGINE_INLINE_FUNCTION
+      const Slice<SliceRowsNew, SliceColsNew> slice(unsigned int row, unsigned int col) const
+      {
+        return Slice<SliceRowsNew, SliceColsNew>(data, row_offset + row, col_offset + col);
+      }
+
+    private:
+      MatrixData<DataT, Rows, Cols>* data;
+      const unsigned int row_offset;
+      const unsigned int col_offset;
+  };
+
+private:
+  DataT data[Cols*Rows];
 };
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
-struct Matrix_ {
+class Matrix_ 
+{
+public:
     // DATA
     DataT data[Cols*Rows];
 
+    // using MatrixDataType = MatrixData<DataT, Rows, Cols>;
+
     //////////////////////////
     // initializer functions
-    RMAGINE_INLINE_FUNCTION 
+    RMAGINE_INLINE_FUNCTION
     void setZeros();
 
     RMAGINE_INLINE_FUNCTION 
