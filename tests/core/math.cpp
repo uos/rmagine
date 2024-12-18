@@ -53,9 +53,9 @@ void rotation_init_test()
     M1(1,0) =  1.0; M1(1,1) =  0.0; M1(1,2) =  0.0;
     M1(2,0) =  0.0; M1(2,1) =  0.0; M1(2,2) =  1.0;
     rm::Matrix3x3 M2 = {{
-        {0.0, 1.0, 0.0},
-        {-1.0, 0.0, 0.0},
-        {0.0, 0.0, 1.0}
+        0.0, 1.0, 0.0,
+        -1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0
     }};
     rm::Matrix3x3 MI = rm::Matrix3x3::Identity();
 }
@@ -127,8 +127,6 @@ bool rotation_conv_test()
 
     return true;
 }
-
-
 
 void rotation_conv_test_single(
     rm::EulerAngles e = {0.1, 0.2, 0.3})

@@ -54,15 +54,22 @@ namespace rmagine
 struct MatrixMultInvalid {};
 struct MatrixAddInvalid {};
 
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+struct MatrixView_ {
+  DataT* data;
+  const unsigned int col_offset;
+  const unsigned int row_offset;
+
+  
+};
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 struct Matrix_ {
     // DATA
-    DataT data[Cols][Rows];
+    DataT data[Cols*Rows];
 
     //////////////////////////
     // initializer functions
-
     RMAGINE_INLINE_FUNCTION 
     void setZeros();
 
@@ -98,7 +105,6 @@ struct Matrix_ {
 
     ////////////////////
     // access functions
-
     RMAGINE_INLINE_FUNCTION
     DataT& at(unsigned int row, unsigned int col);
 
@@ -194,6 +200,18 @@ struct Matrix_ {
 
     RMAGINE_INLINE_FUNCTION
     Matrix_<DataT, Cols, Rows> inv() const;
+
+    template<unsigned int RowsNew, unsigned int ColsNew, unsigned int row, unsigned int col>
+    RMAGINE_INLINE_FUNCTION
+    Matrix_<DataT, RowsNew, ColsNew> copy_block() const;
+
+    template<unsigned int RowsNew, unsigned int ColsNew>
+    RMAGINE_INLINE_FUNCTION
+    Matrix_<DataT, RowsNew, ColsNew> copy_block(unsigned int row, unsigned int col) const;
+
+    template<unsigned int RowsBlock, unsigned int ColsBlock>
+    RMAGINE_INLINE_FUNCTION
+    void set_block(unsigned int row, unsigned int col, const Matrix_<DataT, RowsBlock, ColsBlock>& block);
 
     /////////////////////
     // math function aliases

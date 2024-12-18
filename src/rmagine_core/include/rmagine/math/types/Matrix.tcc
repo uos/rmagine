@@ -7,28 +7,28 @@ template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 DataT& Matrix_<DataT, Rows, Cols>::at(unsigned int row, unsigned int col)
 {
-    return data[col][row];
+    return data[col * Rows + row];
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 volatile DataT& Matrix_<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) volatile
 {
-    return data[col][row];
+    return data[col * Rows + row];
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 DataT Matrix_<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) const
 {
-    return data[col][row];
+    return data[col * Rows + row];
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 DataT Matrix_<DataT, Rows, Cols>::at(unsigned int row, unsigned int col) volatile const
 {
-    return data[col][row];
+    return data[col * Rows + row];
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
@@ -63,14 +63,14 @@ template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 DataT* Matrix_<DataT, Rows, Cols>::operator[](const unsigned int col) 
 {
-    return data[col];
+    return &data[col * Rows];
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 RMAGINE_INLINE_FUNCTION
 const DataT* Matrix_<DataT, Rows, Cols>::operator[](const unsigned int col) const 
 {
-    return data[col];
+    return &data[col * Rows];
 }
 
 ////////////////////
@@ -444,7 +444,7 @@ void Matrix_<DataT, Rows, Cols>::multInplace(const Matrix_<DataT, Rows, Cols>& M
     for(unsigned int j = 0; j < Cols; j++)
     {
         // copy entire column
-        const DataT* col = data[j];
+        const DataT* col = &data[j * Rows];
         DataT tmp[Rows];
         for(unsigned int i = 0; i < Rows; i++)
         {
@@ -1015,6 +1015,62 @@ Matrix_<double, 4, 4> Matrix_<double, 4, 4>::inv() const
     ret(3,3) = det_ *   ( at(0,0) * A1212 - at(0,1) * A0212 + at(0,2) * A0112 );
 
     return ret;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+template<unsigned int RowsNew, unsigned int ColsNew, unsigned int row, unsigned int col>
+RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, RowsNew, ColsNew> Matrix_<DataT, Rows, Cols>::copy_block() const
+{
+  Matrix_<DataT, RowsNew, ColsNew> ret;
+
+  static_assert(row + RowsNew <= Rows);
+  static_assert(col + ColsNew <= Cols);
+
+  for(unsigned int i=0; i<RowsNew; i++)
+  {
+    for(unsigned int j=0; j<ColsNew; j++)
+    {
+      ret(i,j) = at(i+row, j+col);
+    }
+  }
+
+  return ret;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+template<unsigned int RowsNew, unsigned int ColsNew>
+RMAGINE_INLINE_FUNCTION
+Matrix_<DataT, RowsNew, ColsNew> Matrix_<DataT, Rows, Cols>::copy_block(unsigned int row, unsigned int col) const
+{
+  Matrix_<DataT, RowsNew, ColsNew> ret;
+
+  for(unsigned int i=0; i<RowsNew; i++)
+  {
+    for(unsigned int j=0; j<ColsNew; j++)
+    {
+      ret(i,j) = at(i+row, j+col);
+    }
+  }
+
+  return ret;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols> 
+template<unsigned int RowsBlock, unsigned int ColsBlock>
+RMAGINE_INLINE_FUNCTION
+void Matrix_<DataT, Rows, Cols>::set_block(
+  unsigned int row, 
+  unsigned int col, 
+  const Matrix_<DataT, RowsBlock, ColsBlock>& block)
+{
+  for(size_t i=0; i<RowsBlock; i++)
+  {
+    for(size_t j=0; j<ColsBlock; j++)
+    {
+      at(i+row, j+col) = block(i, j);
+    }
+  }
 }
 
 /////////////////////
