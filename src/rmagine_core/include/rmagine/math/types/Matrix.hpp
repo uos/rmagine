@@ -183,7 +183,7 @@ private:
 };
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
-class Matrix_ 
+class Matrix_
 {
 public:
     // DATA
