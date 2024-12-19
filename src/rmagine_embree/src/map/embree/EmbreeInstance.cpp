@@ -54,7 +54,7 @@ void EmbreeInstance::apply()
 
     M = M * Ms;
 
-    rtcSetGeometryTransform(m_handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &M.data[0]);
+    rtcSetGeometryTransform(m_handle, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &M(0,0));
 }
 
 } // namespace rmagine

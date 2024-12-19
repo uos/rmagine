@@ -12,7 +12,7 @@ void print(Matrix3x3 M)
     {
         for(size_t j=0; j<3; j++)
         {
-            std::cout << M[i][j] << " ";
+            std::cout << M(i,j) << " ";
         }
         std::cout << std::endl;
     }
@@ -77,9 +77,9 @@ void cpu_math()
             {
                 if(j == k)
                 {
-                    M[i][j][k] = 1.0;
+                    M[i](j,k) = 1.0;
                 } else {
-                    M[i][j][k] = 0.0;
+                    M[i](j,k) = 0.0;
                 }
             }
         }
@@ -234,9 +234,9 @@ void cuda_math()
             {
                 if(j == k)
                 {
-                    M[i][j][k] = 1.0;
+                    M[i](j,k) = 1.0;
                 } else {
-                    M[i][j][k] = 0.0;
+                    M[i](j,k) = 0.0;
                 }
             }
         }

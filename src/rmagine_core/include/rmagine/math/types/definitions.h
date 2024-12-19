@@ -32,8 +32,11 @@ struct Quaternion_;
 template<typename DataT>
 struct Transform_;
 
-template<typename DataT, unsigned int Rows, unsigned int Cols>
-struct Matrix_;
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride = Rows>
+class Matrix_;
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
+struct MatrixSlice_;
 
 template<typename DataT>
 struct AABB_;
@@ -114,6 +117,10 @@ using Point = Vector;
 // - projection operations can result in negative pixels
 // using Pixel = Vector2u;
 // using Pixel = Vector2i;
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
+  template<typename MaDataType, unsigned int MaRows, unsigned int MaCols, unsigned int MaStride> class MatrixAccess_>
+class MatrixOps_;
 
 
 } // namespace rmagine
