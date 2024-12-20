@@ -59,28 +59,31 @@
 
 
 
+// macro for setting visibility
+// https://gcc.gnu.org/wiki/Visibility
+// 
 // #if defined _WIN32 || defined __CYGWIN__
 //   #ifdef BUILDING_DLL
 //     #ifdef __GNUC__
-//       #define __attribute__ ((dllexport))
+//       #define DLL_PUBLIC __attribute__ ((dllexport))
 //     #else
-//       #define __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
+//       #define DLL_PUBLIC __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
 //     #endif
 //   #else
 //     #ifdef __GNUC__
-//       #define __attribute__ ((dllimport))
+//       #define DLL_PUBLIC __attribute__ ((dllimport))
 //     #else
-//       #define __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
+//       #define DLL_PUBLIC __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
 //     #endif
 //   #endif
 //   #define DLL_LOCAL
 // #else
 //   #if __GNUC__ >= 4
-//     #define __attribute__ ((visibility ("default")))
-//     #define  __attribute__ ((visibility ("hidden")))
+//     #define DLL_PUBLIC __attribute__ ((visibility ("default")))
+//     #define DLL_LOCAL  __attribute__ ((visibility ("hidden")))
 //   #else
-//     #define RMAGINE_API
-//     #define RMAGINE_HIDDEN
+//     #define DLL_PUBLIC
+//     #define DLL_LOCAL
 //   #endif
 // #endif
 

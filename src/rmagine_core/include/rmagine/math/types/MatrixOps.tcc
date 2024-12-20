@@ -538,12 +538,49 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols2> MatrixOps_<DataT, Rows, Cols, M
 }
 
 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION 
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M)
+{
+  static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
+  static_assert(Rows == Cols, "Inplace mult is only allowed for square matrices");
+
+  // tmp memory
+  
+  // TODO: test
+  // - processing each column should be thread safe
+  // #pragma omp parallel for
+  for(unsigned int j = 0; j < Cols; j++)
+  {
+    // copy entire column
+    DataT tmp[Rows];
+    for(unsigned int i = 0; i < Rows; i++)
+    {
+      tmp[i] = at(i, j);
+    }
+
+    for(unsigned int i = 0; i < Rows; i++)
+    {
+      at(i,j) = 0.0;
+      for(unsigned int k = 0; k < Cols; k++)
+      {
+        at(i,j) += tmp[k] * M(i,k);
+      }
+    }
+  }
+}
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(
-  const Matrix_<DataT, Rows, Cols>& M)
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M)
 {
   static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
   static_assert(Rows == Cols, "Inplace mult is only allowed for square matrices");
@@ -611,9 +648,32 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template< 
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
 Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multEwise(
-  const Matrix_<DataT, Rows, Cols>& M) const
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M) const
+{
+  Matrix_<DataTNonConst, Rows, Cols> res;
+
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      res(i, j) = at(i, j) * M(i,j);
+    }
+  }
+
+  return res;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multEwise(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M) const
 {
   Matrix_<DataTNonConst, Rows, Cols> res;
 
@@ -718,17 +778,19 @@ Vector2_<std::remove_const_t<DataT> > MatrixOps_<DataT, Rows, Cols, MatrixAccess
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template< 
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
 Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::add(
-  const Matrix_<DataT, Rows, Cols>& M) const
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M) const
 {
   Matrix_<DataTNonConst, Rows, Cols> res;
-  
+
   for(unsigned int i = 0; i < Rows; i++)
   {
     for(unsigned int j = 0; j < Cols; j++)
     {
-      res(i, j) = at(i, j) + M(i, j);
+      res(i, j) = at(i, j) + M(i,j);
     }
   }
 
@@ -737,8 +799,52 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, Ma
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(const Matrix_<DataT, Rows, Cols>& M)
+Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::add(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M) const
+{
+  Matrix_<DataTNonConst, Rows, Cols> res;
+
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      res(i, j) = at(i, j) + M(i,j);
+    }
+  }
+
+  return res;
+}
+
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M)
+{
+  static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
+  
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      at(i, j) += M(i, j);
+    }
+  }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M)
 {
   static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
   
@@ -753,9 +859,30 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(const Matrix_<Data
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(
-  volatile Matrix_<DataT, Rows, Cols>& M) volatile
+  volatile OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M) volatile
+{
+  static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
+  
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      at(i, j) += M(i, j);
+    }
+  }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(
+  volatile OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M) volatile
 {
   static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
   
@@ -770,9 +897,11 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
 Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::sub(
-  const Matrix_<DataT, Rows, Cols>& M) const
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M) const
 {
   Matrix_<DataTNonConst, Rows, Cols> res;
 
@@ -789,8 +918,50 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, Ma
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::subInplace(const Matrix_<DataT, Rows, Cols>& M)
+Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::sub(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M) const
+{
+  Matrix_<DataTNonConst, Rows, Cols> res;
+
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      res(i, j) = at(i, j) - M(i, j);
+    }
+  }
+
+  return res;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::subInplace(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& M)
+{
+  static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      at(i, j) -= M(i, j);
+    }
+  }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::subInplace(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& M)
 {
   static_assert(!std::is_const_v<DataT>, "Inplace operations are not allowed on const-typed matrices.");
   for(unsigned int i = 0; i < Rows; i++)

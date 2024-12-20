@@ -160,9 +160,16 @@ public:
   Matrix_<DataTNonConst, Rows, Cols2> mult(
     const OtherMatrixAccess_<DataTConst, Cols, Cols2>& M) const;
 
-
+  // mult inplace, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION 
-  void multInplace(const Matrix_<DataT, Rows, Cols>& M);
+  void multInplace(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M);
+
+  // mult inplace, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION 
+  void multInplace(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M);
+
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Rows, Cols> mult(const DataT& scalar) const;
@@ -171,8 +178,17 @@ public:
   void multInplace(const DataT& scalar);
 
   // TODO: slice input
+  // element-wise multiplication, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows, Cols> multEwise(const Matrix_<DataT, Rows, Cols>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols> multEwise(
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) const;
+
+  // element-wise multiplication, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  Matrix_<DataTNonConst, Rows, Cols> multEwise(
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Rows, Cols> div(const DataT& scalar) const;
@@ -186,22 +202,59 @@ public:
   RMAGINE_INLINE_FUNCTION 
   Vector2_<DataTNonConst> mult(const Vector2_<std::remove_const_t<DataT> >& v) const;
 
-  // TODO: slice input
+  // add, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols> add(
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) const;
 
+  // add, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  void addInplace(const Matrix_<DataT, Rows, Cols>& M);
+  Matrix_<DataTNonConst, Rows, Cols> add(
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& M) const;
 
+  // add inplace, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  void addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile;
+  void addInplace(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M);
 
-  // TODO: slice input
+  // add inplace, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows, Cols> sub(const Matrix_<DataT, Rows, Cols>& M) const;
+  void addInplace(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M);
 
+  // add inplace, volatile, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  void subInplace(const Matrix_<DataT, Rows, Cols>& M);
+  void addInplace(volatile OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) volatile;
+
+  // add inplace, volatile, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  void addInplace(volatile OtherMatrixAccess_<DataTConst, Rows, Cols>& M) volatile;
+
+  // subtract, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  Matrix_<DataTNonConst, Rows, Cols> sub(
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) const;
+
+  // subtract, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  Matrix_<DataTNonConst, Rows, Cols> sub(
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& M) const;
+
+  // subtract inplace, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  void subInplace(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M);
+
+  // subtract inplace, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  void subInplace(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Cols, Rows> transpose() const;
