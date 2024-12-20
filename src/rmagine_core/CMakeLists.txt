@@ -54,7 +54,7 @@ set_target_properties(rmagine-core
     VERSION ${rmagine_VERSION}
     COMPONENT core
     CXX_STANDARD 17
-    CXX_VISIBILITY_PRESET hidden
+    # CXX_VISIBILITY_PRESET hidden
 )
 
 # TODO: do this:
