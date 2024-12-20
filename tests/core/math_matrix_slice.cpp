@@ -69,6 +69,13 @@ void test_const()
   M.slice<3,3>(3,3) = M_const.slice<3,3>(5,5).T();
 
   std::cout << M << std::endl;
+
+
+  std::cout << "non-const Matrix<const float*>" << std::endl;
+
+  rm::MatrixSlice_<const float, 3, 3> M_const_s = M_const.slice<3,3>(2,4); 
+
+  // M_const_s.transposeInplace();
 }
 
 void test_basics()

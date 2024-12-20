@@ -58,6 +58,9 @@ public:
   using MatrixAccess = MatrixAccess_<DataT, Rows, Cols>;
   using ThisType = MatrixOps_<DataT, Rows, Cols, MatrixAccess_>;
 
+  using DataTConst = std::add_const_t<DataT>;
+  using DataTNonConst = std::remove_const_t<DataT>;
+
   // MatrixOps_() = delete;
 
   ////////////////////
@@ -100,41 +103,42 @@ public:
   /////////////////////
   // math functions
   RMAGINE_INLINE_FUNCTION
-  Matrix_<std::remove_const_t<DataT>, Rows, Cols> negate() const;
+  Matrix_<DataTNonConst, Rows, Cols> negate() const;
 
   RMAGINE_INLINE_FUNCTION
   void negateInplace();
 
   template<unsigned int Cols2>
   RMAGINE_INLINE_FUNCTION 
-  Matrix_<DataT, Rows, Cols2> mult(const Matrix_<DataT, Cols, Cols2>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols2> mult(
+    const Matrix_<DataT, Cols, Cols2>& M) const;
 
   RMAGINE_INLINE_FUNCTION 
   void multInplace(const Matrix_<DataT, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> mult(const DataT& scalar) const;
+  Matrix_<DataTNonConst, Rows, Cols> mult(const DataT& scalar) const;
 
   RMAGINE_INLINE_FUNCTION
   void multInplace(const DataT& scalar);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> multEwise(const Matrix_<DataT, Rows, Cols>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols> multEwise(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> div(const DataT& scalar) const;
+  Matrix_<DataTNonConst, Rows, Cols> div(const DataT& scalar) const;
 
   RMAGINE_INLINE_FUNCTION
   void divInplace(const DataT& scalar);
 
   RMAGINE_INLINE_FUNCTION 
-  Vector3_<DataT> mult(const Vector3_<DataT>& v) const;
+  Vector3_<DataTNonConst> mult(const Vector3_<DataT>& v) const;
 
   RMAGINE_INLINE_FUNCTION 
-  Vector2_<DataT> mult(const Vector2_<DataT>& v) const;
+  Vector2_<DataTNonConst> mult(const Vector2_<DataT>& v) const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
   void addInplace(const Matrix_<DataT, Rows, Cols>& M);
@@ -143,13 +147,13 @@ public:
   void addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> sub(const Matrix_<DataT, Rows, Cols>& M) const;
+  Matrix_<DataTNonConst, Rows, Cols> sub(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
   void subInplace(const Matrix_<DataT, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<std::remove_const_t<DataT>, Cols, Rows> transpose() const;
+  Matrix_<DataTNonConst, Cols, Rows> transpose() const;
 
   RMAGINE_INLINE_FUNCTION
   void transposeInplace();
@@ -161,11 +165,11 @@ public:
   DataT det() const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Cols, Rows> inv() const;
+  Matrix_<DataTNonConst, Cols, Rows> inv() const;
 
   template<unsigned int RowsNew, unsigned int ColsNew>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, RowsNew, ColsNew> copy_block(unsigned int row, unsigned int col) const;
+  Matrix_<DataTNonConst, RowsNew, ColsNew> copy_block(unsigned int row, unsigned int col) const;
 
   template<unsigned int RowsBlock, unsigned int ColsBlock>
   RMAGINE_INLINE_FUNCTION
@@ -175,7 +179,7 @@ public:
   // math function aliases
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<std::remove_const_t<DataT>, Cols, Rows> T() const 
+  Matrix_<DataTNonConst, Cols, Rows> T() const 
   {
     return transpose();
   }
@@ -185,7 +189,7 @@ public:
 
   template<unsigned int Cols2>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols2> operator*(const Matrix_<DataT, Cols, Cols2>& M) const
+  Matrix_<DataTNonConst, Rows, Cols2> operator*(const Matrix_<DataT, Cols, Cols2>& M) const
   {
     return mult(M);
   }
@@ -199,7 +203,7 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> operator*(const DataT& s) const
+  Matrix_<DataTNonConst, Rows, Cols> operator*(const DataT& s) const
   {
     return mult(s);
   }
@@ -212,19 +216,19 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Vector3_<DataT> operator*(const Vector3_<DataT>& p) const
+  Vector3_<DataTNonConst> operator*(const Vector3_<DataT>& p) const
   {
     return mult(p);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Vector2_<DataT> operator*(const Vector2_<DataT>& p) const
+  Vector2_<DataTNonConst> operator*(const Vector2_<DataT>& p) const
   {
     return mult(p);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> operator/(const DataT& s) const
+  Matrix_<DataTNonConst, Rows, Cols> operator/(const DataT& s) const
   {
     return div(s);
   }
@@ -237,7 +241,7 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> operator+(const Matrix_<DataT, Rows, Cols>& M) const
+  Matrix_<DataTNonConst, Rows, Cols> operator+(const Matrix_<DataT, Rows, Cols>& M) const
   {
     return add(M);
   }
@@ -257,19 +261,19 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> operator-(const Matrix_<DataT, Rows, Cols>& M) const
+  Matrix_<DataTNonConst, Rows, Cols> operator-(const Matrix_<DataT, Rows, Cols>& M) const
   {
     return sub(M);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<std::remove_const_t<DataT>, Rows, Cols> operator-() const
+  Matrix_<DataTNonConst, Rows, Cols> operator-() const
   {
     return negate();
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> operator~() const
+  Matrix_<DataTNonConst, Rows, Cols> operator~() const
   {
     return inv();
   }
@@ -278,7 +282,7 @@ public:
   // Transformation Helpers. Matrix Form: Square, Homogenous
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows-1, Cols-1> rotation() const;
+  Matrix_<DataTNonConst, Rows-1, Cols-1> rotation() const;
 
   RMAGINE_INLINE_FUNCTION
   void setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R);
@@ -290,7 +294,7 @@ public:
   void setRotation(const EulerAngles_<DataT>& e);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows-1, 1> translation() const;
+  Matrix_<DataTNonConst, Rows-1, 1> translation() const;
 
   RMAGINE_INLINE_FUNCTION
   void setTranslation(const Matrix_<DataT, Rows-1, 1>& t);
@@ -302,17 +306,17 @@ public:
   void setTranslation(const Vector3_<DataT>& t);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols> invRigid() const;
+  Matrix_<DataTNonConst, Rows, Cols> invRigid() const;
 
   // const input
   template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  void set(const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other);
+  void set(const OtherMatrixAccess_<DataTConst, Rows, Cols>& other);
 
   // non const input
   template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  void set(const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other);
+  void set(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& other);
 
   RMAGINE_INLINE_FUNCTION
   void set(const Quaternion_<DataT>& q);
@@ -328,7 +332,7 @@ public:
   template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
   MatrixAccess_<DataT, Rows, Cols>& operator=(
-    const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& other)
   {
     // std::cout << "-- copy assign" << std::endl;
     set(other);
@@ -339,7 +343,7 @@ public:
   template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
   MatrixAccess_<DataT, Rows, Cols>& operator=(
-    const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& other)
   {
     // std::cout << "-- copy assign" << std::endl;
     set(other);
@@ -365,7 +369,7 @@ public:
    * @return Vector2_<DataT> 
    */
   RMAGINE_INLINE_FUNCTION
-  operator Vector2_<DataT>() const;
+  operator Vector2_<DataTNonConst>() const;
 
   /**
    * @brief Matrix<3,1> -> Vector3
@@ -373,7 +377,7 @@ public:
    * @return Vector3_<DataT> 
    */
   RMAGINE_INLINE_FUNCTION
-  operator Vector3_<DataT>() const;
+  operator Vector3_<DataTNonConst>() const;
 
   /**
    * @brief Rotation Matrix -> Quaternion
@@ -381,7 +385,7 @@ public:
    * @return Quaternion_<DataT> 
    */
   RMAGINE_INLINE_FUNCTION
-  operator Quaternion_<DataT>() const;
+  operator Quaternion_<DataTNonConst>() const;
 
   /**
    * @brief Rotation Matrix -> EulerAngles
@@ -389,7 +393,7 @@ public:
    * @return EulerAngles_<DataT> 
    */
   RMAGINE_INLINE_FUNCTION
-  operator EulerAngles_<DataT>() const;
+  operator EulerAngles_<DataTNonConst>() const;
 
   /**
    * @brief Transformation Matrix -> Transform
@@ -400,7 +404,7 @@ public:
    * @return Transform_<DataT>
    */
   RMAGINE_INLINE_FUNCTION
-  operator Transform_<DataT>() const;
+  operator Transform_<DataTNonConst>() const;
 
   /**
    * @brief Data Type Cast to ConvT
@@ -429,13 +433,13 @@ public:
   template<typename MatrixT>
   using MultResultType = typename std::conditional<
                           Cols == MatrixT::rows(),
-                          Matrix_<DataT, Rows, MatrixT::cols()>, // Valid Multiplication
+                          Matrix_<DataTNonConst, Rows, MatrixT::cols()>, // Valid Multiplication
                           MatrixMultInvalid>::type;
 
   template<typename MatrixT>
   using AddResultType = typename std::conditional<
                           Cols == MatrixT::cols() && Rows == MatrixT::rows(),
-                          Matrix_<DataT, Rows, MatrixT::cols()>, // Valid Multiplication
+                          Matrix_<DataTNonConst, Rows, MatrixT::cols()>, // Valid Multiplication
                           MatrixAddInvalid>::type;
 
   using Type = DataT;
