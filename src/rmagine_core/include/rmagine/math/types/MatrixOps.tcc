@@ -350,6 +350,100 @@ void MatrixOps_<double, 4, 4, Matrix_>::setIdentity()
   at(3,3) = 1.0;
 }
 
+
+template< // class templates
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template< // function templates
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
+{
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
+  for(size_t i = 0; i<Rows; i++)
+  {
+    for(size_t j = 0; j<Cols; j++)
+    {
+      at(i, j) = other(i, j);
+    }
+  }
+}
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
+{
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
+  for(size_t i = 0; i<Rows; i++)
+  {
+    for(size_t j = 0; j<Cols; j++)
+    {
+      at(i, j) = other(i, j);
+    }
+  }
+}
+
+
+template< // class templates
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template< // function templates
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
+{
+  set(other);
+  return mat();
+}
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
+{
+  set(other);
+  return mat();
+}
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
+  OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>&& other)
+{
+  set(other);
+  return mat();
+}
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
+  OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>&& other)
+{
+  set(other);
+  return mat();
+}
+
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
@@ -387,19 +481,19 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::negateInplace()
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
-template<unsigned int Cols2>
+template<unsigned int Cols2, 
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION 
 Matrix_<std::remove_const_t<DataT>, Rows, Cols2> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(
-  const Matrix_<DataT, Cols, Cols2>& M) const
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Cols, Cols2>& M) const
 {
   // constexpr unsigned int Rows2 = Cols;
   constexpr unsigned int Rows3 = Rows;
   constexpr unsigned int Cols3 = Cols2;
 
   Matrix_<std::remove_const_t<DataT>, Rows3, Cols3> res;
-  
-  // before
   res.setZeros();
+
   for(unsigned int i = 0; i < Rows; i++)
   {
     for(unsigned int j = 0; j < Cols; j++)
@@ -411,26 +505,39 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols2> MatrixOps_<DataT, Rows, Cols, M
     }
   }
 
-  // both of the outer loops could be run asynchonously
-  // - Test: slower than version on top
-  //      tested in serial and with openmp
-  // 
-  // #pragma omp parallel for
-  // for(unsigned int i = 0; i < Rows; i++)
-  // {
-  //     for(unsigned int k = 0; k < Cols2; k++)
-  //     {
-  //         res(i, k) = 0.0;
-  //         for(unsigned int j = 0; j < Cols; j++)
-  //         {
-  //             res(i, k) += at(i, j) * M(j, k);
-  //         }
-  //     }
-  // }
-  // the second version 
+  return res;
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+template<unsigned int Cols2, 
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+RMAGINE_INLINE_FUNCTION 
+Matrix_<std::remove_const_t<DataT>, Rows, Cols2> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Cols, Cols2>& M) const
+{
+  // constexpr unsigned int Rows2 = Cols;
+  constexpr unsigned int Rows3 = Rows;
+  constexpr unsigned int Cols3 = Cols2;
+
+  Matrix_<std::remove_const_t<DataT>, Rows3, Cols3> res;
+  res.setZeros();
+
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
+    {
+      for(unsigned int k = 0; k < Cols2; k++)
+      {
+        res(i, k) += at(i, j) * M(j, k);
+      }
+    }
+  }
 
   return res;
 }
+
+
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
@@ -1112,45 +1219,6 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, Ma
   return ret;
 }
 
-template< // class templates
-  typename DataT, unsigned int Rows, unsigned int Cols, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
-template< // function templates
-  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
-RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
-  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
-{
-  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
-  
-  for(size_t i = 0; i<Rows; i++)
-  {
-    for(size_t j = 0; j<Cols; j++)
-    {
-      at(i, j) = other(i, j);
-    }
-  }
-}
-
-template< // class
-  typename DataT, unsigned int Rows, unsigned int Cols, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
-template<
-  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
-RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
-  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
-{
-  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
-  
-  for(size_t i = 0; i<Rows; i++)
-  {
-    for(size_t j = 0; j<Cols; j++)
-    {
-      at(i, j) = other(i, j);
-    }
-  }
-}
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
@@ -1188,24 +1256,6 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const Transform_<DataT>& 
   setRotation(T.R);
   setTranslation(T.t);
 }
-
-// template<typename DataT, unsigned int Rows, unsigned int Cols, 
-//   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
-// template<unsigned int OtherStride, 
-//   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
-// RMAGINE_INLINE_FUNCTION
-// MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
-//   MatrixOps_<DataT, Rows, Cols, OtherStride, OtherMatrixAccess_>&& other)
-// {
-//   for(size_t i=0; i<Rows; i++)
-//   {
-//     for(size_t j=0; j<Cols; j++)
-//     {
-//       at(i, j) = other(i, j);
-//     }
-//   }
-//   return static_cast<MatrixAccess&>(*this);
-// }
 
 /////
 // CASTINGS
