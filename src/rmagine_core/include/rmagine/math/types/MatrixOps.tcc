@@ -1074,6 +1074,8 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set_block(
   unsigned int col, 
   const Matrix_<DataT, RowsBlock, ColsBlock>& block)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
   for(size_t i=0; i<RowsBlock; i++)
   {
     for(size_t j=0; j<ColsBlock; j++)
@@ -1111,6 +1113,8 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
   for(unsigned int i=0; i < Rows - 1; i++)
   {
     for(unsigned int j=0; j < Cols - 1; j++)
@@ -1125,10 +1129,12 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const Quaternion_<DataT>& q)
 {
-    static_assert(Rows >= 3 && Cols >= 3);
-    Matrix_<DataT, 3, 3> R;
-    R = q;
-    setRotation(R);
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  static_assert(Rows >= 3 && Cols >= 3);
+
+  Matrix_<DataTNonConst, 3, 3> R;
+  R = q;
+  setRotation(R);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1136,10 +1142,12 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const EulerAngles_<DataT>& e)
 {
-    static_assert(Rows >= 3 && Cols >= 3);
-    Matrix_<DataT, 3, 3> R;
-    R = e;
-    setRotation(R);
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  static_assert(Rows >= 3 && Cols >= 3);
+
+  Matrix_<DataTNonConst, 3, 3> R;
+  R = e;
+  setRotation(R);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1163,6 +1171,8 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Matrix_<DataT, Rows-1, 1>& t)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
   for(unsigned int i=0; i < Rows - 1; i++)
   {
     at(i, Cols-1) = t(i, 0);
@@ -1174,7 +1184,9 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Vector2_<DataT>& t)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
   static_assert(Rows >= 2 && Cols >= 3);
+
   at(0, Cols-1) = t.x;
   at(1, Cols-1) = t.y;
 }
@@ -1184,7 +1196,9 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Vector3_<DataT>& t)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
   static_assert(Rows >= 3 && Cols >= 4);
+
   at(0, Cols-1) = t.x;
   at(1, Cols-1) = t.y;
   at(2, Cols-1) = t.z;
@@ -1196,6 +1210,7 @@ template<
 RMAGINE_INLINE_FUNCTION
 Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::invRigid() const
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
   static_assert(Rows == Cols);
 
   Matrix_<DataTNonConst, Rows, Cols> ret;
@@ -1221,6 +1236,8 @@ RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
   const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
   for(size_t i = 0; i<Rows; i++)
   {
     for(size_t j = 0; j<Cols; j++)
@@ -1239,6 +1256,8 @@ RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
   const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
 {
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  
   for(size_t i = 0; i<Rows; i++)
   {
     for(size_t j = 0; j<Cols; j++)
@@ -1253,8 +1272,10 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const Quaternion_<DataT>& q)
 {
-    static_assert(Rows == 3 && Cols == 3);
-    *this = static_cast<Matrix_<DataT, Rows, Cols> >(q);
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  static_assert(Rows == 3 && Cols == 3);
+
+  *this = static_cast<Matrix_<DataT, Rows, Cols> >(q);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1262,9 +1283,11 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const EulerAngles_<DataT>& e)
 {
-    static_assert(Rows == 3);
-    static_assert(Cols == 3);
-    *this = static_cast<Matrix_<DataT, Rows, Cols> >(e);
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  static_assert(Rows == 3);
+  static_assert(Cols == 3);
+
+  *this = static_cast<Matrix_<DataT, Rows, Cols> >(e);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1272,11 +1295,13 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const Transform_<DataT>& T)
 {
-    static_assert(Rows >= 3);
-    static_assert(Cols >= 4);
-    setIdentity();
-    setRotation(T.R);
-    setTranslation(T.t);
+  static_assert(!std::is_const_v<DataT>, "Set operations are not allowed on const-typed matrices.");
+  static_assert(Rows >= 3);
+  static_assert(Cols >= 4);
+
+  setIdentity();
+  setRotation(T.R);
+  setTranslation(T.t);
 }
 
 // template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1417,8 +1442,6 @@ MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Transform_<std::remove_co
   return T;
 }
 
-
-
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<typename ConvT>
@@ -1437,8 +1460,5 @@ Matrix_<ConvT, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::cast() 
   
   return res;
 }
-
-
-
 
 } // namespace rmagine
