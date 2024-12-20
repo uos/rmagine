@@ -53,6 +53,15 @@ MatrixSlice_<DataT, SliceRows, SliceCols, Stride> MatrixSlice_<DataT, Rows, Cols
 }
 
 
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> MatrixSlice_<DataT, Rows, Cols, Stride>::slice(
+  unsigned int row, unsigned int col) const
+{
+  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride>(&data[0], row + row_offset, col + col_offset);
+}
+
 //////////////////
 // Matrix
 
@@ -90,6 +99,15 @@ RMAGINE_INLINE_FUNCTION
 MatrixSlice_<DataT, SliceRows, SliceCols, Stride> Matrix_<DataT, Rows, Cols, Stride>::slice(unsigned int row, unsigned int col)
 {
   return MatrixSlice_<DataT, SliceRows, SliceCols, Stride>(&data[0], row, col);
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
+template<unsigned int SliceRows, unsigned int SliceCols>
+RMAGINE_INLINE_FUNCTION
+const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> Matrix_<DataT, Rows, Cols, Stride>::slice(
+  unsigned int row, unsigned int col) const
+{
+  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride>(&data[0], row, col);
 }
 
 } // namespace rmagine

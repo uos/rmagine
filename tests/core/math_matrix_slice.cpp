@@ -27,216 +27,89 @@
 namespace rm = rmagine;
 
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-class MatrixSlice_;
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride = Rows>
-class Matrix_;
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MaDataType, unsigned int MaRows, unsigned int MaCols, unsigned int MaStride> class MatrixAccess_>
-class MatrixOps_;
-
-
-
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-class MatrixSlice_
-: public MatrixOps_<DataT, Rows, Cols, Stride, MatrixSlice_>
-{
-public:
-
-  // using MatrixOps = MatrixOps_<MatrixData_<DataT, Rows, Cols, Stride> >;
-  using DataType = DataT;
-
-  MatrixSlice_() = delete;
-  explicit MatrixSlice_(DataT* data, unsigned int row, unsigned int col)
-  : data(data)
-  , row_offset(row)
-  , col_offset(col)
-  {
-
-  }
-
-  inline DataT& at(unsigned int row, unsigned int col)
-  {
-    return data[(col + col_offset) * Stride + (row + row_offset)];
-  }
-
-  inline DataT at(unsigned int row, unsigned int col) const
-  {
-    return data[(col + col_offset) * Stride + (row + row_offset)];
-  }
-
-  template<unsigned int SliceRows, unsigned int SliceCols>
-  MatrixSlice_<DataT, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col)
-  {
-    return MatrixSlice_<DataT, SliceRows, SliceCols, Stride>(data, row + row_offset, col + col_offset);
-  }
-
-private:
-  DataT* data;
-  const unsigned int row_offset;
-  const unsigned int col_offset;
-};
-
-
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-class Matrix_ 
-: public MatrixOps_<DataT, Rows, Cols, Stride, Matrix_> // inherit all functions via CRTP
-{
-public:
-
-  // using MatrixOps = MatrixOps_<MatrixData_<DataT, Rows, Cols, Stride> >;
-  using DataType = DataT;
-
-  inline DataType& at(unsigned int row, unsigned int col)
-  {
-    return data[col * Stride + row];
-  }
-
-  inline DataType at(unsigned int row, unsigned int col) const
-  {
-    return data[col * Stride + row];
-  }
-
-  template<unsigned int SliceRows, unsigned int SliceCols>
-  MatrixSlice_<DataType, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col)
-  {
-    return MatrixSlice_<DataType, SliceRows, SliceCols, Stride>(&data[0], row, col);
-  }
-
-private:
-  DataT data[Cols * Stride];
-};
-
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MaDataType, unsigned int MaRows, unsigned int MaCols, unsigned int MaStride> class MatrixAccess_>
-class MatrixOps_
-{
-public:
-  // using DataType = typename MatrixAccess::DataType;
-  using MatrixAccess = MatrixAccess_<DataT, Rows, Cols, Stride>;
-
-  void addOne()
-  {
-    data_.at(0,0) += 1.0;
-  }
-protected:
-  MatrixAccess& data_ = static_cast<MatrixAccess&>(*this);
-};
-
 
 template<unsigned int Rows, unsigned int Cols>
-Matrix_<float, Rows, Cols> make_mat_data()
+rm::Matrix_<float, Rows, Cols> make_mat()
 {
-  Matrix_<float, Rows, Cols> ret;
-
+  rm::Matrix_<float, Rows, Cols> M;
   for(size_t i=0; i<Rows; i++)
   {
     for(size_t j=0; j<Cols; j++)
     {
-      ret.at(i,j) = static_cast<float>(i * Cols + j);
+      M(i,j) = i * Cols + j;
     }
   }
-
-  return ret;
-}
-
-// template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-// std::ostream& operator<<(std::ostream& os, const Matrix_<DataT, Rows, Cols, Stride>& M)
-// {
-//   for(size_t i=0; i<Rows; i++)
-//   {
-//     for(size_t j=0; j<Cols; j++)
-//     {
-//       os << M.at(i, j) << " ";
-//     }
-//     os << "\n";
-//   }
-//   return os;
-// }
-
-// template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-// std::ostream& operator<<(std::ostream& os, const MatrixSlice_<DataT, Rows, Cols, Stride>& M)
-// {
-//   for(size_t i=0; i<Rows; i++)
-//   {
-//     for(size_t j=0; j<Cols; j++)
-//     {
-//       os << M.at(i, j) << " ";
-//     }
-//     os << "\n";
-//   }
-//   return os;
-// }
-
-void test_basics()
-{
-  // Matrix_<float, 10, 10> M = make_mat();
-
-  // auto M2 = M.slice<3,3>(3,3);
-  // M2.at(0,0) = 4.0;
-
-  // std::cout << M.at(3,3) << std::endl;
+  return M;
 }
 
 void test_const()
 {
-  // const Matrix_<float, 10, 10> M = make_mat();
+  std::cout << "-----------------------" << std::endl;
+  std::cout << "1. CONST" << std::endl;
+  rm::Matrix_<float, 10, 10> M = make_mat<10,10>();
+  M.setZeros();
+  const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
 
-  // auto M2 = M.slice<3,3>(3,3);
-  // M2.at(0,0) = 4.0;
+  auto Mbla = M_const.slice<3,3>(0,0);
 
-  // std::cout << M.at(3,3) << std::endl;
+  const rm::MatrixSlice_<float, 3, 3, 10> Ms = M.slice<3,3>(0,0);
+  
+  // unconst
+  auto Ms2 = Ms.slice<3,3>(0,0);
+
+  std::cout << Ms2 << std::endl;
+
+  std::cout << "move assign const slice to non-const memory" << std::endl;
+  M.slice<3,3>(0,0) = M_const.slice<3,3>(5,5);
+
+  std::cout << M << std::endl;
+
+  // transposed
+  std::cout << "transpose const slice and move assign it to non-const memory" << std::endl;
+  M.slice<3,3>(3,3) = M_const.slice<3,3>(5,5).T();
+
+  std::cout << M << std::endl;  
 }
 
+void test_basics()
+{
+  std::cout << "-----------------------" << std::endl;
+  std::cout << "1. BASICS" << std::endl;
+  auto M1 = make_mat<6,6>();
 
-using Matrix3x3 = Matrix_<float, 3, 3>;
+  auto M2 = make_mat<10,10>();
+
+  std::cout << "Size Check:" << std::endl;
+  std::cout << "- " << sizeof(M1) <<  " == " << sizeof(float) * 6 * 6 << std::endl;
+  std::cout << "- " << sizeof(M2) << " == " << sizeof(float) * 10 * 10 << std::endl;
+
+  std::cout << "Slice:" << std::endl;
+  auto M1s1 = M1.slice<3,3>(3,3);
+  auto M2s1 = M2.slice<3,3>(5,0);
+  auto M1s2 = M1.slice<3,3>(0,0);
+
+  // copy assign
+  std::cout << "Copy Assign:" << std::endl;
+  M1s1 = M1s2;
+  M2s1 = M1s2;
+
+  std::cout << M1 << std::endl;
+  std::cout << M2 << std::endl;
+
+  std::cout << "Move Assign:" << std::endl;
+
+  M1.slice<3,3>(3,0) = M2.slice<3,3>(7,7);
+
+  std::cout << M1 << std::endl;
+}
 
 int main(int argc, char** argv)
 {
-  // std::cout << "Rmagine Test: Matrix Slice" << std::endl;
-
-
-  rm::Matrix_<float, 6, 6> M;
-  M.setZeros();
-  M(1,1) = 2.0;
   
+  test_basics();
 
-  std::cout << sizeof(M) <<  " == " << sizeof(float) * 6 * 6 << std::endl;
-
-
-  auto br = M.slice<3,3>(3,3);
-  br(0,0) = 25.0;
-
-  rm::Matrix_<float, 3, 3> bla;
-  bla.setIdentity();
-
-  M.slice<3,3>(0,0).set(bla);
-
-  std::cout << " -----------------" << std::endl;
-
-
-  M.slice<3,3>(0,0).set(M.slice<3,3>(3,3));
-
-  std::cout << M << std::endl;
-
-
-
-  auto bl = M.slice<3,3>(3,0);
-
-  bl = br;
-
-  std::cout << M << std::endl;
-
-  // this doesnt work. what is happening here?
-  M.slice<3,3>(0,3) = M.slice<3,3>(3,3);
-
-  // std::cout << M << std::endl;
-
+  
+  test_const();
 
   return 0;
 }

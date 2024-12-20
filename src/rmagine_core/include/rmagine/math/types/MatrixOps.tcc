@@ -686,10 +686,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::subInplace(const Matr
 template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Cols, Rows> 
+Matrix_<std::remove_const_t<DataT>, Cols, Rows> 
     MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::transpose() const
 {
-    Matrix_<DataT, Cols, Rows> res;
+    Matrix_<std::remove_const_t<DataT>, Cols, Rows> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -1203,7 +1203,25 @@ template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stri
 template<unsigned int OtherStride, 
   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const MatrixOps_<DataT, Rows, Cols, OtherStride, OtherMatrixAccess_>& other)
+void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other)
+{
+  for(size_t i = 0; i<Rows; i++)
+  {
+    for(size_t j = 0; j<Cols; j++)
+    {
+      at(i, j) = other(i, j);
+    }
+  }
+}
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<unsigned int OtherStride, 
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other)
 {
   for(size_t i = 0; i<Rows; i++)
   {

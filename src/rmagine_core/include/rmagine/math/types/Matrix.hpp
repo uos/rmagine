@@ -46,7 +46,8 @@
 
 #include "definitions.h"
 
-
+// TODO: remove
+#include <iostream>
 
 namespace rmagine
 {
@@ -57,9 +58,28 @@ class MatrixSlice_
 : public MatrixOps_<DataT, Rows, Cols, Stride, MatrixSlice_>
 {
 public:
-  using ThisType = Matrix_<DataT, Rows, Cols, Stride>;
+  using MatrixOps = MatrixOps_<DataT, Rows, Cols, Stride, MatrixSlice_>;
+  using ThisType = MatrixSlice_<DataT, Rows, Cols, Stride>;
 
-  explicit MatrixSlice_(DataT* data, const unsigned int row, const unsigned int col);
+  // default constructor
+  MatrixSlice_() = delete;
+
+  // non-default constructor
+  MatrixSlice_(DataT* data, const unsigned int row, const unsigned int col);
+
+  using MatrixOps::operator=;
+
+  MatrixSlice_<DataT, Rows, Cols, Stride>& operator=(
+    const MatrixSlice_<DataT, Rows, Cols, Stride>& other)
+  {
+    return MatrixOps::operator=(other);
+  }
+
+  MatrixSlice_<DataT, Rows, Cols, Stride>& operator=(
+    const MatrixSlice_<DataT, Rows, Cols, Stride>&& other)
+  {
+    return MatrixOps::operator=(other);
+  }
 
   ////////////////////
   // access functions
@@ -78,6 +98,10 @@ public:
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
   MatrixSlice_<DataT, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col);
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  RMAGINE_INLINE_FUNCTION
+  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col) const;
 
 protected:
 
@@ -94,6 +118,9 @@ class Matrix_
 {
 public:
 
+  using MatrixOps = MatrixOps_<DataT, Rows, Cols, Stride, Matrix_>;
+  using ThisType = Matrix_<DataT, Rows, Cols, Stride>;
+
   ////////////////////
   // access functions
   RMAGINE_INLINE_FUNCTION
@@ -111,6 +138,10 @@ public:
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
   MatrixSlice_<DataT, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col);
+
+  template<unsigned int SliceRows, unsigned int SliceCols>
+  RMAGINE_INLINE_FUNCTION
+  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col) const;
 
   RMAGINE_FUNCTION
   static Matrix_<DataT, Rows, Cols, Stride> Zeros()

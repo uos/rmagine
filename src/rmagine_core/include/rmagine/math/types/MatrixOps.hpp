@@ -59,6 +59,9 @@ class MatrixOps_
 {
 public:
   using MatrixAccess = MatrixAccess_<DataT, Rows, Cols, Stride>;
+  using ThisType = MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>;
+
+  // MatrixOps_() = delete;
 
   ////////////////////
   // access functions
@@ -149,7 +152,7 @@ public:
   void subInplace(const Matrix_<DataT, Rows, Cols, Stride>& M);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Cols, Rows> transpose() const;
+  Matrix_<std::remove_const_t<DataT>, Cols, Rows> transpose() const;
 
   RMAGINE_INLINE_FUNCTION
   void transposeInplace();
@@ -175,7 +178,7 @@ public:
   // math function aliases
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Cols, Rows> T() const 
+  Matrix_<std::remove_const_t<DataT>, Cols, Rows> T() const 
   {
       return transpose();
   }
@@ -304,11 +307,15 @@ public:
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols, Stride> invRigid() const;
 
-
-
+  // const input
   template<unsigned int OtherStride, template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  void set(const MatrixOps_<DataT, Rows, Cols, OtherStride, OtherMatrixAccess_>& other);
+  void set(const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other);
+
+  // non const input
+  template<unsigned int OtherStride, template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  RMAGINE_INLINE_FUNCTION
+  void set(const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other);
 
   RMAGINE_INLINE_FUNCTION
   void set(const Quaternion_<DataT>& q);
@@ -320,29 +327,41 @@ public:
   void set(const Transform_<DataT>& T);
 
 
-  // THIS DOESNT WORK YET
+  // const input
+  template<unsigned int OtherStride, 
+    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
+    const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other)
+  {
+    // std::cout << "-- copy assign" << std::endl;
+    set(other);
+    return static_cast<MatrixAccess&>(*this);
+  }
 
-  // template<unsigned int OtherStride, 
-  //   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
-  // RMAGINE_INLINE_FUNCTION
-  // MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
-  //   const OtherMatrixAccess_<DataT, Rows, Cols, OtherStride>& other)
-  // {
-  //   std::cout << "Set data" << std::endl;
-  //   set(other);
-  //   return static_cast<MatrixAccess&>(*this);
-  // }
+  // non const input
+  template<unsigned int OtherStride, 
+    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
+    const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other)
+  {
+    // std::cout << "-- copy assign" << std::endl;
+    set(other);
+    return static_cast<MatrixAccess&>(*this);
+  }
 
-  // template<unsigned int OtherStride, 
-  //   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
-  // RMAGINE_INLINE_FUNCTION
-  // MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
-  //   MatrixOps_<DataT, Rows, Cols, OtherStride, OtherMatrixAccess_>&& other)
-  // {
-  //   std::cout << "Set data 2" << std::endl;
-  //   set(other);
-  //   return static_cast<MatrixAccess&>(*this);
-  // }
+
+  template<unsigned int OtherStride, 
+    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
+    OtherMatrixAccess_<DataT, Rows, Cols, OtherStride>&& other)
+  {
+    // std::cout << "-- move assign" << std::endl;
+    set(other);
+    return static_cast<MatrixAccess&>(*this);
+  }
 
   ////////////////
   // CASTS
