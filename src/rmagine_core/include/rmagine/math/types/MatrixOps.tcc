@@ -77,13 +77,13 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setZeros()
 {
-    for(unsigned int i=0; i<Rows; i++)
+  for(unsigned int i=0; i<Rows; i++)
+  {
+    for(unsigned int j=0; j<Cols; j++)
     {
-        for(unsigned int j=0; j<Cols; j++)
-        {
-            at(i, j) = static_cast<DataT>(0);
-        }
+      at(i, j) = static_cast<DataT>(0);
     }
+  }
 }
 
 // specializations
@@ -91,52 +91,52 @@ template<>
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<float, 3, 3, Matrix_>::setZeros()
 {
-    at(0,0) = 0.0f;
-    at(0,1) = 0.0f;
-    at(0,2) = 0.0f;
-    at(1,0) = 0.0f;
-    at(1,1) = 0.0f;
-    at(1,2) = 0.0f;
-    at(2,0) = 0.0f;
-    at(2,1) = 0.0f;
-    at(2,2) = 0.0f;
+  at(0,0) = 0.0f;
+  at(0,1) = 0.0f;
+  at(0,2) = 0.0f;
+  at(1,0) = 0.0f;
+  at(1,1) = 0.0f;
+  at(1,2) = 0.0f;
+  at(2,0) = 0.0f;
+  at(2,1) = 0.0f;
+  at(2,2) = 0.0f;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<double, 3, 3, Matrix_>::setZeros()
 {
-    at(0,0) = 0.0;
-    at(0,1) = 0.0;
-    at(0,2) = 0.0;
-    at(1,0) = 0.0;
-    at(1,1) = 0.0;
-    at(1,2) = 0.0;
-    at(2,0) = 0.0;
-    at(2,1) = 0.0;
-    at(2,2) = 0.0;
+  at(0,0) = 0.0;
+  at(0,1) = 0.0;
+  at(0,2) = 0.0;
+  at(1,0) = 0.0;
+  at(1,1) = 0.0;
+  at(1,2) = 0.0;
+  at(2,0) = 0.0;
+  at(2,1) = 0.0;
+  at(2,2) = 0.0;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<float, 4, 4, Matrix_>::setZeros()
 {
-    at(0,0) = 0.0f;
-    at(0,1) = 0.0f;
-    at(0,2) = 0.0f;
-    at(0,3) = 0.0f;
-    at(1,0) = 0.0f;
-    at(1,1) = 0.0f;
-    at(1,2) = 0.0f;
-    at(1,3) = 0.0f;
-    at(2,0) = 0.0f;
-    at(2,1) = 0.0f;
-    at(2,2) = 0.0f;
-    at(2,3) = 0.0f;
-    at(3,0) = 0.0f;
-    at(3,1) = 0.0f;
-    at(3,2) = 0.0f;
-    at(3,3) = 0.0f;
+  at(0,0) = 0.0f;
+  at(0,1) = 0.0f;
+  at(0,2) = 0.0f;
+  at(0,3) = 0.0f;
+  at(1,0) = 0.0f;
+  at(1,1) = 0.0f;
+  at(1,2) = 0.0f;
+  at(1,3) = 0.0f;
+  at(2,0) = 0.0f;
+  at(2,1) = 0.0f;
+  at(2,2) = 0.0f;
+  at(2,3) = 0.0f;
+  at(3,0) = 0.0f;
+  at(3,1) = 0.0f;
+  at(3,2) = 0.0f;
+  at(3,3) = 0.0f;
 }
 
 template<> 
@@ -213,44 +213,44 @@ template<>
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<float, 4, 4, Matrix_>::setOnes()
 {
-    at(0,0) = 1.0f;
-    at(0,1) = 1.0f;
-    at(0,2) = 1.0f;
-    at(0,3) = 1.0f;
-    at(1,0) = 1.0f;
-    at(1,1) = 1.0f;
-    at(1,2) = 1.0f;
-    at(1,3) = 1.0f;
-    at(2,0) = 1.0f;
-    at(2,1) = 1.0f;
-    at(2,2) = 1.0f;
-    at(2,3) = 1.0f;
-    at(3,0) = 1.0f;
-    at(3,1) = 1.0f;
-    at(3,2) = 1.0f;
-    at(3,3) = 1.0f;
+  at(0,0) = 1.0f;
+  at(0,1) = 1.0f;
+  at(0,2) = 1.0f;
+  at(0,3) = 1.0f;
+  at(1,0) = 1.0f;
+  at(1,1) = 1.0f;
+  at(1,2) = 1.0f;
+  at(1,3) = 1.0f;
+  at(2,0) = 1.0f;
+  at(2,1) = 1.0f;
+  at(2,2) = 1.0f;
+  at(2,3) = 1.0f;
+  at(3,0) = 1.0f;
+  at(3,1) = 1.0f;
+  at(3,2) = 1.0f;
+  at(3,3) = 1.0f;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<double, 4, 4, Matrix_>::setOnes()
 {
-    at(0,0) = 1.0;
-    at(0,1) = 1.0;
-    at(0,2) = 1.0;
-    at(0,3) = 1.0;
-    at(1,0) = 1.0;
-    at(1,1) = 1.0;
-    at(1,2) = 1.0;
-    at(1,3) = 1.0;
-    at(2,0) = 1.0;
-    at(2,1) = 1.0;
-    at(2,2) = 1.0;
-    at(2,3) = 1.0;
-    at(3,0) = 1.0;
-    at(3,1) = 1.0;
-    at(3,2) = 1.0;
-    at(3,3) = 1.0;
+  at(0,0) = 1.0;
+  at(0,1) = 1.0;
+  at(0,2) = 1.0;
+  at(0,3) = 1.0;
+  at(1,0) = 1.0;
+  at(1,1) = 1.0;
+  at(1,2) = 1.0;
+  at(1,3) = 1.0;
+  at(2,0) = 1.0;
+  at(2,1) = 1.0;
+  at(2,2) = 1.0;
+  at(2,3) = 1.0;
+  at(3,0) = 1.0;
+  at(3,1) = 1.0;
+  at(3,2) = 1.0;
+  at(3,3) = 1.0;
 }
 
 ////////////////////
@@ -261,18 +261,18 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setIdentity()
 {
-    for(unsigned int i=0; i<Rows; i++)
+  for(unsigned int i=0; i<Rows; i++)
+  {
+    for(unsigned int j=0; j<Cols; j++)
     {
-        for(unsigned int j=0; j<Cols; j++)
-        {
-            if(i == j)
-            {
-                at(i, j) = static_cast<DataT>(1);
-            } else {
-                at(i, j) = static_cast<DataT>(0);
-            }
-        }
+      if(i == j)
+      {
+        at(i, j) = static_cast<DataT>(1);
+      } else {
+        at(i, j) = static_cast<DataT>(0);
+      }
     }
+  }
 }
 
 // specializatons
@@ -280,74 +280,74 @@ template<>
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<float, 3, 3, Matrix_>::setIdentity()
 {
-    at(0,0) = 1.0f;
-    at(0,1) = 0.0f;
-    at(0,2) = 0.0f;
-    at(1,0) = 0.0f;
-    at(1,1) = 1.0f;
-    at(1,2) = 0.0f;
-    at(2,0) = 0.0f;
-    at(2,1) = 0.0f;
-    at(2,2) = 1.0f;
+  at(0,0) = 1.0f;
+  at(0,1) = 0.0f;
+  at(0,2) = 0.0f;
+  at(1,0) = 0.0f;
+  at(1,1) = 1.0f;
+  at(1,2) = 0.0f;
+  at(2,0) = 0.0f;
+  at(2,1) = 0.0f;
+  at(2,2) = 1.0f;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<double, 3, 3, Matrix_>::setIdentity()
 {
-    at(0,0) = 1.0;
-    at(0,1) = 0.0;
-    at(0,2) = 0.0;
-    at(1,0) = 0.0;
-    at(1,1) = 1.0;
-    at(1,2) = 0.0;
-    at(2,0) = 0.0;
-    at(2,1) = 0.0;
-    at(2,2) = 1.0;
+  at(0,0) = 1.0;
+  at(0,1) = 0.0;
+  at(0,2) = 0.0;
+  at(1,0) = 0.0;
+  at(1,1) = 1.0;
+  at(1,2) = 0.0;
+  at(2,0) = 0.0;
+  at(2,1) = 0.0;
+  at(2,2) = 1.0;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<float, 4, 4, Matrix_>::setIdentity()
 {
-    at(0,0) = 1.0f;
-    at(0,1) = 0.0f;
-    at(0,2) = 0.0f;
-    at(0,3) = 0.0f;
-    at(1,0) = 0.0f;
-    at(1,1) = 1.0f;
-    at(1,2) = 0.0f;
-    at(1,3) = 0.0f;
-    at(2,0) = 0.0f;
-    at(2,1) = 0.0f;
-    at(2,2) = 1.0f;
-    at(2,3) = 0.0f;
-    at(3,0) = 0.0f;
-    at(3,1) = 0.0f;
-    at(3,2) = 0.0f;
-    at(3,3) = 1.0f;
+  at(0,0) = 1.0f;
+  at(0,1) = 0.0f;
+  at(0,2) = 0.0f;
+  at(0,3) = 0.0f;
+  at(1,0) = 0.0f;
+  at(1,1) = 1.0f;
+  at(1,2) = 0.0f;
+  at(1,3) = 0.0f;
+  at(2,0) = 0.0f;
+  at(2,1) = 0.0f;
+  at(2,2) = 1.0f;
+  at(2,3) = 0.0f;
+  at(3,0) = 0.0f;
+  at(3,1) = 0.0f;
+  at(3,2) = 0.0f;
+  at(3,3) = 1.0f;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<double, 4, 4, Matrix_>::setIdentity()
 {
-    at(0,0) = 1.0;
-    at(0,1) = 0.0;
-    at(0,2) = 0.0;
-    at(0,3) = 0.0;
-    at(1,0) = 0.0;
-    at(1,1) = 1.0;
-    at(1,2) = 0.0;
-    at(1,3) = 0.0;
-    at(2,0) = 0.0;
-    at(2,1) = 0.0;
-    at(2,2) = 1.0;
-    at(2,3) = 0.0;
-    at(3,0) = 0.0;
-    at(3,1) = 0.0;
-    at(3,2) = 0.0;
-    at(3,3) = 1.0;
+  at(0,0) = 1.0;
+  at(0,1) = 0.0;
+  at(0,2) = 0.0;
+  at(0,3) = 0.0;
+  at(1,0) = 0.0;
+  at(1,1) = 1.0;
+  at(1,2) = 0.0;
+  at(1,3) = 0.0;
+  at(2,0) = 0.0;
+  at(2,1) = 0.0;
+  at(2,2) = 1.0;
+  at(2,3) = 0.0;
+  at(3,0) = 0.0;
+  at(3,1) = 0.0;
+  at(3,2) = 0.0;
+  at(3,3) = 1.0;
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -360,10 +360,10 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols>
 
     for(unsigned int i=0; i<Rows; i++)
     {
-        for(unsigned int j=0; j<Cols; j++)
-        {
-            res(i, j) = -at(i, j);
-        }
+      for(unsigned int j=0; j<Cols; j++)
+      {
+        res(i, j) = -at(i, j);
+      }
     }
 
     return res;
@@ -374,60 +374,59 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::negateInplace()
 {
-    for(unsigned int i=0; i<Rows; i++)
+  for(unsigned int i=0; i<Rows; i++)
+  {
+    for(unsigned int j=0; j<Cols; j++)
     {
-        for(unsigned int j=0; j<Cols; j++)
-        {
-            at(i, j) = -at(i, j);
-        }
+      at(i, j) = -at(i, j);
     }
+  }
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<unsigned int Cols2>
 RMAGINE_INLINE_FUNCTION 
-Matrix_<DataT, Rows, Cols2> 
-    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const Matrix_<DataT, Cols, Cols2>& M) const
+Matrix_<DataT, Rows, Cols2> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const Matrix_<DataT, Cols, Cols2>& M) const
 {
-    // constexpr unsigned int Rows2 = Cols;
-    constexpr unsigned int Rows3 = Rows;
-    constexpr unsigned int Cols3 = Cols2;
+  // constexpr unsigned int Rows2 = Cols;
+  constexpr unsigned int Rows3 = Rows;
+  constexpr unsigned int Cols3 = Cols2;
 
-    Matrix_<DataT, Rows3, Cols3> res;
-    
-    // before
-    res.setZeros();
-    for(unsigned int i = 0; i < Rows; i++)
+  Matrix_<DataT, Rows3, Cols3> res;
+  
+  // before
+  res.setZeros();
+  for(unsigned int i = 0; i < Rows; i++)
+  {
+    for(unsigned int j = 0; j < Cols; j++)
     {
-        for(unsigned int j = 0; j < Cols; j++)
-        {
-            for(unsigned int k = 0; k < Cols2; k++)
-            {
-                res(i, k) += at(i, j) * M(j, k);
-            }
-        }
+      for(unsigned int k = 0; k < Cols2; k++)
+      {
+        res(i, k) += at(i, j) * M(j, k);
+      }
     }
+  }
 
-    // both of the outer loops could be run asynchonously
-    // - Test: slower than version on top
-    //      tested in serial and with openmp
-    // 
-    // #pragma omp parallel for
-    // for(unsigned int i = 0; i < Rows; i++)
-    // {
-    //     for(unsigned int k = 0; k < Cols2; k++)
-    //     {
-    //         res(i, k) = 0.0;
-    //         for(unsigned int j = 0; j < Cols; j++)
-    //         {
-    //             res(i, k) += at(i, j) * M(j, k);
-    //         }
-    //     }
-    // }
-    // the second version 
+  // both of the outer loops could be run asynchonously
+  // - Test: slower than version on top
+  //      tested in serial and with openmp
+  // 
+  // #pragma omp parallel for
+  // for(unsigned int i = 0; i < Rows; i++)
+  // {
+  //     for(unsigned int k = 0; k < Cols2; k++)
+  //     {
+  //         res(i, k) = 0.0;
+  //         for(unsigned int j = 0; j < Cols; j++)
+  //         {
+  //             res(i, k) += at(i, j) * M(j, k);
+  //         }
+  //     }
+  // }
+  // the second version 
 
-    return res;
+  return res;
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -435,32 +434,31 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
 RMAGINE_INLINE_FUNCTION 
 void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(const Matrix_<DataT, Rows, Cols>& M)
 {
-    static_assert(Rows == Cols);
+  static_assert(Rows == Cols);
 
-    // tmp memory
-    
-    // TODO: test
-    // - processing each column should be thread safe
-    // #pragma omp parallel for
-    for(unsigned int j = 0; j < Cols; j++)
+  // tmp memory
+  
+  // TODO: test
+  // - processing each column should be thread safe
+  // #pragma omp parallel for
+  for(unsigned int j = 0; j < Cols; j++)
+  {
+    // copy entire column
+    DataT tmp[Rows];
+    for(unsigned int i = 0; i < Rows; i++)
     {
-        // copy entire column
-        DataT tmp[Rows];
-        for(unsigned int i = 0; i < Rows; i++)
-        {
-            tmp[i] = at(i, j);
-        }
-
-        for(unsigned int i = 0; i < Rows; i++)
-        {
-            at(i,j) = 0.0;
-            for(unsigned int k = 0; k < Cols; k++)
-            {
-                at(i,j) += tmp[k] * M(i,k);
-            }
-        }
+      tmp[i] = at(i, j);
     }
 
+    for(unsigned int i = 0; i < Rows; i++)
+    {
+      at(i,j) = 0.0;
+      for(unsigned int k = 0; k < Cols; k++)
+      {
+        at(i,j) += tmp[k] * M(i,k);
+      }
+    }
+  }
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 

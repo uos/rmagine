@@ -43,9 +43,6 @@
 #include "definitions.h"
 #include <rmagine/types/shared_functions.h>
 
-
-
-
 namespace rmagine
 {
 
@@ -180,7 +177,7 @@ public:
   RMAGINE_INLINE_FUNCTION
   Matrix_<std::remove_const_t<DataT>, Cols, Rows> T() const 
   {
-      return transpose();
+    return transpose();
   }
 
   ////////////////////
@@ -190,91 +187,91 @@ public:
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols2> operator*(const Matrix_<DataT, Cols, Cols2>& M) const
   {
-      return mult(M);
+    return mult(M);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols>& operator*=(const Matrix_<DataT, Rows, Cols>& M)
   {
-      static_assert(Rows == Cols);
-      multInplace(M);
-      return static_cast<MatrixAccess&>(*this);
+    static_assert(Rows == Cols);
+    multInplace(M);
+    return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols> operator*(const DataT& s) const
   {
-      return mult(s);
+    return mult(s);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols>& operator*=(const DataT& s)
   {
-      multInplace(s);
-      return static_cast<MatrixAccess&>(*this);
+    multInplace(s);
+    return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
   Vector3_<DataT> operator*(const Vector3_<DataT>& p) const
   {
-      return mult(p);
+    return mult(p);
   }
 
   RMAGINE_INLINE_FUNCTION
   Vector2_<DataT> operator*(const Vector2_<DataT>& p) const
   {
-      return mult(p);
+    return mult(p);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols> operator/(const DataT& s) const
   {
-      return div(s);
+    return div(s);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols>& operator/=(const DataT& s)
   {
-      divInplace(s);
-      return static_cast<MatrixAccess&>(*this);
+    divInplace(s);
+    return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols> operator+(const Matrix_<DataT, Rows, Cols>& M) const
   {
-      return add(M);
+    return add(M);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M)
   {
-      addInplace(M);
-      return static_cast<MatrixAccess&>(*this);
+    addInplace(M);
+    return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
   volatile Matrix_<DataT, Rows, Cols>& operator+=(volatile Matrix_<DataT, Rows, Cols>& M) volatile
   {
-      addInplace(M);
-      return static_cast<volatile MatrixAccess&>(*this);
+    addInplace(M);
+    return static_cast<volatile MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols> operator-(const Matrix_<DataT, Rows, Cols>& M) const
   {
-      return sub(M);
+    return sub(M);
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<std::remove_const_t<DataT>, Rows, Cols> operator-() const
   {
-      return negate();
+    return negate();
   }
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataT, Rows, Cols> operator~() const
   {
-      return inv();
+    return inv();
   }
 
   /////////////////////
@@ -348,7 +345,6 @@ public:
     set(other);
     return static_cast<MatrixAccess&>(*this);
   }
-
 
   template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION

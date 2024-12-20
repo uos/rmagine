@@ -69,7 +69,8 @@ RMAGINE_INLINE_FUNCTION
 const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> MatrixSlice_<DataT, Rows, Cols>::slice(
   unsigned int row, unsigned int col) const
 {
-  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols>(&data[0], stride, row + row_offset, col + col_offset);
+  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols>(
+    data, stride, row + row_offset, col + col_offset);
 }
 
 //////////////////
@@ -118,7 +119,8 @@ RMAGINE_INLINE_FUNCTION
 const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> Matrix_<DataT, Rows, Cols>::slice(
   unsigned int row, unsigned int col) const
 {
-  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols>(&data[0], Rows, row, col);
+  return MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols>(
+    const_cast<DataT*>(&data[0]), Rows, row, col);
 }
 
 } // namespace rmagine
