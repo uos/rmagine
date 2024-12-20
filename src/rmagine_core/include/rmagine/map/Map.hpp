@@ -2,12 +2,13 @@
 #define RMAGINE_MAP_HPP
 
 #include <memory>
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine
 {
 
 // this is just a container for downcasting
-class Map
+class RMAGINE_API Map
 {
 public:
   virtual ~Map() = default;

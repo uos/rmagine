@@ -1,4 +1,5 @@
 #include "rmagine/util/exceptions.h"
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine
 {
@@ -34,8 +35,6 @@ Exception::~Exception()
 
 }
 
-
-
 EmbreeException::EmbreeException(const std::string& msg)
 :Exception(msg)
 {
@@ -52,8 +51,6 @@ EmbreeException::~EmbreeException()
 {
 
 }
-
-
 
 CudaException::CudaException(const std::string& msg)
 :Exception(msg)
@@ -89,8 +86,5 @@ OptixException::~OptixException()
 {
 
 }
-
-
-
 
 } // namespace rmagine

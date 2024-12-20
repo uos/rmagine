@@ -42,42 +42,6 @@ rm::Matrix_<float, Rows, Cols> make_mat()
   return M;
 }
 
-void test_const()
-{
-  std::cout << "-----------------------" << std::endl;
-  std::cout << "1. CONST" << std::endl;
-  rm::Matrix_<float, 10, 10> M = make_mat<10,10>();
-  M.setZeros();
-  const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
-
-  auto Mbla = M_const.slice<3,3>(0,0);
-
-  const rm::MatrixSlice_<float, 3, 3> Ms = M.slice<3,3>(0,0);
-  
-  // unconst
-  auto Ms2 = Ms.slice<3,3>(0,0);
-
-  std::cout << Ms2 << std::endl;
-
-  std::cout << "move assign const slice to non-const memory" << std::endl;
-  M.slice<3,3>(0,0) = M_const.slice<3,3>(5,5);
-
-  std::cout << M << std::endl;
-
-  // transposed
-  std::cout << "transpose const slice and move assign it to non-const memory" << std::endl;
-  M.slice<3,3>(3,3) = M_const.slice<3,3>(5,5).T();
-
-  std::cout << M << std::endl;
-
-
-  std::cout << "non-const Matrix<const float*>" << std::endl;
-
-  rm::MatrixSlice_<const float, 3, 3> M_const_s = M_const.slice<3,3>(2,4); 
-
-  // M_const_s.transposeInplace();
-}
-
 void test_basics()
 {
   std::cout << "-----------------------" << std::endl;
@@ -110,11 +74,64 @@ void test_basics()
   std::cout << M1 << std::endl;
 }
 
+
+void test_const()
+{
+  std::cout << "-----------------------" << std::endl;
+  std::cout << "2. CONST" << std::endl;
+  rm::Matrix_<float, 10, 10> M = make_mat<10,10>();
+  M.setZeros();
+  const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
+
+  auto Mbla = M_const.slice<3,3>(0,0);
+
+  const rm::MatrixSlice_<float, 3, 3> Ms = M.slice<3,3>(0,0);
+  
+  // unconst
+  auto Ms2 = Ms.slice<3,3>(0,0);
+
+  std::cout << Ms2 << std::endl;
+
+  std::cout << "move assign const slice to non-const memory" << std::endl;
+  M.slice<3,3>(0,0) = M_const.slice<3,3>(5,5);
+
+  std::cout << M << std::endl;
+
+  // transposed
+  std::cout << "transpose const slice and move assign it to non-const memory" << std::endl;
+  M.slice<3,3>(3,3) = M_const.slice<3,3>(5,5).T();
+
+  std::cout << M << std::endl;
+
+
+  std::cout << "non-const Matrix<const float*>" << std::endl;
+
+  rm::MatrixSlice_<const float, 3, 3> M_const_s = M_const.slice<3,3>(2,4); 
+
+  // this gives a static error, as it is supposed to
+  // M_const_s.transposeInplace();
+}
+
+
+void test_math()
+{
+  std::cout << "-----------------------" << std::endl;
+  std::cout << "2. CONST" << std::endl;
+  rm::Matrix_<float, 10, 10> M = make_mat<10,10>();
+  M.setZeros();
+  const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
+
+  
+  // auto Minv = ~M_const.slice<2,2>(0,0);
+}
+
 int main(int argc, char** argv)
 {
   test_basics();
   
   test_const();
+
+  test_math();
 
   return 0;
 }

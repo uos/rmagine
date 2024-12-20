@@ -57,52 +57,52 @@ namespace rmagine
 // T SQR(const T a) {return a*a;}
 
 template<class T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 T sqr(const T a) 
 {
     return a*a;
 };
 
 template<class T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 const T &max(const T &a, const T &b)
 {
     return b > a ? (b) : (a);
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 float max(const double &a, const float &b)
 {
     return b > a ? (b) : float(a);
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 float max(const float &a, const double &b)
 {
     return b > a ? float(b) : (a);
 }
 
 template<class T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 const T& min(const T &a, const T &b)
 {
     return b < a ? (b) : (a);
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 float min(const double &a, const float &b)
 {
     return b < a ? (b) : float(a);
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 float min(const float &a, const double &b)
 {
     return b < a ? float(b) : (a);
 }
 
 template<class T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 T sign(const T &a, const T &b)
 {
     return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);
@@ -114,89 +114,103 @@ float sign(const float &a, const double &b)
     return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 float sign(const double &a, const float &b)
 {
-    return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));
+  return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));
 }
 
 template<class T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 void swap(T &a, T &b)
 {
-    T dum=a; a=b; b=dum;
+  T dum=a; a=b; b=dum;
 }
 
 template<typename T>
-RMAGINE_INLINE_FUNCTION
+RMAGINE_HIDDEN RMAGINE_INLINE_FUNCTION
 T pythag(const T a, const T b)
 {
-    const T absa = abs(a);
-    const T absb = abs(b);
-    return (absa > absb ? absa * sqrt(1.0+sqr(absb/absa)) :
-        (absb == 0.0 ? 0.0 : absb * sqrt(1.0+sqr(absa/absb))));
+  const T absa = abs(a);
+  const T absb = abs(b);
+  return (absa > absb ? absa * sqrt(1.0+sqr(absb/absa)) :
+      (absb == 0.0 ? 0.0 : absb * sqrt(1.0+sqr(absa/absb))));
 }
 
 
 template<typename DataT>
+RMAGINE_API
 Vector3_<DataT> min(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
 
 template<typename DataT>
+RMAGINE_API
 Vector3_<DataT> max(const Vector3_<DataT>& a, const Vector3_<DataT>& b);
 
 /////////////
 // #multNxN
 ////////
+RMAGINE_API
 void multNxN(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Quaternion, RAM>& B,
     MemoryView<Quaternion, RAM>& C);
 
+RMAGINE_API
 Memory<Quaternion, RAM> multNxN(
     const MemoryView<Quaternion, RAM>& A, 
     const MemoryView<Quaternion, RAM>& B);
 
+RMAGINE_API
 void multNxN(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Vector, RAM>& b, 
     MemoryView<Vector, RAM>& c);
 
+RMAGINE_API
 Memory<Vector, RAM> multNxN(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Vector, RAM>& b);
 
+RMAGINE_API
 void multNxN(
     const MemoryView<Transform, RAM>& T1,
     const MemoryView<Transform, RAM>& T2,
     MemoryView<Transform, RAM>& Tr);
 
+RMAGINE_API
 Memory<Transform, RAM> multNxN(
     const MemoryView<Transform, RAM>& T1,
     const MemoryView<Transform, RAM>& T2);
 
+RMAGINE_API
 void multNxN(
     const MemoryView<Transform, RAM>& T,
     const MemoryView<Vector, RAM>& x,
     MemoryView<Vector, RAM>& c);
 
+RMAGINE_API
 Memory<Vector, RAM> multNxN(
     const MemoryView<Transform, RAM>& T,
     const MemoryView<Vector, RAM>& x);
 
+RMAGINE_API
 void multNxN(
     const MemoryView<Matrix3x3, RAM>& M1,
     const MemoryView<Matrix3x3, RAM>& M2,
     MemoryView<Matrix3x3, RAM>& Mr);
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> multNxN(
     const MemoryView<Matrix3x3, RAM>& M1,
     const MemoryView<Matrix3x3, RAM>& M2);
 
+RMAGINE_API
 void multNxN(
     const MemoryView<Matrix3x3, RAM>& M,
     const MemoryView<Vector, RAM>& x,
     MemoryView<Vector, RAM>& c);
 
+RMAGINE_API
 Memory<Vector, RAM> multNxN(
     const MemoryView<Matrix3x3, RAM>& M,
     const MemoryView<Vector, RAM>& x);
@@ -204,56 +218,68 @@ Memory<Vector, RAM> multNxN(
 /////////////
 // #multNx1
 ////////
+RMAGINE_API
 void multNx1(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Quaternion, RAM>& b,
     MemoryView<Quaternion, RAM>& C);
 
+RMAGINE_API
 Memory<Quaternion, RAM> multNx1(
     const MemoryView<Quaternion, RAM>& A, 
     const MemoryView<Quaternion, RAM>& b);
 
+RMAGINE_API
 void multNx1(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Vector, RAM>& b, 
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> multNx1(
     const MemoryView<Quaternion, RAM>& A,
     const MemoryView<Vector, RAM>& b);
 
+RMAGINE_API
 void multNx1(
     const MemoryView<Transform, RAM>& T1,
     const MemoryView<Transform, RAM>& t2,
     MemoryView<Transform, RAM>& Tr);
 
+RMAGINE_API
 Memory<Transform, RAM> multNx1(
     const MemoryView<Transform, RAM>& T1,
     const MemoryView<Transform, RAM>& t2);
 
+RMAGINE_API
 void multNx1(
     const MemoryView<Transform, RAM>& T,
     const MemoryView<Vector, RAM>& x,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> multNx1(
     const MemoryView<Transform, RAM>& T,
     const MemoryView<Vector, RAM>& x);
 
+RMAGINE_API
 void multNx1(
     const MemoryView<Matrix3x3, RAM>& M1,
     const MemoryView<Matrix3x3, RAM>& m2,
     MemoryView<Matrix3x3, RAM>& Mr);
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> multNx1(
     const MemoryView<Matrix3x3, RAM>& M1,
     const MemoryView<Matrix3x3, RAM>& m2);
 
+RMAGINE_API
 void multNx1(
     const MemoryView<Matrix3x3, RAM>& M,
     const MemoryView<Vector, RAM>& x,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> multNx1(
     const MemoryView<Matrix3x3, RAM>& M,
     const MemoryView<Vector, RAM>& x);
@@ -261,71 +287,86 @@ Memory<Vector, RAM> multNx1(
 /////////////
 // #mult1xN
 ////////
+RMAGINE_API
 void mult1xN(
     const MemoryView<Quaternion, RAM>& a,
     const MemoryView<Quaternion, RAM>& B,
     MemoryView<Quaternion, RAM>& C);
 
+RMAGINE_API
 Memory<Quaternion, RAM> mult1xN(
     const MemoryView<Quaternion, RAM>& a, 
     const MemoryView<Quaternion, RAM>& B);
 
+RMAGINE_API
 void mult1xN(
     const MemoryView<Quaternion, RAM>& a,
     const MemoryView<Vector, RAM>& B, 
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> mult1xN(
     const MemoryView<Quaternion, RAM>& a,
     const MemoryView<Vector, RAM>& B);
 
+RMAGINE_API
 void mult1xN(
     const MemoryView<Transform, RAM>& t1,
     const MemoryView<Transform, RAM>& T2,
     MemoryView<Transform, RAM>& Tr);
 
+RMAGINE_API
 Memory<Transform, RAM> mult1xN(
     const MemoryView<Transform, RAM>& t1,
     const MemoryView<Transform, RAM>& T2);
 
+RMAGINE_API
 void mult1xN(
     const MemoryView<Transform, RAM>& t,
     const MemoryView<Vector, RAM>& X,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> mult1xN(
     const MemoryView<Transform, RAM>& t,
     const MemoryView<Vector, RAM>& X);
 
+RMAGINE_API
 void mult1xN(
     const MemoryView<Matrix3x3, RAM>& m1,
     const MemoryView<Matrix3x3, RAM>& M2,
     MemoryView<Matrix3x3, RAM>& Mr);
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> mult1xN(
     const MemoryView<Matrix3x3, RAM>& m1,
     const MemoryView<Matrix3x3, RAM>& M2);
 
+RMAGINE_API
 void mult1xN(
     const MemoryView<Matrix3x3, RAM>& m,
     const MemoryView<Vector, RAM>& X,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> mult1xN(
     const MemoryView<Matrix3x3, RAM>& m,
     const MemoryView<Vector, RAM>& X);
 
 //////
 // #add
+RMAGINE_API
 void addNxN(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> addNxN(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B);
 
+RMAGINE_API
 inline Memory<Vector, RAM> operator+(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B)
@@ -335,15 +376,18 @@ inline Memory<Vector, RAM> operator+(
 
 //////
 // #sub
+RMAGINE_API
 void subNxN(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> subNxN(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B);
 
+RMAGINE_API
 inline Memory<Vector, RAM> operator-(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& B)
@@ -351,24 +395,29 @@ inline Memory<Vector, RAM> operator-(
     return subNxN(A, B);
 }
 
+RMAGINE_API
 void subNx1(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& b,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> subNx1(
     const MemoryView<Vector, RAM>& A,
     const MemoryView<Vector, RAM>& b);
 
+RMAGINE_API
 void sub(
     const MemoryView<Vector, RAM>& A,
     const Vector& b,
     MemoryView<Vector, RAM>& C);
 
+RMAGINE_API
 Memory<Vector, RAM> sub(
     const MemoryView<Vector, RAM>& A,
     const Vector& b);
 
+RMAGINE_API
 inline Memory<Vector, RAM> operator-(
     const MemoryView<Vector, RAM>& A,
     const Vector& b)
@@ -378,50 +427,62 @@ inline Memory<Vector, RAM> operator-(
 
 /////
 // #transpose
+RMAGINE_API
 void transpose(
     const MemoryView<Matrix3x3, RAM>& A, 
     MemoryView<Matrix3x3, RAM>& B);
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> transpose(
     const MemoryView<Matrix3x3, RAM>& A);
 
+RMAGINE_API
 void transpose(
     const MemoryView<Matrix4x4, RAM>& A,
     MemoryView<Matrix4x4, RAM>& B);
 
+RMAGINE_API
 Memory<Matrix4x4, RAM> transpose(
     const MemoryView<Matrix4x4, RAM>& A);
 
 //////
 // #invert
+RMAGINE_API
 void invert(
     const MemoryView<Matrix3x3, RAM>& A, 
     MemoryView<Matrix3x3, RAM>& B);
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> invert(
     const MemoryView<Matrix3x3, RAM>& A);
 
+RMAGINE_API
 void invert(
     const MemoryView<Matrix4x4, RAM>& A,
     MemoryView<Matrix4x4, RAM>& B);
 
+RMAGINE_API
 Memory<Matrix4x4, RAM> invert(
     const MemoryView<Matrix4x4, RAM>& A);
 
+RMAGINE_API
 void invert(
     const MemoryView<Transform, RAM>& A,
     MemoryView<Transform, RAM>& B);
 
+RMAGINE_API
 Memory<Transform, RAM> invert(
     const MemoryView<Transform, RAM>& A);
 
 ////////
 // #pack
+RMAGINE_API
 void pack(
     const MemoryView<Matrix3x3, RAM>& R,
     const MemoryView<Vector, RAM>& t,
     MemoryView<Transform, RAM>& T);
 
+RMAGINE_API
 void pack(
     const MemoryView<Quaternion, RAM>& R,
     const MemoryView<Vector, RAM>& t,
@@ -429,30 +490,36 @@ void pack(
 
 ///////
 // #sum
+RMAGINE_API
 void sum(
     const MemoryView<Vector, RAM>& X, 
     MemoryView<Vector, RAM>& res);
 
+RMAGINE_API
 Memory<Vector, RAM> sum(
     const MemoryView<Vector, RAM>& X);
 
 //////
 // #mean
+RMAGINE_API
 void mean(
     const MemoryView<Vector, RAM>& X,
     MemoryView<Vector, RAM>& res);
 
+RMAGINE_API
 Memory<Vector,RAM> mean(
     const MemoryView<Vector, RAM>& X);
 
 ///////
 // #cov   C = (v1 * v2.T) / N
+RMAGINE_API
 void cov(
     const MemoryView<Vector, RAM>& v1,
     const MemoryView<Vector, RAM>& v2,
     MemoryView<Matrix3x3, RAM>& C
 );
 
+RMAGINE_API
 Memory<Matrix3x3, RAM> cov(
     const MemoryView<Vector, RAM>& v1,
     const MemoryView<Vector, RAM>& v2
@@ -461,6 +528,7 @@ Memory<Matrix3x3, RAM> cov(
 /**
  * @brief decompose A = UWV* using singular value decomposition
  */
+RMAGINE_API
 void svd(
     const MemoryView<Matrix3x3, RAM>& As,
     MemoryView<Matrix3x3, RAM>& Us,
@@ -473,13 +541,13 @@ void svd(
  * 
  * w is a vector which is the diagonal of matrix W
  */
+RMAGINE_API
 void svd(
     const MemoryView<Matrix3x3, RAM>& As,
     MemoryView<Matrix3x3, RAM>& Us,
     MemoryView<Vector3, RAM>& ws,
     MemoryView<Matrix3x3, RAM>& Vs
 );
-
 
 /**
  * @brief computes the optimal transformations according to Umeyama's algorithm 
@@ -490,6 +558,7 @@ void svd(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the 
  *                standard Umeyama algorithm is performed
  */
+RMAGINE_API
 void umeyama_transform(
     MemoryView<Transform, RAM>& Ts,
     const MemoryView<Vector3, RAM>& ds,
@@ -498,6 +567,7 @@ void umeyama_transform(
     const MemoryView<unsigned int, RAM>& n_meas
 );
 
+RMAGINE_API
 Memory<Transform, RAM> umeyama_transform(
     const MemoryView<Vector3, RAM>& ds,
     const MemoryView<Vector3, RAM>& ms,
@@ -511,6 +581,7 @@ Memory<Transform, RAM> umeyama_transform(
  * 
  * Note: sometimes referred to as Kabsch/Umeyama
  */
+RMAGINE_API
 void umeyama_transform(
     MemoryView<Transform, RAM>& Ts,
     const MemoryView<Vector3, RAM>& ds,
@@ -518,12 +589,12 @@ void umeyama_transform(
     const MemoryView<Matrix3x3, RAM>& Cs
 );
 
+RMAGINE_API
 Memory<Transform, RAM> umeyama_transform(
     const MemoryView<Vector3, RAM>& ds,
     const MemoryView<Vector3, RAM>& ms,
     const MemoryView<Matrix3x3, RAM>& Cs
 );
-
 
 } // namespace rmagine
 

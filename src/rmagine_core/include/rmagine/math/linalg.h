@@ -56,10 +56,10 @@ namespace rmagine
  * @param scale   scale vector
  * @return Matrix4x4   composed 4x4 transformation matrix
  */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale);
 
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
 
 /**
@@ -70,7 +70,7 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param S 3x3 scale matrix
  */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
 
 /**
@@ -81,7 +81,7 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param scale scale vector
  */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
 
 /**
@@ -93,7 +93,7 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
 
 /**
@@ -105,7 +105,7 @@ Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac);
 
 
@@ -131,6 +131,7 @@ struct svd_dims {
  *
  */
 template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_API
 void svd(
     const Matrix_<DataT, Rows, Cols>& A, 
     Matrix_<DataT, Rows, Cols>& U,
@@ -139,6 +140,7 @@ void svd(
 );
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
+RMAGINE_API
 void svd(
     const Matrix_<DataT, Rows, Cols>& A,
     Matrix_<DataT, Rows, Cols>& U,
@@ -150,7 +152,7 @@ void svd(
  * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
  *
  */
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 void svd(
     const Matrix3x3& A,
     Matrix3x3& U,
@@ -158,7 +160,7 @@ void svd(
     Matrix3x3& V
 );
 
-RMAGINE_FUNCTION
+RMAGINE_API RMAGINE_FUNCTION
 void svd(
     const Matrix3x3& A, 
     Matrix3x3& U,
@@ -175,7 +177,7 @@ void svd(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 Transform umeyama_transform(
     const Vector3& d,
     const Vector3& m,
@@ -213,7 +215,7 @@ Transform umeyama_transform(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 Transform umeyama_transform(
     const CrossStatistics& stats)
 {
@@ -239,9 +241,7 @@ Transform umeyama_transform(
     return ret;
 }
 
-
-
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 Matrix3x3 so3_hat(Vector3f v)
 {
     Matrix3x3 M;
@@ -251,7 +251,7 @@ Matrix3x3 so3_hat(Vector3f v)
     return M;
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 float GM_weight(
     const float kernel_scale,
     const float residual2)
@@ -260,7 +260,7 @@ float GM_weight(
 }
 
 // TODO: test 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void jacobian_and_residual_p2p(
     Matrix_<float, 3, 6>& Jr, // [out] Jacobian 
     Matrix_<float, 3, 1>& residual, // [out] residual
@@ -287,7 +287,7 @@ void jacobian_and_residual_p2p(
 }
 
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void jacobian_and_residual_p2l(
     Matrix_<float, 1, 6>& J, // [out] Jacobian
     float& residual, // [out] residual
@@ -319,7 +319,7 @@ void jacobian_and_residual_p2l(
  * (J^T * W * J) * x = (J^T * W * r)
  * using point to point metric (P2P)
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void build_linear_system_p2p(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,
@@ -344,16 +344,12 @@ void build_linear_system_p2p(
     }
 }
 
-
-
-
-
 /**
  * @brief Build a Gauss-Newton linear system of the form 
  * (J^T * W * J) * x = (J^T * W * r)
  * using point to plane metric (P2L)
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void build_linear_system_p2l(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,
@@ -377,7 +373,7 @@ void build_linear_system_p2l(
     }
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void build_linear_system_p2p(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,
@@ -402,7 +398,7 @@ void build_linear_system_p2p(
     }
 }
 
-RMAGINE_INLINE_FUNCTION
+RMAGINE_API RMAGINE_INLINE_FUNCTION
 void build_linear_system_p2l(
     Matrix_<float, 6, 6>& JTwJ,
     Matrix_<float, 6, 1>& JTwr,

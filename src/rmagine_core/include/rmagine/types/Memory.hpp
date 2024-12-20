@@ -47,7 +47,7 @@ namespace rmagine {
 
 struct RAM;
 
-class MemoryResizeError : public std::runtime_error {
+class RMAGINE_API MemoryResizeError : public std::runtime_error {
 public:
   MemoryResizeError()
   :std::runtime_error("rmagine: cannot resize memory view!")
@@ -57,7 +57,7 @@ public:
 };
 
 template<typename DataT, typename MemT = RAM>
-class MemoryView {
+class RMAGINE_API MemoryView {
 public:
     using DataType = DataT;
     using MemType = MemT;
@@ -189,7 +189,9 @@ MemoryView<T, RAM> make_view(T& data)
 }
 
 template<typename DataT, typename MemT = RAM>
-class Memory : public MemoryView<DataT, MemT> {
+class RMAGINE_API Memory 
+: public MemoryView<DataT, MemT> 
+{
 public:
     using Base = MemoryView<DataT, MemT>;
 

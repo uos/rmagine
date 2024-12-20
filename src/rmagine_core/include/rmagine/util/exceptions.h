@@ -43,7 +43,7 @@
 
 #include <stdexcept>
 #include <sstream>
-
+#include <rmagine/types/shared_functions.h>
 
 #define RM_THROW(Type, arg) throw Type(arg, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
@@ -51,7 +51,7 @@
 namespace rmagine
 {
 
-class Exception
+class RMAGINE_API Exception
 : public std::runtime_error
 {
 public:
@@ -64,7 +64,7 @@ private:
 };
 
 
-class EmbreeException 
+class RMAGINE_API EmbreeException 
 : public Exception
 {
 public:
@@ -75,7 +75,7 @@ public:
 
 
 
-class CudaException 
+class RMAGINE_API CudaException 
 : public Exception
 {
 public:

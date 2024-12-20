@@ -57,4 +57,31 @@
 #define RMAGINE_INLINE_DEVICE_FUNCTION inline
 #endif
 
+
+
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef BUILDING_DLL
+    #ifdef __GNUC__
+      #define RMAGINE_API __attribute__ ((dllexport))
+    #else
+      #define RMAGINE_API __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #else
+    #ifdef __GNUC__
+      #define RMAGINE_API __attribute__ ((dllimport))
+    #else
+      #define RMAGINE_API __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #endif
+  #define DLL_LOCAL
+#else
+  #if __GNUC__ >= 4
+    #define RMAGINE_API __attribute__ ((visibility ("default")))
+    #define RMAGINE_HIDDEN  __attribute__ ((visibility ("hidden")))
+  #else
+    #define RMAGINE_API
+    #define RMAGINE_HIDDEN
+  #endif
+#endif
+
 #endif // RMAGINE_TYPES_SHARED_FUNCTIONS_H

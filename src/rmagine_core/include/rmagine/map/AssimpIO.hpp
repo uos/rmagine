@@ -46,6 +46,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include <rmagine/types/shared_functions.h>
+
 namespace rmagine
 {
 
@@ -54,7 +56,7 @@ namespace rmagine
  *  enriched by own default settings
  * 
  */
-class AssimpIO
+class RMAGINE_API AssimpIO
 : public Assimp::Importer
 , public Assimp::Exporter
 {

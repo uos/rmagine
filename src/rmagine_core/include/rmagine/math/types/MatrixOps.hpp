@@ -159,10 +159,10 @@ public:
   void transposeInplace();
 
   RMAGINE_INLINE_FUNCTION
-  DataT trace() const;
+  DataTNonConst trace() const;
 
   RMAGINE_INLINE_FUNCTION
-  DataT det() const;
+  DataTNonConst det() const;
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Cols, Rows> inv() const;

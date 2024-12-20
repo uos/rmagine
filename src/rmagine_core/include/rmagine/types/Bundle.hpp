@@ -42,6 +42,7 @@
 #define RMAGINE_TYPES_BUNDLE_HPP
 
 #include <utility>
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine {
 
@@ -69,7 +70,7 @@ namespace rmagine {
  * @tparam Tp List of intelem::* types  
  */
 template<typename ...Tp>
-struct Bundle : public Tp... 
+struct RMAGINE_API Bundle : public Tp... 
 {
 public:
     static constexpr std::size_t N = sizeof...(Tp);

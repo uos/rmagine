@@ -759,7 +759,7 @@ void MatrixOps_<float, 3, 3, Matrix_>::transposeInplace()
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::trace() const
+std::remove_const_t<DataT> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::trace() const
 {
   static_assert(Rows == Cols, "Trace only allowed on square matrices");
 
@@ -778,6 +778,32 @@ float MatrixOps_<float, 2, 2, Matrix_>::det() const
 {
   return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
 }
+
+
+
+// TODO: how to partically specialize?
+// template<typename DataT, 
+//   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+// RMAGINE_INLINE_FUNCTION
+// DataT MatrixOps_<DataT, 2, 2, MatrixAccess_>::det() const
+// {
+//   return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+// }
+
+template<>
+RMAGINE_INLINE_FUNCTION
+float MatrixOps_<const float, 2, 2, Matrix_>::det() const
+{
+  return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+}
+
+// template<>
+// RMAGINE_INLINE_FUNCTION
+// float MatrixOps_<const float, 2, 2, MatrixSlice_>::det() const
+// {
+//   return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+// }
+
 
 template<>
 RMAGINE_INLINE_FUNCTION
@@ -881,6 +907,36 @@ Matrix_<float, 2, 2> MatrixOps_<float, 2, 2, Matrix_>::inv() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
+Matrix_<float, 2, 2> MatrixOps_<const float, 2, 2, Matrix_>::inv() const
+{
+  Matrix_<float, 2, 2> ret;
+  
+  const float invdet = 1.0f / det();
+  ret(0, 0) =  at(1, 1) * invdet;
+  ret(0, 1) = -at(0, 1) * invdet;
+  ret(1, 0) = -at(1, 0) * invdet;
+  ret(1, 1) =  at(0, 0) * invdet;
+  
+  return ret;
+}
+
+// template<>
+// RMAGINE_INLINE_FUNCTION
+// Matrix_<float, 2, 2> MatrixOps_<const float, 2, 2, MatrixSlice_>::inv() const
+// {
+//   Matrix_<float, 2, 2> ret;
+  
+//   const float invdet = 1.0f / det();
+//   ret(0, 0) =  at(1, 1) * invdet;
+//   ret(0, 1) = -at(0, 1) * invdet;
+//   ret(1, 0) = -at(1, 0) * invdet;
+//   ret(1, 1) =  at(0, 0) * invdet;
+  
+//   return ret;
+// }
+
+template<>
+RMAGINE_INLINE_FUNCTION
 Matrix_<double, 2, 2> MatrixOps_<double, 2, 2, Matrix_>::inv() const
 {
   Matrix_<double, 2, 2> ret;
@@ -914,6 +970,8 @@ Matrix_<float, 3, 3> MatrixOps_<float, 3, 3, Matrix_>::inv() const
 
   return ret;
 }
+
+
 
 template<> 
 RMAGINE_INLINE_FUNCTION
@@ -1331,8 +1389,8 @@ MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Vector2_<std::remove_cons
 {
     static_assert(Rows == 2 && Cols == 1);
     return {
-        at(0, 0),
-        at(1, 0)
+      at(0, 0),
+      at(1, 0)
     };
 }
 
@@ -1343,9 +1401,9 @@ MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Vector3_<std::remove_cons
 {
     static_assert(Rows == 3 && Cols == 1);
     return {
-        at(0, 0),
-        at(1, 0),
-        at(2, 0)
+      at(0, 0),
+      at(1, 0),
+      at(2, 0)
     }; 
 }
 

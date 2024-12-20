@@ -52,17 +52,17 @@ namespace rmagine
 
 struct UmeyamaReductionConstraints 
 {
-    ///
-    // Ignore all correspondences larger than `max_dist`
-    float max_dist;
-    
-    ///
-    // Ignore dataset ids except for `dataset_id`
-    unsigned int dataset_id;
-    
-    /// 
-    // Ignore model ids except for `model_id`
-    unsigned int model_id;
+  ///
+  // Ignore all correspondences larger than `max_dist`
+  float max_dist;
+  
+  ///
+  // Ignore dataset ids except for `dataset_id`
+  unsigned int dataset_id;
+  
+  /// 
+  // Ignore model ids except for `model_id`
+  unsigned int model_id;
 };
 
 /**
@@ -83,6 +83,7 @@ struct UmeyamaReductionConstraints
  * @param[in] params   Constraints that need to be satisfied to 
  * @param[out] stats    Resulting statistics
  */
+RMAGINE_API
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -90,6 +91,7 @@ void statistics_p2p(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics>& stats);
 
+RMAGINE_API
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -97,6 +99,7 @@ void statistics_p2p(
     const UmeyamaReductionConstraints params,
     CrossStatistics& stats);
 
+RMAGINE_API
 CrossStatistics statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -121,6 +124,7 @@ CrossStatistics statistics_p2p(
  * @param[in] params   Constraints that need to be satisfied to 
  * @param[out] stats    Resulting statistics
  */
+RMAGINE_API
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -128,6 +132,7 @@ void statistics_p2l(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics>& stats);
 
+RMAGINE_API
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -135,12 +140,12 @@ void statistics_p2l(
     const UmeyamaReductionConstraints params,
     CrossStatistics& stats);
 
+RMAGINE_API
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
     const UmeyamaReductionConstraints params);
-
 
 /**
  * @brief Find out cross statistics between dataset and model, where the model consists of several objects (intances or geometries)
@@ -164,6 +169,7 @@ CrossStatistics statistics_p2l(
  * @param params 
  * @param[out] stats A list of stats
  */
+RMAGINE_API
 void statistics_p2l_ow(
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,
