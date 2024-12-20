@@ -122,11 +122,60 @@ void test_math()
   const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
 
   
+  float test = M_const.slice<2,2>(0,0).det();
   // auto Minv = ~M_const.slice<2,2>(0,0);
+  std::cout << "Det: " << test << std::endl;
 }
+
+
+template<typename T>
+struct MyContainer
+{
+  T data;
+};
+
+
+template<typename DataT, unsigned int Rows, unsigned int Cols, template<typename T> class Container>
+struct Bla
+{
+  void print()
+  {
+    std::cout << "Fallback" << std::endl;
+  }
+};
+
+// partial specialization
+template<typename DataT, template<typename T> class Container>
+struct Bla<DataT, 3, 3, Container>
+{
+  void print()
+  {
+    std::cout << "Hello" << std::endl;
+  }
+};
+
 
 int main(int argc, char** argv)
 {
+
+  // Bla<int, 4, 4, MyContainer> test1;
+  // test1.print();
+
+  
+  // Bla<int, 3, 3, MyContainer> test2;
+  // test2.print();
+
+
+  test_math();
+
+  return 0;
+
+  
+
+
+
+
+
   test_basics();
   
   test_const();

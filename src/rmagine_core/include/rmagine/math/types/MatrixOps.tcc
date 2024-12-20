@@ -561,7 +561,7 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
 Vector3_<std::remove_const_t<DataT> > MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(
-  const Vector3_<DataT>& v) const
+  const Vector3_<std::remove_const_t<DataT> >& v) const
 {
   if constexpr(Rows == 3 && Cols == 3)
   {
@@ -588,7 +588,7 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
 Vector2_<std::remove_const_t<DataT> > MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(
-  const Vector2_<DataT>& v) const
+  const Vector2_<std::remove_const_t<DataT> >& v) const
 {
   if constexpr(Rows == 2 && Cols == 2)
   {
@@ -772,336 +772,157 @@ std::remove_const_t<DataT> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::trace()
   return res;
 }
 
-template<>
-RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 2, 2, Matrix_>::det() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+std::remove_const_t<DataT> mat_det(const MatrixAccess_<DataT, 2, 2>& mat)
 {
-  return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+  return mat(0, 0) * mat(1, 1) - mat(0, 1) * mat(1, 0);
 }
 
-
-
-// TODO: how to partically specialize?
-// template<typename DataT, 
-//   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
-// RMAGINE_INLINE_FUNCTION
-// DataT MatrixOps_<DataT, 2, 2, MatrixAccess_>::det() const
-// {
-//   return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
-// }
-
-template<>
-RMAGINE_INLINE_FUNCTION
-float MatrixOps_<const float, 2, 2, Matrix_>::det() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+std::remove_const_t<DataT> mat_det(const MatrixAccess_<DataT, 3, 3>& mat)
 {
-  return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+  return  mat(0, 0) * (mat(1, 1) * mat(2, 2) - mat(2, 1) * mat(1, 2)) -
+          mat(0, 1) * (mat(1, 0) * mat(2, 2) - mat(1, 2) * mat(2, 0)) +
+          mat(0, 2) * (mat(1, 0) * mat(2, 1) - mat(1, 1) * mat(2, 0));
 }
 
-// template<>
-// RMAGINE_INLINE_FUNCTION
-// float MatrixOps_<const float, 2, 2, MatrixSlice_>::det() const
-// {
-//   return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
-// }
-
-
-template<>
-RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 2, 2, Matrix_>::det() const
-{
-  return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
-}
-
-template<>
-RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 3, 3, Matrix_>::det() const
-{
-  return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
-          at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
-          at(0, 2) * (at(1, 0) * at(2, 1) - at(1, 1) * at(2, 0));
-}
-
-template<>
-RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 3, 3, Matrix_>::det() const
-{
-  return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
-          at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
-          at(0, 2) * (at(1, 0) * at(2, 1) - at(1, 1) * at(2, 0));
-}
-
-template<> 
-RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 4, 4, Matrix_>::det() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+std::remove_const_t<DataT> mat_det(const MatrixAccess_<DataT, 4, 4>& mat)
 {
   // TODO: check
-  const float A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
-  const float A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
-  const float A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
-  const float A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
-  const float A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
-  const float A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
-  const float A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
-  const float A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
-  const float A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
-  const float A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
-  const float A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
-  const float A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
-  const float A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
-  const float A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
-  const float A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
-  const float A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
-  const float A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
-  const float A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
+  const float A2323 = mat(2,2) * mat(3,3) - mat(2,3) * mat(3,2);
+  const float A1323 = mat(2,1) * mat(3,3) - mat(2,3) * mat(3,1);
+  const float A1223 = mat(2,1) * mat(3,2) - mat(2,2) * mat(3,1);
+  const float A0323 = mat(2,0) * mat(3,3) - mat(2,3) * mat(3,0);
+  const float A0223 = mat(2,0) * mat(3,2) - mat(2,2) * mat(3,0);
+  const float A0123 = mat(2,0) * mat(3,1) - mat(2,1) * mat(3,0);
+  const float A2313 = mat(1,2) * mat(3,3) - mat(1,3) * mat(3,2);
+  const float A1313 = mat(1,1) * mat(3,3) - mat(1,3) * mat(3,1);
+  const float A1213 = mat(1,1) * mat(3,2) - mat(1,2) * mat(3,1);
+  const float A2312 = mat(1,2) * mat(2,3) - mat(1,3) * mat(2,2);
+  const float A1312 = mat(1,1) * mat(2,3) - mat(1,3) * mat(2,1);
+  const float A1212 = mat(1,1) * mat(2,2) - mat(1,2) * mat(2,1);
+  const float A0313 = mat(1,0) * mat(3,3) - mat(1,3) * mat(3,0);
+  const float A0213 = mat(1,0) * mat(3,2) - mat(1,2) * mat(3,0);
+  const float A0312 = mat(1,0) * mat(2,3) - mat(1,3) * mat(2,0);
+  const float A0212 = mat(1,0) * mat(2,2) - mat(1,2) * mat(2,0);
+  const float A0113 = mat(1,0) * mat(3,1) - mat(1,1) * mat(3,0);
+  const float A0112 = mat(1,0) * mat(2,1) - mat(1,1) * mat(2,0);
 
-  return  at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
-          - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
-          + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
-          - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+  return  mat(0,0) * ( mat(1,1) * A2323 - mat(1,2) * A1323 + mat(1,3) * A1223 ) 
+          - mat(0,1) * ( mat(1,0) * A2323 - mat(1,2) * A0323 + mat(1,3) * A0223 ) 
+          + mat(0,2) * ( mat(1,0) * A1323 - mat(1,1) * A0323 + mat(1,3) * A0123 ) 
+          - mat(0,3) * ( mat(1,0) * A1223 - mat(1,1) * A0223 + mat(1,2) * A0123 );
 }
 
-template<> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 4, 4, Matrix_>::det() const
+std::remove_const_t<DataT> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::det() const
 {
-  // TODO: check
-  const double A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
-  const double A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
-  const double A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
-  const double A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
-  const double A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
-  const double A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
-  const double A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
-  const double A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
-  const double A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
-  const double A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
-  const double A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
-  const double A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
-  const double A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
-  const double A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
-  const double A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
-  const double A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
-  const double A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
-  const double A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
-
-  return  at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
-          - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
-          + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
-          - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
+  return mat_det(mat());
 }
 
-template<>
-RMAGINE_INLINE_FUNCTION
-Matrix_<float, 2, 2> MatrixOps_<float, 2, 2, Matrix_>::inv() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+Matrix_<std::remove_const_t<DataT>, 2, 2> mat_inv(const MatrixAccess_<DataT, 2, 2>& mat)
 {
-  Matrix_<float, 2, 2> ret;
+  Matrix_<std::remove_const_t<DataT>, 2, 2> ret;
   
-  const float invdet = 1.0f / det();
-  ret(0, 0) =  at(1, 1) * invdet;
-  ret(0, 1) = -at(0, 1) * invdet;
-  ret(1, 0) = -at(1, 0) * invdet;
-  ret(1, 1) =  at(0, 0) * invdet;
+  std::add_const_t<DataT> invdet = 1.0f / mat_det(mat);
+  ret(0, 0) =  mat(1, 1) * invdet;
+  ret(0, 1) = -mat(0, 1) * invdet;
+  ret(1, 0) = -mat(1, 0) * invdet;
+  ret(1, 1) =  mat(0, 0) * invdet;
   
   return ret;
 }
 
-template<>
-RMAGINE_INLINE_FUNCTION
-Matrix_<float, 2, 2> MatrixOps_<const float, 2, 2, Matrix_>::inv() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+Matrix_<std::remove_const_t<DataT>, 3, 3> mat_inv(const MatrixAccess_<DataT, 3, 3>& mat)
 {
-  Matrix_<float, 2, 2> ret;
-  
-  const float invdet = 1.0f / det();
-  ret(0, 0) =  at(1, 1) * invdet;
-  ret(0, 1) = -at(0, 1) * invdet;
-  ret(1, 0) = -at(1, 0) * invdet;
-  ret(1, 1) =  at(0, 0) * invdet;
-  
-  return ret;
-}
+  Matrix_<std::remove_const_t<DataT>, 3, 3> ret;
 
-// template<>
-// RMAGINE_INLINE_FUNCTION
-// Matrix_<float, 2, 2> MatrixOps_<const float, 2, 2, MatrixSlice_>::inv() const
-// {
-//   Matrix_<float, 2, 2> ret;
-  
-//   const float invdet = 1.0f / det();
-//   ret(0, 0) =  at(1, 1) * invdet;
-//   ret(0, 1) = -at(0, 1) * invdet;
-//   ret(1, 0) = -at(1, 0) * invdet;
-//   ret(1, 1) =  at(0, 0) * invdet;
-  
-//   return ret;
-// }
+  std::add_const_t<DataT> invdet = 1.0f / mat_det(mat);
 
-template<>
-RMAGINE_INLINE_FUNCTION
-Matrix_<double, 2, 2> MatrixOps_<double, 2, 2, Matrix_>::inv() const
-{
-  Matrix_<double, 2, 2> ret;
-  
-  const double invdet = 1.0 / det();
-  ret(0, 0) =  at(1, 1) * invdet;
-  ret(0, 1) = -at(0, 1) * invdet;
-  ret(1, 0) = -at(1, 0) * invdet;
-  ret(1, 1) =  at(0, 0) * invdet;
-  
-  return ret;
-}
-
-template<> 
-RMAGINE_INLINE_FUNCTION
-Matrix_<float, 3, 3> MatrixOps_<float, 3, 3, Matrix_>::inv() const
-{
-  Matrix_<float, 3, 3> ret;
-
-  const float invdet = 1.0f / det();
-
-  ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
-  ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;
-  ret(0, 2) = (at(0, 1) * at(1, 2) - at(0, 2) * at(1, 1)) * invdet;
-  ret(1, 0) = (at(1, 2) * at(2, 0) - at(1, 0) * at(2, 2)) * invdet;
-  ret(1, 1) = (at(0, 0) * at(2, 2) - at(0, 2) * at(2, 0)) * invdet;
-  ret(1, 2) = (at(1, 0) * at(0, 2) - at(0, 0) * at(1, 2)) * invdet;
-  ret(2, 0) = (at(1, 0) * at(2, 1) - at(2, 0) * at(1, 1)) * invdet;
-  ret(2, 1) = (at(2, 0) * at(0, 1) - at(0, 0) * at(2, 1)) * invdet;
-  ret(2, 2) = (at(0, 0) * at(1, 1) - at(1, 0) * at(0, 1)) * invdet;
+  ret(0, 0) = (mat(1, 1) * mat(2, 2) - mat(2, 1) * mat(1, 2)) * invdet;
+  ret(0, 1) = (mat(0, 2) * mat(2, 1) - mat(0, 1) * mat(2, 2)) * invdet;
+  ret(0, 2) = (mat(0, 1) * mat(1, 2) - mat(0, 2) * mat(1, 1)) * invdet;
+  ret(1, 0) = (mat(1, 2) * mat(2, 0) - mat(1, 0) * mat(2, 2)) * invdet;
+  ret(1, 1) = (mat(0, 0) * mat(2, 2) - mat(0, 2) * mat(2, 0)) * invdet;
+  ret(1, 2) = (mat(1, 0) * mat(0, 2) - mat(0, 0) * mat(1, 2)) * invdet;
+  ret(2, 0) = (mat(1, 0) * mat(2, 1) - mat(2, 0) * mat(1, 1)) * invdet;
+  ret(2, 1) = (mat(2, 0) * mat(0, 1) - mat(0, 0) * mat(2, 1)) * invdet;
+  ret(2, 2) = (mat(0, 0) * mat(1, 1) - mat(1, 0) * mat(0, 1)) * invdet;
 
   return ret;
 }
 
-
-
-template<> 
-RMAGINE_INLINE_FUNCTION
-Matrix_<double, 3, 3> MatrixOps_<double, 3, 3, Matrix_>::inv() const
-{
-  Matrix_<double, 3, 3> ret;
-
-  const double invdet = 1.0 / det();
-
-  ret(0, 0) = (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) * invdet;
-  ret(0, 1) = (at(0, 2) * at(2, 1) - at(0, 1) * at(2, 2)) * invdet;
-  ret(0, 2) = (at(0, 1) * at(1, 2) - at(0, 2) * at(1, 1)) * invdet;
-  ret(1, 0) = (at(1, 2) * at(2, 0) - at(1, 0) * at(2, 2)) * invdet;
-  ret(1, 1) = (at(0, 0) * at(2, 2) - at(0, 2) * at(2, 0)) * invdet;
-  ret(1, 2) = (at(1, 0) * at(0, 2) - at(0, 0) * at(1, 2)) * invdet;
-  ret(2, 0) = (at(1, 0) * at(2, 1) - at(2, 0) * at(1, 1)) * invdet;
-  ret(2, 1) = (at(2, 0) * at(0, 1) - at(0, 0) * at(2, 1)) * invdet;
-  ret(2, 2) = (at(0, 0) * at(1, 1) - at(1, 0) * at(0, 1)) * invdet;
-
-  return ret;
-}
-
-template<> 
-RMAGINE_INLINE_FUNCTION
-Matrix_<float, 4, 4> MatrixOps_<float, 4, 4, Matrix_>::inv() const
+template<typename DataT, template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_FUNCTION
+Matrix_<std::remove_const_t<DataT>, 4, 4> mat_inv(const MatrixAccess_<DataT, 4, 4>& mat)
 {
   // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
   // answer of willnode at Jun 8 '17 at 23:09
 
-  const float A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
-  const float A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
-  const float A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
-  const float A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
-  const float A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
-  const float A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
-  const float A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
-  const float A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
-  const float A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
-  const float A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
-  const float A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
-  const float A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
-  const float A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
-  const float A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
-  const float A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
-  const float A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
-  const float A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
-  const float A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
+  std::add_const_t<DataT> A2323 = mat(2,2) * mat(3,3) - mat(2,3) * mat(3,2);
+  std::add_const_t<DataT> A1323 = mat(2,1) * mat(3,3) - mat(2,3) * mat(3,1);
+  std::add_const_t<DataT> A1223 = mat(2,1) * mat(3,2) - mat(2,2) * mat(3,1);
+  std::add_const_t<DataT> A0323 = mat(2,0) * mat(3,3) - mat(2,3) * mat(3,0);
+  std::add_const_t<DataT> A0223 = mat(2,0) * mat(3,2) - mat(2,2) * mat(3,0);
+  std::add_const_t<DataT> A0123 = mat(2,0) * mat(3,1) - mat(2,1) * mat(3,0);
+  std::add_const_t<DataT> A2313 = mat(1,2) * mat(3,3) - mat(1,3) * mat(3,2);
+  std::add_const_t<DataT> A1313 = mat(1,1) * mat(3,3) - mat(1,3) * mat(3,1);
+  std::add_const_t<DataT> A1213 = mat(1,1) * mat(3,2) - mat(1,2) * mat(3,1);
+  std::add_const_t<DataT> A2312 = mat(1,2) * mat(2,3) - mat(1,3) * mat(2,2);
+  std::add_const_t<DataT> A1312 = mat(1,1) * mat(2,3) - mat(1,3) * mat(2,1);
+  std::add_const_t<DataT> A1212 = mat(1,1) * mat(2,2) - mat(1,2) * mat(2,1);
+  std::add_const_t<DataT> A0313 = mat(1,0) * mat(3,3) - mat(1,3) * mat(3,0);
+  std::add_const_t<DataT> A0213 = mat(1,0) * mat(3,2) - mat(1,2) * mat(3,0);
+  std::add_const_t<DataT> A0312 = mat(1,0) * mat(2,3) - mat(1,3) * mat(2,0);
+  std::add_const_t<DataT> A0212 = mat(1,0) * mat(2,2) - mat(1,2) * mat(2,0);
+  std::add_const_t<DataT> A0113 = mat(1,0) * mat(3,1) - mat(1,1) * mat(3,0);
+  std::add_const_t<DataT> A0112 = mat(1,0) * mat(2,1) - mat(1,1) * mat(2,0);
 
-  float det_  = at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
-              - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
-              + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
-              - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 ) ;
+  std::remove_const_t<DataT> det_  = mat(0,0) * ( mat(1,1) * A2323 - mat(1,2) * A1323 + mat(1,3) * A1223 ) 
+              - mat(0,1) * ( mat(1,0) * A2323 - mat(1,2) * A0323 + mat(1,3) * A0223 ) 
+              + mat(0,2) * ( mat(1,0) * A1323 - mat(1,1) * A0323 + mat(1,3) * A0123 ) 
+              - mat(0,3) * ( mat(1,0) * A1223 - mat(1,1) * A0223 + mat(1,2) * A0123 ) ;
 
   // inv det
   det_ = 1.0f / det_;
 
-  Matrix_<float, 4, 4> ret;
-  ret(0,0) = det_ *   ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 );
-  ret(0,1) = det_ * - ( at(0,1) * A2323 - at(0,2) * A1323 + at(0,3) * A1223 );
-  ret(0,2) = det_ *   ( at(0,1) * A2313 - at(0,2) * A1313 + at(0,3) * A1213 );
-  ret(0,3) = det_ * - ( at(0,1) * A2312 - at(0,2) * A1312 + at(0,3) * A1212 );
-  ret(1,0) = det_ * - ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 );
-  ret(1,1) = det_ *   ( at(0,0) * A2323 - at(0,2) * A0323 + at(0,3) * A0223 );
-  ret(1,2) = det_ * - ( at(0,0) * A2313 - at(0,2) * A0313 + at(0,3) * A0213 );
-  ret(1,3) = det_ *   ( at(0,0) * A2312 - at(0,2) * A0312 + at(0,3) * A0212 );
-  ret(2,0) = det_ *   ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 );
-  ret(2,1) = det_ * - ( at(0,0) * A1323 - at(0,1) * A0323 + at(0,3) * A0123 );
-  ret(2,2) = det_ *   ( at(0,0) * A1313 - at(0,1) * A0313 + at(0,3) * A0113 );
-  ret(2,3) = det_ * - ( at(0,0) * A1312 - at(0,1) * A0312 + at(0,3) * A0112 );
-  ret(3,0) = det_ * - ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
-  ret(3,1) = det_ *   ( at(0,0) * A1223 - at(0,1) * A0223 + at(0,2) * A0123 );
-  ret(3,2) = det_ * - ( at(0,0) * A1213 - at(0,1) * A0213 + at(0,2) * A0113 );
-  ret(3,3) = det_ *   ( at(0,0) * A1212 - at(0,1) * A0212 + at(0,2) * A0112 );
+  Matrix_<std::remove_const_t<DataT>, 4, 4> ret;
+  ret(0,0) = det_ *   ( mat(1,1) * A2323 - mat(1,2) * A1323 + mat(1,3) * A1223 );
+  ret(0,1) = det_ * - ( mat(0,1) * A2323 - mat(0,2) * A1323 + mat(0,3) * A1223 );
+  ret(0,2) = det_ *   ( mat(0,1) * A2313 - mat(0,2) * A1313 + mat(0,3) * A1213 );
+  ret(0,3) = det_ * - ( mat(0,1) * A2312 - mat(0,2) * A1312 + mat(0,3) * A1212 );
+  ret(1,0) = det_ * - ( mat(1,0) * A2323 - mat(1,2) * A0323 + mat(1,3) * A0223 );
+  ret(1,1) = det_ *   ( mat(0,0) * A2323 - mat(0,2) * A0323 + mat(0,3) * A0223 );
+  ret(1,2) = det_ * - ( mat(0,0) * A2313 - mat(0,2) * A0313 + mat(0,3) * A0213 );
+  ret(1,3) = det_ *   ( mat(0,0) * A2312 - mat(0,2) * A0312 + mat(0,3) * A0212 );
+  ret(2,0) = det_ *   ( mat(1,0) * A1323 - mat(1,1) * A0323 + mat(1,3) * A0123 );
+  ret(2,1) = det_ * - ( mat(0,0) * A1323 - mat(0,1) * A0323 + mat(0,3) * A0123 );
+  ret(2,2) = det_ *   ( mat(0,0) * A1313 - mat(0,1) * A0313 + mat(0,3) * A0113 );
+  ret(2,3) = det_ * - ( mat(0,0) * A1312 - mat(0,1) * A0312 + mat(0,3) * A0112 );
+  ret(3,0) = det_ * - ( mat(1,0) * A1223 - mat(1,1) * A0223 + mat(1,2) * A0123 );
+  ret(3,1) = det_ *   ( mat(0,0) * A1223 - mat(0,1) * A0223 + mat(0,2) * A0123 );
+  ret(3,2) = det_ * - ( mat(0,0) * A1213 - mat(0,1) * A0213 + mat(0,2) * A0113 );
+  ret(3,3) = det_ *   ( mat(0,0) * A1212 - mat(0,1) * A0212 + mat(0,2) * A0112 );
 
   return ret;
 }
 
-template<> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<double, 4, 4> MatrixOps_<double, 4, 4, Matrix_>::inv() const
+Matrix_<std::remove_const_t<DataT>, Cols, Rows> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::inv() const
 {
-  // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
-  // answer of willnode at Jun 8 '17 at 23:09
-
-  const double A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
-  const double A1323 = at(2,1) * at(3,3) - at(2,3) * at(3,1);
-  const double A1223 = at(2,1) * at(3,2) - at(2,2) * at(3,1);
-  const double A0323 = at(2,0) * at(3,3) - at(2,3) * at(3,0);
-  const double A0223 = at(2,0) * at(3,2) - at(2,2) * at(3,0);
-  const double A0123 = at(2,0) * at(3,1) - at(2,1) * at(3,0);
-  const double A2313 = at(1,2) * at(3,3) - at(1,3) * at(3,2);
-  const double A1313 = at(1,1) * at(3,3) - at(1,3) * at(3,1);
-  const double A1213 = at(1,1) * at(3,2) - at(1,2) * at(3,1);
-  const double A2312 = at(1,2) * at(2,3) - at(1,3) * at(2,2);
-  const double A1312 = at(1,1) * at(2,3) - at(1,3) * at(2,1);
-  const double A1212 = at(1,1) * at(2,2) - at(1,2) * at(2,1);
-  const double A0313 = at(1,0) * at(3,3) - at(1,3) * at(3,0);
-  const double A0213 = at(1,0) * at(3,2) - at(1,2) * at(3,0);
-  const double A0312 = at(1,0) * at(2,3) - at(1,3) * at(2,0);
-  const double A0212 = at(1,0) * at(2,2) - at(1,2) * at(2,0);
-  const double A0113 = at(1,0) * at(3,1) - at(1,1) * at(3,0);
-  const double A0112 = at(1,0) * at(2,1) - at(1,1) * at(2,0);
-
-  double det_ = at(0,0) * ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 ) 
-              - at(0,1) * ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 ) 
-              + at(0,2) * ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 ) 
-              - at(0,3) * ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 ) ;
-
-  // inv det
-  det_ = 1.0 / det_;
-
-  Matrix_<double, 4, 4> ret;
-  ret(0,0) = det_ *   ( at(1,1) * A2323 - at(1,2) * A1323 + at(1,3) * A1223 );
-  ret(0,1) = det_ * - ( at(0,1) * A2323 - at(0,2) * A1323 + at(0,3) * A1223 );
-  ret(0,2) = det_ *   ( at(0,1) * A2313 - at(0,2) * A1313 + at(0,3) * A1213 );
-  ret(0,3) = det_ * - ( at(0,1) * A2312 - at(0,2) * A1312 + at(0,3) * A1212 );
-  ret(1,0) = det_ * - ( at(1,0) * A2323 - at(1,2) * A0323 + at(1,3) * A0223 );
-  ret(1,1) = det_ *   ( at(0,0) * A2323 - at(0,2) * A0323 + at(0,3) * A0223 );
-  ret(1,2) = det_ * - ( at(0,0) * A2313 - at(0,2) * A0313 + at(0,3) * A0213 );
-  ret(1,3) = det_ *   ( at(0,0) * A2312 - at(0,2) * A0312 + at(0,3) * A0212 );
-  ret(2,0) = det_ *   ( at(1,0) * A1323 - at(1,1) * A0323 + at(1,3) * A0123 );
-  ret(2,1) = det_ * - ( at(0,0) * A1323 - at(0,1) * A0323 + at(0,3) * A0123 );
-  ret(2,2) = det_ *   ( at(0,0) * A1313 - at(0,1) * A0313 + at(0,3) * A0113 );
-  ret(2,3) = det_ * - ( at(0,0) * A1312 - at(0,1) * A0312 + at(0,3) * A0112 );
-  ret(3,0) = det_ * - ( at(1,0) * A1223 - at(1,1) * A0223 + at(1,2) * A0123 );
-  ret(3,1) = det_ *   ( at(0,0) * A1223 - at(0,1) * A0223 + at(0,2) * A0123 );
-  ret(3,2) = det_ * - ( at(0,0) * A1213 - at(0,1) * A0213 + at(0,2) * A0113 );
-  ret(3,3) = det_ *   ( at(0,0) * A1212 - at(0,1) * A0212 + at(0,2) * A0112 );
-
-  return ret;
+  return mat_inv(mat());
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1149,21 +970,21 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set_block(
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<std::remove_const_t<DataT>, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::rotation() const
+MatrixSlice_<DataT, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::rotation()
 {
-  // TODO: is this correct?
   static_assert(Rows == Cols);
-  Matrix_<DataTNonConst, Rows-1, Cols-1> res;
+  static_assert(Rows == 4);
+  return mat_ptr()->template slice<Rows-1, Cols-1>(0,0);
+}
 
-  for(unsigned int i=0; i < Rows - 1; i++)
-  {
-    for(unsigned int j=0; j < Cols - 1; j++)
-    {
-      res(i, j) = at(i, j);
-    }
-  }
-
-  return res;
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+RMAGINE_INLINE_FUNCTION
+const MatrixSlice_<std::add_const_t<DataT>, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::rotation() const
+{
+  static_assert(Rows == Cols);
+  static_assert(Rows == 4);
+  return mat_ptr()->template slice<Rows-1, Cols-1>(0,0);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
@@ -1211,17 +1032,23 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const EulerAngles
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<std::remove_const_t<DataT>, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::translation() const
+MatrixSlice_<DataT, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::translation()
 {
+  // TODO: check
   static_assert(Rows == Cols);
-  Matrix_<DataTNonConst, Rows-1, 1> res;
+  static_assert(Rows == 4);
+  return mat_ptr()->template slice<Rows-1, 1>(0, 2);
+}
 
-  for(unsigned int i=0; i < Rows - 1; i++)
-  {
-    res(i, 0) = at(i, 0);
-  }
-
-  return res;
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
+RMAGINE_INLINE_FUNCTION
+const MatrixSlice_<std::add_const_t<DataT>, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::translation() const
+{
+  // TODO: check
+  static_assert(Rows == Cols);
+  static_assert(Rows == 4);
+  return mat_ptr()->template slice<Rows-1, 1>(0, 2);
 }
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 

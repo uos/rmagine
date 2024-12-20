@@ -54,12 +54,17 @@ template<typename DataT, unsigned int Rows, unsigned int Cols,
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 class MatrixOps_
 {
+
 public:
   using MatrixAccess = MatrixAccess_<DataT, Rows, Cols>;
   using ThisType = MatrixOps_<DataT, Rows, Cols, MatrixAccess_>;
 
   using DataTConst = std::add_const_t<DataT>;
   using DataTNonConst = std::remove_const_t<DataT>;
+
+// private:
+//   using MatrixAccess::access;
+// public:
 
   // MatrixOps_() = delete;
 
@@ -132,10 +137,10 @@ public:
   void divInplace(const DataT& scalar);
 
   RMAGINE_INLINE_FUNCTION 
-  Vector3_<DataTNonConst> mult(const Vector3_<DataT>& v) const;
+  Vector3_<DataTNonConst> mult(const Vector3_<std::remove_const_t<DataT> >& v) const;
 
   RMAGINE_INLINE_FUNCTION 
-  Vector2_<DataTNonConst> mult(const Vector2_<DataT>& v) const;
+  Vector2_<DataTNonConst> mult(const Vector2_<std::remove_const_t<DataT> >& v) const;
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
@@ -279,10 +284,14 @@ public:
   }
 
   /////////////////////
-  // Transformation Helpers. Matrix Form: Square, Homogenous
+  // Transformation Helpers. Matrix Form: Square, Homogenous, 4x4
+
+  // mutable rotation part
+  RMAGINE_INLINE_FUNCTION
+  MatrixSlice_<DataT, Rows-1, Cols-1> rotation();
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows-1, Cols-1> rotation() const;
+  const MatrixSlice_<DataTConst, Rows-1, Cols-1> rotation() const;
 
   RMAGINE_INLINE_FUNCTION
   void setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R);
@@ -293,8 +302,12 @@ public:
   RMAGINE_INLINE_FUNCTION
   void setRotation(const EulerAngles_<DataT>& e);
 
+  // mutable translation part
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows-1, 1> translation() const;
+  MatrixSlice_<DataT, Rows-1, 1> translation();
+
+  RMAGINE_INLINE_FUNCTION
+  const MatrixSlice_<DataTConst, Rows-1, 1> translation() const;
 
   RMAGINE_INLINE_FUNCTION
   void setTranslation(const Matrix_<DataT, Rows-1, 1>& t);
@@ -443,7 +456,33 @@ public:
                           MatrixAddInvalid>::type;
 
   using Type = DataT;
+
+private:
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess& mat()
+  {
+    return static_cast<MatrixAccess&>(*this);
+  }
+
+  RMAGINE_INLINE_FUNCTION
+  const MatrixAccess& mat() const
+  {
+    return static_cast<const MatrixAccess&>(*this);
+  }
+
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess* mat_ptr() 
+  {
+    return static_cast<MatrixAccess*>(this);
+  }
+
+  RMAGINE_INLINE_FUNCTION
+  const MatrixAccess* mat_ptr() const 
+  {
+    return static_cast<const MatrixAccess*>(this);
+  }
 };
+
 
 } // namespace rmagine
 

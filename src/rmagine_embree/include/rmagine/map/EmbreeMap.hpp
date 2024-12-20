@@ -90,8 +90,6 @@ public:
     // - filling is not mandatory
     // TODO: not only meshes here. Every geometry
     std::unordered_set<EmbreeMeshPtr> meshes;
-
-    
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
