@@ -32,11 +32,11 @@ struct Quaternion_;
 template<typename DataT>
 struct Transform_;
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride = Rows>
+template<typename DataT, unsigned int Rows, unsigned int Cols>
 class Matrix_;
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-struct MatrixSlice_;
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+class MatrixSlice_;
 
 template<typename DataT>
 struct AABB_;
@@ -118,8 +118,8 @@ using Point = Vector;
 // using Pixel = Vector2u;
 // using Pixel = Vector2i;
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MaDataType, unsigned int MaRows, unsigned int MaCols, unsigned int MaStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MaDataType, unsigned int MaRows, unsigned int MaCols> class MatrixAccess_>
 class MatrixOps_;
 
 

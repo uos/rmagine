@@ -98,8 +98,8 @@ inline std::ostream& operator<<(std::ostream& os, const rmagine::Matrix_<DataT, 
     return os;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
-inline std::ostream& operator<<(std::ostream& os, const rmagine::MatrixSlice_<DataT, Rows, Cols, Stride>& M)
+template<typename DataT, unsigned int Rows, unsigned int Cols>
+inline std::ostream& operator<<(std::ostream& os, const rmagine::MatrixSlice_<DataT, Rows, Cols>& M)
 {
     os << "M" << M.rows() << "x" << M.cols() << "[\n";
     for(unsigned int i = 0; i < M.rows(); i++)

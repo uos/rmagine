@@ -5,66 +5,66 @@
 namespace rmagine
 {
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT& MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::at(unsigned int row, unsigned int col)
+DataT& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::at(unsigned int row, unsigned int col)
 {
   return static_cast<MatrixAccess*>(this)->access(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-volatile DataT& MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::at(unsigned int row, unsigned int col) volatile
+volatile DataT& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::at(unsigned int row, unsigned int col) volatile
 {
   return static_cast<volatile MatrixAccess*>(this)->access(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::at(unsigned int row, unsigned int col) const
+DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::at(unsigned int row, unsigned int col) const
 {
   return static_cast<const MatrixAccess*>(this)->access(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::at(unsigned int row, unsigned int col) volatile const
+DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::at(unsigned int row, unsigned int col) volatile const
 {
   return static_cast<volatile const MatrixAccess*>(this)->access(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT& MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator()(unsigned int row, unsigned int col)
+DataT& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator()(unsigned int row, unsigned int col)
 {
   return at(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-volatile DataT& MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator()(unsigned int row, unsigned int col) volatile
+volatile DataT& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator()(unsigned int row, unsigned int col) volatile
 {
   return at(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator()(unsigned int row, unsigned int col) const
+DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator()(unsigned int row, unsigned int col) const
 {
   return at(row, col);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator()(unsigned int row, unsigned int col) volatile const
+DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator()(unsigned int row, unsigned int col) volatile const
 {
   return at(row, col);
 }
@@ -72,10 +72,10 @@ DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator()(unsigned 
 ////////////////////
 // setZeros
 ////////////////
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setZeros()
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setZeros()
 {
     for(unsigned int i=0; i<Rows; i++)
     {
@@ -89,7 +89,7 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setZeros()
 // specializations
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<float, 3, 3, 3, Matrix_>::setZeros()
+void MatrixOps_<float, 3, 3, Matrix_>::setZeros()
 {
     at(0,0) = 0.0f;
     at(0,1) = 0.0f;
@@ -104,7 +104,7 @@ void MatrixOps_<float, 3, 3, 3, Matrix_>::setZeros()
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<double, 3, 3, 3, Matrix_>::setZeros()
+void MatrixOps_<double, 3, 3, Matrix_>::setZeros()
 {
     at(0,0) = 0.0;
     at(0,1) = 0.0;
@@ -119,7 +119,7 @@ void MatrixOps_<double, 3, 3, 3, Matrix_>::setZeros()
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<float, 4, 4, 4, Matrix_>::setZeros()
+void MatrixOps_<float, 4, 4, Matrix_>::setZeros()
 {
     at(0,0) = 0.0f;
     at(0,1) = 0.0f;
@@ -141,78 +141,77 @@ void MatrixOps_<float, 4, 4, 4, Matrix_>::setZeros()
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<double, 4, 4, 4, Matrix_>::setZeros()
+void MatrixOps_<double, 4, 4, Matrix_>::setZeros()
 {
-    at(0,0) = 0.0;
-    at(0,1) = 0.0;
-    at(0,2) = 0.0;
-    at(0,3) = 0.0;
-    at(1,0) = 0.0;
-    at(1,1) = 0.0;
-    at(1,2) = 0.0;
-    at(1,3) = 0.0;
-    at(2,0) = 0.0;
-    at(2,1) = 0.0;
-    at(2,2) = 0.0;
-    at(2,3) = 0.0;
-    at(3,0) = 0.0;
-    at(3,1) = 0.0;
-    at(3,2) = 0.0;
-    at(3,3) = 0.0;
+  at(0,0) = 0.0;
+  at(0,1) = 0.0;
+  at(0,2) = 0.0;
+  at(0,3) = 0.0;
+  at(1,0) = 0.0;
+  at(1,1) = 0.0;
+  at(1,2) = 0.0;
+  at(1,3) = 0.0;
+  at(2,0) = 0.0;
+  at(2,1) = 0.0;
+  at(2,2) = 0.0;
+  at(2,3) = 0.0;
+  at(3,0) = 0.0;
+  at(3,1) = 0.0;
+  at(3,2) = 0.0;
+  at(3,3) = 0.0;
 }
-
 
 ////////////////////
 // setOnes
 ////////////////
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setOnes()
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setOnes()
 {
-    for(unsigned int i=0; i<Rows; i++)
+  for(unsigned int i=0; i<Rows; i++)
+  {
+    for(unsigned int j=0; j<Cols; j++)
     {
-        for(unsigned int j=0; j<Cols; j++)
-        {
-            at(i, j) = static_cast<DataT>(1);
-        }
+      at(i, j) = static_cast<DataT>(1);
     }
+  }
 }
 
 // specializations
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<float, 3, 3, 3, Matrix_>::setOnes()
+void MatrixOps_<float, 3, 3, Matrix_>::setOnes()
 {
-    at(0,0) = 1.0f;
-    at(0,1) = 1.0f;
-    at(0,2) = 1.0f;
-    at(1,0) = 1.0f;
-    at(1,1) = 1.0f;
-    at(1,2) = 1.0f;
-    at(2,0) = 1.0f;
-    at(2,1) = 1.0f;
-    at(2,2) = 1.0f;
+  at(0,0) = 1.0f;
+  at(0,1) = 1.0f;
+  at(0,2) = 1.0f;
+  at(1,0) = 1.0f;
+  at(1,1) = 1.0f;
+  at(1,2) = 1.0f;
+  at(2,0) = 1.0f;
+  at(2,1) = 1.0f;
+  at(2,2) = 1.0f;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<double, 3, 3, 3, Matrix_>::setOnes()
+void MatrixOps_<double, 3, 3, Matrix_>::setOnes()
 {
-    at(0,0) = 1.0;
-    at(0,1) = 1.0;
-    at(0,2) = 1.0;
-    at(1,0) = 1.0;
-    at(1,1) = 1.0;
-    at(1,2) = 1.0;
-    at(2,0) = 1.0;
-    at(2,1) = 1.0;
-    at(2,2) = 1.0;
+  at(0,0) = 1.0;
+  at(0,1) = 1.0;
+  at(0,2) = 1.0;
+  at(1,0) = 1.0;
+  at(1,1) = 1.0;
+  at(1,2) = 1.0;
+  at(2,0) = 1.0;
+  at(2,1) = 1.0;
+  at(2,2) = 1.0;
 }
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<float, 4, 4, 4, Matrix_>::setOnes()
+void MatrixOps_<float, 4, 4, Matrix_>::setOnes()
 {
     at(0,0) = 1.0f;
     at(0,1) = 1.0f;
@@ -234,7 +233,7 @@ void MatrixOps_<float, 4, 4, 4, Matrix_>::setOnes()
 
 template<> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<double, 4, 4, 4, Matrix_>::setOnes()
+void MatrixOps_<double, 4, 4, Matrix_>::setOnes()
 {
     at(0,0) = 1.0;
     at(0,1) = 1.0;
@@ -257,10 +256,10 @@ void MatrixOps_<double, 4, 4, 4, Matrix_>::setOnes()
 ////////////////////
 // setIdentity
 ////////////////
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setIdentity()
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setIdentity()
 {
     for(unsigned int i=0; i<Rows; i++)
     {
@@ -279,7 +278,7 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setIdentity()
 // specializatons
 template<> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<float, 3, 3, 3, Matrix_>::setIdentity()
+void MatrixOps_<float, 3, 3, Matrix_>::setIdentity()
 {
     at(0,0) = 1.0f;
     at(0,1) = 0.0f;
@@ -294,7 +293,7 @@ void MatrixOps_<float, 3, 3, 3, Matrix_>::setIdentity()
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<double, 3, 3, 3, Matrix_>::setIdentity()
+void MatrixOps_<double, 3, 3, Matrix_>::setIdentity()
 {
     at(0,0) = 1.0;
     at(0,1) = 0.0;
@@ -309,7 +308,7 @@ void MatrixOps_<double, 3, 3, 3, Matrix_>::setIdentity()
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<float, 4, 4, 4, Matrix_>::setIdentity()
+void MatrixOps_<float, 4, 4, Matrix_>::setIdentity()
 {
     at(0,0) = 1.0f;
     at(0,1) = 0.0f;
@@ -331,7 +330,7 @@ void MatrixOps_<float, 4, 4, 4, Matrix_>::setIdentity()
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<double, 4, 4, 4, Matrix_>::setIdentity()
+void MatrixOps_<double, 4, 4, Matrix_>::setIdentity()
 {
     at(0,0) = 1.0;
     at(0,1) = 0.0;
@@ -351,13 +350,13 @@ void MatrixOps_<double, 4, 4, 4, Matrix_>::setIdentity()
     at(3,3) = 1.0;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::negate() const
+Matrix_<std::remove_const_t<DataT>, Rows, Cols> 
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::negate() const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<std::remove_const_t<DataT>, Rows, Cols> res;
 
     for(unsigned int i=0; i<Rows; i++)
     {
@@ -370,10 +369,10 @@ Matrix_<DataT, Rows, Cols, Stride>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::negateInplace()
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::negateInplace()
 {
     for(unsigned int i=0; i<Rows; i++)
     {
@@ -384,13 +383,12 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::negateInplace()
     }
 }
 
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<unsigned int Cols2>
 RMAGINE_INLINE_FUNCTION 
 Matrix_<DataT, Rows, Cols2> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::mult(const Matrix_<DataT, Cols, Cols2>& M) const
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const Matrix_<DataT, Cols, Cols2>& M) const
 {
     // constexpr unsigned int Rows2 = Cols;
     constexpr unsigned int Rows3 = Rows;
@@ -432,10 +430,10 @@ Matrix_<DataT, Rows, Cols2>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::multInplace(const Matrix_<DataT, Rows, Cols, Stride>& M)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(const Matrix_<DataT, Rows, Cols>& M)
 {
     static_assert(Rows == Cols);
 
@@ -465,13 +463,13 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::multInplace(const Mat
 
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::mult(const DataT& scalar) const
+Matrix_<DataT, Rows, Cols> 
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const DataT& scalar) const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<DataT, Rows, Cols> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -484,10 +482,10 @@ Matrix_<DataT, Rows, Cols, Stride>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::multInplace(const DataT& scalar)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multInplace(const DataT& scalar)
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -498,12 +496,12 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::multInplace(const Dat
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::multEwise(const Matrix_<DataT, Rows, Cols, Stride>& M) const
+Matrix_<DataT, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::multEwise(const Matrix_<DataT, Rows, Cols>& M) const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<DataT, Rows, Cols> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -517,13 +515,13 @@ Matrix_<DataT, Rows, Cols, Stride> MatrixOps_<DataT, Rows, Cols, Stride, MatrixA
 }
 
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::div(const DataT& scalar) const
+Matrix_<DataT, Rows, Cols> 
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::div(const DataT& scalar) const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<DataT, Rows, Cols> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -536,10 +534,10 @@ Matrix_<DataT, Rows, Cols, Stride>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::divInplace(const DataT& scalar)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::divInplace(const DataT& scalar)
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -550,11 +548,11 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::divInplace(const Data
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
 Vector3_<DataT> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::mult(const Vector3_<DataT>& v) const
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const Vector3_<DataT>& v) const
 {
     if constexpr(Rows == 3 && Cols == 3)
     {
@@ -577,11 +575,11 @@ Vector3_<DataT>
     return {NAN, NAN, NAN};
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION 
 Vector2_<DataT> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::mult(const Vector2_<DataT>& v) const
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::mult(const Vector2_<DataT>& v) const
 {
     if constexpr(Rows == 2 && Cols == 2)
     {
@@ -603,13 +601,13 @@ Vector2_<DataT>
     
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::add(const Matrix_<DataT, Rows, Cols, Stride>& M) const
+Matrix_<DataT, Rows, Cols> 
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::add(const Matrix_<DataT, Rows, Cols>& M) const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<DataT, Rows, Cols> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -622,10 +620,10 @@ Matrix_<DataT, Rows, Cols, Stride>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::addInplace(const Matrix_<DataT, Rows, Cols, Stride>& M)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(const Matrix_<DataT, Rows, Cols>& M)
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -636,10 +634,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::addInplace(const Matr
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::addInplace(volatile Matrix_<DataT, Rows, Cols, Stride>& M) volatile
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -650,13 +648,13 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::addInplace(volatile M
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::sub(const Matrix_<DataT, Rows, Cols, Stride>& M) const
+Matrix_<DataT, Rows, Cols> 
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::sub(const Matrix_<DataT, Rows, Cols>& M) const
 {
-    Matrix_<DataT, Rows, Cols, Stride> res;
+    Matrix_<DataT, Rows, Cols> res;
 
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -669,10 +667,10 @@ Matrix_<DataT, Rows, Cols, Stride>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::subInplace(const Matrix_<DataT, Rows, Cols, Stride>& M)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::subInplace(const Matrix_<DataT, Rows, Cols>& M)
 {
     for(unsigned int i = 0; i < Rows; i++)
     {
@@ -683,11 +681,11 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::subInplace(const Matr
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
 Matrix_<std::remove_const_t<DataT>, Cols, Rows> 
-    MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::transpose() const
+    MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::transpose() const
 {
     Matrix_<std::remove_const_t<DataT>, Cols, Rows> res;
 
@@ -702,10 +700,10 @@ Matrix_<std::remove_const_t<DataT>, Cols, Rows>
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::transposeInplace()
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::transposeInplace()
 {
     static_assert(Rows == Cols);
     float swap_mem;
@@ -724,7 +722,7 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::transposeInplace()
 // specializations
 template<> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<float, 3, 3, 3, Matrix_>::transposeInplace()
+void MatrixOps_<float, 3, 3, Matrix_>::transposeInplace()
 {
     // use only one float as additional memory
     float swap_mem;
@@ -743,10 +741,10 @@ void MatrixOps_<float, 3, 3, 3, Matrix_>::transposeInplace()
     at(2,1) = swap_mem;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::trace() const
+DataT MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::trace() const
 {
     static_assert(Rows == Cols);
 
@@ -761,21 +759,21 @@ DataT MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::trace() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 2, 2, 2, Matrix_>::det() const
+float MatrixOps_<float, 2, 2, Matrix_>::det() const
 {
     return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
 }
 
 template<>
 RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 2, 2, 2, Matrix_>::det() const
+double MatrixOps_<double, 2, 2, Matrix_>::det() const
 {
     return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
 }
 
 template<>
 RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 3, 3, 3, Matrix_>::det() const
+float MatrixOps_<float, 3, 3, Matrix_>::det() const
 {
     return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
             at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
@@ -784,7 +782,7 @@ float MatrixOps_<float, 3, 3, 3, Matrix_>::det() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 3, 3, 3, Matrix_>::det() const
+double MatrixOps_<double, 3, 3, Matrix_>::det() const
 {
     return  at(0, 0) * (at(1, 1) * at(2, 2) - at(2, 1) * at(1, 2)) -
             at(0, 1) * (at(1, 0) * at(2, 2) - at(1, 2) * at(2, 0)) +
@@ -793,7 +791,7 @@ double MatrixOps_<double, 3, 3, 3, Matrix_>::det() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-float MatrixOps_<float, 4, 4, 4, Matrix_>::det() const
+float MatrixOps_<float, 4, 4, Matrix_>::det() const
 {
     // TODO: check
     const float A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
@@ -823,7 +821,7 @@ float MatrixOps_<float, 4, 4, 4, Matrix_>::det() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-double MatrixOps_<double, 4, 4, 4, Matrix_>::det() const
+double MatrixOps_<double, 4, 4, Matrix_>::det() const
 {
     // TODO: check
     const double A2323 = at(2,2) * at(3,3) - at(2,3) * at(3,2);
@@ -853,9 +851,9 @@ double MatrixOps_<double, 4, 4, 4, Matrix_>::det() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
-Matrix_<float, 2, 2, 2> MatrixOps_<float, 2, 2, 2, Matrix_>::inv() const
+Matrix_<float, 2, 2> MatrixOps_<float, 2, 2, Matrix_>::inv() const
 {
-    Matrix_<float, 2, 2, 2> ret;
+    Matrix_<float, 2, 2> ret;
     
     const float invdet = 1.0f / det();
     ret(0, 0) =  at(1, 1) * invdet;
@@ -868,9 +866,9 @@ Matrix_<float, 2, 2, 2> MatrixOps_<float, 2, 2, 2, Matrix_>::inv() const
 
 template<>
 RMAGINE_INLINE_FUNCTION
-Matrix_<double, 2, 2, 2> MatrixOps_<double, 2, 2, 2, Matrix_>::inv() const
+Matrix_<double, 2, 2> MatrixOps_<double, 2, 2, Matrix_>::inv() const
 {
-    Matrix_<double, 2, 2, 2> ret;
+    Matrix_<double, 2, 2> ret;
     
     const double invdet = 1.0 / det();
     ret(0, 0) =  at(1, 1) * invdet;
@@ -883,7 +881,7 @@ Matrix_<double, 2, 2, 2> MatrixOps_<double, 2, 2, 2, Matrix_>::inv() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<float, 3, 3> MatrixOps_<float, 3, 3, 3, Matrix_>::inv() const
+Matrix_<float, 3, 3> MatrixOps_<float, 3, 3, Matrix_>::inv() const
 {
     Matrix_<float, 3, 3> ret;
 
@@ -904,7 +902,7 @@ Matrix_<float, 3, 3> MatrixOps_<float, 3, 3, 3, Matrix_>::inv() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<double, 3, 3> MatrixOps_<double, 3, 3, 3, Matrix_>::inv() const
+Matrix_<double, 3, 3> MatrixOps_<double, 3, 3, Matrix_>::inv() const
 {
     Matrix_<double, 3, 3> ret;
 
@@ -925,7 +923,7 @@ Matrix_<double, 3, 3> MatrixOps_<double, 3, 3, 3, Matrix_>::inv() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<float, 4, 4> MatrixOps_<float, 4, 4, 4, Matrix_>::inv() const
+Matrix_<float, 4, 4> MatrixOps_<float, 4, 4, Matrix_>::inv() const
 {
     // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
     // answer of willnode at Jun 8 '17 at 23:09
@@ -981,7 +979,7 @@ Matrix_<float, 4, 4> MatrixOps_<float, 4, 4, 4, Matrix_>::inv() const
 
 template<> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<double, 4, 4> MatrixOps_<double, 4, 4, 4, Matrix_>::inv() const
+Matrix_<double, 4, 4> MatrixOps_<double, 4, 4, Matrix_>::inv() const
 {
     // https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
     // answer of willnode at Jun 8 '17 at 23:09
@@ -1034,11 +1032,11 @@ Matrix_<double, 4, 4> MatrixOps_<double, 4, 4, 4, Matrix_>::inv() const
     return ret;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<unsigned int RowsNew, unsigned int ColsNew>
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, RowsNew, ColsNew> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::copy_block(unsigned int row, unsigned int col) const
+Matrix_<DataT, RowsNew, ColsNew> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::copy_block(unsigned int row, unsigned int col) const
 {
   Matrix_<DataT, RowsNew, ColsNew> ret;
 
@@ -1053,11 +1051,11 @@ Matrix_<DataT, RowsNew, ColsNew> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAcc
   return ret;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<unsigned int RowsBlock, unsigned int ColsBlock>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set_block(
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set_block(
   unsigned int row, 
   unsigned int col, 
   const Matrix_<DataT, RowsBlock, ColsBlock>& block)
@@ -1074,10 +1072,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set_block(
 /////////////////////
 // Transformation Helpers
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::rotation() const
+Matrix_<DataT, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::rotation() const
 {
     static_assert(Rows == Cols);
     Matrix_<DataT, Rows-1, Cols-1> res;
@@ -1093,10 +1091,10 @@ Matrix_<DataT, Rows-1, Cols-1> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAcces
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const Matrix_<DataT, Rows-1, Cols-1>& R)
 {
     for(unsigned int i=0; i < Rows - 1; i++)
     {
@@ -1107,10 +1105,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const Mat
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const Quaternion_<DataT>& q)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const Quaternion_<DataT>& q)
 {
     static_assert(Rows >= 3 && Cols >= 3);
     Matrix_<DataT, 3, 3> R;
@@ -1118,10 +1116,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const Qua
     setRotation(R);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const EulerAngles_<DataT>& e)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setRotation(const EulerAngles_<DataT>& e)
 {
     static_assert(Rows >= 3 && Cols >= 3);
     Matrix_<DataT, 3, 3> R;
@@ -1129,10 +1127,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setRotation(const Eul
     setRotation(R);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::translation() const
+Matrix_<DataT, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::translation() const
 {
     static_assert(Rows == Cols);
     Matrix_<DataT, Rows-1, 1> res;
@@ -1145,10 +1143,10 @@ Matrix_<DataT, Rows-1, 1> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::
     return res;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setTranslation(const Matrix_<DataT, Rows-1, 1>& t)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Matrix_<DataT, Rows-1, 1>& t)
 {
     for(unsigned int i=0; i < Rows - 1; i++)
     {
@@ -1156,20 +1154,20 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setTranslation(const 
     }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setTranslation(const Vector2_<DataT>& t)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Vector2_<DataT>& t)
 {
     static_assert(Rows >= 2 && Cols >= 3);
     at(0, Cols-1) = t.x;
     at(1, Cols-1) = t.y;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setTranslation(const Vector3_<DataT>& t)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::setTranslation(const Vector3_<DataT>& t)
 {
     static_assert(Rows >= 3 && Cols >= 4);
     at(0, Cols-1) = t.x;
@@ -1177,13 +1175,14 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::setTranslation(const 
     at(2, Cols-1) = t.z;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-Matrix_<DataT, Rows, Cols, Stride> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::invRigid() const
+Matrix_<DataT, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::invRigid() const
 {
     static_assert(Rows == Cols);
-    Matrix_<DataT, Rows, Cols, Stride> ret;
+    Matrix_<DataT, Rows, Cols> ret;
     ret.setIdentity();
 
     // TODO
@@ -1198,13 +1197,14 @@ Matrix_<DataT, Rows, Cols, Stride> MatrixOps_<DataT, Rows, Cols, Stride, MatrixA
     return ret;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
-template<unsigned int OtherStride, 
-  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+template< // class templates
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template< // function templates
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
-  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
 {
   for(size_t i = 0; i<Rows; i++)
   {
@@ -1215,13 +1215,14 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
   }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
-template<unsigned int OtherStride, 
-  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+template<
+  template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
-  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
+  const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
 {
   for(size_t i = 0; i<Rows; i++)
   {
@@ -1232,29 +1233,29 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(
   }
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const Quaternion_<DataT>& q)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const Quaternion_<DataT>& q)
 {
     static_assert(Rows == 3 && Cols == 3);
-    *this = static_cast<Matrix_<DataT, Rows, Cols, Stride> >(q);
+    *this = static_cast<Matrix_<DataT, Rows, Cols> >(q);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const EulerAngles_<DataT>& e)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const EulerAngles_<DataT>& e)
 {
     static_assert(Rows == 3);
     static_assert(Cols == 3);
-    *this = static_cast<Matrix_<DataT, Rows, Cols, Stride> >(e);
+    *this = static_cast<Matrix_<DataT, Rows, Cols> >(e);
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const Transform_<DataT>& T)
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const Transform_<DataT>& T)
 {
     static_assert(Rows >= 3);
     static_assert(Cols >= 4);
@@ -1263,12 +1264,12 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const Transform_<
     setTranslation(T.t);
 }
 
-// template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-//   template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+// template<typename DataT, unsigned int Rows, unsigned int Cols, 
+//   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 // template<unsigned int OtherStride, 
-//   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+//   template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
 // RMAGINE_INLINE_FUNCTION
-// MatrixAccess_<DataT, Rows, Cols, Stride>& MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator=(
+// MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(
 //   MatrixOps_<DataT, Rows, Cols, OtherStride, OtherMatrixAccess_>&& other)
 // {
 //   for(size_t i=0; i<Rows; i++)
@@ -1283,10 +1284,10 @@ void MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::set(const Transform_<
 
 /////
 // CASTINGS
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Vector2_<DataT>() const 
+MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Vector2_<DataT>() const 
 {
     static_assert(Rows == 2 && Cols == 1);
     return {
@@ -1295,10 +1296,10 @@ MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Vector2_<DataT>()
     };
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Vector3_<DataT>() const 
+MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Vector3_<DataT>() const 
 {
     static_assert(Rows == 3 && Cols == 1);
     return {
@@ -1308,10 +1309,10 @@ MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Vector3_<DataT>()
     }; 
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Quaternion_<DataT>() const 
+MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Quaternion_<DataT>() const 
 {
     static_assert(Rows == 3 && Cols == 3);
     // https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
@@ -1350,10 +1351,10 @@ MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Quaternion_<DataT
     return q;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator EulerAngles_<DataT>() const 
+MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator EulerAngles_<DataT>() const 
 {
     static_assert(Rows == 3 && Cols == 3);
     // extracted from knowledge of Matrix3x3::set(EulerAngles)
@@ -1389,10 +1390,10 @@ MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator EulerAngles_<Data
     return e;
 }
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 RMAGINE_INLINE_FUNCTION
-MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Transform_<DataT>() const 
+MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Transform_<DataT>() const 
 {
     static_assert(Rows == 4 && Cols == 4);
     
@@ -1403,11 +1404,11 @@ MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::operator Transform_<DataT>
 
 
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_> 
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 
 template<typename ConvT>
 RMAGINE_INLINE_FUNCTION
-Matrix_<ConvT, Rows, Cols> MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>::cast() const
+Matrix_<ConvT, Rows, Cols> MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::cast() const
 {
     Matrix_<ConvT, Rows, Cols> res;
 

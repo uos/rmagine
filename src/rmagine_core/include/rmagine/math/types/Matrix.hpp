@@ -53,30 +53,30 @@ namespace rmagine
 {
 
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
+template<typename DataT, unsigned int Rows, unsigned int Cols>
 class MatrixSlice_
-: public MatrixOps_<DataT, Rows, Cols, Stride, MatrixSlice_>
+: public MatrixOps_<DataT, Rows, Cols, MatrixSlice_>
 {
 public:
-  using MatrixOps = MatrixOps_<DataT, Rows, Cols, Stride, MatrixSlice_>;
-  using ThisType = MatrixSlice_<DataT, Rows, Cols, Stride>;
+  using MatrixOps = MatrixOps_<DataT, Rows, Cols, MatrixSlice_>;
+  using ThisType = MatrixSlice_<DataT, Rows, Cols>;
 
   // default constructor
   MatrixSlice_() = delete;
 
   // non-default constructor
-  MatrixSlice_(DataT* data, const unsigned int row, const unsigned int col);
+  MatrixSlice_(DataT* data, const unsigned int row, const unsigned int col, const unsigned int stride);
 
   using MatrixOps::operator=;
 
-  MatrixSlice_<DataT, Rows, Cols, Stride>& operator=(
-    const MatrixSlice_<DataT, Rows, Cols, Stride>& other)
+  MatrixSlice_<DataT, Rows, Cols>& operator=(
+    const MatrixSlice_<DataT, Rows, Cols>& other)
   {
     return MatrixOps::operator=(other);
   }
 
-  MatrixSlice_<DataT, Rows, Cols, Stride>& operator=(
-    const MatrixSlice_<DataT, Rows, Cols, Stride>&& other)
+  MatrixSlice_<DataT, Rows, Cols>& operator=(
+    const MatrixSlice_<DataT, Rows, Cols>&& other)
   {
     return MatrixOps::operator=(other);
   }
@@ -97,29 +97,32 @@ public:
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  MatrixSlice_<DataT, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col);
+  MatrixSlice_<DataT, SliceRows, SliceCols> slice(
+    unsigned int row, unsigned int col);
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col) const;
+  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(
+    unsigned int row, unsigned int col) const;
 
 protected:
 
   // DATA
   DataT* data;
-  unsigned int row_offset;
-  unsigned int col_offset;
+  const unsigned int stride;
+  const unsigned int row_offset;
+  const unsigned int col_offset;
 };
 
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride>
+template<typename DataT, unsigned int Rows, unsigned int Cols>
 class Matrix_
-: public MatrixOps_<DataT, Rows, Cols, Stride, Matrix_>
+: public MatrixOps_<DataT, Rows, Cols, Matrix_>
 {
 public:
 
-  using MatrixOps = MatrixOps_<DataT, Rows, Cols, Stride, Matrix_>;
-  using ThisType = Matrix_<DataT, Rows, Cols, Stride>;
+  using MatrixOps = MatrixOps_<DataT, Rows, Cols, Matrix_>;
+  using ThisType = Matrix_<DataT, Rows, Cols>;
 
   ////////////////////
   // access functions
@@ -137,39 +140,39 @@ public:
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  MatrixSlice_<DataT, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col);
+  MatrixSlice_<DataT, SliceRows, SliceCols> slice(unsigned int row, unsigned int col);
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols, Stride> slice(unsigned int row, unsigned int col) const;
+  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(unsigned int row, unsigned int col) const;
 
   RMAGINE_FUNCTION
-  static Matrix_<DataT, Rows, Cols, Stride> Zeros()
+  static Matrix_<DataT, Rows, Cols> Zeros()
   {
-    Matrix_<DataT, Rows, Cols, Stride> ret;
+    Matrix_<DataT, Rows, Cols> ret;
     ret.setZeros();
     return ret;
   }
 
   RMAGINE_FUNCTION
-  static Matrix_<DataT, Rows, Cols, Stride> Ones()
+  static Matrix_<DataT, Rows, Cols> Ones()
   {
-    Matrix_<DataT, Rows, Cols, Stride> ret;
+    Matrix_<DataT, Rows, Cols> ret;
     ret.setOnes();
     return ret;
   }
 
   RMAGINE_FUNCTION
-  static Matrix_<DataT, Rows, Cols, Stride> Identity()
+  static Matrix_<DataT, Rows, Cols> Identity()
   {
-    Matrix_<DataT, Rows, Cols, Stride> ret;
+    Matrix_<DataT, Rows, Cols> ret;
     ret.setIdentity();
     return ret;
   }
 
 protected:
   // DATA
-  DataT data[Cols * Stride];
+  DataT data[Cols * Rows];
 };
 
 } // namespace rmagine

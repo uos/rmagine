@@ -52,7 +52,7 @@ void test_const()
 
   auto Mbla = M_const.slice<3,3>(0,0);
 
-  const rm::MatrixSlice_<float, 3, 3, 10> Ms = M.slice<3,3>(0,0);
+  const rm::MatrixSlice_<float, 3, 3> Ms = M.slice<3,3>(0,0);
   
   // unconst
   auto Ms2 = Ms.slice<3,3>(0,0);
@@ -68,7 +68,7 @@ void test_const()
   std::cout << "transpose const slice and move assign it to non-const memory" << std::endl;
   M.slice<3,3>(3,3) = M_const.slice<3,3>(5,5).T();
 
-  std::cout << M << std::endl;  
+  std::cout << M << std::endl;
 }
 
 void test_basics()
@@ -105,9 +105,7 @@ void test_basics()
 
 int main(int argc, char** argv)
 {
-  
   test_basics();
-
   
   test_const();
 

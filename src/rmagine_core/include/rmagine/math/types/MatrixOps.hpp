@@ -53,13 +53,13 @@ namespace rmagine
 struct MatrixMultInvalid {};
 struct MatrixAddInvalid {};
 
-template<typename DataT, unsigned int Rows, unsigned int Cols, unsigned int Stride, 
-  template<typename MADataT, unsigned int MARows, unsigned int MACols, unsigned int MAStride> class MatrixAccess_>
+template<typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
 class MatrixOps_
 {
 public:
-  using MatrixAccess = MatrixAccess_<DataT, Rows, Cols, Stride>;
-  using ThisType = MatrixOps_<DataT, Rows, Cols, Stride, MatrixAccess_>;
+  using MatrixAccess = MatrixAccess_<DataT, Rows, Cols>;
+  using ThisType = MatrixOps_<DataT, Rows, Cols, MatrixAccess_>;
 
   // MatrixOps_() = delete;
 
@@ -103,7 +103,7 @@ public:
   /////////////////////
   // math functions
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> negate() const;
+  Matrix_<std::remove_const_t<DataT>, Rows, Cols> negate() const;
 
   RMAGINE_INLINE_FUNCTION
   void negateInplace();
@@ -113,19 +113,19 @@ public:
   Matrix_<DataT, Rows, Cols2> mult(const Matrix_<DataT, Cols, Cols2>& M) const;
 
   RMAGINE_INLINE_FUNCTION 
-  void multInplace(const Matrix_<DataT, Rows, Cols, Stride>& M);
+  void multInplace(const Matrix_<DataT, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> mult(const DataT& scalar) const;
+  Matrix_<DataT, Rows, Cols> mult(const DataT& scalar) const;
 
   RMAGINE_INLINE_FUNCTION
   void multInplace(const DataT& scalar);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> multEwise(const Matrix_<DataT, Rows, Cols, Stride>& M) const;
+  Matrix_<DataT, Rows, Cols> multEwise(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> div(const DataT& scalar) const;
+  Matrix_<DataT, Rows, Cols> div(const DataT& scalar) const;
 
   RMAGINE_INLINE_FUNCTION
   void divInplace(const DataT& scalar);
@@ -137,19 +137,19 @@ public:
   Vector2_<DataT> mult(const Vector2_<DataT>& v) const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> add(const Matrix_<DataT, Rows, Cols, Stride>& M) const;
+  Matrix_<DataT, Rows, Cols> add(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
-  void addInplace(const Matrix_<DataT, Rows, Cols, Stride>& M);
+  void addInplace(const Matrix_<DataT, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
-  void addInplace(volatile Matrix_<DataT, Rows, Cols, Stride>& M) volatile;
+  void addInplace(volatile Matrix_<DataT, Rows, Cols>& M) volatile;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> sub(const Matrix_<DataT, Rows, Cols, Stride>& M) const;
+  Matrix_<DataT, Rows, Cols> sub(const Matrix_<DataT, Rows, Cols>& M) const;
 
   RMAGINE_INLINE_FUNCTION
-  void subInplace(const Matrix_<DataT, Rows, Cols, Stride>& M);
+  void subInplace(const Matrix_<DataT, Rows, Cols>& M);
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<std::remove_const_t<DataT>, Cols, Rows> transpose() const;
@@ -164,7 +164,7 @@ public:
   DataT det() const;
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Cols, Rows, Stride> inv() const;
+  Matrix_<DataT, Cols, Rows> inv() const;
 
   template<unsigned int RowsNew, unsigned int ColsNew>
   RMAGINE_INLINE_FUNCTION
@@ -194,7 +194,7 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride>& operator*=(const Matrix_<DataT, Rows, Cols, Stride>& M)
+  Matrix_<DataT, Rows, Cols>& operator*=(const Matrix_<DataT, Rows, Cols>& M)
   {
       static_assert(Rows == Cols);
       multInplace(M);
@@ -202,13 +202,13 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator*(const DataT& s) const
+  Matrix_<DataT, Rows, Cols> operator*(const DataT& s) const
   {
       return mult(s);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride>& operator*=(const DataT& s)
+  Matrix_<DataT, Rows, Cols>& operator*=(const DataT& s)
   {
       multInplace(s);
       return static_cast<MatrixAccess&>(*this);
@@ -227,52 +227,52 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator/(const DataT& s) const
+  Matrix_<DataT, Rows, Cols> operator/(const DataT& s) const
   {
       return div(s);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride>& operator/=(const DataT& s)
+  Matrix_<DataT, Rows, Cols>& operator/=(const DataT& s)
   {
       divInplace(s);
       return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator+(const Matrix_<DataT, Rows, Cols, Stride>& M) const
+  Matrix_<DataT, Rows, Cols> operator+(const Matrix_<DataT, Rows, Cols>& M) const
   {
       return add(M);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride>& operator+=(const Matrix_<DataT, Rows, Cols, Stride>& M)
+  Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M)
   {
       addInplace(M);
       return static_cast<MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
-  volatile Matrix_<DataT, Rows, Cols, Stride>& operator+=(volatile Matrix_<DataT, Rows, Cols, Stride>& M) volatile
+  volatile Matrix_<DataT, Rows, Cols>& operator+=(volatile Matrix_<DataT, Rows, Cols>& M) volatile
   {
       addInplace(M);
       return static_cast<volatile MatrixAccess&>(*this);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator-(const Matrix_<DataT, Rows, Cols, Stride>& M) const
+  Matrix_<DataT, Rows, Cols> operator-(const Matrix_<DataT, Rows, Cols>& M) const
   {
       return sub(M);
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator-() const
+  Matrix_<std::remove_const_t<DataT>, Rows, Cols> operator-() const
   {
       return negate();
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> operator~() const
+  Matrix_<DataT, Rows, Cols> operator~() const
   {
       return inv();
   }
@@ -305,17 +305,17 @@ public:
   void setTranslation(const Vector3_<DataT>& t);
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols, Stride> invRigid() const;
+  Matrix_<DataT, Rows, Cols> invRigid() const;
 
   // const input
-  template<unsigned int OtherStride, template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  void set(const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other);
+  void set(const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other);
 
   // non const input
-  template<unsigned int OtherStride, template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  void set(const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other);
+  void set(const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other);
 
   RMAGINE_INLINE_FUNCTION
   void set(const Quaternion_<DataT>& q);
@@ -328,11 +328,10 @@ public:
 
 
   // const input
-  template<unsigned int OtherStride, 
-    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
-    const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols, OtherStride>& other)
+  MatrixAccess_<DataT, Rows, Cols>& operator=(
+    const OtherMatrixAccess_<std::add_const_t<DataT>, Rows, Cols>& other)
   {
     // std::cout << "-- copy assign" << std::endl;
     set(other);
@@ -340,11 +339,10 @@ public:
   }
 
   // non const input
-  template<unsigned int OtherStride, 
-    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
-    const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols, OtherStride>& other)
+  MatrixAccess_<DataT, Rows, Cols>& operator=(
+    const OtherMatrixAccess_<std::remove_const_t<DataT>, Rows, Cols>& other)
   {
     // std::cout << "-- copy assign" << std::endl;
     set(other);
@@ -352,11 +350,10 @@ public:
   }
 
 
-  template<unsigned int OtherStride, 
-    template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols, unsigned int OtherMAStride> class OtherMatrixAccess_ >
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_ >
   RMAGINE_INLINE_FUNCTION
-  MatrixAccess_<DataT, Rows, Cols, Stride>& operator=(
-    OtherMatrixAccess_<DataT, Rows, Cols, OtherStride>&& other)
+  MatrixAccess_<DataT, Rows, Cols>& operator=(
+    OtherMatrixAccess_<DataT, Rows, Cols>&& other)
   {
     // std::cout << "-- move assign" << std::endl;
     set(other);
