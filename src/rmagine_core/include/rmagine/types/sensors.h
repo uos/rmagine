@@ -52,23 +52,17 @@ namespace rmagine
  * 
  * @return SphericalModel 
  */
-RMAGINE_API
 SphericalModel vlp16_900();
 
-RMAGINE_API
 SphericalModel vlp16_360();
 
 
-RMAGINE_API
 SphericalModel example_spherical();
 
-RMAGINE_API
 PinholeModel example_pinhole();
 
-RMAGINE_API
 O1DnModel example_o1dn();
 
-RMAGINE_API
 OnDnModel example_ondn();
 
 

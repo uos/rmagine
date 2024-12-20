@@ -56,7 +56,7 @@ namespace rmagine
  *  enriched by own default settings
  * 
  */
-class RMAGINE_API AssimpIO
+class AssimpIO
 : public Assimp::Importer
 , public Assimp::Exporter
 {

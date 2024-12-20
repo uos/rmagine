@@ -83,7 +83,6 @@ struct UmeyamaReductionConstraints
  * @param[in] params   Constraints that need to be satisfied to 
  * @param[out] stats    Resulting statistics
  */
-RMAGINE_API
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -91,7 +90,6 @@ void statistics_p2p(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics>& stats);
 
-RMAGINE_API
 void statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -99,7 +97,6 @@ void statistics_p2p(
     const UmeyamaReductionConstraints params,
     CrossStatistics& stats);
 
-RMAGINE_API
 CrossStatistics statistics_p2p(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -124,7 +121,6 @@ CrossStatistics statistics_p2p(
  * @param[in] params   Constraints that need to be satisfied to 
  * @param[out] stats    Resulting statistics
  */
-RMAGINE_API
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -132,7 +128,6 @@ void statistics_p2l(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics>& stats);
 
-RMAGINE_API
 void statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -140,7 +135,6 @@ void statistics_p2l(
     const UmeyamaReductionConstraints params,
     CrossStatistics& stats);
 
-RMAGINE_API
 CrossStatistics statistics_p2l(
     const Transform& pre_transform,
     const PointCloudView_<RAM>& dataset,
@@ -169,7 +163,6 @@ CrossStatistics statistics_p2l(
  * @param params 
  * @param[out] stats A list of stats
  */
-RMAGINE_API
 void statistics_p2l_ow(
     const PointCloudView_<RAM>& dataset,
     const PointCloudView_<RAM>& model,

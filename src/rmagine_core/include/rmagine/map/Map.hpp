@@ -8,7 +8,7 @@ namespace rmagine
 {
 
 // this is just a container for downcasting
-class RMAGINE_API Map
+class Map
 {
 public:
   virtual ~Map() = default;

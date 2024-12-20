@@ -70,7 +70,7 @@ namespace rmagine {
  * @tparam Tp List of intelem::* types  
  */
 template<typename ...Tp>
-struct RMAGINE_API Bundle : public Tp... 
+struct Bundle : public Tp... 
 {
 public:
     static constexpr std::size_t N = sizeof...(Tp);

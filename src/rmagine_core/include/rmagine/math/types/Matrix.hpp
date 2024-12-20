@@ -123,6 +123,9 @@ public:
 
   using MatrixOps = MatrixOps_<DataT, Rows, Cols, Matrix_>;
   using ThisType = Matrix_<DataT, Rows, Cols>;
+  
+  // RMAGINE_FUNCTION
+  // Matrix_() {}
 
   ////////////////////
   // access functions

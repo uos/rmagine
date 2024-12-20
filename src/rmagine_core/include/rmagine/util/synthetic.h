@@ -49,7 +49,6 @@
 namespace rmagine 
 {
 
-RMAGINE_API
 aiScene createAiScene(
     const std::vector<Vector3>& vertices,
     const std::vector<Face>& faces);
@@ -62,7 +61,6 @@ aiScene createAiScene(
  * @param num_long 
  * @param num_lat 
  */
-RMAGINE_API
 void genSphere(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
@@ -70,7 +68,6 @@ void genSphere(
     unsigned int num_lat
 );
 
-RMAGINE_API
 aiScene genSphere(unsigned int num_long = 50, unsigned int num_lat = 50);
 
 /**
@@ -93,13 +90,11 @@ aiScene genSphere(unsigned int num_long = 50, unsigned int num_lat = 50);
  * 
  *  
  */
-RMAGINE_API
 void genCube(
     std::vector<Vector3>& vertices, 
     std::vector<Face>& faces,
     unsigned int side_triangles_exp=1);
 
-RMAGINE_API
 aiScene genCube(unsigned int side_triangles_exp=1);
 
 /**
@@ -117,14 +112,12 @@ aiScene genCube(unsigned int side_triangles_exp=1);
  * @param faces 
  * @param side_triangles_exp 
  */
-RMAGINE_API
 void genPlane(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
     unsigned int side_triangles_exp=1
 );
 
-RMAGINE_API
 aiScene genPlane(unsigned int side_triangles_exp=1);
 
 /**
@@ -134,13 +127,11 @@ aiScene genPlane(unsigned int side_triangles_exp=1);
  * @param faces 
  * @param side_faces number of rectangles used to express the curvature
  */
-RMAGINE_API
 void genCylinder(
     std::vector<Vector3>& vertices,
     std::vector<Face>& faces,
     unsigned int side_faces = 100);
 
-RMAGINE_API
 aiScene genCylinder(unsigned int side_faces = 100);
 
 

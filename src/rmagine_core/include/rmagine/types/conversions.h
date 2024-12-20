@@ -54,14 +54,10 @@ namespace rmagine
 {
 
 
-RMAGINE_API
 void convert(const SphericalModel& in, O1DnModel& out);
-RMAGINE_API
 void convert(const SphericalModel& in, OnDnModel& out);
 
-RMAGINE_API
 void convert(const PinholeModel& in, OnDnModel& out, bool optical = false);
-RMAGINE_API
 void convert(const PinholeModel& in, O1DnModel& out, bool optical = false);
 
 

@@ -51,7 +51,7 @@
 namespace rmagine
 {
 
-class RMAGINE_API Exception
+class Exception
 : public std::runtime_error
 {
 public:
@@ -64,7 +64,7 @@ private:
 };
 
 
-class RMAGINE_API EmbreeException 
+class EmbreeException 
 : public Exception
 {
 public:
@@ -75,7 +75,7 @@ public:
 
 
 
-class RMAGINE_API CudaException 
+class CudaException 
 : public Exception
 {
 public:
