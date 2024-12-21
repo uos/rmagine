@@ -309,12 +309,24 @@ public:
     return mult(M);
   }
 
+  // operator*=, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols>& operator*=(const Matrix_<DataT, Rows, Cols>& M)
+  ThisType& operator*=(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M)
   {
     static_assert(Rows == Cols);
     multInplace(M);
-    return static_cast<MatrixAccess&>(*this);
+    return mat();
+  }
+
+  // operator*=, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  ThisType& operator*=(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M)
+  {
+    static_assert(Rows == Cols);
+    multInplace(M);
+    return mat();
   }
 
   RMAGINE_INLINE_FUNCTION
@@ -324,10 +336,10 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols>& operator*=(const DataT& s)
+  ThisType& operator*=(const DataT& s)
   {
     multInplace(s);
-    return static_cast<MatrixAccess&>(*this);
+    return mat();
   }
 
   RMAGINE_INLINE_FUNCTION
@@ -349,37 +361,120 @@ public:
   }
 
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols>& operator/=(const DataT& s)
+  ThisType& operator/=(const DataT& s)
   {
     divInplace(s);
-    return static_cast<MatrixAccess&>(*this);
+    return mat();
   }
 
+  // operator+, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows, Cols> operator+(const Matrix_<DataT, Rows, Cols>& M) const
+  Matrix_<DataTNonConst, Rows, Cols> operator+(
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) const
   {
     return add(M);
   }
 
+  // operator+, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataT, Rows, Cols>& operator+=(const Matrix_<DataT, Rows, Cols>& M)
+  Matrix_<DataTNonConst, Rows, Cols> operator+(
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& M) const
   {
-    addInplace(M);
-    return static_cast<MatrixAccess&>(*this);
+    return add(M);
   }
 
+  // operator+=, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  volatile Matrix_<DataT, Rows, Cols>& operator+=(volatile Matrix_<DataT, Rows, Cols>& M) volatile
+  ThisType& operator+=(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M)
   {
     addInplace(M);
-    return static_cast<volatile MatrixAccess&>(*this);
+    return mat();
   }
 
+  // operator+=, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
   RMAGINE_INLINE_FUNCTION
-  Matrix_<DataTNonConst, Rows, Cols> operator-(const Matrix_<DataT, Rows, Cols>& M) const
+  ThisType& operator+=(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M)
+  {
+    addInplace(M);
+    return mat();
+  }
+
+  // operator+=, volatile, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  volatile ThisType& operator+=(volatile OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) volatile
+  {
+    addInplace(M);
+    return mat();
+  }
+
+  // operator+=, volatile, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  volatile ThisType& operator+=(volatile OtherMatrixAccess_<DataTConst, Rows, Cols>& M) volatile
+  {
+    addInplace(M);
+    return mat();
+  }
+
+  // operator-, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  Matrix_<DataTNonConst, Rows, Cols> operator-(
+    const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) const
   {
     return sub(M);
   }
+
+  // operator-, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  Matrix_<DataTNonConst, Rows, Cols> operator-(
+    const OtherMatrixAccess_<DataTConst, Rows, Cols>& M) const
+  {
+    return sub(M);
+  }
+
+  // operator-=, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  ThisType& operator-=(const OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M)
+  {
+    subInplace(M);
+    return mat();
+  }
+
+  // operator-=, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  ThisType& operator-=(const OtherMatrixAccess_<DataTConst, Rows, Cols>& M)
+  {
+    subInplace(M);
+    return mat();
+  }
+
+  // operator-=, volatile, non-const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  volatile ThisType& operator-=(volatile OtherMatrixAccess_<DataTNonConst, Rows, Cols>& M) volatile
+  {
+    subInplace(M);
+    return mat();
+  }
+
+  // operator-=, volatile, const input
+  template<template<typename OtherMADataT, unsigned int OtherMARows, unsigned int OtherMACols> class OtherMatrixAccess_>
+  RMAGINE_INLINE_FUNCTION
+  volatile ThisType& operator-=(volatile OtherMatrixAccess_<DataTConst, Rows, Cols>& M) volatile
+  {
+    subInplace(M);
+    return mat();
+  }
+
 
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Rows, Cols> operator-() const
