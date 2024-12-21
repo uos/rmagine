@@ -761,15 +761,15 @@ Vector2_<std::remove_const_t<DataT> > MatrixOps_<DataT, Rows, Cols, MatrixAccess
   {
     return {
         at(0,0) * v.x + at(0,1) * v.y, 
-        at(1,0) * v.x + at(1,1) * v.y,
+        at(1,0) * v.x + at(1,1) * v.y
     };
   } 
   else if constexpr(Rows == 2 && Cols == 3
               || Rows == 3 && Cols == 3)
   {
     return {
-        at(0,0) * v.x + at(0,1) * v.y + at(0,2),
-        at(1,0) * v.x + at(1,1) * v.y + at(1,2),
+      at(0,0) * v.x + at(0,1) * v.y + at(0,2),
+      at(1,0) * v.x + at(1,1) * v.y + at(1,2)
     };
   }
   
@@ -790,7 +790,7 @@ Matrix_<std::remove_const_t<DataT>, Rows, Cols> MatrixOps_<DataT, Rows, Cols, Ma
   {
     for(unsigned int j = 0; j < Cols; j++)
     {
-      res(i, j) = at(i, j) + M(i,j);
+      res(i, j) = at(i, j) + M(i, j);
     }
   }
 
