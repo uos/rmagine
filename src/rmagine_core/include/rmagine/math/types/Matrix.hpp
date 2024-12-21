@@ -124,8 +124,8 @@ public:
   using MatrixOps = MatrixOps_<DataT, Rows, Cols, Matrix_>;
   using ThisType = Matrix_<DataT, Rows, Cols>;
   
-  // RMAGINE_FUNCTION
-  // Matrix_() {}
+  RMAGINE_FUNCTION 
+  Matrix_() {}
 
   ////////////////////
   // access functions
@@ -151,14 +151,6 @@ public:
   const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(
     unsigned int row, unsigned int col) const;
 
-  // template<unsigned int SliceRows, unsigned int SliceCols>
-  // RMAGINE_INLINE_FUNCTION
-  // MatrixSlice_<DataT, SliceRows, SliceCols> operator()(
-  //   unsigned int row, unsigned int col)
-  // {
-  //   return slice<SliceRows, SliceCols>(row, col);
-  // }
-  
 
   RMAGINE_FUNCTION
   static Matrix_<DataT, Rows, Cols> Zeros()
@@ -194,7 +186,6 @@ protected:
 #include "Matrix.tcc"
 
 #include "MatrixOps.hpp"
-
 
 
 #include "EulerAngles.hpp"
