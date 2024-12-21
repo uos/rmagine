@@ -526,8 +526,6 @@ public:
   RMAGINE_INLINE_FUNCTION
   Matrix_<DataTNonConst, Rows, Cols> invRigid() const;
 
-  
-
   RMAGINE_INLINE_FUNCTION
   void set(const Quaternion_<DataT>& q);
 

@@ -143,11 +143,22 @@ public:
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  MatrixSlice_<DataT, SliceRows, SliceCols> slice(unsigned int row, unsigned int col);
+  MatrixSlice_<DataT, SliceRows, SliceCols> slice(
+    unsigned int row, unsigned int col);
 
   template<unsigned int SliceRows, unsigned int SliceCols>
   RMAGINE_INLINE_FUNCTION
-  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(unsigned int row, unsigned int col) const;
+  const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(
+    unsigned int row, unsigned int col) const;
+
+  // template<unsigned int SliceRows, unsigned int SliceCols>
+  // RMAGINE_INLINE_FUNCTION
+  // MatrixSlice_<DataT, SliceRows, SliceCols> operator()(
+  //   unsigned int row, unsigned int col)
+  // {
+  //   return slice<SliceRows, SliceCols>(row, col);
+  // }
+  
 
   RMAGINE_FUNCTION
   static Matrix_<DataT, Rows, Cols> Zeros()

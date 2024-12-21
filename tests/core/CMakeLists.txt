@@ -71,10 +71,10 @@ add_test(NAME core_math_gaussians COMMAND rmagine_tests_core_math_gaussians)
 
 
 # 7. MATRIX SLICE
-add_executable(rmagine_tests_core_math_matrix_slice math_matrix_slice.cpp)
-target_link_libraries(rmagine_tests_core_math_matrix_slice
+add_executable(rmagine_tests_core_math_matrix_slicing math_matrix_slicing.cpp)
+target_link_libraries(rmagine_tests_core_math_matrix_slicing
     rmagine::core
 )
 
-add_test(NAME core_math_matrix_slice COMMAND rmagine_tests_core_math_matrix_slice)
+add_test(NAME core_math_matrix_slicing COMMAND rmagine_tests_core_math_matrix_slicing)
 

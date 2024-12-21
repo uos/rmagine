@@ -21,7 +21,8 @@
 #include <string.h>
 #include <vector>
 #include <iostream>
-
+#include <utility>
+#include <memory>
 
 
 namespace rm = rmagine;
@@ -116,66 +117,41 @@ void test_const()
 void test_math()
 {
   std::cout << "-----------------------" << std::endl;
-  std::cout << "2. CONST" << std::endl;
+  std::cout << "3. MATH" << std::endl;
   rm::Matrix_<float, 10, 10> M = make_mat<10,10>();
   M.setZeros();
   const rm::Matrix_<float, 10, 10> M_const = make_mat<10,10>();
 
   
-  float test = M_const.slice<2,2>(0,0).det();
-  // auto Minv = ~M_const.slice<2,2>(0,0);
+  float test = M_const.slice<4,4>(0,0).slice<2,2>(0,0).det();
   std::cout << "Det: " << test << std::endl;
+
+  std::cout << M_const.slice<2,2>(0,0).det() << std::endl;
+  std::cout << M_const.slice<2,2>(2,0).det() << std::endl;
+  std::cout << M_const.slice<2,2>(0,2).det() << std::endl;
+  std::cout << M_const.slice<2,2>(2,2).det() << std::endl;
+  
+  std::cout << "---" << std::endl;
+
+  rm::Matrix_<float, 4, 4> tl = M_const.slice<4,4>(1,0).T();
+
+  std::cout << tl << std::endl;
+
+  float test2 = M_const.slice<4,4>(1,0).T().det();
+  std::cout << "Det: " << test2 << std::endl;
+  std::cout << tl.det() << std::endl;
+
+  M.slice<3,3>(3,0) += M_const.slice<3,3>(0,0).T();
+  std::cout << M << std::endl;
+
+  M.slice<3,3>(0,0) += M_const.slice<3,3>(0,0) + M_const.slice<3,3>(0,3);
+
+  std::cout << M << std::endl;
 }
-
-
-template<typename T>
-struct MyContainer
-{
-  T data;
-};
-
-
-template<typename DataT, unsigned int Rows, unsigned int Cols, template<typename T> class Container>
-struct Bla
-{
-  void print()
-  {
-    std::cout << "Fallback" << std::endl;
-  }
-};
-
-// partial specialization
-template<typename DataT, template<typename T> class Container>
-struct Bla<DataT, 3, 3, Container>
-{
-  void print()
-  {
-    std::cout << "Hello" << std::endl;
-  }
-};
 
 
 int main(int argc, char** argv)
 {
-
-  // Bla<int, 4, 4, MyContainer> test1;
-  // test1.print();
-
-  
-  // Bla<int, 3, 3, MyContainer> test2;
-  // test2.print();
-
-
-  test_math();
-
-  return 0;
-
-  
-
-
-
-
-
   test_basics();
   
   test_const();
