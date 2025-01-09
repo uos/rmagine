@@ -8,25 +8,17 @@ option(BUILD_TESTS "Build tests" ON)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
-
 include(GNUInstallDirs)
-
 
 set(rmagine_DEFINITIONS "-DRMAGINE_VERSION=\"${rmagine_VERSION}\"")
 list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_MAJOR=${rmagine_VERSION_MAJOR}")
 list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_MINOR=${rmagine_VERSION_MINOR}")
 list(APPEND rmagine_DEFINITIONS "-DRMAGINE_VERSION_PATCH=${rmagine_VERSION_PATCH}")
 
-
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
 set(CMAKE_CXX_STANDARD 17)
-
-message(STATUS "CMake Version: ${CMAKE_VERSION}")
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
-    message(STATUS ">= 3.9 - Enabling Link Time Optimization")
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # DEFAULT RELEASE
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
@@ -35,8 +27,6 @@ if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
   endif()
 endif()
 
-set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
-set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
