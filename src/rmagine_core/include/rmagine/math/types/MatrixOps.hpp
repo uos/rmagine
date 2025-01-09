@@ -633,6 +633,12 @@ private:
   }
 
   RMAGINE_INLINE_FUNCTION
+  volatile MatrixAccess& mat() volatile
+  {
+    return static_cast<volatile MatrixAccess&>(*this);
+  }
+
+  RMAGINE_INLINE_FUNCTION
   MatrixAccess* mat_ptr() 
   {
     return static_cast<MatrixAccess*>(this);
@@ -643,6 +649,13 @@ private:
   {
     return static_cast<const MatrixAccess*>(this);
   }
+
+  RMAGINE_INLINE_FUNCTION
+  volatile MatrixAccess* mat_ptr() volatile
+  {
+    return static_cast<volatile MatrixAccess*>(this);
+  }
+
 };
 
 
