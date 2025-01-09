@@ -78,3 +78,14 @@ target_link_libraries(rmagine_tests_core_math_matrix_slicing
 
 add_test(NAME core_math_matrix_slicing COMMAND rmagine_tests_core_math_matrix_slicing)
 
+# 8. MATH REDUCTION
+
+
+add_executable(rmagine_tests_core_math_reduction math_reduction.cpp)
+target_link_libraries(rmagine_tests_core_math_reduction
+    rmagine::core
+    # tbb # do we want to get tbb as dep?
+)
+
+add_test(NAME core_math_reduction COMMAND rmagine_tests_core_math_reduction)
+

@@ -386,7 +386,6 @@ void test_parallel_reduce()
     rm::CrossStatistics_<DataT> total1 = rm::CrossStatistics_<DataT>::Identity();
 
     sw();
-    // rm::CrossStatistics_<double> c = rm::CrossStatistics_<double>::Identity();
 
     #pragma omp parallel for reduction(+: total1)
     for(size_t i=0; i<n_points; i++)
@@ -396,15 +395,6 @@ void test_parallel_reduce()
         rm::Vector3_<DataT> m = {p, p, -p};
 
         total1 += rm::CrossStatistics_<DataT>::Init(d, m);
-
-        //p = static_cast<double>(i) / static_cast<double>(n_points);
-        //rm::Vector3_<double> d = {1.0, 0.0, 1.0};
-        //rm::Vector3_<double> m = {0.0, p, 0.0};
-        //rm::CrossStatistics_<double> y = rm::CrossStatistics_<double>::Init(d, m);
-        //rm::CrossStatistics_<double> t = total1 + y0;
-        //c = (t - total1) - y;
-        //total1 = t;
-//        total1 += rm::CrossStatistics_<double>::Init(d, m);
     }
 
     el = sw();
