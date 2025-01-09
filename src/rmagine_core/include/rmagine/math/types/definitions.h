@@ -53,6 +53,8 @@ struct Gaussian3D_;
 template<typename DataT>
 struct CrossStatistics_;
 
+template<typename DataT>
+using Matrix3x3_ = Matrix_<DataT, 3, 3>;
 
 using Vector2f = Vector2_<float>;
 using Vector2u = Vector2_<uint32_t>;

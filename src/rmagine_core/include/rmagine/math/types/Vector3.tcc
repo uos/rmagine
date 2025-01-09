@@ -105,15 +105,19 @@ RMAGINE_INLINE_FUNCTION
 Matrix_<DataT, 3, 3> Vector3_<DataT>::multT(const Vector3_<DataT>& b) const
 {
     Matrix_<DataT, 3, 3> C;
+    
     C(0,0) = x * b.x;
     C(1,0) = y * b.x;
     C(2,0) = z * b.x;
+    
     C(0,1) = x * b.y;
     C(1,1) = y * b.y;
     C(2,1) = z * b.y;
+
     C(0,2) = x * b.z;
     C(1,2) = y * b.z;
     C(2,2) = z * b.z;
+    
     return C;
 }
 
