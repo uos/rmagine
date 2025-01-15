@@ -1679,4 +1679,141 @@ Memory<Transform, VRAM_CUDA> umeyama_transform(
     return ret;
 }
 
+
+template<unsigned int nMemElems>
+__global__ void print_variables(
+    const int* data,
+    int* res,
+    unsigned int N)
+{
+    const unsigned int n_threads_per_block = blockDim.x;
+    const unsigned int n_blocks = gridDim.x;
+
+    const unsigned int n_threads_total = n_threads_per_block * n_blocks;
+    const unsigned int n_rows_per_block = (N + n_threads_total - 1) / n_threads_total;
+    const unsigned int n_elems_per_block = n_rows_per_block * nMemElems;
+
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+    const unsigned int block_shift = n_elems_per_block * bid;
+
+    if(tid == 0 && bid == 0)
+    {
+        printf("Variables:\n");
+        printf("- # blocks, threads: %u, %u\n", n_blocks, n_threads_per_block);
+        printf("- # rows: %u\n", n_rows_per_block);
+        printf("- # elems per block: %u\n", n_elems_per_block);
+        printf("- block shift: %u\n", block_shift);
+    }
+}
+
+
+//////////
+// #sum
+// TODO: check perfomance of sum_kernel
+template<unsigned int nMemElems>
+__global__ void sum_kernel_test(
+    const int* data,
+    int* res,
+    unsigned int N)
+{
+    // sharedMemElements per block
+
+    // Many blocks stategy
+    // rows=2
+    // 
+    //   blockId=0                  blockId=1
+    // sharedMemElements |  -- sharedMemElements --- 
+    // [ 1,  3,  5,  7]    [9,  11, 13, 15]
+    // [ 2,  4,  6,  8]    [10, 12, 14, 16]
+    //   |   |   |   |       |   |   |   | 
+    // [ 3,  7, 11, 15]    [19, 23, 27, 31]
+    // [10, 26]            [42, 58]
+    // [36]                [100]
+    __shared__ int sdata[nMemElems];
+
+    const unsigned int n_threads_per_block = blockDim.x;
+    const unsigned int n_blocks = gridDim.x;
+
+    const unsigned int n_threads_total = n_threads_per_block * n_blocks;
+    const unsigned int n_rows_per_block = (N + n_threads_total - 1) / n_threads_total;
+    const unsigned int n_elems_per_block = n_rows_per_block * nMemElems;
+
+    const unsigned int tid = threadIdx.x;
+    const unsigned int bid = blockIdx.x;
+    const unsigned int block_shift = n_elems_per_block * bid;
+
+    sdata[tid] = 0;
+    for(unsigned int i=0; i<n_rows_per_block; i++)
+    {
+        const unsigned int data_id = block_shift + i * nMemElems + tid; // advance one row
+        if(data_id < N)
+        {
+            printf("b%u, t%u: data -> smem: %u -> %u\n", bid, tid, data_id, tid);
+            sdata[tid] += data[data_id];
+        }
+    }
+    __syncthreads();
+
+    unsigned int depth = 0;
+    for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            printf("b%u, t%u: smem reduce: (%u + %u)_%u -> (%u)_%u\n", bid, tid, tid, tid + s, depth, tid, depth+1);
+            sdata[tid] += sdata[tid + s];
+        } else {
+            // TODO: can this thread do something useful in the meantime?
+        }
+        depth++;
+        __syncthreads();
+    }
+
+    if(tid == 0)
+    {
+        res[bid] = sdata[0];
+    }
+}
+
+void sum_reduce_test_t1(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results)
+{
+    const unsigned int n_outputs = results.size(); // also number of blocks
+    constexpr unsigned int n_threads = 1; // also shared mem
+    print_variables<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+    sum_kernel_test<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+}
+
+void sum_reduce_test_t2(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results)
+{
+    const unsigned int n_outputs = results.size(); // also number of blocks
+    constexpr unsigned int n_threads = 2; // also shared mem
+    print_variables<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+    sum_kernel_test<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+}
+
+void sum_reduce_test_t4(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results)
+{
+    const unsigned int n_outputs = results.size(); // also number of blocks
+    constexpr unsigned int n_threads = 4; // also shared mem
+    print_variables<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+    sum_kernel_test<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+}
+
+void sum_reduce_test_t8(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results)
+{
+    const unsigned int n_outputs = results.size(); // also number of blocks
+    constexpr unsigned int n_threads = 8; // also shared mem
+    print_variables<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+    sum_kernel_test<n_threads> <<<n_outputs, n_threads>>>(data.raw(), results.raw(), data.size());
+}
+
+
 } // namespace rmagine

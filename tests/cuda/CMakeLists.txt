@@ -42,3 +42,11 @@ target_link_libraries(rmagine_tests_cuda_math_statistics
 )
 
 add_test(NAME cuda_math_statistics COMMAND rmagine_tests_cuda_math_statistics)
+
+# 6. Reduction
+add_executable(rmagine_tests_cuda_math_reduction math_reduction.cpp)
+target_link_libraries(rmagine_tests_cuda_math_reduction
+    rmagine::cuda
+)
+
+add_test(NAME cuda_math_reduction COMMAND rmagine_tests_cuda_math_reduction)

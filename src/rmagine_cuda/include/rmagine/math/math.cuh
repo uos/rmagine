@@ -622,6 +622,23 @@ Memory<Transform, VRAM_CUDA> umeyama_transform(
 );
 
 
+void sum_reduce_test_t1(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results);
+
+void sum_reduce_test_t2(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results);
+
+void sum_reduce_test_t4(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results);
+
+void sum_reduce_test_t8(
+    const MemoryView<int, VRAM_CUDA>& data, 
+    MemoryView<int, VRAM_CUDA> results);
+
+
 } // namespace rmagine
 
 #endif // RMAGINE_MATH_MATH_CUH
