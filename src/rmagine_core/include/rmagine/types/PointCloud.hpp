@@ -70,6 +70,17 @@ struct PointCloudView_
 // default: RAM
 using PointCloudView = PointCloudView_<RAM>;
 
+template<typename MemTto, typename MemTfrom>
+PointCloud_<MemTto> transfer(PointCloudView_<MemTfrom> from)
+{
+  return PointCloud_<MemTto>{
+    .points  = from.points,
+    .mask    = from.mask,
+    .normals = from.normals,
+    .ids     = from.ids
+  };
+}
+
 
 } // namespace rmagine
 

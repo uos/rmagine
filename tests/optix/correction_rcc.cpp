@@ -16,6 +16,11 @@
 #include <rmagine/util/prints.h>
 #include <rmagine/util/exceptions.h>
 
+
+// CPU comparison
+#include <rmagine/math/statistics.h>
+
+
 namespace rm = rmagine;
 
 template<typename DataT>
@@ -76,6 +81,13 @@ unsigned int count(rm::MemoryView<unsigned int, rm::RAM> data)
     return ret;
 }
 
+template<typename DeviceFrom, typename DataT, typename DeviceTo>
+rm::Memory<DeviceTo, DataT> transfer(const rm::MemoryView<DeviceFrom, DataT> data)
+{
+  rm::Memory<DeviceTo, DataT> ret = data;
+  return ret;
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "Correction OptiX-RCC + GPU optimization" << std::endl;
@@ -104,6 +116,13 @@ int main(int argc, char** argv)
     rm::PointCloudView_<rm::VRAM_CUDA> cloud_dataset = {
         .points = dataset.points,
         .mask = dataset.hits
+    };
+
+    // only for CPU comparison
+    rm::PointCloud_<rm::RAM> cloud_dataset_data_ram = transfer<rm::RAM>(cloud_dataset);
+    rm::PointCloudView_<rm::RAM> cloud_dataset_ram = {
+      .points = cloud_dataset_data_ram.points,
+      .mask = cloud_dataset_data_ram.mask
     };
 
     ////////////////////////////
@@ -139,6 +158,14 @@ int main(int argc, char** argv)
             .normals = model.normals
         };
 
+        rm::PointCloud_<rm::RAM> cloud_model_ram_data = transfer<rm::RAM>(cloud_model);
+
+        rm::PointCloudView_<rm::RAM> cloud_model_ram = {
+            .points = cloud_model_ram_data.points,
+            .mask = cloud_model_ram_data.mask,
+            .normals = cloud_model_ram_data.normals
+        };
+
         // this describes a transformation in time of the base frame
         // source: base, t+1 (after registration)
         // target: base, t   (before registration)
@@ -146,9 +173,15 @@ int main(int argc, char** argv)
         for(size_t j=0; j<n_inner; j++)
         {
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
+            rm::CrossStatistics stats2 = rm::statistics_p2l(Tpre, cloud_dataset_ram, cloud_model_ram, params);
+            
             if(j == 0)
             {
+              std::cout << "GPU:" << std::endl;
               printStats(stats);
+
+              std::cout << "CPU:" << std::endl;
+              printStats(stats2);
             }
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
             // std::cout << Tpre_next << std::endl;

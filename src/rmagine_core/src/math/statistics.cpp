@@ -147,7 +147,7 @@ void statistics_p2l(
     Vector3 model_mean = Vector3::Zeros();
     unsigned int n_meas = 0;
 
-    #pragma omp parallel for reduction(+: dataset_mean, model_mean, n_meas)
+    // #pragma omp parallel for reduction(+: dataset_mean, model_mean, n_meas)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
         if(    (dataset.mask.empty() || dataset.mask[i] > 0)
@@ -187,7 +187,7 @@ void statistics_p2l(
 
     Matrix3x3 covariance = Matrix3x3::Zeros();
 
-    #pragma omp parallel for reduction(+: covariance)
+    // #pragma omp parallel for reduction(+: covariance)
     for(size_t i=0; i<dataset.points.size(); i++)
     {
         if(    (dataset.mask.empty() || dataset.mask[i] > 0)
