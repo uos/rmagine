@@ -21,22 +21,22 @@
 
 namespace rm = rmagine;
 
-// template<typename DataT>
-// void printStats(rm::CrossStatistics_<DataT> stats)
-// {
-//     std::cout << "CrossStatistics: " << std::endl;
-//     std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
-//     std::cout << "- model mean: " << stats.model_mean << std::endl;
-//     std::cout << "- cov: " << stats.covariance << std::endl;
-//     std::cout << "- n meas: " << stats.n_meas << std::endl; 
-// }
+template<typename DataT>
+void printStats(rm::CrossStatistics_<DataT> stats)
+{
+    std::cout << "CrossStatistics: " << std::endl;
+    std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
+    std::cout << "- model mean: " << stats.model_mean << std::endl;
+    std::cout << "- cov: " << stats.covariance << std::endl;
+    std::cout << "- n meas: " << stats.n_meas << std::endl; 
+}
 
 rm::EmbreeMapPtr make_map()
 {
     rm::EmbreeScenePtr scene = std::make_shared<rm::EmbreeScene>();
 
     rm::EmbreeGeometryPtr mesh = std::make_shared<rm::EmbreeCube>();
-    // mesh->apply();
+    mesh->apply();
     mesh->commit();
     scene->add(mesh);
     scene->commit();
@@ -62,17 +62,6 @@ unsigned int count(rm::MemoryView<uint8_t, rm::RAM> data)
     }
     return ret;
 }
-
-// void printCorrespondences(
-//     const rm::PointCloudView& cloud_dataset,
-//     const rm::PointCloudView& cloud_model)
-// {
-//     std::cout << cloud_dataset.points.size() << " to " << cloud_model.points.size() << std::endl;
-//     for(size_t i=0; i<cloud_dataset.points.size(); i++)
-//     {
-//         std::cout << cloud_dataset.points[i] << " -> " << cloud_model.points[i] << std::endl;
-//     }
-// }
 
 rm::SphericalModel define_sensor_model()
 {
@@ -163,6 +152,10 @@ int main(int argc, char** argv)
         for(size_t j=0; j<n_inner; j++)
         {
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
+            if(j == 0)
+            {
+              printStats(stats);
+            }
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
             Tpre = Tpre * Tpre_next;
         }

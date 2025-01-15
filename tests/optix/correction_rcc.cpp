@@ -33,7 +33,7 @@ rm::OptixMapPtr make_map()
     rm::OptixScenePtr scene = std::make_shared<rm::OptixScene>();
 
     rm::OptixGeometryPtr mesh = std::make_shared<rm::OptixCube>();
-    // mesh->apply();
+    mesh->apply();
     mesh->commit();
     scene->add(mesh);
     scene->commit();
@@ -146,7 +146,12 @@ int main(int argc, char** argv)
         for(size_t j=0; j<n_inner; j++)
         {
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
+            if(j == 0)
+            {
+              printStats(stats);
+            }
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
+            // std::cout << Tpre_next << std::endl;
             Tpre = Tpre * Tpre_next;
         }
 
@@ -164,7 +169,7 @@ int main(int argc, char** argv)
     {
         std::stringstream ss;
         ss << "Unexpected OptiX Correction RCC results!";
-        RM_THROW(rm::EmbreeException, ss.str());
+        RM_THROW(rm::OptixException, ss.str());
     }
 
     return 0;
