@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     ////////////////////////////
     // MICP params
     // correspondence searches
-    size_t n_outer = 5;
+    size_t n_outer = 10;
     // optimization steps using the same correspondences
     size_t n_inner = 5;
     rm::UmeyamaReductionConstraints params;
@@ -118,7 +118,9 @@ int main(int argc, char** argv)
     
     // pose of robot
     rm::Transform Tbm_est = rm::Transform::Identity();
-    Tbm_est.t.z = 0.1; // perturbe the pose
+    // perturbe the pose
+    Tbm_est.t.z = 0.1; 
+    Tbm_est.R = rm::EulerAngles{0.0, 0.0, 0.1};
 
     std::cout << "0: " << Tbm_est << " -> " << Tbm_gt << std::endl;
 
@@ -129,8 +131,7 @@ int main(int argc, char** argv)
     for(size_t i=0; i<n_outer; i++)
     {
         // find RCC at estimated pose of robot
-        rm::MemoryView<rm::Transform> Tbm_est_view(&Tbm_est, 1);
-        sim.simulate(Tbm_est_view, model);
+        sim.simulate(rm::make_view(Tbm_est), model);
 
         rm::PointCloudView_<rm::VRAM_CUDA> cloud_model = {
             .points = model.points,
@@ -145,8 +146,6 @@ int main(int argc, char** argv)
         for(size_t j=0; j<n_inner; j++)
         {
             rm::CrossStatistics stats = rm::statistics_p2l(Tpre, cloud_dataset, cloud_model, params);
-
-            // printStats(stats);
             rm::Transform Tpre_next = rm::umeyama_transform(stats);
             Tpre = Tpre * Tpre_next;
         }
@@ -160,10 +159,11 @@ int main(int argc, char** argv)
     // diff from one base frame to the other
     // transform from gt to estimation base frame
     auto Tdiff = ~Tbm_est * Tbm_gt;
-    if(fabs(Tdiff.t.z) > 0.001)
+    const rm::EulerAngles Ediff = Tdiff.R;
+    if(fabs(Tdiff.t.z) > 0.001 || fabs(Ediff.yaw) > 0.001)
     {
         std::stringstream ss;
-        ss << "OptiX Correction RCC results wrong!";
+        ss << "Unexpected OptiX Correction RCC results!";
         RM_THROW(rm::EmbreeException, ss.str());
     }
 

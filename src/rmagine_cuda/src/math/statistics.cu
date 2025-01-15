@@ -241,9 +241,9 @@ __global__ void statistics_p2l_kernel(
                 && (model_ids == NULL    || model_ids[data_id]   == params.model_id)
                 )
             {
-                const Vector Di = pre_transform * dataset_points[i]; // read
-                const Vector Ii = model_points[i]; // read
-                const Vector Ni = model_normals[i];
+                const Vector Di = pre_transform * dataset_points[data_id]; // read
+                const Vector Ii = model_points[data_id]; // read
+                const Vector Ni = model_normals[data_id];
 
                 const float signed_plane_dist = (Ii - Di).dot(Ni);
 
