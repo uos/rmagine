@@ -75,7 +75,7 @@ struct CrossStatistics_
         CrossStatistics_<DataT> ret;
         ret.dataset_mean = d;
         ret.model_mean = m;
-        ret.covariance.setIdentity();
+        ret.covariance.setZeros();
         ret.n_meas = 1;
         return ret;
     }
