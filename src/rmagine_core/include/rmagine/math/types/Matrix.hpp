@@ -153,6 +153,7 @@ public:
   const MatrixSlice_<std::add_const_t<DataT>, SliceRows, SliceCols> slice(
     unsigned int row, unsigned int col) const;
 
+  using MatrixOps::operator=;
 
   RMAGINE_FUNCTION
   static Matrix_<DataT, Rows, Cols> Zeros()

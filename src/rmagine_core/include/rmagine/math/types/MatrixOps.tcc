@@ -1,6 +1,7 @@
 #include "MatrixOps.hpp"
 
 #include "Matrix.hpp"
+#include <cassert>
 
 namespace rmagine
 {
@@ -391,7 +392,6 @@ void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(
   }
 }
 
-
 template< // class templates
   typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
@@ -443,6 +443,37 @@ MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::
   set(other);
   return mat();
 }
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+void MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::set(const std::initializer_list<DataT>& init_list)
+{
+  auto it = init_list.begin();
+  for(size_t i=0; i<Rows; i++)
+  {
+    for(size_t j=0; j<Cols; j++)
+    {
+      assert(it == init_list.end() && "Initializer list too short!");
+      at(i, j) = *it;
+      ++it;
+    }
+  }
+}
+
+
+template< // class
+  typename DataT, unsigned int Rows, unsigned int Cols, 
+  template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_>
+RMAGINE_INLINE_FUNCTION
+MatrixAccess_<DataT, Rows, Cols>& MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator=(const std::initializer_list<DataT>& init_list)
+{
+  set(init_list);
+  return mat();
+}
+
+
 
 template<typename DataT, unsigned int Rows, unsigned int Cols, 
   template<typename MADataT, unsigned int MARows, unsigned int MACols> class MatrixAccess_> 

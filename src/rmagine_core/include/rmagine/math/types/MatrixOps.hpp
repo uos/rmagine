@@ -148,6 +148,15 @@ public:
   MatrixAccess_<DataT, Rows, Cols>& operator=(
     OtherMatrixAccess_<DataTNonConst, Rows, Cols>&& other);
 
+  // set via initializer list
+  RMAGINE_INLINE_FUNCTION
+  void set(const std::initializer_list<DataT>& init_list);
+
+  // initializer list assign
+  RMAGINE_INLINE_FUNCTION
+  MatrixAccess_<DataT, Rows, Cols>& operator=(
+    const std::initializer_list<DataT>& init_list);
+
   /////////////////////
   // math functions
   RMAGINE_INLINE_FUNCTION
