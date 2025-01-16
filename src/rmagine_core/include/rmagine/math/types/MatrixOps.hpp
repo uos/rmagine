@@ -62,11 +62,19 @@ public:
   using DataTConst = std::add_const_t<DataT>;
   using DataTNonConst = std::remove_const_t<DataT>;
 
-// private:
-//   using MatrixAccess::access;
-// public:
+  // TODO: When I started to implement the following custom constructors/destructors, tests started to fail. TODO: check why
+  // RMAGINE_FUNCTION
+  // MatrixOps_()
+  // {
+  //   printf("MatrixOps_ -- INIT! \n");
+  // }
 
-  // MatrixOps_() = delete;
+  // MatrixOps_(int myvar)
+  // {
+
+  // }
+
+  // virtual ~MatrixOps_() {};
 
   ////////////////////
   // access functions

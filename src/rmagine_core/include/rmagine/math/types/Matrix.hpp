@@ -125,8 +125,10 @@ public:
   using ThisType = Matrix_<DataT, Rows, Cols>;
   
   // RMAGINE_FUNCTION 
-  // Matrix_() {}
-
+  // Matrix_() {
+    
+  // }
+  
   ////////////////////
   // access functions
   RMAGINE_INLINE_FUNCTION
