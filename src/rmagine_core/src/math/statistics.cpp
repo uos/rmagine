@@ -142,6 +142,14 @@ void statistics_p2l(
     const UmeyamaReductionConstraints params,
     MemoryView<CrossStatistics>& stats)
 {
+    // TODO: figure out what to do with openmp here
+    // - it gets much faster for non-masked datasets
+    // - it gets much slower for reductions with small masks, e.g. one skrewdriver on a scanned tabletop
+
+    // TODO: I rather want to have the one-pass cov algorithm here. Also to have the same algorithms running everywhere
+    // - for now it's not working, see function "statistics_p2l_iwantthis_butnans"
+
+
     // since all of our data is already there we can do a 2 stage mean reduction
     Vector3 dataset_mean = Vector3::Zeros();
     Vector3 model_mean = Vector3::Zeros();
