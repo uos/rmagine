@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <random>
 #include <numeric> // std reduction
-#include <execution>
+// #include <execution>
 
 namespace rm = rmagine;
 
