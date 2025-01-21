@@ -136,6 +136,29 @@ CrossStatistics statistics_p2l(
     const PointCloudView_<VRAM_CUDA>& model,
     const UmeyamaReductionConstraints params);
 
+void statistics_objectwise_p2l(
+    const MemoryView<Transform, VRAM_CUDA>& pre_transform,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
+    const unsigned int& width,
+    const unsigned int& height,
+    const MemoryView<UmeyamaReductionConstraints, VRAM_CUDA>& params,
+    const MemoryView<AABB, VRAM_CUDA>& bboxes,
+    MemoryView<CrossStatistics, VRAM_CUDA>& stats);
+
+
+void statistics_objectwise_p2l(
+    const MemoryView<Transform, RAM>& pre_transforms,
+    const PointCloudView_<VRAM_CUDA>& dataset,
+    const PointCloudView_<VRAM_CUDA>& model,
+    const unsigned int& width,
+    const unsigned int& height,
+    const MemoryView<UmeyamaReductionConstraints, RAM>& params,
+    const MemoryView<AABB, RAM>& bboxes,
+    MemoryView<CrossStatistics, RAM>& stats);
+
+
+
 
 } // namespace rmagine
 
