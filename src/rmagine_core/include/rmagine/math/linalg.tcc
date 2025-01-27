@@ -4,6 +4,54 @@
 namespace rmagine
 {
 
+template<typename DataT, unsigned int Dim>
+void chol(
+  const Matrix_<DataT, Dim, Dim>& A,
+  Matrix_<DataT, Dim, Dim>& L)
+{
+  L = A;
+  
+  for(int i=0; i<Dim; i++) 
+  {
+    for(int j=i; j<Dim; j++) 
+    {
+      DataT csum = L(i,j);
+      for(int k=i-1; k >= 0; k--)
+      {
+        csum -= L(i,k) * L(j,k);
+      }
+      if(i == j)
+      {
+        // if(csum < -0.00001)
+        // {
+        //   std::cout << "SUM: " << csum << std::endl;
+        //   throw std::runtime_error("Cholesky failed");
+        // }
+        if(csum < 0.0)
+        {
+          // TODO: check if this is OK to do, given the pre-conditions of A
+          // if conditions on A are met, this can only happen due to numerical inaccuracies
+          csum = 0.0;
+        }
+        L(i,i) = sqrt(csum);
+      }
+      else
+      {
+        L(j,i) = csum / L(i,i);
+      }
+    }
+  }
+  // erase temorary storage so that L becomes a triangular matrix
+  for(int i=0; i<Dim; i++)
+  {
+    for(int j=0; j<i; j++)
+    {
+      L(j,i) = 0.0;
+    }
+  }
+}
+
+
 template<typename DataT, unsigned int Rows, unsigned int Cols>
 void svd(
     const Matrix_<DataT, Rows, Cols>& a, 
