@@ -109,6 +109,19 @@ RMAGINE_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac);
 
 
+/**
+ * @brief Cholesky Decomposition L*L^T = A
+ * 
+ * A needs to be quadric, positive-definit, and symmetric!
+ * (For performance reasons "positive-definit, and symmetric" is not checked. It is planned to add a check at least for debug compilation)
+ * 
+ */
+template<typename DataT, unsigned int Dim>
+void chol(
+  const Matrix_<DataT, Dim, Dim>& A,
+  Matrix_<DataT, Dim, Dim>& L
+);
+
 // Numerical Recipes
 // M = MatrixT::rows()
 // N = MatrixT::cols()

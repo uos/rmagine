@@ -18,8 +18,6 @@
 #include <stdint.h>
 #include <string.h>
 
-
-using namespace rmagine;
 namespace rm = rmagine;
 
 void rotation_init_test()
@@ -71,18 +69,18 @@ bool rotation_conv_test()
     std::cout << "--------------------------------" << std::endl;
     std::cout << std::endl;
 
-    EulerAngles e0;
+    rm::EulerAngles e0;
     e0.roll = -0.1;
     e0.pitch = 0.1;
     e0.yaw = M_PI / 2.0;
 
-    EulerAngles e;
-    Quaternion q, q0;
-    Matrix3x3 R;
+    rm::EulerAngles e;
+    rm::Quaternion q, q0;
+    rm::Matrix3x3 R;
 
-    Vector x1{1.0, 0.0, 0.0};
-    Vector x2{0.0, 1.0, 0.0};
-    Vector x3{0.0, 0.0, 1.0};
+    rm::Vector x1{1.0, 0.0, 0.0};
+    rm::Vector x2{0.0, 1.0, 0.0};
+    rm::Vector x3{0.0, 0.0, 1.0};
 
     std::cout << "Euler -> Quat" << std::endl;
     // Euler -> Quat
@@ -95,7 +93,7 @@ bool rotation_conv_test()
         || fabs(e.pitch - e0.pitch) > 0.0001 
         || fabs(e.yaw - e0.yaw) > 0.0001)
     {
-        RM_THROW(Exception, "Euler -> Quat -> Euler error.");
+        RM_THROW(rm::Exception, "Euler -> Quat -> Euler error.");
         return false;
     }
 
@@ -110,7 +108,7 @@ bool rotation_conv_test()
         || fabs(e.pitch - e0.pitch) > 0.0001 
         || fabs(e.yaw - e0.yaw) > 0.0001)
     {
-        RM_THROW(Exception, "Euler -> Matrix -> Euler error.");
+        RM_THROW(rm::Exception, "Euler -> Matrix -> Euler error.");
         return false;
     }
 
@@ -123,7 +121,7 @@ bool rotation_conv_test()
         || fabs(q.z - q0.z) > 0.0001
         || fabs(q.w - q0.w) > 0.0001)
     {
-        RM_THROW(Exception, "Quaternion -> Matrix -> Quaternion error.");
+        RM_THROW(rm::Exception, "Quaternion -> Matrix -> Quaternion error.");
         return false;
     }
 
@@ -142,7 +140,7 @@ void rotation_conv_test_single(
         || fabs(e.pitch - e1.pitch) > 0.0001 
         || fabs(e.yaw - e1.yaw) > 0.0001)
         {
-            RM_THROW(Exception, "E <-> Q failed.");
+            RM_THROW(rm::Exception, "E <-> Q failed.");
         }
     }
 
@@ -154,7 +152,7 @@ void rotation_conv_test_single(
         || fabs(e.pitch - e1.pitch) > 0.0001 
         || fabs(e.yaw - e1.yaw) > 0.0001)
         {
-            RM_THROW(Exception, "E <-> M failed.");
+            RM_THROW(rm::Exception, "E <-> M failed.");
         }
     }
 
@@ -177,7 +175,7 @@ void rotation_conv_test_single(
 
         if(tot_error > 0.0001)
         {
-            RM_THROW(Exception, "M <-> Q failed.");
+            RM_THROW(rm::Exception, "M <-> Q failed.");
         }
     }
 }
@@ -194,7 +192,7 @@ void rotation_conv_test_double(
         || fabs(e.pitch - e1.pitch) > 0.0001 
         || fabs(e.yaw - e1.yaw) > 0.0001)
         {
-            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+            RM_THROW(rm::Exception, "E -> Q -> M -> E failed.");
         }
     }
 
@@ -207,7 +205,7 @@ void rotation_conv_test_double(
         || fabs(e.pitch - e1.pitch) > 0.0001 
         || fabs(e.yaw - e1.yaw) > 0.0001)
         {
-            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+            RM_THROW(rm::Exception, "E -> Q -> M -> E failed.");
         }
     }
 
@@ -222,7 +220,7 @@ void rotation_conv_test_double(
         || fabs(e.pitch - e1.pitch) > 0.0001 
         || fabs(e.yaw - e1.yaw) > 0.0001)
         {
-            RM_THROW(Exception, "E -> Q -> M -> E failed.");
+            RM_THROW(rm::Exception, "E -> Q -> M -> E failed.");
         }
     }
 
@@ -276,22 +274,22 @@ void rotation_apply_test()
 
     if( (p_q - p_M).l2norm() > 0.0001 )
     {
-        RM_THROW(Exception, "M * p != Q * p");
+        RM_THROW(rm::Exception, "M * p != Q * p");
     }
 }
 
 
-Eigen::Vector3f& eigen_view(Vector3& v)
+Eigen::Vector3f& eigen_view(rm::Vector3& v)
 {
     return *reinterpret_cast<Eigen::Vector3f*>( &v );
 }
 
-Eigen::Matrix3f& eigen_view(Matrix3x3& M)
+Eigen::Matrix3f& eigen_view(rm::Matrix3x3& M)
 {
     return *reinterpret_cast<Eigen::Matrix3f*>( &M );
 }
 
-Eigen::Matrix4f& eigen_view(Matrix4x4& M)
+Eigen::Matrix4f& eigen_view(rm::Matrix4x4& M)
 {
     return *reinterpret_cast<Eigen::Matrix4f*>( &M );
 }
@@ -299,9 +297,9 @@ Eigen::Matrix4f& eigen_view(Matrix4x4& M)
 bool check_Matrix3x3()
 {
     std::cout << "---------- checkMatrix3x3" << std::endl;
-    EulerAngles e{-0.1, 0.1, M_PI / 2.0};
+    rm::EulerAngles e{-0.1, 0.1, M_PI / 2.0};
 
-    Matrix3x3 M;
+    rm::Matrix3x3 M;
     M = e;
     
     // shallow copy. 
@@ -312,14 +310,14 @@ bool check_Matrix3x3()
 
     if( fabs(Meig_shallow(0,1) - 10.0) > 0.00001 )
     {
-        RM_THROW(Exception, "rm Mat3x3 Eigen view error.");
+        RM_THROW(rm::Exception, "rm Mat3x3 Eigen view error.");
     }
 
     Eigen::Map<Eigen::Matrix3f> Meig_shallow2(&M(0,0));
     M(0,1) = 0.0;
     if( fabs(Meig_shallow2(0,1)) > 0.00001 )
     {
-        RM_THROW(Exception, "rm Mat3x3 Eigen map error.");
+        RM_THROW(rm::Exception, "rm Mat3x3 Eigen map error.");
     }
 
     // std::cout << Meig_shallow << std::endl;
@@ -328,7 +326,7 @@ bool check_Matrix3x3()
     Eigen::Matrix3f Meig(&M(0,0));
 
     // Eigen::Matrix3f Meig_inv = Meig.inverse();
-    Matrix3x3 M_inv = ~M;
+    rm::Matrix3x3 M_inv = ~M;
     // std::cout << M_inv << std::endl;
 
     Eigen::Matrix3f Meig_inv = Meig.inverse();
@@ -339,12 +337,12 @@ bool check_Matrix3x3()
         {
             if( fabs(M_inv(i, j) - Meig_inv(i,j) ) > 0.00001 )
             {
-                RM_THROW(Exception, "rm Mat3x3 inverse is not the same as Eigen Mat inverse.");
+                RM_THROW(rm::Exception, "rm Mat3x3 inverse is not the same as Eigen Mat inverse.");
             }
         }
     }
 
-    Matrix3x3 I = M_inv * M;
+    rm::Matrix3x3 I = M_inv * M;
     Eigen::Matrix3f Ieig = Meig_inv * Meig;
 
     for(size_t i=0; i<3; i++)
@@ -353,20 +351,20 @@ bool check_Matrix3x3()
         {
             if( fabs(I(i, j) - Ieig(i,j) ) > 0.00001 )
             {
-                RM_THROW(Exception, "Mat multiplication of rmagine and Eigen differs too much.");
+                RM_THROW(rm::Exception, "Mat multiplication of rmagine and Eigen differs too much.");
             }
         }
     }
 
     if(fabs(Meig.determinant() - M.det() ) > 0.00001)
     {
-        RM_THROW(Exception, "Determinant of rmagine and Eigen differs too much.");
+        RM_THROW(rm::Exception, "Determinant of rmagine and Eigen differs too much.");
     }
 
 
     if(fabs(Meig.trace() - M.trace() ) > 0.00001)
     {
-        RM_THROW(Exception, "Trace of rmagine and Eigen differs too much.");
+        RM_THROW(rm::Exception, "Trace of rmagine and Eigen differs too much.");
     }
 
     return true;
@@ -374,153 +372,137 @@ bool check_Matrix3x3()
 
 bool check_Matrix4x4()
 {
-    std::cout << "---------- checkMatrix4x4" << std::endl;
-    EulerAngles e{-0.1, 0.1, M_PI / 2.0};
+  std::cout << "---------- checkMatrix4x4" << std::endl;
+  rm::EulerAngles e{-0.1, 0.1, M_PI / 2.0};
 
-    Matrix4x4 M;
-    M.setIdentity();
-    M.setRotation(e);
+  rm::Matrix4x4 M;
+  M.setIdentity();
+  M.setRotation(e);
 
-    Eigen::Matrix4f& Meig_shallow = eigen_view(M);
-    
-    
-    M(0,1) = 10.0;
+  Eigen::Matrix4f& Meig_shallow = eigen_view(M);
+  
+  
+  M(0,1) = 10.0;
 
-    Vector trans{0.0, 0.0, 1.0};
-    M.setTranslation(trans);
+  rm::Vector trans{0.0, 0.0, 1.0};
+  M.setTranslation(trans);
 
-    if(fabs( Meig_shallow(0,1) - 10.0) > 0.00001)
+  if(fabs( Meig_shallow(0,1) - 10.0) > 0.00001)
+  {
+    RM_THROW(rm::Exception, "rm Mat4x4 Eigen view error.");
+  }
+
+  rm::Matrix4x4 M_inv = M.inv();
+
+  Eigen::Matrix4f Meig(&M(0,0));
+  Eigen::Matrix4f Meig_inv = Meig.inverse();
+
+  for(size_t i=0; i<4; i++)
+  {
+    for(size_t j=0; j<4; j++)
     {
-        RM_THROW(Exception, "rm Mat4x4 Eigen view error.");
+      if( fabs(M_inv(i, j) - Meig_inv(i,j) ) > 0.00001 )
+      {
+        RM_THROW(rm::Exception, "rm Mat4x4 inverse is not the same as Eigen Mat inverse.");
+      }
     }
+  }
 
-    // std::cout << Meig_shallow << std::endl;
+  rm::Matrix4x4 I = M_inv * M;
+  Eigen::Matrix4f Ieig = Meig_inv * Meig;
 
-    Matrix4x4 M_inv = M.inv();
-
-    // std::cout << "M = " << std::endl;
-    // print(M);
-    // std::cout << "M_inv = " << std::endl;
-    // print(M_inv);
-    // std::cout << "(invRigid)=" << std::endl;
-    // print(M.invRigid());
-    
-    // std::cout << "M_inv * M = " << std::endl;
-    // print(I);
-
-    Eigen::Matrix4f Meig(&M(0,0));
-    Eigen::Matrix4f Meig_inv = Meig.inverse();
-
-    for(size_t i=0; i<4; i++)
+  for(size_t i=0; i<4; i++)
+  {
+    for(size_t j=0; j<4; j++)
     {
-        for(size_t j=0; j<4; j++)
-        {
-            if( fabs(M_inv(i, j) - Meig_inv(i,j) ) > 0.00001 )
-            {
-                RM_THROW(Exception, "rm Mat4x4 inverse is not the same as Eigen Mat inverse.");
-            }
-        }
+      if( fabs(I(i, j) - Ieig(i,j) ) > 0.00001 )
+      {
+        RM_THROW(rm::Exception, "Mat multiplication of rmagine and Eigen differs too much.");
+      }
     }
+  }
 
-    Matrix4x4 I = M_inv * M;
-    Eigen::Matrix4f Ieig = Meig_inv * Meig;
+  if(fabs(Meig.determinant() - M.det() ) > 0.00001)
+  {
+    RM_THROW(rm::Exception, "Determinant of rmagine and Eigen differs too much.");
+  }
 
-    for(size_t i=0; i<4; i++)
-    {
-        for(size_t j=0; j<4; j++)
-        {
-            if( fabs(I(i, j) - Ieig(i,j) ) > 0.00001 )
-            {
-                RM_THROW(Exception, "Mat multiplication of rmagine and Eigen differs too much.");
-            }
-        }
-    }
+  if(fabs(Meig.trace() - M.trace() ) > 0.00001)
+  {
+    RM_THROW(rm::Exception, "Trace of rmagine and Eigen differs too much.");
+  }
 
-    if(fabs(Meig.determinant() - M.det() ) > 0.00001)
-    {
-        RM_THROW(Exception, "Determinant of rmagine and Eigen differs too much.");
-    }
-
-
-    if(fabs(Meig.trace() - M.trace() ) > 0.00001)
-    {
-        RM_THROW(Exception, "Trace of rmagine and Eigen differs too much.");
-    }
-
-    return true;
+  return true;
 }
 
 void init_test()
 {
-    Vector2 v2 = {1, 2};
-    Vector3 v3 = {1, 2, 3};
+  rm::Vector2 v2 = {1, 2};
+  rm::Vector3 v3 = {1, 2, 3};
 
-    EulerAngles e = {0.0, 1.0, 2.0};
-    Quaternion q = {0.0, 1.0, 2.0, 3.0};
-    Matrix3x3 M = Matrix3x3::Identity();
-    e.set(M);
+  rm::EulerAngles e = {0.0, 1.0, 2.0};
+  rm::Quaternion q = {0.0, 1.0, 2.0, 3.0};
+  rm::Matrix3x3 M = rm::Matrix3x3::Identity();
+  e.set(M);
 
-    Transform T = {q, v3};
-    AABB bb;
+  rm::Transform T = {q, v3};
+  rm::AABB bb;
 
-    Quaternion q2 = EulerAngles{0.0, 0.0, 0.0};
-    
-    std::cout << q2 << std::endl;
-    q2 = {0.0, 0.0, 1.0, 1.0};
-    std::cout << q2 << std::endl;
+  rm::Quaternion q2 = rm::EulerAngles{0.0, 0.0, 0.0};
+  
+  std::cout << q2 << std::endl;
+  q2 = {0.0, 0.0, 1.0, 1.0};
+  std::cout << q2 << std::endl;
 
-    EulerAngles e2 = {0.0, 0.0, 0.0};
-    q2.set(e2);
-    std::cout << q2 << std::endl;
+  rm::EulerAngles e2 = {0.0, 0.0, 0.0};
+  q2.set(e2);
+  std::cout << q2 << std::endl;
 
-    Matrix_<float, 3, 3> R = q2;
+  rm::Matrix_<float, 3, 3> R = q2;
 
-    std::cout << R << std::endl;
-
-    // int bla = M;
-    // std::cout << bla << std::endl;
+  std::cout << R << std::endl;
 }
 
 void math_new()
 {
-    Matrix4x4 M = Matrix4x4::Identity();
-    M = M.mult(3.0);
-    M(0, 3) = 1.0;
-    std::cout << M << std::endl;
+  rm::Matrix4x4 M = rm::Matrix4x4::Identity();
+  M = M.mult(3.0);
+  M(0, 3) = 1.0;
+  std::cout << M << std::endl;
 
-    Vector v = {1.0, 2.0, 3.0};
-    std::cout << v << std::endl;
+  rm::Vector v = {1.0, 2.0, 3.0};
+  std::cout << v << std::endl;
 
-    auto vres = M.rotation().mult(v);
-    std::cout << vres << std::endl;
+  auto vres = M.rotation().mult(v);
+  std::cout << vres << std::endl;
 
-    Vector2 bla = {1, 2};
+  rm::Vector2 bla = {1, 2};
 
-    Matrix_<float, 2, 2> A;
+  rm::Matrix_<float, 2, 2> A;
 
-    bla.l2norm();
+  bla.l2norm();
 
-    float yaw = 1.0;
+  float yaw = 1.0;
 
-    auto R = rm::yaw_to_rot_mat_2d(yaw);
+  auto R = rm::yaw_to_rot_mat_2d(yaw);
 
-    std::cout << R << std::endl;
+  std::cout << R << std::endl;
 }
 
 int main(int argc, char** argv)
 {
-    std::cout << "Rmagine Test: Basic Math" << std::endl;
+  std::cout << "Rmagine Test: Basic Math" << std::endl;
 
-    rotation_init_test();
-    rotation_conv_test();
-    rotation_conv_test_2();
+  rotation_init_test();
+  rotation_conv_test();
+  rotation_conv_test_2();
 
-    rotation_apply_test();
+  rotation_apply_test();
 
-    check_Matrix3x3();
-    check_Matrix4x4();
-    init_test();
-    math_new();
+  check_Matrix3x3();
+  check_Matrix4x4();
+  init_test();
+  math_new();
 
-    return 0;
+  return 0;
 }

@@ -89,3 +89,13 @@ target_link_libraries(rmagine_tests_core_math_reduction
 
 add_test(NAME core_math_reduction COMMAND rmagine_tests_core_math_reduction)
 
+
+
+# 9. Cholesky Decomp
+add_executable(rmagine_tests_core_math_cholesky math_cholesky.cpp)
+target_link_libraries(rmagine_tests_core_math_cholesky
+    rmagine::core
+)
+
+add_test(NAME core_math_cholesky COMMAND rmagine_tests_core_math_cholesky)
+

@@ -5,6 +5,72 @@ namespace rmagine
 {
 
 template<typename DataT, unsigned int Rows, unsigned int Cols>
+bool contains_nan(Matrix_<DataT, Rows, Cols> M)
+{
+  for(size_t i=0; i<Rows; i++)
+  {
+    for(size_t j=0; j<Cols; j++)
+    {
+      if(M(i,j) != M(i,j)) // only if nan this results in true
+      {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+template<typename DataT, unsigned int Dim>
+void chol(
+  const Matrix_<DataT, Dim, Dim>& A,
+  Matrix_<DataT, Dim, Dim>& L)
+{
+  for(int i=0; i<Dim; i++) 
+  {
+    for(int j=i; j<Dim; j++) 
+    {
+      DataT csum = A(i,j);
+      for(int k=i-1; k >= 0; k--)
+      {
+        csum -= L(i,k) * L(j,k);
+      }
+      if(i == j)
+      {
+        if(csum < 0.0)
+        {
+          // TODO: check if this is OK to do, given the pre-conditions of A
+          // if conditions on A are met, this can only happen due to numerical inaccuracies
+          csum = 0.0;
+        }
+        L(i,i) = sqrt(csum);
+      }
+      else
+      {
+        const DataT Ltmp = L(i,i);
+        if(abs(Ltmp) > 0.00001) // TODO: not hardcode. make dependend of precision
+        {
+          L(j,i) = csum / Ltmp;
+        }
+        else
+        {
+          L(j,i) = 0.0; // this fixed the problem with zero elements on diagonal
+        }
+      }
+    }
+  }
+  // setZeros for unused part of memory
+  for(int i=0; i<Dim; i++)
+  {
+    for(int j=0; j<i; j++)
+    {
+      L(j,i) = 0.0;
+    }
+  }
+}
+
+
+template<typename DataT, unsigned int Rows, unsigned int Cols>
 void svd(
     const Matrix_<DataT, Rows, Cols>& a, 
     Matrix_<DataT, Rows, Cols>& u,
