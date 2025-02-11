@@ -1,0 +1,34 @@
+name: core-ubu24
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+jobs:
+  rmagine-core-ubuntu20:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Deps (core)
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+    - name: Clone
+      uses: actions/checkout@v4
+      with:
+        path: rmagine
+    - name: Compile
+      run: |
+        cd rmagine
+        mkdir build
+        cd build
+        cmake ..
+        make
+    - name: Test
+      run: |
+        cd rmagine
+        cd build
+        ./bin/rmagine_version
+        make test
