@@ -128,6 +128,9 @@ Please reference the following papers when using the Rmagine library in your sci
 }
 ```
 
+The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/10161388) and as preprint on [arXiv](https://arxiv.org/abs/2209.13397).
+
+
 ## Rmagine-accelerated Applications
 - [rmagine_viewer](https://github.com/amock/rmagine_viewer)
 - [rmagine_gazebo_plugins](https://github.com/uos/rmagine_gazebo_plugins)
