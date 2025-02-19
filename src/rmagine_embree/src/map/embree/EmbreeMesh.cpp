@@ -264,7 +264,7 @@ MemoryView<Vector, RAM> EmbreeMesh::faceNormals() const
 
 MemoryView<const Vertex, RAM> EmbreeMesh::verticesTransformed() const
 {
-    return MemoryView<const Vertex, RAM>(m_vertices_transformed.raw(), m_num_faces);
+    return MemoryView<const Vertex, RAM>(m_vertices_transformed.raw(), m_num_vertices);
 }
 
 MemoryView<const Vertex, RAM> EmbreeMesh::faceNormalsTransformed() const
