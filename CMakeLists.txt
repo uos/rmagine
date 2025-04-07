@@ -217,7 +217,7 @@ if(CUDA_FOUND)
     endif(OptiX_FOUND)
 endif(CUDA_FOUND)
 
-message(STATUS "${BoldCyan}Components build:${ColourReset}")
+message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
     message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
 endforeach()
