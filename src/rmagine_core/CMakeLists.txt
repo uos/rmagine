@@ -36,16 +36,22 @@ target_include_directories(rmagine-core
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
-    ${ASSIMP_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-core
-    ${ASSIMP_LIBRARIES}
     Eigen3::Eigen
     ${Boost_LIBRARIES}
     ${OpenMP_CXX_LIBRARIES}
 )
+
+# prefer to link to assimp alias target
+if (TARGET assimp::assimp)
+  target_link_libraries(rmagine-core assimp::assimp)
+else()
+  target_include_directories(rmagine-core PUBLIC ${ASSIMP_INCLUDE_DIRS})
+  target_link_libraries(rmagine-core ${ASSIMP_LIBRARIES})
+endif()
 
 set_target_properties(rmagine-core
   PROPERTIES
