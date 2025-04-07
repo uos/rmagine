@@ -1,4 +1,4 @@
-name: core-ubu22
+name: core
 on:
   push:
     branches:
@@ -10,8 +10,11 @@ on:
     branches:
       - '*'
 jobs:
-  rmagine-core-ubuntu22:
-    runs-on: ubuntu-22.04
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04, ubuntu-22.04, ubuntu-24.04 ]
     steps:
     - name: Deps (core)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
