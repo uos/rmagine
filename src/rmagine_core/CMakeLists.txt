@@ -45,12 +45,12 @@ target_link_libraries(rmagine-core
     ${OpenMP_CXX_LIBRARIES}
 )
 
-# prefer to link to assimp alias target
-if (TARGET assimp::assimp)
-  target_link_libraries(rmagine-core assimp::assimp)
-else()
+# link to assimp::assimp when its library and include dir vars are missing
+if (DEFINED ASSIMP_INCLUDE_DIRS AND DEFINED ASSIMP_LIBRARIES)
   target_include_directories(rmagine-core PUBLIC ${ASSIMP_INCLUDE_DIRS})
   target_link_libraries(rmagine-core ${ASSIMP_LIBRARIES})
+else()
+  target_link_libraries(rmagine-core assimp::assimp)
 endif()
 
 set_target_properties(rmagine-core
