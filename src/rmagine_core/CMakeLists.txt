@@ -36,16 +36,22 @@ target_include_directories(rmagine-core
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
-    ${ASSIMP_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-core
-    ${ASSIMP_LIBRARIES}
     Eigen3::Eigen
     ${Boost_LIBRARIES}
     ${OpenMP_CXX_LIBRARIES}
 )
+
+# link to assimp::assimp when its library and include dir vars are missing
+if (DEFINED ASSIMP_INCLUDE_DIRS AND DEFINED ASSIMP_LIBRARIES)
+  target_include_directories(rmagine-core PUBLIC ${ASSIMP_INCLUDE_DIRS})
+  target_link_libraries(rmagine-core ${ASSIMP_LIBRARIES})
+else()
+  target_link_libraries(rmagine-core assimp::assimp)
+endif()
 
 set_target_properties(rmagine-core
   PROPERTIES

@@ -62,7 +62,7 @@ endif()
 ################################
 ## REQUIRED DEPS
 
-find_package(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 ############################
@@ -217,7 +217,7 @@ if(CUDA_FOUND)
     endif(OptiX_FOUND)
 endif(CUDA_FOUND)
 
-message(STATUS "${BoldCyan}Components build:${ColourReset}")
+message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
     message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
 endforeach()
