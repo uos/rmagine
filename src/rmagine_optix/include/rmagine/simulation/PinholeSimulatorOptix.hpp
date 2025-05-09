@@ -57,6 +57,8 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
+#include "SimulatorOptix.hpp"
+
 
 namespace rmagine {
 
@@ -114,83 +116,61 @@ namespace rmagine {
  * @endcode
  * 
  */
-class PinholeSimulatorOptix {
+class PinholeSimulatorOptix 
+: public SimulatorOptix
+{
 public:
-    PinholeSimulatorOptix();
-    PinholeSimulatorOptix(OptixMapPtr map);
+  PinholeSimulatorOptix();
+  PinholeSimulatorOptix(OptixMapPtr map);
 
-    ~PinholeSimulatorOptix();
+  ~PinholeSimulatorOptix();
 
-    void setMap(const OptixMapPtr map);
+  void setModel(const Memory<PinholeModel, RAM>& model);
+  void setModel(const PinholeModel& model);
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+  /**
+   * @brief Simulation of a LiDAR-Sensor in a given mesh
+   * 
+   * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
+   * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
+   * @return ResultT 
+   */
+  template<typename BundleT>
+  BundleT simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    void setModel(const Memory<PinholeModel, RAM>& model);
-    void setModel(const PinholeModel& model);
+  template<typename BundleT>
+  void simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm,
+      BundleT& res) const;
 
-    void simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<float, VRAM_CUDA>& ranges) const;
+  template<typename BundleT>
+  void preBuildProgram();
 
-    Memory<float, VRAM_CUDA> simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+  inline Memory<PinholeModel, VRAM_CUDA> model() const
+  {
+    return m_model;
+  }
 
-    /**
-     * @brief Simulation of a LiDAR-Sensor in a given mesh
-     * 
-     * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
-     * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
-     * @return ResultT 
-     */
-    template<typename BundleT>
-    BundleT simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
-    template<typename BundleT>
-    void simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm,
-        BundleT& res) const;
-
-    template<typename BundleT>
-    void preBuildProgram();
-
-    inline Memory<PinholeModel, VRAM_CUDA> model() const
-    {
-        return m_model;
-    }
-
-    inline OptixMapPtr map() const 
-    {
-        return m_map;
-    }
-
-    // Problems:
-    // - a lot of copies
-    // 
-    // Solutions:
-    // - link buffers instead
-    // 
-    // Example:
-    // member Buffer that is partially upgraded
-    // member
+  // Problems:
+  // - a lot of copies
+  // 
+  // Solutions:
+  // - link buffers instead
+  // 
+  // Example:
+  // member Buffer that is partially upgraded
+  // member
 
 protected:
-    OptixMapPtr m_map;
-    CudaStreamPtr m_stream;
 
-    uint32_t m_width;
-    uint32_t m_height;
-    Memory<Transform, VRAM_CUDA> m_Tsb;
-    Memory<PinholeModel, VRAM_CUDA> m_model;
-
-    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+  Memory<PinholeModel, VRAM_CUDA> m_model;
 
 private:
 
-    void launch(
-        const Memory<OptixSimulationDataGeneric, RAM>& mem,
-        const PipelinePtr program) const;
+  void launch(
+      const Memory<OptixSimulationDataGeneric, RAM>& mem,
+      const PipelinePtr program) const;
 };
 
 using PinholeSimulatorOptixPtr = std::shared_ptr<PinholeSimulatorOptix>;

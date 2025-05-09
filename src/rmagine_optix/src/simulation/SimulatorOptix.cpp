@@ -19,7 +19,6 @@ namespace rmagine
 SimulatorOptix::SimulatorOptix()
 :m_Tsb(1)
 {
-  std::cout << "SimulatorOptix!" << std::endl;
   Memory<Transform, RAM_CUDA> I(1);
   I->setIdentity();
   m_Tsb = I;
