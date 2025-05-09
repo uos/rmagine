@@ -49,6 +49,8 @@
 
 #include <rmagine/types/MemoryCuda.hpp>
 
+#include "SimulatorEmbree.hpp"
+
 namespace rmagine
 {
 
@@ -102,69 +104,58 @@ namespace rmagine
  * @endcode
  * 
  */
-class SphereSimulatorEmbree {
+class SphereSimulatorEmbree 
+: public SimulatorEmbree
+{
 public:
-    SphereSimulatorEmbree();
-    SphereSimulatorEmbree(EmbreeMapPtr map);
-    ~SphereSimulatorEmbree();
+  SphereSimulatorEmbree();
+  SphereSimulatorEmbree(EmbreeMapPtr map);
+  ~SphereSimulatorEmbree();
 
-    void setMap(EmbreeMapPtr map);
+  void setModel(const MemoryView<SphericalModel, RAM>& model);
+  void setModel(const SphericalModel& model);
 
-    void setTsb(const MemoryView<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+  inline Memory<SphericalModel, RAM> model() const
+  {
+    return m_model;
+  }
 
-    void setModel(const MemoryView<SphericalModel, RAM>& model);
-    void setModel(const SphericalModel& model);
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    inline Memory<SphericalModel, RAM> model() const
-    {
-      return m_model;
-    }
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
 
-    inline EmbreeMapPtr map() const 
-    {
-        return m_map;
-    }
+  /**
+   * @brief Simulate for multiple poses at once
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const MemoryView<Transform, RAM>& Tbm,
+      BundleT& ret) const;
 
-    /**
-     * @brief Simulate from one pose
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const Transform& Tbm, BundleT& ret) const;
+  template<typename BundleT>
+  void simulate(const MemoryView<const Transform, RAM>& Tbm,
+      BundleT& ret) const;
 
-    template<typename BundleT>
-    BundleT simulate(const Transform& Tbm) const;
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
 
-    /**
-     * @brief Simulate for multiple poses at once
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const MemoryView<Transform, RAM>& Tbm,
-        BundleT& ret) const;
-
-    template<typename BundleT>
-    void simulate(const MemoryView<const Transform, RAM>& Tbm,
-        BundleT& ret) const;
-
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
-
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
 
 protected:
-    EmbreeMapPtr m_map;
-    
-    Memory<Transform, RAM> m_Tsb;
-    Memory<SphericalModel, RAM> m_model;
+  Memory<SphericalModel, RAM> m_model;
 };
 
 using SphereSimulatorEmbreePtr = std::shared_ptr<SphereSimulatorEmbree>;

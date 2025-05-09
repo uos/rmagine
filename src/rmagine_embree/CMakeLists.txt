@@ -17,6 +17,7 @@ set(RMAGINE_EMBREE_SRCS
     src/map/EmbreeMap.cpp
 
     # Simulators
+    src/simulation/SimulatorEmbree.cpp
     src/simulation/SphereSimulatorEmbree.cpp
     src/simulation/PinholeSimulatorEmbree.cpp
     src/simulation/O1DnSimulatorEmbree.cpp
