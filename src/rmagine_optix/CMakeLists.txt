@@ -115,6 +115,7 @@ set(RMAGINE_OPTIX_SRCS
     src/map/optix/optix_shapes.cpp
     src/map/OptixMap.cpp
     # Simulation
+    src/simulation/SimulatorOptix.cpp
     src/simulation/SphereSimulatorOptix.cpp
     src/simulation/PinholeSimulatorOptix.cpp
     src/simulation/O1DnSimulatorOptix.cpp

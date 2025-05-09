@@ -55,6 +55,8 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
+#include "SimulatorOptix.hpp"
+
 
 namespace rmagine {
 
@@ -112,17 +114,20 @@ namespace rmagine {
  * @endcode
  * 
  */
-class O1DnSimulatorOptix {
+class O1DnSimulatorOptix
+: public SimulatorOptix
+{
 public:
+  
     O1DnSimulatorOptix();
     O1DnSimulatorOptix(OptixMapPtr map);
 
-    ~O1DnSimulatorOptix();
+    // ~O1DnSimulatorOptix();
 
-    void setMap(OptixMapPtr map);
+    // void setMap(OptixMapPtr map);
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+    // void setTsb(const Memory<Transform, RAM>& Tsb);
+    // void setTsb(const Transform& Tsb);
 
     void setModel(const O1DnModel_<VRAM_CUDA>& model);
     void setModel(const O1DnModel_<RAM>& model);
@@ -135,6 +140,19 @@ public:
 
     Memory<float, VRAM_CUDA> simulateRanges(
         const Memory<Transform, VRAM_CUDA>& Tbm) const;
+
+
+    /**
+     * @brief Simulate from one pose
+     * 
+     * @tparam BundleT 
+     * @param Tbm Transform from base to map. aka pose in map
+     */
+    template<typename BundleT>
+    void simulate(const Transform& Tbm, BundleT& ret) const;
+
+    template<typename BundleT>
+    BundleT simulate(const Transform& Tbm) const;
 
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
@@ -160,10 +178,10 @@ public:
         return m_model_d;
     }
 
-    inline OptixMapPtr map() const 
-    {
-        return m_map;
-    }
+    // inline OptixMapPtr map() const 
+    // {
+    //     return m_map;
+    // }
 
     // Problems:
     // - a lot of copies

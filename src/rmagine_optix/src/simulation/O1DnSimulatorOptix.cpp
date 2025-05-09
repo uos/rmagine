@@ -20,48 +20,47 @@ namespace rmagine
 {
 
 O1DnSimulatorOptix::O1DnSimulatorOptix()
-:m_model(1)
-,m_Tsb(1)
+:SimulatorOptix()
+,m_model(1)
 {
-    Memory<Transform, RAM_CUDA> I(1);
-    I->setIdentity();
-    m_Tsb = I;
+  std::cout << "O1Dn!" << std::endl;
 }
 
 O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
-:O1DnSimulatorOptix()
+:SimulatorOptix(map)
+,m_model(1)
 {
-    setMap(map);
+  std::cout << "O1Dn + Map!" << std::endl;
 }
 
-O1DnSimulatorOptix::~O1DnSimulatorOptix()
-{
-    // m_programs.clear();
-}
+// O1DnSimulatorOptix::O1DnSimulatorOptix(OptixMapPtr map)
+// :O1DnSimulatorOptix()
+// {
+//     setMap(map);
+// }
 
-void O1DnSimulatorOptix::setMap(OptixMapPtr map)
-{
-    m_map = map;
+// O1DnSimulatorOptix::~O1DnSimulatorOptix()
+// {
+//     // m_programs.clear();
+// }
 
-    // m_programs.resize(2);
-    
-    // m_programs[0].reset(new O1DnProgramRanges(map));
-    // m_programs[1].reset(new O1DnProgramNormals(map));
+// void O1DnSimulatorOptix::setMap(OptixMapPtr map)
+// {
+//     m_map = map;
+//     m_stream = m_map->stream();
+// }
 
-    m_stream = m_map->stream();
-}
+// void O1DnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
+// {
+//     m_Tsb = Tsb;
+// }
 
-void O1DnSimulatorOptix::setTsb(const Memory<Transform, RAM>& Tsb)
-{
-    m_Tsb = Tsb;
-}
-
-void O1DnSimulatorOptix::setTsb(const Transform& Tsb)
-{
-    Memory<Transform, RAM> tmp(1);
-    tmp[0] = Tsb;
-    setTsb(tmp);
-}
+// void O1DnSimulatorOptix::setTsb(const Transform& Tsb)
+// {
+//     Memory<Transform, RAM> tmp(1);
+//     tmp[0] = Tsb;
+//     setTsb(tmp);
+// }
 
 void O1DnSimulatorOptix::setModel(const O1DnModel_<VRAM_CUDA>& model)
 {
