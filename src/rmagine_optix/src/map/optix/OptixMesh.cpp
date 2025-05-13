@@ -7,7 +7,7 @@
 #include "rmagine/types/MemoryCuda.hpp"
 #include "rmagine/util/GenericAlign.hpp"
 #include "rmagine/map/mesh_preprocessing.cuh"
-#include "rmagine/math/math.cuh"
+#include "rmagine/math/memory_math.cuh"
 
 #include "rmagine/util/cuda/CudaStream.hpp"
 

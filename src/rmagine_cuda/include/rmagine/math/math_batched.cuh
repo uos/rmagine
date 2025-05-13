@@ -43,7 +43,7 @@
 
 #include <rmagine/math/types.h>
 #include <rmagine/types/MemoryCuda.hpp>
-#include "math.cuh"
+#include <rmagine/math/memory_math.cuh>
 
 
 namespace rmagine 

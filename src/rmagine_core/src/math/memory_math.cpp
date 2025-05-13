@@ -1,10 +1,10 @@
-#include "rmagine/math/math.h"
+#include "rmagine/math/memory_math.h"
 
 #include "rmagine/util/prints.h"
 
 #include <cassert>
 
-#include "rmagine/math/linalg.h"
+#include <rmagine/math/linalg.h>
 
 namespace rmagine {
 
@@ -708,7 +708,7 @@ void svd(
     MemoryView<Matrix3x3, RAM>& Ws,
     MemoryView<Matrix3x3, RAM>& Vs)
 {
-  std::cout << "BLA?" << std::endl;
+  // std::cout << "BLA?" << std::endl;
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)
     {
@@ -727,7 +727,7 @@ void svd(
     MemoryView<Vector3, RAM>& ws,
     MemoryView<Matrix3x3, RAM>& Vs)
 {
-    std::cout << "HEY?" << std::endl;
+    // std::cout << "HEY?" << std::endl;
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)
     {

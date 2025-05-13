@@ -38,8 +38,8 @@
  * 
  */
 
-#ifndef RMAGINE_MATH_MATH_CUH
-#define RMAGINE_MATH_MATH_CUH
+#ifndef RMAGINE_MATH_MEMORY_MATH_CUH
+#define RMAGINE_MATH_MEMORY_MATH_CUH
 
 #include <rmagine/math/types.h>
 #include <rmagine/types/MemoryCuda.hpp>
@@ -641,4 +641,4 @@ void sum_reduce_test_t8(
 
 } // namespace rmagine
 
-#endif // RMAGINE_MATH_MATH_CUH
+#endif // RMAGINE_MATH_MEMORY_MATH_CUH

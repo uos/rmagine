@@ -2,7 +2,7 @@
 #include <rmagine/math/statistics.h>
 #include <rmagine/math/statistics.cuh>
 
-#include <rmagine/math/math.cuh>
+#include <rmagine/math/memory_math.cuh>
 
 #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/util/prints.h>

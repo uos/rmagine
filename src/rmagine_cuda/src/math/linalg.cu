@@ -1,7 +1,8 @@
 #include <rmagine/math/types.h>
-#include <rmagine/math/linalg.h>
+#include <rmagine/math/linalg.cuh>
 #include <cuda_runtime.h>
-#include <rmagine/types/shared_functions.h>
+
+#include <rmagine/math/math.h>
 
 namespace rmagine
 {
@@ -14,7 +15,7 @@ void svd(
     Matrix3x3& w,
     Matrix3x3& v)
 {
-    printf("SVDD\n");
+    // printf("SVDD\n");
     
     // TODO: test
     const unsigned int max_iterations = 20;
@@ -1087,6 +1088,42 @@ void svd(
         v(1,0) = -v(1,0);
         v(2,0) = -v(2,0);
     }
+}
+
+__device__
+Transform umeyama_transform(
+    const Vector3& d,
+    const Vector3& m,
+    const Matrix3x3& C,
+    const unsigned int n_meas)
+{
+  Transform ret;
+
+  if(n_meas > 0)
+  {
+    // intermediate storage needed (yet)
+    Matrix3x3 U, S, V;
+    svd(C, U, S, V);
+    S.setIdentity();
+    if(U.det() * V.det() < 0)
+    {
+        S(2, 2) = -1;
+    }
+    ret.R.set(U * S * V.transpose());
+    ret.R.normalizeInplace();
+    ret.t = m - ret.R * d;
+  } else {
+    ret.setIdentity();
+  }
+
+  return ret;
+}
+
+__device__
+Transform umeyama_transform(
+    const CrossStatistics& stats)
+{
+  return umeyama_transform(stats.dataset_mean, stats.model_mean, stats.covariance, stats.n_meas);
 }
 
 } // namespace rmagine

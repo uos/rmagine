@@ -5,7 +5,7 @@ set(RMAGINE_CORE_SRCS
     # Maps
     src/map/AssimpIO.cpp
     # # Math
-    src/math/math.cpp
+    src/math/memory_math.cpp
     src/math/linalg.cpp
     src/math/statistics.cpp
     src/math/optimization.cpp

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <rmagine/types/MemoryCuda.hpp>
-#include <rmagine/math/math.cuh>
+#include <rmagine/math/memory_math.cuh>
 #include <rmagine/util/exceptions.h>
 #include <rmagine/util/prints.h>
 

@@ -1,7 +1,6 @@
-#include "rmagine/math/math.cuh"
-#include "rmagine/math/math.h"
+#include "rmagine/math/memory_math.cuh"
 #include "rmagine/math/types.h"
-#include "rmagine/math/linalg.h"
+#include "rmagine/math/linalg.cuh"
 #include "rmagine/util/cuda/CudaDebug.hpp"
 
 namespace rmagine 
