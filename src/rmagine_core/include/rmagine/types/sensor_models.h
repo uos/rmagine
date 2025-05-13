@@ -421,85 +421,85 @@ using O1DnModel = O1DnModel_<RAM>;
 
 template<typename MemT>
 struct OnDnModel_ {
-    static constexpr char name[] = "OnDn";
+  static constexpr char name[] = "OnDn";
 
-    uint32_t width;
-    uint32_t height;
+  uint32_t width;
+  uint32_t height;
 
-    // maximum and minimum allowed range
-    Interval range;
+  // maximum and minimum allowed range
+  Interval range;
 
-    Memory<Vector, MemT> origs;
-    Memory<Vector, MemT> dirs;
+  Memory<Vector, MemT> origs;
+  Memory<Vector, MemT> dirs;
 
 
-    RMAGINE_INLINE_FUNCTION
-    uint32_t getWidth() const 
-    {
-        return width;
-    }
+  RMAGINE_INLINE_FUNCTION
+  uint32_t getWidth() const 
+  {
+    return width;
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    uint32_t getHeight() const 
-    {
-        return height;
-    }
+  RMAGINE_INLINE_FUNCTION
+  uint32_t getHeight() const 
+  {
+    return height;
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    uint32_t getSize() const 
-    {
-        return getWidth() * getHeight();
-    }
+  RMAGINE_INLINE_FUNCTION
+  uint32_t getSize() const 
+  {
+    return getWidth() * getHeight();
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    uint32_t size() const 
-    {
-        return getWidth() * getHeight();
-    }
+  RMAGINE_INLINE_FUNCTION
+  uint32_t size() const 
+  {
+    return getWidth() * getHeight();
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    Vector getOrigin(uint32_t vid, uint32_t hid) const 
-    {
-        return origs[getBufferId(vid, hid)];
-    }
+  RMAGINE_INLINE_FUNCTION
+  Vector getOrigin(uint32_t vid, uint32_t hid) const 
+  {
+    return origs[getBufferId(vid, hid)];
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    Vector getDirection(uint32_t vid, uint32_t hid) const 
-    {
-        return dirs[getBufferId(vid, hid)];
-    }
+  RMAGINE_INLINE_FUNCTION
+  Vector getDirection(uint32_t vid, uint32_t hid) const 
+  {
+    return dirs[getBufferId(vid, hid)];
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
-    {
-        return vid * getWidth() + hid;
-    }
+  RMAGINE_INLINE_FUNCTION
+  uint32_t getBufferId(uint32_t vid, uint32_t hid) const 
+  {
+    return vid * getWidth() + hid;
+  }
 
-    RMAGINE_INLINE_FUNCTION
-    Vector2u getPixelCoord(uint32_t buffer_id) const
-    {
-        return {buffer_id % width, buffer_id / width};
-    }
+  RMAGINE_INLINE_FUNCTION
+  Vector2u getPixelCoord(uint32_t buffer_id) const
+  {
+    return {buffer_id % width, buffer_id / width};
+  }
 
-    // slice horizontal line. vertical is not currently not possible because of memory layout
-    template<typename DataT, typename MemT_>
-    MemoryView<DataT, MemT_> getRow(MemoryView<DataT, MemT_>& mem, uint32_t vid) const 
-    {
-        return mem.slice(vid * getWidth(), (vid+1) * getWidth());
-    }
+  // slice horizontal line. vertical is not currently not possible because of memory layout
+  template<typename DataT, typename MemT_>
+  MemoryView<DataT, MemT_> getRow(MemoryView<DataT, MemT_>& mem, uint32_t vid) const 
+  {
+    return mem.slice(vid * getWidth(), (vid+1) * getWidth());
+  }
 
-    // for CPU we can access single elements of a buffer
-    template<typename DataT>
-    DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
-    {
-        return mem[getBufferId(vid, hid)];
-    }
+  // for CPU we can access single elements of a buffer
+  template<typename DataT>
+  DataT& getPixelValue(MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+  {
+    return mem[getBufferId(vid, hid)];
+  }
 
-    template<typename DataT>
-    DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
-    {
-        return mem[getBufferId(vid, hid)];
-    }
+  template<typename DataT>
+  DataT getPixelValue(const MemoryView<DataT, RAM>& mem, uint32_t vid, uint32_t hid) const 
+  {
+    return mem[getBufferId(vid, hid)];
+  }
 };
 
 using OnDnModel = OnDnModel_<RAM>;
@@ -511,8 +511,29 @@ MemoryView<DataT, MemT> slice(
     const ModelT& model,
     const uint32_t pose_id)
 {
-    return mem.slice(model.getSize() * pose_id, model.getSize() * (pose_id + 1));
+  return mem.slice(model.getSize() * pose_id, model.getSize() * (pose_id + 1));
 }
+
+/**
+ * Use this to mark a class that requires a certain sensor model to operate
+ * This is useful when you have a base interface and want to check if 
+ * the implementation requires a certain sensor model:
+ * 
+ * @code
+ * if(auto model_setter = std::dynamic_pointer_cast<rm::ModelSetter<rm::O1DnModel> >(base_class_ptr))
+ * {
+ *   // RCC required sensor model
+ *   model_setter->setModel(sensor_model_);
+ * } 
+ * @endcode
+ * 
+ */
+template<typename ModelT>
+class ModelSetter
+{
+public:
+  virtual void setModel(const ModelT&) = 0;
+};
 
 } // namespace rmagine
 
