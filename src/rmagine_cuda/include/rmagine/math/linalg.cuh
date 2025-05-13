@@ -1,6 +1,8 @@
 #ifndef RMAGINE_MATH_LINALG_CUH
 #define RMAGINE_MATH_LINALG_CUH
 
+#include <rmagine/math/types.h>
+
 namespace rmagine
 {
 

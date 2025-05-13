@@ -46,24 +46,10 @@
 #include "linalg.h"
 #include <unordered_map>
 
+#include <rmagine/types/UmeyamaReductionConstraints.hpp>
 
 namespace rmagine
 {
-
-struct UmeyamaReductionConstraints 
-{
-  ///
-  // Ignore all correspondences larger than `max_dist`
-  float max_dist;
-  
-  ///
-  // Ignore dataset ids except for `dataset_id`
-  unsigned int dataset_id;
-  
-  /// 
-  // Ignore model ids except for `model_id`
-  unsigned int model_id;
-};
 
 /**
  * @brief Reducing dataset and model to the cross statistics using point to point (P2P) distances.
