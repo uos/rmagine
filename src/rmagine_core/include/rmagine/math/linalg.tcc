@@ -77,6 +77,11 @@ void svd(
     Matrix_<DataT, Cols, Cols>& w,
     Matrix_<DataT, Cols, Cols>& v)
 {
+    printf("SVD!\n");
+    std::cout << "SVD! Template" << std::endl;
+
+    throw std::runtime_error("Template");
+
     constexpr unsigned int m = Rows;
     constexpr unsigned int n = Cols;
 

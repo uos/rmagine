@@ -113,6 +113,12 @@ void svd(
     Matrix3x3& w,
     Matrix3x3& v)
 {
+    std::cerr << "SVD! (CPP)" << std::endl;
+
+    printf("SVDD CPP\n");
+
+    throw std::runtime_error("UUUUH");
+
     constexpr unsigned int m = 3;
     constexpr unsigned int n = 3;
     using DataT = float;

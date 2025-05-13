@@ -708,6 +708,7 @@ void svd(
     MemoryView<Matrix3x3, RAM>& Ws,
     MemoryView<Matrix3x3, RAM>& Vs)
 {
+  std::cout << "BLA?" << std::endl;
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)
     {
@@ -726,6 +727,7 @@ void svd(
     MemoryView<Vector3, RAM>& ws,
     MemoryView<Matrix3x3, RAM>& Vs)
 {
+    std::cout << "HEY?" << std::endl;
     #pragma omp parallel for
     for(size_t i=0; i<As.size(); i++)
     {

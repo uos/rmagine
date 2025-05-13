@@ -1,19 +1,20 @@
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.h>
 #include <cuda_runtime.h>
+#include <rmagine/types/shared_functions.h>
 
 namespace rmagine
 {
 
-RMAGINE_DEVICE_FUNCTION
+// RMAGINE_DEVICE_FUNCTION
+__device__
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
     Matrix3x3& w,
     Matrix3x3& v)
 {
-    // printf("SVDD\n");
-
+    printf("SVDD\n");
     
     // TODO: test
     const unsigned int max_iterations = 20;

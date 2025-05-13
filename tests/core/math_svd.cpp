@@ -429,7 +429,6 @@ void bug1()
 
     std::cout << "Best Rot: " << std::endl;
     std::cout << ret.R << std::endl;
-
   }
 
   {

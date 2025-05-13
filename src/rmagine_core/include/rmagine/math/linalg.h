@@ -165,7 +165,7 @@ void svd(
  * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
  *
  */
-RMAGINE_FUNCTION
+RMAGINE_DEVICE_FUNCTION
 void svd(
     const Matrix3x3& A,
     Matrix3x3& U,
@@ -173,14 +173,13 @@ void svd(
     Matrix3x3& V
 );
 
-RMAGINE_FUNCTION
+RMAGINE_DEVICE_FUNCTION
 void svd(
     const Matrix3x3& A, 
     Matrix3x3& U,
     Vector3& w,
     Matrix3x3& V
 );
-
 
 /**
  * @brief computes the optimal transformation according to Umeyama's algorithm 
@@ -190,7 +189,7 @@ void svd(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_DEVICE_FUNCTION
 Transform umeyama_transform(
     const Vector3& d,
     const Vector3& m,
@@ -228,7 +227,7 @@ Transform umeyama_transform(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
+RMAGINE_INLINE_DEVICE_FUNCTION
 Transform umeyama_transform(
     const CrossStatistics& stats)
 {
@@ -240,14 +239,7 @@ Transform umeyama_transform(
         Matrix3x3 U, S, V;
         svd(stats.covariance, U, S, V);
 
-        // std::cout << "U: "<< std::endl;
-        // std::cout << U << std::endl;
-
-        // std::cout << "S: " << std::endl;
-        // std::cout << S << std::endl;
-
-        // std::cout << "V: " << std::endl;
-        // std::cout << V << std::endl;
+        // std::cout << "BLAAAA" << std::endl;
 
         S.setIdentity();
         if(U.det() * V.det() < 0)
