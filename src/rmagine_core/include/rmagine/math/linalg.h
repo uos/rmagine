@@ -45,6 +45,8 @@
 #include <rmagine/types/shared_functions.h>
 #include <rmagine/types/PointCloud.hpp>
 
+#include <rmagine/util/prints.h>
+
 namespace rmagine
 {
 
@@ -237,6 +239,16 @@ Transform umeyama_transform(
         // intermediate storage needed (yet)
         Matrix3x3 U, S, V;
         svd(stats.covariance, U, S, V);
+
+        // std::cout << "U: "<< std::endl;
+        // std::cout << U << std::endl;
+
+        // std::cout << "S: " << std::endl;
+        // std::cout << S << std::endl;
+
+        // std::cout << "V: " << std::endl;
+        // std::cout << V << std::endl;
+
         S.setIdentity();
         if(U.det() * V.det() < 0)
         {

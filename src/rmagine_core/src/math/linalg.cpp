@@ -113,6 +113,7 @@ void svd(
     Matrix3x3& w,
     Matrix3x3& v)
 {
+  // std::cout << "BLA" << std::endl;
     // TODOs:
     // check if SVD can be faster done for covariance matrix, i.e. symmetric matrices (positive definite)
     // a(x,y) == a(y,x)
@@ -170,24 +171,36 @@ void svd(
         u(2, 0) *= scale;
     }
     
+    // std::cout << "B-Part:" << std::endl;
+    // std::cout << anorm << std::endl;
+    // std::cout << u << std::endl;
+    // std::cout << w << std::endl;
+    // std::cout << v << std::endl;
+    // std::cout << " --------------" << std::endl;
+
     w(0, 0) = scale * g;
     g = s = scale = 0.0;
     
+    // trace
     scale = abs(u(0,0)) + abs(u(0,1)) + abs(u(0,2));
-    
     if(scale > 0.0)
     {
         u(0, 1) /= scale;
         u(0, 2) /= scale;
         s = u(0,1) * u(0,1) + u(0,2) * u(0,2);
 
-        f = u(0, 1);
+        f = u(0,1);
         g = -sign(sqrt(s),f);
         h = f * g-s;
-        u(0, 1) = f - g;
 
-        rv1.y = u(0, 1) / h;
-        rv1.z = u(0, 2) / h;
+        // std::cout <<  "f,g,h:" << f << ", " << g << ", " << h << std::endl;
+
+        u(0,1) = f - g;
+
+        // h = max(h, eps);
+        
+        rv1.y = u(0,1) / h;
+        rv1.z = u(0,2) / h;
 
         s = u(1,1) * u(0,1) + u(1,2) * u(0,2);
         u(1, 1) += s * rv1.y;
@@ -200,6 +213,13 @@ void svd(
         u(0, 1) *= scale;
         u(0, 2) *= scale;
     }
+
+    // std::cout << "C-Part:" << std::endl;
+    // std::cout << anorm << std::endl;
+    // std::cout << u << std::endl;
+    // std::cout << w << std::endl;
+    // std::cout << v << std::endl;
+    // std::cout << " --------------" << std::endl;
     
     anorm = fabs(w(0, 0));
     // anorm = max(anorm, (fabs(w(0, 0)) + fabs(rv1.x))); // rv1.x is always 0 here, anorm too. fabs(X) >= 0
@@ -271,6 +291,13 @@ void svd(
     g = s = scale = 0.0;
     
     anorm = max(anorm, (abs(w(2, 2))+abs(rv1.z)));
+
+    // std::cout << "First Part:" << std::endl;
+    // std::cout << anorm << std::endl;
+    // std::cout << u << std::endl;
+    // std::cout << w << std::endl;
+    // std::cout << v << std::endl;
+    // std::cout << " --------------" << std::endl;
 
     // SECOND PART    
     v(2,2) = 1.0;

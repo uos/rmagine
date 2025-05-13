@@ -437,6 +437,9 @@ void svd(
                 f = u(i, l-1);
                 g = -sign(sqrt(s),f);
                 h = f*g-s;
+                
+                h = max(h, eps);
+
                 u(i,l-1) = f-g;
                 for(k=l-1; k<n; k++)
                 {

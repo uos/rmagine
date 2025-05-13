@@ -394,17 +394,127 @@ void parallelTest2()
     std::cout << "- summed error: " << err_rmagine << std::endl;
 }
 
+void bug1()
+{
+
+  rm::CrossStatistics stats;
+
+  stats.covariance = {
+    0.0225, 0.0, 0.0,
+    0.0, 0.0324, 0.0,
+    0.0, 0.0, 0.0
+  };
+
+  stats.dataset_mean = {-1.74833e-19,0,0};
+  stats.model_mean = {-1.74833e-19,0,-1.04308e-07};
+  stats.n_meas = 4;
+
+  std::cout << "Stats:" << std::endl;
+  std::cout << stats << std::endl;
+
+  { // umeyama transform
+    rm::Transform ret;
+
+    if(stats.n_meas > 0)
+    {
+      // intermediate storage needed (yet)
+      rm::Matrix3x3 U, S, V;
+      U = rm::Matrix3x3::Zeros();
+      S = rm::Matrix3x3::Zeros();
+      V = rm::Matrix3x3::Zeros();
+      rm::svd(stats.covariance, U, S, V);
+
+      std::cout << "SVD results:" << std::endl;
+
+      std::cout << "U: "<< std::endl;
+      std::cout << U << std::endl;
+
+      std::cout << "S: " << std::endl;
+      std::cout << S << std::endl;
+
+      std::cout << "V: " << std::endl;
+      std::cout << V << std::endl;
+
+      S.setIdentity();
+      if(U.det() * V.det() < 0)
+      {
+        S(2, 2) = -1;
+      }
+      ret.R.set(U * S * V.transpose());
+      ret.R.normalizeInplace();
+      ret.t = stats.model_mean - ret.R * stats.dataset_mean;
+
+
+      std::cout << "Umeyama Result:" << std::endl;
+      std::cout << ret << std::endl;
+    } else {
+      ret.setIdentity();
+    }
+
+    
+  }
+
+
+
+  
+
+  // const rm::Transform res = rm::umeyama_transform(stats);
+
+  // std::cout << "Umeyama Result:" << std::endl;
+  // std::cout << res << std::endl;
+
+  // if(std::isnan(res.t.x))
+  // {
+  //   throw std::runtime_error("Umeyama Transform Bug");
+  // }
+
+
+
+//     Merged: CrossStatistics: 
+// [component_container-1] - dataset mean: v[-1.74833e-19,0,0]
+// [component_container-1] - model mean: v[-1.74833e-19,0,-1.04308e-07]
+// [component_container-1] - covariance: 
+  // M3x3[
+  //   [component_container-1]  0.0225 0 0
+  //   [component_container-1]  0 0.0324 0
+  //   [component_container-1]  0 0 0
+  //   [component_container-1] ]
+  //   [component_container-1] - n meas: 4
+  //   [component_container-1] 
+  //   [component_container-1] U: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  -1 -nan nan
+  //   [component_container-1]  -0 -nan nan
+  //   [component_container-1]  -0 -nan nan
+  //   [component_container-1] ]
+  //   [component_container-1] S: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  0.0225 0 0
+  //   [component_container-1]  0 nan 0
+  //   [component_container-1]  0 0 nan
+  //   [component_container-1] ]
+  //   [component_container-1] V: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  -1 0 0
+  //   [component_container-1]  -0 1 0
+  //   [component_container-1]  -0 0 1
+  //   [component_container-1] ]
+    
+}
+
 int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
 
     // svdTestWithPrints();
-    runtimeTest<20, 30>();
+    // runtimeTest<20, 30>();
     accuracyTest<20, 30>();
 
 
-    parallelTest();
-    parallelTest2();
+    // parallelTest();
+    // parallelTest2();
+
+    // bug1();
 
 
     return 0;
