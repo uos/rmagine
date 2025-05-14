@@ -9,7 +9,6 @@
 namespace rmagine
 {
 
-RMAGINE_HOST_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale)
 {
     Matrix4x4 M;
@@ -24,7 +23,6 @@ Matrix4x4 compose(const Transform& T, const Vector3& scale)
     return M * S;
 }
 
-RMAGINE_HOST_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
 {
     Matrix4x4 M;
@@ -44,7 +42,6 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
     return M * S_;
 }
 
-RMAGINE_HOST_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
 {
     Eigen::Matrix4f Meig;
@@ -58,7 +55,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
 
     Eigen::Affine3f A;
     A.matrix() = Meig;
-
 
     Eigen::Matrix3f Reig;
     Eigen::Matrix3f Seig;
@@ -80,7 +76,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
     T.R.set(R);
 }
 
-RMAGINE_HOST_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
 {
     Matrix3x3 S;
@@ -93,32 +88,22 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
     scale.z = S(2,2);
 }
 
-RMAGINE_HOST_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac)
 {
     return A * A.to(B).pow(fac);
 }
 
-RMAGINE_HOST_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac)
 {
     return A * A.to(B).pow(fac);
 }
 
-
-RMAGINE_HOST_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
     Matrix3x3& w,
     Matrix3x3& v)
 {
-    // std::cerr << "SVD! (CPP)" << std::endl;
-
-    // printf("SVDD CPP\n");
-
-    // throw std::runtime_error("UUUUH");
-
     constexpr unsigned int m = 3;
     constexpr unsigned int n = 3;
     using DataT = float;
@@ -401,7 +386,6 @@ void svd(
     }
 }
 
-RMAGINE_HOST_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,

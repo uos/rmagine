@@ -9,8 +9,6 @@ set(RMAGINE_CUDA_SRCS
     src/math/math_batched.cu
     src/math/linalg.cu
     src/math/statistics.cu
-    # types
-    src/types/test_shared_functions.cu
     # util
     src/util/cuda/CudaContext.cpp
     src/util/cuda/CudaDebug.cpp

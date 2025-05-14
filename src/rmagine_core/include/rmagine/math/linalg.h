@@ -58,10 +58,8 @@ namespace rmagine
  * @param scale   scale vector
  * @return Matrix4x4   composed 4x4 transformation matrix
  */
-RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale);
 
-RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
 
 /**
@@ -72,7 +70,6 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param S 3x3 scale matrix
  */
-RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
 
 /**
@@ -83,7 +80,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param scale scale vector
  */
-RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
 
 /**
@@ -95,7 +91,6 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
 
 /**
@@ -107,9 +102,7 @@ Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac);
-
 
 /**
  * @brief Cholesky Decomposition L*L^T = A
