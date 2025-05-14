@@ -234,6 +234,7 @@ if(BUILD_TOOLS)
     add_subdirectory(apps/rmagine_synthetic)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
+    add_subdirectory(apps/rmagine_info)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)

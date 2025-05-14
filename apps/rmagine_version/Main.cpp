@@ -1,10 +1,8 @@
-
-#include <rmagine/util/assimp/prints.h>
-// #include <assimp/Importer.hpp>
-// #include <rmagine/map/AssimpIO.hpp>
+#include <iostream>
 
 int main(int argc, char** argv)
 {
-    std::cout << RMAGINE_VERSION << std::endl;
-    return 0;
+  // BURN THIS INTO CODE: THIS WILL PRINT THE HEADER VERSION
+  std::cout << RMAGINE_VERSION << std::endl;
+  return 0;
 }
