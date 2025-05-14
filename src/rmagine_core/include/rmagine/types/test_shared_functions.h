@@ -2,6 +2,7 @@
 #define RMAGINE_TYPES_TEST_SHARED_FUNCTIONS_H
 
 #include <rmagine/types/shared_functions.h>
+#include <cstddef>
 
 namespace rmagine
 {

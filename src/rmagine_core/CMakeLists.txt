@@ -20,6 +20,7 @@ set(RMAGINE_CORE_SRCS
     src/types/conversions.cpp
     src/types/sensors.cpp
     src/types/mesh_types.cpp
+    src/types/test_shared_functions.cpp
     # Util
     src/util/synthetic.cpp
     src/util/assimp/helper.cpp
