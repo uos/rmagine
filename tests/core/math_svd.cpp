@@ -500,7 +500,6 @@ int main(int argc, char** argv)
 
     bug1();
 
-
     return 0;
 }
 
