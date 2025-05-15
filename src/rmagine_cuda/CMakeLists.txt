@@ -62,10 +62,14 @@ set_target_properties(rmagine-cuda
         SOVERSION ${rmagine_VERSION_MAJOR}
         VERSION ${rmagine_VERSION}
         CUDA_SEPARABLE_COMPILATION ON
-        # CUDA_ARCHITECTURES all
         # CUDA_STANDARD 17 -> only works for 
         # CXX_STANDARD 17
 )
+
+# set CUDA_ARCHITECTURES with CMake >= 3.23 when CMAKE_* is not set
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set_target_properties(rmagine-cuda PROPERTIES CUDA_ARCHITECTURES all)
+endif()
 
 add_library(rmagine::cuda ALIAS rmagine-cuda)
 
