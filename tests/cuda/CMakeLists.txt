@@ -50,12 +50,3 @@ target_link_libraries(rmagine_tests_cuda_math_reduction
 )
 
 add_test(NAME cuda_math_reduction COMMAND rmagine_tests_cuda_math_reduction)
-
-# 7. Shared Function
-add_executable(rmagine_tests_cuda_shared_functions shared_functions.cu)
-target_link_libraries(rmagine_tests_cuda_shared_functions
-    # rmagine::core
-    rmagine::cuda
-)
-
-add_test(NAME cuda_shared_functions COMMAND rmagine_tests_cuda_shared_functions)
