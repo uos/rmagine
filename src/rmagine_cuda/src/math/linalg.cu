@@ -1141,6 +1141,18 @@ void svd(
     }
 }
 
+// __device__ __forceinline__ 
+// bool isfinite(const float& x)
+// {
+//     return !isnan(x) && !isinf(x);
+// }
+
+__device__ __forceinline__ 
+bool check(const Quaternion& q)
+{
+    std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w) && (fabs(q.l2norm()-1.0) < 0.0001);
+}
+
 __device__
 Transform umeyama_transform(
     const Vector3& d,
@@ -1162,6 +1174,16 @@ Transform umeyama_transform(
     }
     ret.R.set(U * S * V.transpose());
     ret.R.normalizeInplace();
+
+    // There are still situations where SVD results in an invalid result.
+    // I assume there are numerical issues inside the rm::svd function.
+    // TODO: Take an evening and check if we can write rm::svd more stable
+    // or if we can detect situations earlier and skip a lot of computations
+    // This is a suboptimal workaround that covers some issues:
+    if(!check(ret.R))
+    {
+        ret.R.setIdentity();
+    }
     ret.t = m - ret.R * d;
   } else {
     ret.setIdentity();
