@@ -1,11 +1,65 @@
 #include <rmagine/math/types.h>
-#include <rmagine/math/linalg.h>
+#include <rmagine/math/linalg.cuh>
 #include <cuda_runtime.h>
+
+#include <rmagine/math/math.h>
 
 namespace rmagine
 {
 
-RMAGINE_DEVICE_FUNCTION
+namespace cuda
+{
+
+__device__
+Matrix4x4 compose(const Transform& T, const Vector3& scale)
+{
+    Matrix4x4 M;
+    M.set(T);
+
+    Matrix4x4 S;
+    S.setIdentity();
+    S(0,0) = scale.x;
+    S(1,1) = scale.y;
+    S(2,2) = scale.z;
+
+    return M * S;
+}
+
+__device__
+Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
+{
+    Matrix4x4 M;
+    M.set(T);
+
+    Matrix4x4 S_;
+    S_.setZeros();
+    for(size_t i=0; i<3; i++)
+    {
+        for(size_t j=0; j<3; j++)
+        {
+            S_(i,j) = S(i,j);
+        }
+    }
+    S_(3,3) = 1.0;
+
+    return M * S_;
+}
+
+__device__
+Quaternion polate(const Quaternion& A, const Quaternion& B, float fac)
+{
+    return A * A.to(B).pow(fac);
+}
+
+__device__
+Transform polate(const Transform& A, const Transform& B, float fac)
+{
+    return A * A.to(B).pow(fac);
+}
+
+
+// RMAGINE_DEVICE_FUNCTION
+__device__
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
@@ -13,7 +67,6 @@ void svd(
     Matrix3x3& v)
 {
     // printf("SVDD\n");
-
     
     // TODO: test
     const unsigned int max_iterations = 20;
@@ -1087,5 +1140,65 @@ void svd(
         v(2,0) = -v(2,0);
     }
 }
+
+// __device__ __forceinline__ 
+// bool isfinite(const float& x)
+// {
+//     return !isnan(x) && !isinf(x);
+// }
+
+__device__ __forceinline__ 
+bool check(const Quaternion& q)
+{
+    std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w) && (fabs(q.l2norm()-1.0) < 0.0001);
+}
+
+__device__
+Transform umeyama_transform(
+    const Vector3& d,
+    const Vector3& m,
+    const Matrix3x3& C,
+    const unsigned int n_meas)
+{
+  Transform ret;
+
+  if(n_meas > 0)
+  {
+    // intermediate storage needed (yet)
+    Matrix3x3 U, S, V;
+    svd(C, U, S, V);
+    S.setIdentity();
+    if(U.det() * V.det() < 0)
+    {
+        S(2, 2) = -1;
+    }
+    ret.R.set(U * S * V.transpose());
+    ret.R.normalizeInplace();
+
+    // There are still situations where SVD results in an invalid result.
+    // I assume there are numerical issues inside the rm::svd function.
+    // TODO: Take an evening and check if we can write rm::svd more stable
+    // or if we can detect situations earlier and skip a lot of computations
+    // This is a suboptimal workaround that covers some issues:
+    if(!check(ret.R))
+    {
+        ret.R.setIdentity();
+    }
+    ret.t = m - ret.R * d;
+  } else {
+    ret.setIdentity();
+  }
+
+  return ret;
+}
+
+__device__
+Transform umeyama_transform(
+    const CrossStatistics& stats)
+{
+  return umeyama_transform(stats.dataset_mean, stats.model_mean, stats.covariance, stats.n_meas);
+}
+
+} // namespace cuda
 
 } // namespace rmagine

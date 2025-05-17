@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, University Osnabrück
+ * Copyright (c) 2025, University Osnabrück. 
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,12 @@
 /**
  * @file
  * 
- * @brief Simulator Container to construct Embree Simulators more intuitively
+ * @brief Contains @link rmagine::SimulatorEmbree SimulatorEmbree @endlink
  *
- * @date 03.10.2022
+ * @date 03.01.2025
  * @author Alexander Mock
  * 
- * @copyright Copyright (c) 2022, University Osnabrück. All rights reserved.
+ * @copyright Copyright (c) 2025, University Osnabrück. All rights reserved.
  * This project is released under the 3-Clause BSD License.
  * 
  */
@@ -41,53 +41,39 @@
 #ifndef RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP
 #define RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP
 
-#include <rmagine/simulation/Simulator.hpp>
-
-#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
-#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
-#include <rmagine/simulation/O1DnSimulatorEmbree.hpp>
-#include <rmagine/simulation/OnDnSimulatorEmbree.hpp>
+#include <rmagine/map/EmbreeMap.hpp>
+#include <rmagine/types/Memory.hpp>
+#include <rmagine/types/sensor_models.h>
+#include <rmagine/simulation/SimulationResults.hpp>
 
 namespace rmagine
 {
 
-// Computing type
-struct Embree {
-
-};
-
-template<>
-class SimulatorType<SphericalModel, Embree>
-{
+class SimulatorEmbree {
 public:
-    using Class = SphereSimulatorEmbree;
-    using Ptr = SphereSimulatorEmbreePtr;
-};
+  SimulatorEmbree();
+  SimulatorEmbree(EmbreeMapPtr map);
+  virtual ~SimulatorEmbree();
 
-template<>
-class SimulatorType<PinholeModel, Embree>
-{
-public:
-    using Class = PinholeSimulatorEmbree;
-    using Ptr = PinholeSimulatorEmbreePtr;
-};
+  void setMap(EmbreeMapPtr map);
 
-template<>
-class SimulatorType<O1DnModel, Embree>
-{
-public:
-    using Class = O1DnSimulatorEmbree;
-    using Ptr = O1DnSimulatorEmbreePtr;
-};
+  void setTsb(const MemoryView<Transform, RAM>& Tsb);
+  void setTsb(const Transform& Tsb);
 
-template<>
-class SimulatorType<OnDnModel, Embree>
-{
-public:
-    using Class = OnDnSimulatorEmbree;
-    using Ptr = OnDnSimulatorEmbreePtr;
+  inline EmbreeMapPtr map() const 
+  {
+      return m_map;
+  }
+
+  protected:
+  EmbreeMapPtr m_map;
+  
+  RTCRayQueryContext  m_context;
+  
+  Memory<Transform, RAM> m_Tsb;
 };
 
 } // namespace rmagine
+
 
 #endif // RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP

@@ -1,6 +1,6 @@
 #include <iostream>
-#include <rmagine/math/math.cuh>
-#include <rmagine/math/math.h>
+#include <rmagine/math/memory_math.cuh>
+#include <rmagine/math/memory_math.h>
 #include <rmagine/util/StopWatch.hpp>
 #include <rmagine/util/prints.h>
 

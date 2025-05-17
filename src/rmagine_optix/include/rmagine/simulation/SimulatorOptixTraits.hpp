@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief SVD Solver for CUDA Memory
+ * @brief Simulator Container to construct OptiX Simulators more intuitively
  *
  * @date 03.10.2022
  * @author Alexander Mock
@@ -38,51 +38,57 @@
  * 
  */
 
-#ifndef RMAGINE_MATH_SVD_CUDA_HPP
-#define RMAGINE_MATH_SVD_CUDA_HPP
+#ifndef RMAGINE_SIMULATION_SIMULATOR_OPTIX_TRAITS_HPP
+#define RMAGINE_SIMULATION_SIMULATOR_OPTIX_TRAITS_HPP
 
-#include <cuda_runtime.h>
-#include <cusolverDn.h>
-#include <rmagine/types/MemoryCuda.hpp>
-#include <rmagine/math/types.h>
-#include <memory>
-#include <rmagine/util/cuda/CudaStream.hpp>
+#include "Simulator.hpp"
 
-namespace rmagine {
+#include "SphereSimulatorOptix.hpp"
+#include "PinholeSimulatorOptix.hpp"
+#include "O1DnSimulatorOptix.hpp"
+#include "OnDnSimulatorOptix.hpp"
 
-/**
- * @brief SVD computed on GPU using cusolver
- * 
- * @warning This is becoming obsolute and will be removed in the next major version of rmagine. Use function of linag.h instead.
- */
-class SVDCuda
+
+namespace rmagine
 {
-public:
-    SVDCuda(CudaContextPtr ctx = cuda_current_context());
-    SVDCuda(CudaStreamPtr stream);
 
-    ~SVDCuda();
+struct Optix {
 
-    void calcUV(
-        const MemoryView<Matrix3x3, VRAM_CUDA>& As,
-        MemoryView<Matrix3x3, VRAM_CUDA>& Us,
-        MemoryView<Matrix3x3, VRAM_CUDA>& Vs
-    ) const;
-
-    void calcUSV(const MemoryView<Matrix3x3, VRAM_CUDA>& As,
-        MemoryView<Matrix3x3, VRAM_CUDA>& Us,
-        MemoryView<Vector, VRAM_CUDA>& Ss,
-        MemoryView<Matrix3x3, VRAM_CUDA>& Vs) const;
-
-private:
-    // global parameters
-    CudaStreamPtr       m_stream;
-    cusolverDnHandle_t  cusolverH = NULL;
-    gesvdjInfo_t        gesvdj_params = NULL;
 };
 
-using SVDCudaPtr = std::shared_ptr<SVDCuda>;
+template<>
+class SimulatorType<SphericalModel, Optix>
+{
+public:
+    using Class = SphereSimulatorOptix;
+    using Ptr = SphereSimulatorOptixPtr;
+};
+
+template<>
+class SimulatorType<PinholeModel, Optix>
+{
+public:
+    using Class = PinholeSimulatorOptix;
+    using Ptr = PinholeSimulatorOptixPtr;
+};
+
+template<>
+class SimulatorType<O1DnModel, Optix>
+{
+public:
+    using Class = O1DnSimulatorOptix;
+    using Ptr = O1DnSimulatorOptixPtr;
+};
+
+template<>
+class SimulatorType<OnDnModel, Optix>
+{
+public:
+    using Class = OnDnSimulatorOptix;
+    using Ptr = OnDnSimulatorOptixPtr;
+};
 
 } // namespace rmagine
 
-#endif // RMAGINE_MATH_SVD_CUDA_HPP
+
+#endif // RMAGINE_SIMULATION_SIMULATOR_OPTIX_TRAITS_HPP

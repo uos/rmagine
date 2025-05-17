@@ -46,6 +46,8 @@
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/simulation/SimulationResults.hpp>
 
+#include "SimulatorEmbree.hpp"
+
 namespace rmagine
 {
 
@@ -98,72 +100,59 @@ namespace rmagine
  * @endcode
  * 
  */
-class O1DnSimulatorEmbree {
+class O1DnSimulatorEmbree 
+: public SimulatorEmbree
+{
 public:
-    O1DnSimulatorEmbree();
-    O1DnSimulatorEmbree(EmbreeMapPtr map);
-    ~O1DnSimulatorEmbree();
-
-    void setMap(EmbreeMapPtr map);
-
-    void setTsb(const MemoryView<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
-
-    void setModel(const MemoryView<O1DnModel_<RAM>, RAM>& model);
-    void setModel(const O1DnModel_<RAM>& model);
-
-    inline Memory<O1DnModel_<RAM>, RAM> model() const
-    {
-        return m_model;
-    }
-
-    inline EmbreeMapPtr map() const 
-    {
-        return m_map;
-    }
+  O1DnSimulatorEmbree();
+  O1DnSimulatorEmbree(EmbreeMapPtr map);
+  ~O1DnSimulatorEmbree();
 
 
-    /**
-     * @brief Simulate from one pose
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const Transform& Tbm, BundleT& ret) const;
+  void setModel(const MemoryView<O1DnModel_<RAM>, RAM>& model);
+  void setModel(const O1DnModel_<RAM>& model);
 
-    template<typename BundleT>
-    BundleT simulate(const Transform& Tbm) const;
+  inline Memory<O1DnModel_<RAM>, RAM> model() const
+  {
+      return m_model;
+  }
 
-    /**
-     * @brief Simulate for multiple poses at once
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const MemoryView<Transform, RAM>& Tbm,
-        BundleT& ret) const;
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    template<typename BundleT>
-    void simulate(const MemoryView<const Transform, RAM>& Tbm,
-        BundleT& ret) const;
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
 
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
+  /**
+   * @brief Simulate for multiple poses at once
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const MemoryView<Transform, RAM>& Tbm,
+      BundleT& ret) const;
 
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
+  template<typename BundleT>
+  void simulate(const MemoryView<const Transform, RAM>& Tbm,
+      BundleT& ret) const;
+
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
+
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
 
 protected:
-    EmbreeMapPtr m_map;
-    
-    RTCRayQueryContext  m_context;
-    
-    Memory<Transform, RAM> m_Tsb;
-    Memory<O1DnModel_<RAM>, RAM> m_model;
+  Memory<O1DnModel_<RAM>, RAM> m_model;
 };
 
 using O1DnSimulatorEmbreePtr = std::shared_ptr<O1DnSimulatorEmbree>;

@@ -46,6 +46,8 @@
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/simulation/SimulationResults.hpp>
 
+#include "SimulatorEmbree.hpp"
+
 namespace rmagine
 {
 
@@ -101,72 +103,58 @@ namespace rmagine
  * @endcode
  * 
  */
-class PinholeSimulatorEmbree {
+class PinholeSimulatorEmbree 
+: public SimulatorEmbree
+{
 public:
+  PinholeSimulatorEmbree();
+  PinholeSimulatorEmbree(EmbreeMapPtr map);
+  ~PinholeSimulatorEmbree();
 
-    PinholeSimulatorEmbree();
-    PinholeSimulatorEmbree(EmbreeMapPtr map);
-    ~PinholeSimulatorEmbree();
+  void setModel(const MemoryView<PinholeModel, RAM>& model);
+  void setModel(const PinholeModel& model);
 
-    void setMap(EmbreeMapPtr map);
+  inline Memory<PinholeModel, RAM> model() const
+  {
+    return m_model;
+  }
 
-    void setTsb(const MemoryView<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    void setModel(const MemoryView<PinholeModel, RAM>& model);
-    void setModel(const PinholeModel& model);
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
 
-    inline Memory<PinholeModel, RAM> model() const
-    {
-      return m_model;
-    }
+  /**
+   * @brief Simulate for multiple poses at once
+   * 
+   * @tparam BundleT 
+   * @param Tbm 
+   * @param ret 
+   */
+  template<typename BundleT>
+  void simulate(const MemoryView<Transform, RAM>& Tbm,
+      BundleT& ret) const;
 
-    inline EmbreeMapPtr map() const 
-    {
-        return m_map;
-    }
+  template<typename BundleT>
+  void simulate(const MemoryView<const Transform, RAM>& Tbm,
+      BundleT& ret) const;
 
-    /**
-     * @brief Simulate from one pose
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const Transform& Tbm, BundleT& ret) const;
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
 
-    template<typename BundleT>
-    BundleT simulate(const Transform& Tbm) const;
-
-    /**
-     * @brief Simulate for multiple poses at once
-     * 
-     * @tparam BundleT 
-     * @param Tbm 
-     * @param ret 
-     */
-    template<typename BundleT>
-    void simulate(const MemoryView<Transform, RAM>& Tbm,
-        BundleT& ret) const;
-
-    template<typename BundleT>
-    void simulate(const MemoryView<const Transform, RAM>& Tbm,
-        BundleT& ret) const;
-
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<Transform, RAM>& Tbm) const;
-
-    template<typename BundleT>
-    BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
+  template<typename BundleT>
+  BundleT simulate(const MemoryView<const Transform, RAM>& Tbm) const;
 
 protected:
-    EmbreeMapPtr m_map;
-
-    RTCRayQueryContext  m_context;
-    
-    Memory<Transform, RAM> m_Tsb;
-    Memory<PinholeModel, RAM> m_model;
+  Memory<PinholeModel, RAM> m_model;
 };
 
 using PinholeSimulatorEmbreePtr = std::shared_ptr<PinholeSimulatorEmbree>;

@@ -77,6 +77,11 @@ void svd(
     Matrix_<DataT, Cols, Cols>& w,
     Matrix_<DataT, Cols, Cols>& v)
 {
+    // printf("SVD!\n");
+    // std::cout << "SVD! Template" << std::endl;
+
+    // throw std::runtime_error("Template");
+
     constexpr unsigned int m = Rows;
     constexpr unsigned int n = Cols;
 
@@ -437,6 +442,9 @@ void svd(
                 f = u(i, l-1);
                 g = -sign(sqrt(s),f);
                 h = f*g-s;
+                
+                h = max(h, eps);
+
                 u(i,l-1) = f-g;
                 for(k=l-1; k<n; k++)
                 {

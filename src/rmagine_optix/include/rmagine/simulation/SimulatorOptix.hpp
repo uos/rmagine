@@ -1,94 +1,85 @@
-/*
- * Copyright (c) 2022, University Osnabrück
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the University Osnabrück nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL University Osnabrück BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+#ifndef RMAGINE_OPTIX_SIMULATION_SIMULATOR_OPTIX_HPP
+#define RMAGINE_OPTIX_SIMULATION_SIMULATOR_OPTIX_HPP
 
-/**
- * @file
- * 
- * @brief Simulator Container to construct OptiX Simulators more intuitively
- *
- * @date 03.10.2022
- * @author Alexander Mock
- * 
- * @copyright Copyright (c) 2022, University Osnabrück. All rights reserved.
- * This project is released under the 3-Clause BSD License.
- * 
- */
+#include <rmagine/map/OptixMap.hpp>
+#include <rmagine/util/optix/optix_modules.h>
 
-#ifndef RMAGINE_SIMULATION_SIMULATOR_OPTIX_HPP
-#define RMAGINE_SIMULATION_SIMULATOR_OPTIX_HPP
+#include <rmagine/types/MemoryCuda.hpp>
+#include <rmagine/types/sensor_models.h>
 
-#include "Simulator.hpp"
+// Generic
+#include <rmagine/simulation/SimulationResults.hpp>
+#include <rmagine/types/Bundle.hpp>
+#include <rmagine/simulation/optix/sim_program_data.h>
 
-#include "SphereSimulatorOptix.hpp"
-#include "PinholeSimulatorOptix.hpp"
-#include "O1DnSimulatorOptix.hpp"
-#include "OnDnSimulatorOptix.hpp"
+#include <cuda_runtime.h>
 
+#include <rmagine/util/cuda/cuda_definitions.h>
 
 namespace rmagine
 {
 
-struct Optix {
-
-};
-
-template<>
-class SimulatorType<SphericalModel, Optix>
+class SimulatorOptix
 {
 public:
-    using Class = SphereSimulatorOptix;
-    using Ptr = SphereSimulatorOptixPtr;
-};
+  SimulatorOptix();
+  SimulatorOptix(OptixMapPtr map);
 
-template<>
-class SimulatorType<PinholeModel, Optix>
-{
-public:
-    using Class = PinholeSimulatorOptix;
-    using Ptr = PinholeSimulatorOptixPtr;
-};
+  virtual ~SimulatorOptix();
 
-template<>
-class SimulatorType<O1DnModel, Optix>
-{
-public:
-    using Class = O1DnSimulatorOptix;
-    using Ptr = O1DnSimulatorOptixPtr;
-};
+  void setMap(OptixMapPtr map);
 
-template<>
-class SimulatorType<OnDnModel, Optix>
-{
-public:
-    using Class = OnDnSimulatorOptix;
-    using Ptr = OnDnSimulatorOptixPtr;
+  void setTsb(const Memory<Transform, RAM>& Tsb);
+  void setTsb(const Transform& Tsb);
+
+  inline OptixMapPtr map() const 
+  {
+    return m_map;
+  }
+
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm Transform from base to map. aka pose in map
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
+
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
+
+  /**
+   * @brief Simulation of a LiDAR-Sensor in a given mesh
+   * 
+   * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
+   * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
+   * @return ResultT 
+   */
+  template<typename BundleT>
+  BundleT simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm) const;
+
+  // template<typename BundleT>
+  // virtual void simulate(
+  //     const Memory<Transform, VRAM_CUDA>& Tbm,
+  //     BundleT& res) const = 0;
+
+protected:
+
+  OptixMapPtr m_map;
+  CudaStreamPtr m_stream;
+  
+  Memory<Transform, VRAM_CUDA> m_Tsb;
+
+  // generic model parameter
+  uint32_t m_width;
+  uint32_t m_height;
+  Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 };
 
 } // namespace rmagine
 
+#include "SimulatorOptix.tcc"
 
-#endif // RMAGINE_SIMULATION_SIMULATOR_OPTIX_HPP
+#endif // RMAGINE_OPTIX_SIMULATION_SIMULATOR_OPTIX_HPP

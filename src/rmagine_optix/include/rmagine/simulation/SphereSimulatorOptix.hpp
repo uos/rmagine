@@ -59,6 +59,8 @@
 
 #include <rmagine/util/optix/optix_modules.h>
 
+#include "SimulatorOptix.hpp"
+
 
 namespace rmagine {
 
@@ -117,84 +119,75 @@ namespace rmagine {
  * @endcode
  * 
  */
-class SphereSimulatorOptix {
+class SphereSimulatorOptix 
+: public SimulatorOptix
+{
 public:
-    SphereSimulatorOptix();
-    SphereSimulatorOptix(OptixMapPtr map);
-    SphereSimulatorOptix(OptixScenePtr scene);
+  SphereSimulatorOptix();
+  SphereSimulatorOptix(OptixMapPtr map);
 
-    ~SphereSimulatorOptix();
+  ~SphereSimulatorOptix();
 
-    void setMap(const OptixMapPtr map);
+  void setModel(const Memory<SphericalModel, RAM>& model);
+  void setModel(const SphericalModel& model);
+  
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm Transform from base to map. aka pose in map
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
+  
+  /**
+   * @brief Simulation of a LiDAR-Sensor in a given mesh
+   * 
+   * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
+   * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
+   * @return ResultT 
+   */
+  template<typename BundleT>
+  BundleT simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    void setModel(const Memory<SphericalModel, RAM>& model);
-    void setModel(const SphericalModel& model);
+  template<typename BundleT>
+  void simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm,
+      BundleT& res) const;
 
-    void simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<float, VRAM_CUDA>& ranges) const;
+  template<typename BundleT>
+  void preBuildProgram();
 
-    Memory<float, VRAM_CUDA> simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-    /**
-     * @brief Simulation of a LiDAR-Sensor in a given mesh
-     * 
-     * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
-     * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
-     * @return ResultT 
-     */
-    template<typename BundleT>
-    BundleT simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+  inline Memory<SphericalModel, VRAM_CUDA> model() const
+  {
+    return m_model;
+  }
 
-    template<typename BundleT>
-    void simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm,
-        BundleT& res) const;
-
-    template<typename BundleT>
-    void preBuildProgram();
-
-    inline Memory<SphericalModel, VRAM_CUDA> model() const
-    {
-        return m_model;
-    }
-
-    inline OptixMapPtr map() const 
-    {
-        return m_map;
-    }
-
-    // Problems:
-    // - a lot of copies
-    // 
-    // Solutions:
-    // - link buffers instead
-    // 
-    // Example:
-    // member Buffer that is partially upgraded
-    // member
+  // Problems:
+  // - a lot of copies
+  // 
+  // Solutions:
+  // - link buffers instead
+  // 
+  // Example:
+  // member Buffer that is partially upgraded
+  // member
 
 protected:
-    OptixMapPtr m_map;
-    CudaStreamPtr m_stream;
 
-    uint32_t m_width;
-    uint32_t m_height;
-    Memory<Transform, VRAM_CUDA> m_Tsb;
-    Memory<SphericalModel, VRAM_CUDA> m_model;
+  Memory<SphericalModel, VRAM_CUDA> m_model;
 
-    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
-    void launch(
-        const Memory<OptixSimulationDataGeneric, RAM>& mem,
-        const PipelinePtr program
-    ) const;
+  void launch(
+      const Memory<OptixSimulationDataGeneric, RAM>& mem,
+      const PipelinePtr program
+  ) const;
 
-    std::vector<PipelinePtr> m_programs;
+  std::vector<PipelinePtr> m_programs;
 };
 
 using SphereSimulatorOptixPtr = std::shared_ptr<SphereSimulatorOptix>;

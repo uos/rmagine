@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.2.12)# TODO update this version when merging into main-branch
+    VERSION 2.3.0)# TODO update this version when merging into main-branch
 
 option(BUILD_TOOLS "Build tools" ON)
 option(BUILD_TESTS "Build tests" ON)
@@ -234,6 +234,7 @@ if(BUILD_TOOLS)
     add_subdirectory(apps/rmagine_synthetic)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
+    add_subdirectory(apps/rmagine_info)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)

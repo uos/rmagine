@@ -90,6 +90,10 @@ public:
     MemoryView<DataT, MemT>& operator=(
         const MemoryView<DataT, MemT2>& o);
 
+        // template<typename MemT2>
+        // MemoryView<DataT, MemT>& operator=(
+        //     const MemoryView<const DataT, MemT2>& o);
+
     // TODO: Check CUDA usage (in kernels)
     RMAGINE_FUNCTION
     DataT* raw();

@@ -55,6 +55,8 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
+#include "SimulatorOptix.hpp"
+
 
 namespace rmagine {
 
@@ -112,86 +114,77 @@ namespace rmagine {
  * @endcode
  * 
  */
-class O1DnSimulatorOptix {
+class O1DnSimulatorOptix
+: public SimulatorOptix
+{
 public:
-    O1DnSimulatorOptix();
-    O1DnSimulatorOptix(OptixMapPtr map);
+  
+  O1DnSimulatorOptix();
+  O1DnSimulatorOptix(OptixMapPtr map);
 
-    ~O1DnSimulatorOptix();
+  ~O1DnSimulatorOptix();
 
-    void setMap(OptixMapPtr map);
+  void setModel(const O1DnModel_<VRAM_CUDA>& model);
+  void setModel(const O1DnModel_<RAM>& model);
+  void setModel(const Memory<O1DnModel_<VRAM_CUDA>, RAM>& model);
+  void setModel(const Memory<O1DnModel_<RAM>, RAM>& model);
 
-    void setTsb(const Memory<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
+  /**
+   * @brief Simulate from one pose
+   * 
+   * @tparam BundleT 
+   * @param Tbm Transform from base to map. aka pose in map
+   */
+  template<typename BundleT>
+  void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    void setModel(const O1DnModel_<VRAM_CUDA>& model);
-    void setModel(const O1DnModel_<RAM>& model);
-    void setModel(const Memory<O1DnModel_<VRAM_CUDA>, RAM>& model);
-    void setModel(const Memory<O1DnModel_<RAM>, RAM>& model);
+  template<typename BundleT>
+  BundleT simulate(const Transform& Tbm) const;
 
-    void simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<float, VRAM_CUDA>& ranges) const;
+  /**
+   * @brief Simulation of a LiDAR-Sensor in a given mesh
+   * 
+   * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
+   * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
+   * @return ResultT 
+   */
+  template<typename BundleT>
+  BundleT simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
-    Memory<float, VRAM_CUDA> simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+  template<typename BundleT>
+  void simulate(
+      const Memory<Transform, VRAM_CUDA>& Tbm,
+      BundleT& res) const;
 
-    /**
-     * @brief Simulation of a LiDAR-Sensor in a given mesh
-     * 
-     * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
-     * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
-     * @return ResultT 
-     */
-    template<typename BundleT>
-    BundleT simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+  template<typename BundleT>
+  void preBuildProgram();
 
-    template<typename BundleT>
-    void simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm,
-        BundleT& res) const;
+  inline Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model() const
+  {
+    return m_model_d;
+  }
 
-    template<typename BundleT>
-    void preBuildProgram();
-
-    inline Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> model() const
-    {
-        return m_model_d;
-    }
-
-    inline OptixMapPtr map() const 
-    {
-        return m_map;
-    }
-
-    // Problems:
-    // - a lot of copies
-    // 
-    // Solutions:
-    // - link buffers instead
-    // 
-    // Example:
-    // member Buffer that is partially upgraded
-    // member
+  // Problems:
+  // - a lot of copies
+  // 
+  // Solutions:
+  // - link buffers instead
+  // 
+  // Example:
+  // member Buffer that is partially upgraded
+  // member
 
 protected:
-    OptixMapPtr m_map;
-    CudaStreamPtr m_stream;
 
-    Memory<Transform, VRAM_CUDA> m_Tsb;
+  Memory<O1DnModel_<VRAM_CUDA>, RAM> m_model;
+  Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
 
-    uint32_t m_width;
-    uint32_t m_height;
-    Memory<O1DnModel_<VRAM_CUDA>, RAM> m_model;
-    Memory<O1DnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
-
-    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
 private:
-    // ADD LAUNCH
-    void launch(
-        const Memory<OptixSimulationDataGeneric, RAM>& mem,
-        const PipelinePtr program) const;
+  // ADD LAUNCH
+  void launch(
+      const Memory<OptixSimulationDataGeneric, RAM>& mem,
+      const PipelinePtr program) const;
 };
 
 using O1DnSimulatorOptixPtr = std::shared_ptr<O1DnSimulatorOptix>;

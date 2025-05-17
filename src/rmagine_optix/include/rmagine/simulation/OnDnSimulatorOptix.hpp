@@ -57,6 +57,8 @@
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
+#include "SimulatorOptix.hpp"
+
 
 namespace rmagine {
 
@@ -114,7 +116,9 @@ namespace rmagine {
  * @endcode
  * 
  */
-class OnDnSimulatorOptix {
+class OnDnSimulatorOptix
+: public SimulatorOptix 
+{
 public:
 
     OnDnSimulatorOptix();
@@ -122,29 +126,23 @@ public:
 
     ~OnDnSimulatorOptix();
 
-    void setMap(OptixMapPtr map);
-
-    void setTsb(const Memory<Transform, RAM>& Tsb);
-    void setTsb(const Transform& Tsb);
-
     void setModel(const OnDnModel_<VRAM_CUDA>& model);
     void setModel(const OnDnModel_<RAM>& model);
     void setModel(const Memory<OnDnModel_<VRAM_CUDA>, RAM>& model);
     void setModel(const Memory<OnDnModel_<RAM>, RAM>& model);
 
-    void simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<float, VRAM_CUDA>& ranges) const;
+    /**
+     * @brief Simulate from one pose
+     * 
+     * @tparam BundleT 
+     * @param Tbm 
+     * @param ret 
+     */
+    template<typename BundleT>
+    void simulate(const Transform& Tbm, BundleT& ret) const;
 
-    Memory<float, VRAM_CUDA> simulateRanges(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
-
-    void simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm, 
-        Memory<Vector, VRAM_CUDA>& normals) const;
-
-    Memory<Vector, VRAM_CUDA> simulateNormals(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+    template<typename BundleT>
+    BundleT simulate(const Transform& Tbm) const;
 
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
@@ -187,20 +185,8 @@ public:
 
 protected:
 
-    OptixMapPtr m_map;
-    CudaStreamPtr m_stream;
-
-    
-    Memory<Transform, VRAM_CUDA> m_Tsb;
-
-    uint32_t m_width;
-    uint32_t m_height;
-
-    Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
-
-    Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
-
-    Memory<SensorModelUnion, VRAM_CUDA> m_model_union;
+  Memory<OnDnModel_<VRAM_CUDA>, RAM> m_model;
+  Memory<OnDnModel_<VRAM_CUDA>, VRAM_CUDA> m_model_d;
 
 private:
 

@@ -1,15 +1,20 @@
 
 message(STATUS "Building Core. Library: rmagine")
 
+configure_file(src/version.cpp.in
+  ${CMAKE_TMP_OUTPUT_DIRECTORY}/core/version.cpp
+)
+
 set(RMAGINE_CORE_SRCS
+    # 
+    ${CMAKE_TMP_OUTPUT_DIRECTORY}/core/version.cpp
     # Maps
     src/map/AssimpIO.cpp
     # # Math
-    src/math/math.cpp
+    src/math/memory_math.cpp
     src/math/linalg.cpp
     src/math/statistics.cpp
     src/math/optimization.cpp
-    src/math/SVD.cpp
     # Types
     src/types/Memory.cpp
     src/types/conversions.cpp

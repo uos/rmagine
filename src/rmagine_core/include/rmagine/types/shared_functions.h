@@ -57,8 +57,6 @@
 #define RMAGINE_INLINE_DEVICE_FUNCTION inline
 #endif
 
-
-
 // macro for setting visibility
 // https://gcc.gnu.org/wiki/Visibility
 // 

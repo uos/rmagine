@@ -45,6 +45,12 @@ if(CUDAToolkit_FOUND)
             # CUDA_ARCHITECTURES all
     )
 
+    
+    # if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    #     set_target_properties(rmagine_optix_cu_to_ptx PROPERTIES CUDA_ARCHITECTURES all)
+    # endif()
+    # -> nvcc fatal   : Option '--ptx (-ptx)' is not allowed when compiling for multiple GPU architectures
+
     target_link_libraries(rmagine_optix_cu_to_ptx
         ${OptiX_LIBRARIES}
         rmagine-core
@@ -115,6 +121,7 @@ set(RMAGINE_OPTIX_SRCS
     src/map/optix/optix_shapes.cpp
     src/map/OptixMap.cpp
     # Simulation
+    src/simulation/SimulatorOptix.cpp
     src/simulation/SphereSimulatorOptix.cpp
     src/simulation/PinholeSimulatorOptix.cpp
     src/simulation/O1DnSimulatorOptix.cpp
@@ -164,6 +171,11 @@ set_target_properties(rmagine-optix
     SOVERSION ${rmagine_VERSION_MAJOR}
     VERSION ${rmagine_VERSION}
 )
+
+# set CUDA_ARCHITECTURES with CMake >= 3.23 when CMAKE_* is not set
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set_target_properties(rmagine-optix PROPERTIES CUDA_ARCHITECTURES all)
+endif()
 
 add_library(rmagine::optix ALIAS rmagine-optix)
 

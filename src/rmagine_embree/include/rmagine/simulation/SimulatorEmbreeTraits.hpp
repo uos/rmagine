@@ -28,7 +28,7 @@
 /**
  * @file
  * 
- * @brief SVD solver for CPU Memory
+ * @brief Simulator Container to construct Embree Simulators more intuitively
  *
  * @date 03.10.2022
  * @author Alexander Mock
@@ -38,47 +38,56 @@
  * 
  */
 
-#ifndef RMAGINE_MATH_SVD_HPP
-#define RMAGINE_MATH_SVD_HPP
+#ifndef RMAGINE_SIMULATION_SIMULATOR_EMBREE_TRAITS_HPP
+#define RMAGINE_SIMULATION_SIMULATOR_EMBREE_TRAITS_HPP
 
-#include <rmagine/types/Memory.hpp>
-#include <rmagine/math/types.h>
-#include <memory>
+#include <rmagine/simulation/Simulator.hpp>
 
-namespace rmagine {
+#include <rmagine/simulation/SphereSimulatorEmbree.hpp>
+#include <rmagine/simulation/PinholeSimulatorEmbree.hpp>
+#include <rmagine/simulation/O1DnSimulatorEmbree.hpp>
+#include <rmagine/simulation/OnDnSimulatorEmbree.hpp>
 
-class SVD
+namespace rmagine
 {
-public:
-    SVD();
-    ~SVD();
 
-    void calcUV(
-        const Matrix3x3& A,
-        Matrix3x3& U,
-        Matrix3x3& V
-    ) const;
+// Computing type
+struct Embree {
 
-    void calcUSV(const Matrix3x3& A,
-        Matrix3x3& U,
-        Vector& S,
-        Matrix3x3& V
-    ) const;
-
-    void calcUV(
-        const MemoryView<Matrix3x3, RAM>& As,
-        MemoryView<Matrix3x3, RAM>& Us,
-        MemoryView<Matrix3x3, RAM>& Vs
-    ) const;
-
-    void calcUSV(const MemoryView<Matrix3x3, RAM>& As,
-        MemoryView<Matrix3x3, RAM>& Us,
-        MemoryView<Vector, RAM>& Ss,
-        MemoryView<Matrix3x3, RAM>& Vs) const;
 };
 
-using SVDPtr = std::shared_ptr<SVD>;
+template<>
+class SimulatorType<SphericalModel, Embree>
+{
+public:
+    using Class = SphereSimulatorEmbree;
+    using Ptr = SphereSimulatorEmbreePtr;
+};
+
+template<>
+class SimulatorType<PinholeModel, Embree>
+{
+public:
+    using Class = PinholeSimulatorEmbree;
+    using Ptr = PinholeSimulatorEmbreePtr;
+};
+
+template<>
+class SimulatorType<O1DnModel, Embree>
+{
+public:
+    using Class = O1DnSimulatorEmbree;
+    using Ptr = O1DnSimulatorEmbreePtr;
+};
+
+template<>
+class SimulatorType<OnDnModel, Embree>
+{
+public:
+    using Class = OnDnSimulatorEmbree;
+    using Ptr = OnDnSimulatorEmbreePtr;
+};
 
 } // namespace rmagine
 
-#endif // RMAGINE_MATH_SVD_HPP
+#endif // RMAGINE_SIMULATION_SIMULATOR_EMBREE_HPP

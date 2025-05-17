@@ -1,0 +1,26 @@
+#include <rmagine/version.h>
+
+namespace rmagine
+{
+
+size_t version_major()
+{
+  return @rmagine_VERSION_MAJOR@;
+}
+
+size_t version_minor()
+{
+  return @rmagine_VERSION_MINOR@;
+}
+
+size_t version_patch()
+{
+  return @rmagine_VERSION_PATCH@;
+}
+
+const char* version_string()
+{
+    return "@rmagine_VERSION_MAJOR@.@rmagine_VERSION_MINOR@.@rmagine_VERSION_PATCH@";
+}
+
+} // namespace rmagine

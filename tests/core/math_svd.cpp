@@ -3,7 +3,7 @@
 
 #include <rmagine/math/types.h>
 
-#include <rmagine/math/math.h>
+#include <rmagine/math/memory_math.h>
 #include <rmagine/util/StopWatch.hpp>
 
 #include <rmagine/util/exceptions.h>
@@ -394,18 +394,111 @@ void parallelTest2()
     std::cout << "- summed error: " << err_rmagine << std::endl;
 }
 
+void bug1()
+{
+
+  {
+    rm::Matrix3x3 C;
+    C = {
+      0.0225, 0.0, 0.0,
+      0.0, 0.0324, 0.0,
+      0.0, 0.0, 0.0
+    };
+    rm::Matrix3x3 U, S, V;
+    rm::svd(C, U, S, V);
+
+    std::cout << "SVD results:" << std::endl;
+
+    std::cout << "U: "<< std::endl;
+    std::cout << U << std::endl;
+
+    std::cout << "S: " << std::endl;
+    std::cout << S << std::endl;
+
+    std::cout << "V: " << std::endl;
+    std::cout << V << std::endl;
+
+    S.setIdentity();
+    if(U.det() * V.det() < 0)
+    {
+        S(2, 2) = -1;
+    }
+    rm::Transform ret;
+    ret.R.set(U * S * V.transpose());
+    ret.R.normalizeInplace();
+
+    std::cout << "Best Rot: " << std::endl;
+    std::cout << ret.R << std::endl;
+  }
+
+  {
+    rm::Matrix4x4 C;
+    C = {
+      0.0225, 0.0, 0.0, 0.0,
+      0.0, 0.0324, 0.0, 0.0,
+      0.0, 0.0, 0.01, 0.0,
+      0.0, 0.0, 0.0, 0.0
+    };
+    rm::Matrix4x4 U, S, V;
+    rm::svd(C, U, S, V);
+
+    std::cout << "SVD results:" << std::endl;
+
+    std::cout << "U: "<< std::endl;
+    std::cout << U << std::endl;
+
+    std::cout << "S: " << std::endl;
+    std::cout << S << std::endl;
+
+    std::cout << "V: " << std::endl;
+    std::cout << V << std::endl;
+  }
+
+
+//     Merged: CrossStatistics: 
+// [component_container-1] - dataset mean: v[-1.74833e-19,0,0]
+// [component_container-1] - model mean: v[-1.74833e-19,0,-1.04308e-07]
+// [component_container-1] - covariance: 
+  // M3x3[
+  //   [component_container-1]  0.0225 0 0
+  //   [component_container-1]  0 0.0324 0
+  //   [component_container-1]  0 0 0
+  //   [component_container-1] ]
+  //   [component_container-1] - n meas: 4
+  //   [component_container-1] 
+  //   [component_container-1] U: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  -1 -nan nan
+  //   [component_container-1]  -0 -nan nan
+  //   [component_container-1]  -0 -nan nan
+  //   [component_container-1] ]
+  //   [component_container-1] S: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  0.0225 0 0
+  //   [component_container-1]  0 nan 0
+  //   [component_container-1]  0 0 nan
+  //   [component_container-1] ]
+  //   [component_container-1] V: 
+  //   [component_container-1] M3x3[
+  //   [component_container-1]  -1 0 0
+  //   [component_container-1]  -0 1 0
+  //   [component_container-1]  -0 0 1
+  //   [component_container-1] ]
+    
+}
+
 int main(int argc, char** argv)
 {
     srand((unsigned int) time(0));
 
-    // svdTestWithPrints();
+    svdTestWithPrints();
     runtimeTest<20, 30>();
     accuracyTest<20, 30>();
-
 
     parallelTest();
     parallelTest2();
 
+    bug1();
 
     return 0;
 }

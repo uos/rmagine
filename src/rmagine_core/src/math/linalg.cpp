@@ -9,7 +9,6 @@
 namespace rmagine
 {
 
-RMAGINE_HOST_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale)
 {
     Matrix4x4 M;
@@ -24,7 +23,6 @@ Matrix4x4 compose(const Transform& T, const Vector3& scale)
     return M * S;
 }
 
-RMAGINE_HOST_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
 {
     Matrix4x4 M;
@@ -44,7 +42,6 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S)
     return M * S_;
 }
 
-RMAGINE_HOST_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
 {
     Eigen::Matrix4f Meig;
@@ -58,7 +55,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
 
     Eigen::Affine3f A;
     A.matrix() = Meig;
-
 
     Eigen::Matrix3f Reig;
     Eigen::Matrix3f Seig;
@@ -80,7 +76,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S)
     T.R.set(R);
 }
 
-RMAGINE_HOST_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
 {
     Matrix3x3 S;
@@ -93,20 +88,16 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale)
     scale.z = S(2,2);
 }
 
-RMAGINE_HOST_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac)
 {
     return A * A.to(B).pow(fac);
 }
 
-RMAGINE_HOST_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac)
 {
     return A * A.to(B).pow(fac);
 }
 
-
-RMAGINE_HOST_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
@@ -651,7 +642,6 @@ void svd(
     }
 }
 
-RMAGINE_HOST_FUNCTION
 void svd(
     const Matrix3x3& a, 
     Matrix3x3& u,
@@ -1183,6 +1173,56 @@ void svd(
         v(1,0) = -v(1,0);
         v(2,0) = -v(2,0);
     }
+}
+
+bool check(const Quaternion& q)
+{
+  return std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w) && (fabs(q.l2norm()-1.0) < 0.0001);
+}
+
+Transform umeyama_transform(
+    const Vector3& d,
+    const Vector3& m,
+    const Matrix3x3& C,
+    const unsigned int n_meas)
+{
+  Transform ret;
+
+  if(n_meas > 0)
+  {
+    // intermediate storage needed (yet)
+    Matrix3x3 U, S, V;
+    svd(C, U, S, V);
+    S.setIdentity();
+    if(U.det() * V.det() < 0)
+    {
+      S(2, 2) = -1;
+    }
+    ret.R.set(U * S * V.transpose());
+    ret.R.normalizeInplace();
+    
+    // There are still situations where SVD results in an invalid result.
+    // I assume there are numerical issues inside the rm::svd function.
+    // TODO: Take an evening and check if we can write rm::svd more stable
+    // or if we can detect situations earlier and skip a lot of computations
+    // This is a suboptimal workaround that covers some issues:
+    if(!check(ret.R))
+    {
+      ret.R.setIdentity();
+    }
+    
+    ret.t = m - ret.R * d;
+  } else {
+    ret.setIdentity();
+  }
+
+  return ret;
+}
+
+Transform umeyama_transform(
+    const CrossStatistics& stats)
+{
+  return umeyama_transform(stats.dataset_mean, stats.model_mean, stats.covariance, stats.n_meas);
 }
 
 } // namespace rmagine

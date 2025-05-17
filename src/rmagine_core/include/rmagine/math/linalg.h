@@ -45,6 +45,8 @@
 #include <rmagine/types/shared_functions.h>
 #include <rmagine/types/PointCloud.hpp>
 
+#include <rmagine/util/prints.h>
+
 namespace rmagine
 {
 
@@ -56,10 +58,8 @@ namespace rmagine
  * @param scale   scale vector
  * @return Matrix4x4   composed 4x4 transformation matrix
  */
-RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Vector3& scale);
 
-RMAGINE_FUNCTION
 Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
 
 /**
@@ -70,7 +70,6 @@ Matrix4x4 compose(const Transform& T, const Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param S 3x3 scale matrix
  */
-RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
 
 /**
@@ -81,7 +80,6 @@ void decompose(const Matrix4x4& M, Transform& T, Matrix3x3& S);
  * @param T transform object consisting of translational and rotational parts
  * @param scale scale vector
  */
-RMAGINE_FUNCTION
 void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
 
 /**
@@ -93,7 +91,6 @@ void decompose(const Matrix4x4& M, Transform& T, Vector3& scale);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
 Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
 
 /**
@@ -105,9 +102,7 @@ Quaternion polate(const Quaternion& A, const Quaternion& B, float fac);
  * - if fac=1.0 it is exactly B
  * - if fac=2.0 it it goes on a (B-A) length from B (extrapolation)
 */
-RMAGINE_FUNCTION
 Transform polate(const Transform& A, const Transform& B, float fac);
-
 
 /**
  * @brief Cholesky Decomposition L*L^T = A
@@ -162,8 +157,10 @@ void svd(
 /**
  * @brief SVD that can be used for both CPU and GPU (Cuda kernels)
  *
+ * CHANGE: Only CPU. Quick fix, since I noticed a problem that CUDA 
+ * device code was accidently called from MICP host code
+ * 
  */
-RMAGINE_FUNCTION
 void svd(
     const Matrix3x3& A,
     Matrix3x3& U,
@@ -171,7 +168,6 @@ void svd(
     Matrix3x3& V
 );
 
-RMAGINE_FUNCTION
 void svd(
     const Matrix3x3& A, 
     Matrix3x3& U,
@@ -179,7 +175,6 @@ void svd(
     Matrix3x3& V
 );
 
-
 /**
  * @brief computes the optimal transformation according to Umeyama's algorithm 
  * 
@@ -188,36 +183,11 @@ void svd(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
 Transform umeyama_transform(
     const Vector3& d,
     const Vector3& m,
     const Matrix3x3& C,
-    const unsigned int n_meas = 1
-)
-{
-    Transform ret;
-
-    if(n_meas > 0)
-    {
-        // intermediate storage needed (yet)
-        Matrix3x3 U, S, V;
-        svd(C, U, S, V);
-        S.setIdentity();
-        if(U.det() * V.det() < 0)
-        {
-            S(2, 2) = -1;
-        }
-        ret.R.set(U * S * V.transpose());
-        ret.R.normalizeInplace();
-        ret.t = m - ret.R * d;
-    } else {
-        ret.setIdentity();
-    }
-
-    return ret;
-}
-
+    const unsigned int n_meas = 1);
 /**
  * @brief computes the optimal transformation according to Umeyama's algorithm 
  * 
@@ -226,31 +196,8 @@ Transform umeyama_transform(
  * @param n_meas: if == 0: Resulting Transform is set to identity. Otherwise the standard Umeyama algorithm is performed
  * 
  */
-RMAGINE_INLINE_FUNCTION
 Transform umeyama_transform(
-    const CrossStatistics& stats)
-{
-    Transform ret;
-
-    if(stats.n_meas > 0)
-    {
-        // intermediate storage needed (yet)
-        Matrix3x3 U, S, V;
-        svd(stats.covariance, U, S, V);
-        S.setIdentity();
-        if(U.det() * V.det() < 0)
-        {
-            S(2, 2) = -1;
-        }
-        ret.R.set(U * S * V.transpose());
-        ret.R.normalizeInplace();
-        ret.t = stats.model_mean - ret.R * stats.dataset_mean;
-    } else {
-        ret.setIdentity();
-    }
-
-    return ret;
-}
+    const CrossStatistics& stats);
 
 RMAGINE_INLINE_FUNCTION
 Matrix3x3 so3_hat(Vector3f v)

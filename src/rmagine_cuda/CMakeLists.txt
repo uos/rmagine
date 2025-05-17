@@ -5,10 +5,9 @@ message(STATUS "Building Cuda dependend code. Library: rmagine-cuda")
 set(RMAGINE_CUDA_SRCS
     src/types/MemoryCuda.cu
     # math
-    src/math/math.cu
+    src/math/memory_math.cu
     src/math/math_batched.cu
     src/math/linalg.cu
-    src/math/SVDCuda.cpp
     src/math/statistics.cu
     # util
     src/util/cuda/CudaContext.cpp

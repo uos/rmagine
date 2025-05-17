@@ -50,10 +50,11 @@ namespace rmagine
 template<typename MemT>
 struct PointCloud_
 {
-    Memory<Vector, MemT>        points;
-    Memory<uint8_t, MemT>       mask;
-    Memory<Vector, MemT>        normals;
-    Memory<unsigned int, MemT>  ids;
+  Memory<Vector, MemT>        points;
+  Memory<uint8_t, MemT>       mask;
+  Memory<Vector, MemT>        normals;
+  Memory<unsigned int, MemT>  ids;
+  Memory<float, MemT>         time_offsets; // in seconds
 };
 
 using PointCloud = PointCloud_<RAM>;
@@ -61,26 +62,39 @@ using PointCloud = PointCloud_<RAM>;
 template<typename MemT>
 struct PointCloudView_
 {
-    MemoryView<Vector, MemT>        points; // required
-    MemoryView<uint8_t, MemT>       mask    = MemoryView<uint8_t, MemT>::Empty();
-    MemoryView<Vector, MemT>        normals = MemoryView<Vector, MemT>::Empty();
-    MemoryView<unsigned int, MemT>  ids     = MemoryView<uint32_t, MemT>::Empty();
+  MemoryView<Vector, MemT>        points; // required
+  MemoryView<uint8_t, MemT>       mask         = MemoryView<uint8_t, MemT>::Empty();
+  MemoryView<Vector, MemT>        normals      = MemoryView<Vector, MemT>::Empty();
+  MemoryView<unsigned int, MemT>  ids          = MemoryView<uint32_t, MemT>::Empty();
+  MemoryView<float, MemT>         time_offsets = MemoryView<float, MemT>::Empty();
 };
 
 // default: RAM
 using PointCloudView = PointCloudView_<RAM>;
 
 template<typename MemTto, typename MemTfrom>
-PointCloud_<MemTto> transfer(PointCloudView_<MemTfrom> from)
+PointCloud_<MemTto> transfer(const PointCloudView_<MemTfrom>& from)
 {
   return PointCloud_<MemTto>{
-    .points  = from.points,
-    .mask    = from.mask,
-    .normals = from.normals,
-    .ids     = from.ids
+    .points       = from.points,
+    .mask         = from.mask,
+    .normals      = from.normals,
+    .ids          = from.ids,
+    .time_offsets = from.time_offsets
   };
 }
 
+template<typename MemT>
+const PointCloudView_<MemT> watch(const PointCloud_<MemT>& from)
+{
+  return {
+    .points       = from.points,
+    .mask         = from.mask,
+    .normals      = from.normals,
+    .ids          = from.ids,
+    .time_offsets = from.time_offsets
+  };
+}
 
 } // namespace rmagine
 

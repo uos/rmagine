@@ -5,7 +5,7 @@
 #include <rmagine/types/MemoryCuda.hpp>
 #include <rmagine/util/StopWatch.hpp>
 
-#include <rmagine/math/math.cuh>
+#include <rmagine/math/memory_math.cuh>
 
 #include <rmagine/util/prints.h>
 
