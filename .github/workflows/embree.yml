@@ -14,15 +14,15 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ ubuntu-20.04, ubuntu-22.04, ubuntu-24.04 ]
+        os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
     - name: Deps (APT)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
     - name: Deps (Embree)
       run: |
-        wget https://github.com/embree/embree/releases/download/v4.3.0/embree-4.3.0.x86_64.linux.tar.gz
+        wget https://github.com/RenderKit/embree/releases/download/v4.4.0/embree-4.4.0.x86_64.linux.tar.gz
         mkdir embree
-        tar -xf embree-4.3.0.x86_64.linux.tar.gz -C embree
+        tar -xf embree-4.4.0.x86_64.linux.tar.gz -C embree
     - name: Clone
       uses: actions/checkout@v4
       with:
