@@ -1177,7 +1177,7 @@ void svd(
 
 bool check(const Quaternion& q)
 {
-  return std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w) && (fabs(q.l2norm()-1.0) < 0.0001);
+  return std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w);
 }
 
 Transform umeyama_transform(

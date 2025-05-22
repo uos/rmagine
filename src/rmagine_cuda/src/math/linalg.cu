@@ -1150,7 +1150,7 @@ void svd(
 __device__ __forceinline__ 
 bool check(const Quaternion& q)
 {
-    std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w) && (fabs(q.l2norm()-1.0) < 0.0001);
+    std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z) && std::isfinite(q.w);
 }
 
 __device__
