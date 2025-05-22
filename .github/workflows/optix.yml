@@ -1,17 +1,20 @@
-name: embree-ubu24
+name: optix
 on:
   push:
     branches:
-      - 'main'
+      - 'no'
   pull_request:
     branches:
-      - 'main'
+      - 'no'
   workflow_dispatch:
     branches:
       - '*'
 jobs:
-  rmagine-embree-ubuntu22:
-    runs-on: ubuntu-24.04
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04, ubuntu-22.04 ]
     steps:
     - name: Deps (APT)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
