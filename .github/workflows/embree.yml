@@ -22,7 +22,7 @@ jobs:
       run: |
         wget https://github.com/embree/embree/releases/download/v4.3.0/embree-4.3.0.x86_64.linux.tar.gz
         mkdir embree
-        tar -xf embree-4.3.0.x86_64.linux.tar.gz -C embree
+        tar -xf embree-4.4.0.x86_64.linux.tar.gz -C embree
     - name: Clone
       uses: actions/checkout@v4
       with:
