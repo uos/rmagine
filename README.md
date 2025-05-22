@@ -142,15 +142,6 @@ The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/101
 We welcome contributions of all kinds, including issues, pull requests, and feedback, to help us enhance this OpenSource project.
 If you'd like to enhance the [documentation](https://uos.github.io/rmagine_docs/), whether by fixing spelling errors or adding examples, don't hesitate to submit issues or pull requests in the repository at https://github.com/uos/rmagine_docs.
 
-## Build Status
-
-|                   | Ubuntu 22 | Ubuntu 24 |
-|-------------------|:---------:|:---------:|
-| `rmagine::core`   | [![CI](https://github.com/uos/rmagine/workflows/core-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu24.yml) | [![CI](https://github.com/uos/rmagine/workflows/core-ubu24/badge.svg)](https://github.com/uos/rmagine/actions/workflows/core-ubu24.yml) |
-| `rmagine::embree` | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu22/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu22.yml) | [![CI](https://github.com/uos/rmagine/workflows/embree-ubu24/badge.svg)](https://github.com/uos/rmagine/actions/workflows/embree-ubu24.yml) |
-| `rmagine::cuda`   | ... | ... |
-| `rmagine::optix`  | ... | ... |
-
 ## News
 
 ### Sep 12th 2024
