@@ -55,7 +55,7 @@ void O1DnSimulatorOptix::simulate(
   auto cuda_ctx = optix_ctx->getCudaContext();
   if(!cuda_ctx->isActive())
   {
-    std::cout << "[SphereSimulatorOptix::simulate() Need to activate map context" << std::endl;
+    std::cout << "[O1DnSimulatorOptix::simulate() Need to activate map context" << std::endl;
     cuda_ctx->use();
   }
   
