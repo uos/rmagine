@@ -23,6 +23,6 @@ foreach(OPTIX_KERNEL_FILE ${OPTIX_KERNEL_FILES})
     # Read Compiled Kernel to String
     file(READ "${RMAGINE_OPTIX_PTX_DIR}/cuda_compile_ptx_1_generated_${OPTIX_KERNEL_NAME}.cu.ptx" INCLUDE_STRING)
     # Write to static readable file e.g. R("")
-    configure_file(${RMAGINE_SOURCE_DIR}/cmake/FileToString.h.in "include/kernels/${OPTIX_KERNEL_NAME}String.h")
+    configure_file(${RMAGINE_SOURCE_DIR}/src/rmagine_optix/cmake/FileToString.h.in "include/kernels/${OPTIX_KERNEL_NAME}String.h")
     message(STATUS "Preprocessed ${OPTIX_KERNEL_NAME}")
 endforeach()

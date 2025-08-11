@@ -1,4 +1,115 @@
-message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine-optix")
+##########################
+## Package: rmagine     ##
+## Component: optix      ##
+##########################
+
+##################################
+## Required external libraries: ##
+## - CUDA                       ##
+## - OptiX                      ##
+##################################
+
+set(RMAGINE_OPTIX_DOWNLOAD_VERSION 9.0.0)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# I am aware find_package(CUDA) is deprecated.
+# - TODO: support find_package(CUDAToolkit) as well
+# -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
+# - TODO: this becomes quite messy. make a seperate file from this
+
+# default flags are not set when including cuda
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+
+  if(NOT CUDA_NVCC_FLAGS_DEBUG)
+    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
+    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELEASE)
+    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
+    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+endif()
+
+# set(CUDA_STANDARD 14)
+
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    find_package(CUDAToolkit QUIET)
+    if(CUDAToolkit_FOUND)
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
+        set(CUDA_INCLUDE_DIRS "") # is in target instead
+    else()
+        find_package(CUDA)
+        if(CUDA_FOUND)
+            enable_language(CUDA)
+            set(CUDA_DRIVER_LIBRARY cuda)
+        else()
+            message(STATUS "Neither CudaToolkit nor CUDA found!")
+        endif(CUDA_FOUND)
+    endif(CUDAToolkit_FOUND)
+endif(CMAKE_CUDA_COMPILER)
+
+
+if(CUDA_FOUND)
+
+
+set(TMP_LIST_AUTO_LOCAL "Auto;Local")
+if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+    find_package(OptiX QUIET)
+endif()
+
+set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
+if(NOT OptiX_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+
+    # TODO: Download
+    message(WARNING "Try to download OptiX!")
+
+    CPMAddPackage(
+            NAME optix
+            GIT_REPOSITORY https://github.com/NVIDIA/optix-dev.git
+            VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION}
+            DOWNLOAD_ONLY YES
+        )
+
+    if(optix_ADDED)
+        message(STATUS "YESS")
+        set(OptiX_INCLUDE_DIRS ${optix_SOURCE_DIR}/include)
+        message(STATUS "YESS: ${OptiX_INCLUDE_DIRS}")
+        set(OptiX_FOUND TRUE)
+    endif(optix_ADDED)
+
+endif()
+
+
+if(OptiX_FOUND)
+    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
+endif(OptiX_FOUND)
+
+
+endif(CUDA_FOUND)
+
+
+
+
+
+if(OptiX_FOUND)
+
+message(STATUS "${Green}rmagine::optix${ColourReset}: Building (OptiX v${OptiX_VERSION})")
 
 # Optix Kernels
 set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
@@ -78,7 +189,6 @@ else(CUDAToolkit_FOUND)
         ${RMAGINE_CORE_INCLUDES}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        ${OptiX_INCLUDE_DIRS}
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -149,7 +259,7 @@ target_include_directories(rmagine-optix PUBLIC
 )
 
 # TODO: make this PRIVATE as soon as RMCL is not compiling OptiX code
-target_include_directories(rmagine-optix PUBLIC
+target_include_directories(rmagine-optix PRIVATE
     ${OptiX_INCLUDE_DIRS}
 )
 
@@ -231,3 +341,9 @@ set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL optix)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else(OptiX_FOUND)
+
+message(STATUS "${Yellow}rmagine::optix${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(OptiX_FOUND)

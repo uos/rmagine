@@ -8,9 +8,12 @@ option(RMAGINE_BUILD_TESTS "Build tests" ON)
 option(RMAGINE_BUILD_EXAMPLES "Build examples" OFF)
 option(RMAGINE_BUILD_DOCS "Build documentation" OFF)
 
-set(RMAGINE_CPM_MODE "Auto" CACHE STRING "Choose the dependency management mode for CPM")
+set(RMAGINE_CPM_MODE "Auto" CACHE STRING "Choose the dependency management mode for CPM.")
 set_property(CACHE RMAGINE_CPM_MODE PROPERTY STRINGS "Local" "Auto" "Download" "None")
-
+# Local: Use local packages only. This is the old default behavior until v2.3.0
+# Auto: Use local package if available and download otherwise (default from v2.3.1)
+# Download: Always download.
+# None: Let CPM decide. You can setup the behavior by setting the respective CPM variables manually
 
 include(GNUInstallDirs)
 
@@ -37,10 +40,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_TMP_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
 
-set(CMAKE_MODULE_PATH
-  ${rmagine_SOURCE_DIR}/cmake
-  ${CMAKE_MODULE_PATH}
-)
+list(APPEND CMAKE_MODULE_PATH ${rmagine_SOURCE_DIR}/cmake)
 
 # printing in color
 if(NOT WIN32)
@@ -63,22 +63,6 @@ if(NOT WIN32)
   set(BoldWhite   "${Esc}[1;37m")
 endif()
 
-# configure this
-
-if(RMAGINE_CPM_MODE STREQUAL "Auto")
-    set(CPM_USE_LOCAL_PACKAGES TRUE)
-    set(CPM_LOCAL_PACKAGES_ONLY FALSE)
-elseif(RMAGINE_CPM_MODE STREQUAL "Local")
-    # OLD BEHAVIOR
-    set(CPM_USE_LOCAL_PACKAGES TRUE)
-    set(CPM_LOCAL_PACKAGES_ONLY TRUE)
-elseif(RMAGINE_CPM_MODE STREQUAL "Download")
-    set(CPM_USE_LOCAL_PACKAGES FALSE)
-    set(CPM_LOCAL_PACKAGES_ONLY FALSE)
-elseif(RMAGINE_CPM_MODE STREQUAL "None")
-    message(STATUS "Let CPM manage the behavior. You can change CPM_USE_LOCAL_PACKAGES or CPM_LOCAL_PACKAGES_ONLY via flags now.")
-endif()
-
 
 include(cmake/CPM.cmake)
 
@@ -87,31 +71,6 @@ include(cmake/CPM.cmake)
 
 find_package(Boost CONFIG REQUIRED)
 find_package(Eigen3 REQUIRED)
-
-############################
-## EMBREE: CPU Raycasting ##
-############################
-# supported Embree VERSIONS: Embree 4 (Tested until version 4.3)
-# find_package(embree 4)
-
-CPMAddPackage(
-    NAME embree
-    GITHUB_REPOSITORY RenderKit/embree
-    VERSION 4
-    OPTIONS
-        "EMBREE_TUTORIALS OFF"
-        "EMBREE_TESTING OFF"
-        "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
-        "BUILD_SHARED_LIBS ON"
-)
-
-if(TARGET embree)
-    set(embree_FOUND TRUE)
-    set(embree_LIBRARY embree)
-else()
-    message(STATUS "Embree not found")
-    set(embree_FOUND FALSE)
-endif(TARGET embree)
 
 ####################
 ## ASSIMP: MeshIO ##
@@ -128,121 +87,41 @@ if(OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif(OPENMP_FOUND)
 
-########################################
-## Optional Deps
-
-# for ouster config loading
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP jsoncpp)
-
-if(TARGET PkgConfig::jsoncpp) # for downwards compatibility
-    set(JSONCPP_INCLUDDE_DIRS "")
-    set(JSONCPP_LIBRARIES PkgConfig::jsoncpp)
-endif()
-
-######################################
-## CUDA: For Optix                  ##
-######################################
-
-# I am aware find_package(CUDA) is deprecated.
-# - TODO: support find_package(CUDAToolkit) as well
-# -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
-# - TODO: this becomes quite messy. make a seperate file from this
-
-# default flags are not set when including cuda
-if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
-
-  if(NOT CUDA_NVCC_FLAGS_DEBUG)
-    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
-  endif()
-
-  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
-    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
-  endif()
-
-  if(NOT CUDA_NVCC_FLAGS_RELEASE)
-    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
-  endif()
-
-  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
-    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
-  endif()
-
-endif()
-
-# set(CUDA_STANDARD 14)
-
-include(CheckLanguage)
-check_language(CUDA)
-if(CMAKE_CUDA_COMPILER)
-    message(STATUS "Cuda language available!")
-
-    find_package(CUDAToolkit QUIET)
-    if(CUDAToolkit_FOUND)
-        message(STATUS "Found Cuda Toolkit!")
-        enable_language(CUDA)
-        set(CUDA_FOUND True)
-        set(CUDA_LIBRARIES CUDA::cudart)
-        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
-        set(CUDA_cublas_LIBRARY CUDA::cublas)
-        set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
-        set(CUDA_INCLUDE_DIRS "") # is in target instead
-    else()
-        find_package(CUDA)
-        if(CUDA_FOUND)
-            message(STATUS "Found Cuda!")
-            enable_language(CUDA)
-            set(CUDA_DRIVER_LIBRARY cuda)
-        else()
-            message(STATUS "Neither CudaToolkit nor CUDA found!")
-        endif(CUDA_FOUND)
-    endif(CUDAToolkit_FOUND)
-endif(CMAKE_CUDA_COMPILER)
-
-
-######################################
-## OptiX: RTX Raycasting ##
-######################################
-find_package(OptiX)
-if(OptiX_FOUND)
-    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
-endif()
-
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-# include_directories(
-#     include
-# )
+######################
+## Build Components ##
+######################
 
 add_definitions(${rmagine_DEFINITIONS})
 
 set(RMAGINE_LIBRARIES)
 set(RMAGINE_STATIC_LIBRARIES)
 
-### RMAGINE CORE LIB
+### RMAGINE CORE COMPONENT
 add_subdirectory(src/rmagine_core)
 
-### RMAGINE OUSTER LIB
-if(JSONCPP_FOUND)
+### RMAGINE OUSTER COMPONENT
+option(RMAGINE_OUSTER_DISABLE "Disable rmagine::ouster compilation" OFF)
+if(NOT RMAGINE_OUSTER_DISABLE)
     add_subdirectory(src/rmagine_ouster)
-endif(JSONCPP_FOUND)
+endif()
 
-### RMAGINE EMBREE LIB
-if(embree_FOUND)
-  add_subdirectory(src/rmagine_embree)
-endif(embree_FOUND)
+### RMAGINE EMBREE COMPONENT
+option(RMAGINE_EMBREE_DISABLE "Disable rmagine::embree compilation" OFF)
+if(NOT RMAGINE_EMBREE_DISABLE)
+    add_subdirectory(src/rmagine_embree)
+endif()
 
-### RMAGINE CUDA LIB
-if(CUDA_FOUND)
+### RMAGINE CUDA COMPONENT
+option(RMAGINE_CUDA_DISABLE "Disable rmagine::cuda compilation" OFF)
+if(NOT RMAGINE_CUDA_DISABLE)
     add_subdirectory(src/rmagine_cuda)
-    if(OptiX_FOUND)
-        add_subdirectory(src/rmagine_optix)
-    endif(OptiX_FOUND)
-endif(CUDA_FOUND)
+endif(NOT RMAGINE_CUDA_DISABLE)
+
+### RMAGINE OPTIX COMPONENT
+option(RMAGINE_OPTIX_DISABLE "Disable rmagine::optix compilation" OFF)
+if(NOT RMAGINE_OPTIX_DISABLE)
+    add_subdirectory(src/rmagine_optix)
+endif(NOT RMAGINE_OPTIX_DISABLE)
 
 message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
@@ -265,13 +144,13 @@ if(RMAGINE_BUILD_TOOLS)
 endif(RMAGINE_BUILD_TOOLS)
 
 if(RMAGINE_BUILD_EXAMPLES)
-if(embree_FOUND)
+if(TARGET rmagine-embree)
     add_subdirectory(apps/rmagine_examples/rmagine_embree_scene)
-endif(embree_FOUND)
+endif(TARGET rmagine-embree)
 
-if(OptiX_FOUND)
+if(TARGET rmagine-optix)
     add_subdirectory(apps/rmagine_examples/rmagine_optix_scene)
-endif(OptiX_FOUND)
+endif(TARGET rmagine-optix)
 endif(RMAGINE_BUILD_EXAMPLES)
 
 

@@ -1,5 +1,6 @@
 
-message(STATUS "Building Core. Library: rmagine")
+
+message(STATUS "${Green}rmagine::core${ColourReset}: Building")
 
 configure_file(src/version.cpp.in
   ${CMAKE_TMP_OUTPUT_DIRECTORY}/core/version.cpp

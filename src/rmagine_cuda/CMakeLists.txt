@@ -1,6 +1,70 @@
-message(STATUS "Building Cuda dependend code. Library: rmagine-cuda")
+##########################
+## Package: rmagine     ##
+## Component: cuda      ##
+##########################
 
-# add_library(rmagine-cuda SHARED
+##################################
+## Required external libraries: ##
+## - CUDA                       ##
+##################################
+
+# I am aware find_package(CUDA) is deprecated.
+# - TODO: support find_package(CUDAToolkit) as well
+# -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
+# - TODO: this becomes quite messy. make a seperate file from this
+
+# default flags are not set when including cuda
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+
+  if(NOT CUDA_NVCC_FLAGS_DEBUG)
+    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
+    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELEASE)
+    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
+    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+endif()
+
+# set(CUDA_STANDARD 14)
+
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+
+    find_package(CUDAToolkit QUIET)
+    if(CUDAToolkit_FOUND)
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
+        set(CUDA_INCLUDE_DIRS "") # is in target instead
+        set(CUDA_VERSION ${CUDAToolkit_VERSION})
+    else()
+        find_package(CUDA)
+        if(CUDA_FOUND)
+            enable_language(CUDA)
+            set(CUDA_DRIVER_LIBRARY cuda)
+        else()
+            message(STATUS "Neither CudaToolkit nor CUDA found!")
+        endif(CUDA_FOUND)
+    endif(CUDAToolkit_FOUND)
+endif(CMAKE_CUDA_COMPILER)
+
+
+if(CUDA_FOUND)
+
+message(STATUS "${Green}rmagine::cuda${ColourReset}: Building (CUDA v${CUDA_VERSION})")
 
 set(RMAGINE_CUDA_SRCS
     src/types/MemoryCuda.cu
@@ -122,3 +186,9 @@ set(CPACK_DEBIAN_CUDA_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL cuda)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else(CUDA_FOUND)
+
+message(STATUS "${Yellow}rmagine::cuda${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(CUDA_FOUND)

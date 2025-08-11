@@ -3,7 +3,48 @@
 ## Component: embree    ##
 ##########################
 
-message(STATUS "Building Embree (${embree_VERSION}) backend. Library: rmagine-embree")
+##################################
+## Required external libraries: ##
+## - embree                     ##
+##################################
+
+# version of embree that is used for searching a local package
+set(RMAGINE_EMBREE_LOCAL_VERSION 4)
+# version of embree that is used for download
+set(RMAGINE_EMBREE_DOWNLOAD_VERSION 4.4.0)
+
+message(STATUS "Checking dependencies of rmagine::embree ...")
+
+set(TMP_LIST_AUTO_LOCAL "Auto;Local")
+if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+    find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} QUIET)
+endif()
+
+set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
+if(NOT embree_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+
+    CPMAddPackage(
+        URI "gh:RenderKit/embree"
+        VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
+        OPTIONS
+            "EMBREE_TUTORIALS OFF"
+            "EMBREE_TESTING OFF"
+            "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
+            "BUILD_SHARED_LIBS ON"
+    )
+    if(TARGET embree)
+        set(embree_FOUND TRUE)
+        set(embree_LIBRARY embree)
+        set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
+    else()
+        set(embree_FOUND FALSE)
+    endif(TARGET embree)
+endif()
+
+
+if(embree_FOUND)
+
+message(STATUS "${Green}rmagine::embree${ColourReset}: Building (Embree v${embree_VERSION})")
 
 set(RMAGINE_EMBREE_SRCS
     # Maps
@@ -107,3 +148,9 @@ set(CPACK_DEBIAN_EMBREE_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL embree)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else(embree_FOUND)
+
+message(STATUS "${Yellow}rmagine::embree${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(embree_FOUND)
