@@ -3,10 +3,14 @@ project(rmagine
     LANGUAGES CXX C
     VERSION 2.3.0)# TODO update this version when merging into main-branch
 
-option(BUILD_TOOLS "Build tools" ON)
-option(BUILD_TESTS "Build tests" ON)
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_DOCS "Build documentation" OFF)
+option(RMAGINE_BUILD_TOOLS "Build tools" ON)
+option(RMAGINE_BUILD_TESTS "Build tests" ON)
+option(RMAGINE_BUILD_EXAMPLES "Build examples" OFF)
+option(RMAGINE_BUILD_DOCS "Build documentation" OFF)
+
+set(RMAGINE_CPM_MODE "Auto" CACHE STRING "Choose the dependency management mode for CPM")
+set_property(CACHE RMAGINE_CPM_MODE PROPERTY STRINGS "Local" "Auto" "Download" "None")
+
 
 include(GNUInstallDirs)
 
@@ -59,6 +63,25 @@ if(NOT WIN32)
   set(BoldWhite   "${Esc}[1;37m")
 endif()
 
+# configure this
+
+if(RMAGINE_CPM_MODE STREQUAL "Auto")
+    set(CPM_USE_LOCAL_PACKAGES TRUE)
+    set(CPM_LOCAL_PACKAGES_ONLY FALSE)
+elseif(RMAGINE_CPM_MODE STREQUAL "Local")
+    # OLD BEHAVIOR
+    set(CPM_USE_LOCAL_PACKAGES TRUE)
+    set(CPM_LOCAL_PACKAGES_ONLY TRUE)
+elseif(RMAGINE_CPM_MODE STREQUAL "Download")
+    set(CPM_USE_LOCAL_PACKAGES FALSE)
+    set(CPM_LOCAL_PACKAGES_ONLY FALSE)
+elseif(RMAGINE_CPM_MODE STREQUAL "None")
+    message(STATUS "Let CPM manage the behavior. You can change CPM_USE_LOCAL_PACKAGES or CPM_LOCAL_PACKAGES_ONLY via flags now.")
+endif()
+
+
+include(cmake/CPM.cmake)
+
 ################################
 ## REQUIRED DEPS
 
@@ -68,23 +91,27 @@ find_package(Eigen3 REQUIRED)
 ############################
 ## EMBREE: CPU Raycasting ##
 ############################
-# supported Embree VERSIONS: Embree 4 (Tested until versio 4.2)
-find_package(embree 4)
+# supported Embree VERSIONS: Embree 4 (Tested until version 4.3)
+# find_package(embree 4)
 
-if(embree_FOUND)
-    # NO INCLUDE?
-    if(NOT embree_LIBRARY)
-        if(EMBREE_LIBRARY)
-            set(embree_LIBRARY ${EMBREE_LIBRARY})
-        elseif(Embree_LIBRARY)
-            set(embree_LIBRARY ${Embree_LIBRARY})
-        else()
-            set(embree_LIBRARY embree)
-        endif()
-    endif()
+CPMAddPackage(
+    NAME embree
+    GITHUB_REPOSITORY RenderKit/embree
+    VERSION 4
+    OPTIONS
+        "EMBREE_TUTORIALS OFF"
+        "EMBREE_TESTING OFF"
+        "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
+        "BUILD_SHARED_LIBS ON"
+)
+
+if(TARGET embree)
+    set(embree_FOUND TRUE)
+    set(embree_LIBRARY embree)
 else()
     message(STATUS "Embree not found")
-endif(embree_FOUND)
+    set(embree_FOUND FALSE)
+endif(TARGET embree)
 
 ####################
 ## ASSIMP: MeshIO ##
@@ -223,21 +250,21 @@ foreach(LIBRARY ${RMAGINE_LIBRARIES})
 endforeach()
 
 #### TESTS
-if(BUILD_TESTS)
+if(RMAGINE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
-endif(BUILD_TESTS)
+endif(RMAGINE_BUILD_TESTS)
 
 #### TOOLS
-if(BUILD_TOOLS)
+if(RMAGINE_BUILD_TOOLS)
     add_subdirectory(apps/rmagine_benchmark)
     add_subdirectory(apps/rmagine_synthetic)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
     add_subdirectory(apps/rmagine_info)
-endif(BUILD_TOOLS)
+endif(RMAGINE_BUILD_TOOLS)
 
-if(BUILD_EXAMPLES)
+if(RMAGINE_BUILD_EXAMPLES)
 if(embree_FOUND)
     add_subdirectory(apps/rmagine_examples/rmagine_embree_scene)
 endif(embree_FOUND)
@@ -245,7 +272,7 @@ endif(embree_FOUND)
 if(OptiX_FOUND)
     add_subdirectory(apps/rmagine_examples/rmagine_optix_scene)
 endif(OptiX_FOUND)
-endif(BUILD_EXAMPLES)
+endif(RMAGINE_BUILD_EXAMPLES)
 
 
 # CMAKE FIND SCRIPT
@@ -309,7 +336,7 @@ endif()
 # DOCUMENTATION
 ###############################################################################
 
-if(BUILD_DOCS)
+if(RMAGINE_BUILD_DOCS)
 
 find_package(Doxygen REQUIRED)
 
@@ -323,7 +350,7 @@ add_custom_target( doc ALL
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Generating API documentation with Doxygen" VERBATIM )
 
-endif(BUILD_DOCS)
+endif(RMAGINE_BUILD_DOCS)
 
 
 #########################
