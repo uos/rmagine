@@ -1,3 +1,23 @@
+##########################
+## Package: rmagine     ##
+## Component: ouster    ##
+##########################
+
+##################################
+## Required external libraries: ##
+## - jsoncpp                     ##
+##################################
+
+# for ouster config loading
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+
+if(TARGET PkgConfig::jsoncpp) # for downwards compatibility
+    set(JSONCPP_INCLUDE_DIRS "")
+    set(JSONCPP_LIBRARIES PkgConfig::jsoncpp)
+endif()
+
+if(JSONCPP_FOUND)
 
 message(STATUS "Building Ouster Component. Library: rmagine-ouster")
 
@@ -93,3 +113,8 @@ set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libeigen3-dev, libassimp-dev" PARENT_SCOP
 list(APPEND CPACK_COMPONENTS_ALL ouster)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
+else(JSONCPP_FOUND)
+
+message(STATUS "${Yellow}rmagine::ouster${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(JSONCPP_FOUND)

@@ -11,7 +11,7 @@
 #include <cassert>
 
 
-
+#include <embree4/rtcore.h>
 #include <rmagine/math/assimp_conversions.h>
 
 

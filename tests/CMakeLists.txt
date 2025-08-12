@@ -1,32 +1,18 @@
 
-
-
-# ADD TESTS FOR CORE HERE
-message(STATUS "Building tests for Rmagine core")
-
-
+message(STATUS "Building tests for rmagine::core")
 add_subdirectory(core)
 
-if(embree_FOUND)
-message(STATUS "Building tests for Embree backend")
-
-# ADD TESTS FOR EMBREE HERE
+if(TARGET rmagine-embree)
+message(STATUS "Building tests for rmagine::embree")
 add_subdirectory(embree)
+endif(TARGET rmagine-embree)
 
-endif(embree_FOUND)
-
-if(CUDA_FOUND)
+if(TARGET rmagine-cuda)
+message(STATUS "Building tests for rmagine::cuda")
 add_subdirectory(cuda)
-endif(CUDA_FOUND)
+endif(TARGET rmagine-cuda)
 
-
-
-if(OptiX_FOUND)
-message(STATUS "Building tests for OptiX backend")
-
-# ADD TESTS FOR OPTIX HERE
-
+if(TARGET rmagine-optix)
+message(STATUS "Building tests for rmagine::optix")
 add_subdirectory(optix)
-
-endif(OptiX_FOUND)
-
+endif(TARGET rmagine-optix)

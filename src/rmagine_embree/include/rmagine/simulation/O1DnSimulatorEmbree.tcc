@@ -5,6 +5,8 @@
 
 #include "embree_common.h"
 
+#include <embree4/rtcore.h>
+
 // TODO:
 // since this is a template: Every program that uses 
 // rmagine also require this definition. How to solve

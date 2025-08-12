@@ -41,8 +41,10 @@
 #ifndef RMAGINE_MAP_EMBREE_DEVICE_HPP
 #define RMAGINE_MAP_EMBREE_DEVICE_HPP
 
-#include <embree4/rtcore.h>
 #include <memory>
+
+// forward declare embree type
+struct RTCDeviceTy;
 
 namespace rmagine
 {
@@ -54,10 +56,10 @@ public:
 
     ~EmbreeDevice();
 
-    RTCDevice handle();
+    RTCDeviceTy* handle();
 
 private:
-    RTCDevice m_device;
+    RTCDeviceTy* m_device;
 };
 
 using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>;

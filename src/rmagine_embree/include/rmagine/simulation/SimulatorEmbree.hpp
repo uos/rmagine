@@ -62,13 +62,11 @@ public:
 
   inline EmbreeMapPtr map() const 
   {
-      return m_map;
+    return m_map;
   }
 
-  protected:
+protected:
   EmbreeMapPtr m_map;
-  
-  RTCRayQueryContext  m_context;
   
   Memory<Transform, RAM> m_Tsb;
 };
