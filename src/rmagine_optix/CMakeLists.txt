@@ -64,9 +64,7 @@ if(CMAKE_CUDA_COMPILER)
     endif(CUDAToolkit_FOUND)
 endif(CMAKE_CUDA_COMPILER)
 
-
 if(CUDA_FOUND)
-
 
 set(TMP_LIST_AUTO_LOCAL "Auto;Local")
 if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
@@ -77,8 +75,6 @@ set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
 if(NOT OptiX_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
     # TODO: Download
-    message(WARNING "Try to download OptiX!")
-
     CPMAddPackage(
             NAME optix
             GIT_REPOSITORY https://github.com/NVIDIA/optix-dev.git
@@ -87,24 +83,17 @@ if(NOT OptiX_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
         )
 
     if(optix_ADDED)
-        message(STATUS "YESS")
         set(OptiX_INCLUDE_DIRS ${optix_SOURCE_DIR}/include)
-        message(STATUS "YESS: ${OptiX_INCLUDE_DIRS}")
         set(OptiX_FOUND TRUE)
+        set(OptiX_VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION})
     endif(optix_ADDED)
-
 endif()
-
 
 if(OptiX_FOUND)
     list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
 endif(OptiX_FOUND)
 
-
 endif(CUDA_FOUND)
-
-
-
 
 
 if(OptiX_FOUND)

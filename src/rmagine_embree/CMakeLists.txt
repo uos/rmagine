@@ -23,22 +23,31 @@ endif()
 set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
 if(NOT embree_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
-    CPMAddPackage(
-        URI "gh:RenderKit/embree"
-        VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
-        OPTIONS
-            "EMBREE_TUTORIALS OFF"
-            "EMBREE_TESTING OFF"
-            "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
-            "BUILD_SHARED_LIBS ON"
-    )
-    if(TARGET embree)
-        set(embree_FOUND TRUE)
-        set(embree_LIBRARY embree)
-        set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
-    else()
-        set(embree_FOUND FALSE)
-    endif(TARGET embree)
+    # Problem with this solution:
+    # We have embree headers in our headers.
+    # When we install our library, and someone else is using it, 
+    # the location of the embree headers get unknown
+    # - install them to an ext folder of rmagine install folder
+    # - remove all occurances of embree from own headers
+
+    # UNTIL WE FIND A SOLUTION, WE CANNOT AUTO INSTALL EMBREE!
+
+    # CPMAddPackage(
+    #     URI "gh:RenderKit/embree"
+    #     VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
+    #     OPTIONS
+    #         "EMBREE_TUTORIALS OFF"
+    #         "EMBREE_TESTING OFF"
+    #         "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
+    #         # "EMBREE_STATIC_LIB ON"
+    # )
+    # if(TARGET embree)
+    #     set(embree_FOUND TRUE)
+    #     set(embree_LIBRARY embree)
+    #     set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
+    # else()
+    #     set(embree_FOUND FALSE)
+    # endif(TARGET embree)
 endif()
 
 
@@ -76,10 +85,16 @@ target_include_directories(rmagine-embree
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
 )
 
-target_link_libraries(rmagine-embree
+target_link_libraries(rmagine-embree PUBLIC
     rmagine-core
     ${embree_LIBRARY}
 )
+
+# TODO: can we remove all the embree headers from our headers?
+# target_link_libraries(rmagine-embree PRIVATE 
+#   # ${embree_LIBRARY}
+#   # ${embree_BINARY_DIR}/libembree4.a
+# )
 
 add_dependencies(rmagine-embree
     rmagine-core
