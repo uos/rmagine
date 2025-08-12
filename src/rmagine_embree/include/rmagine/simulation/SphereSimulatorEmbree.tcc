@@ -5,6 +5,8 @@
 
 #include "embree_common.h"
 
+#include <embree4/rtcore.h>
+
 // TODO:
 // RMAGINE_EMBREE_VERSION_MAJOR define is required
 // since this is a template: Every program that uses 

@@ -44,37 +44,42 @@
 #include <memory>
 #include <unordered_map>
 
-#include <embree4/rtcore.h>
-
 #include "EmbreeDevice.hpp"
 #include "embree_definitions.h"
 
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.h>
 
+#define RTC_INVALID_GEOMETRY_ID ((unsigned int)-1)
+
+struct RTCGeometryTy;
+
 namespace rmagine
 {
 
+
 struct EmbreeClosestPointResult
 {
-    EmbreeClosestPointResult() 
-        : d(std::numeric_limits<float>::max())
-        , primID(RTC_INVALID_GEOMETRY_ID)
-        , geomID(RTC_INVALID_GEOMETRY_ID)
-    {}
+  EmbreeClosestPointResult() 
+      : d(std::numeric_limits<float>::max())
+      , primID(RTC_INVALID_GEOMETRY_ID)
+      , geomID(RTC_INVALID_GEOMETRY_ID)
+  {}
 
-    float d;
-    Point p;
-    Vector n;
-    unsigned int primID;
-    unsigned int geomID;
+  float d;
+  Point p;
+  Vector n;
+  unsigned int primID;
+  unsigned int geomID;
 };
 
 struct EmbreePointQueryUserData 
 {
-    const EmbreeScene* scene;
-    EmbreeClosestPointResult* result;
+  const EmbreeScene* scene;
+  EmbreeClosestPointResult* result;
 };
+
+
 
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>
@@ -85,8 +90,8 @@ public:
     virtual ~EmbreeGeometry();
 
     // embree fields
-    void setQuality(RTCBuildQuality quality);
-    RTCGeometry handle() const;
+    void setQuality(EmbreeBuildQuality quality);
+    RTCGeometryTy* handle() const;
 
     void setTransform(const Transform& T);
     Transform transform() const;
@@ -153,11 +158,13 @@ protected:
     bool anyParentCommittedOnce() const;
 
     EmbreeDevicePtr m_device;
-    RTCGeometry m_handle;
+    RTCGeometryTy* m_handle;
 
     Transform m_T;
     Vector3 m_S;
 };
+
+
 
 } // namespace rmagine
 

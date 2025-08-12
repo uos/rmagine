@@ -4,6 +4,8 @@
 #include "rmagine/map/embree/EmbreeDevice.hpp"
 #include "rmagine/map/embree/EmbreeScene.hpp"
 
+#include <embree4/rtcore.h>
+
 #include <iostream>
 
 #include <map>

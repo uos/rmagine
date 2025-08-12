@@ -56,9 +56,27 @@ namespace rmagine
 
 enum class EmbreeGeometryType 
 {
-    INSTANCE,
-    MESH,
-    POINTS
+  INSTANCE,
+  MESH,
+  POINTS
+};
+
+enum EmbreeBuildQuality
+{
+  EMBREE_BUILD_QUALITY_LOW    = 0,
+  EMBREE_BUILD_QUALITY_MEDIUM = 1,
+  EMBREE_BUILD_QUALITY_HIGH   = 2,
+  EMBREE_BUILD_QUALITY_REFIT  = 3,
+};
+
+/* Scene flags */
+enum EmbreeSceneFlags
+{
+  EMBREE_SCENE_FLAG_NONE                    = 0,
+  EMBREE_SCENE_FLAG_DYNAMIC                 = (1 << 0),
+  EMBREE_SCENE_FLAG_COMPACT                 = (1 << 1),
+  EMBREE_SCENE_FLAG_ROBUST                  = (1 << 2),
+  EMBREE_SCENE_FLAG_FILTER_FUNCTION_IN_ARGUMENTS = (1 << 3)
 };
 
 class EmbreeDevice;
@@ -66,8 +84,8 @@ class EmbreeGeometry;
 class EmbreeMesh;
 class EmbreeInstance;
 class EmbreeScene;
-class EmbreeClosestPointResult;
-class EmbreePointQueryUserData;
+struct EmbreeClosestPointResult;
+struct EmbreePointQueryUserData;
 
 using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>; 
 using EmbreeGeometryPtr = std::shared_ptr<EmbreeGeometry>;

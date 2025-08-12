@@ -41,9 +41,6 @@
 #ifndef RMAGINE_MAP_EMBREE_MAP_HPP
 #define RMAGINE_MAP_EMBREE_MAP_HPP
 
-
-#include <embree4/rtcore.h>
-
 #include <iostream>
 #include <vector>
 #include <set>
@@ -72,24 +69,24 @@ namespace rmagine
 
 class EmbreeMap : public Map {
 public:
-    EmbreeMap(EmbreeDevicePtr device = embree_default_device());
-    EmbreeMap(EmbreeScenePtr scene);
+  EmbreeMap(EmbreeDevicePtr device = embree_default_device());
+  EmbreeMap(EmbreeScenePtr scene);
 
-    ~EmbreeMap();
+  ~EmbreeMap();
 
-    // utility funtions
-    EmbreeClosestPointResult closestPoint(
-      const Point& qp, 
-      const float& max_distance = std::numeric_limits<float>::max());
+  // utility funtions
+  EmbreeClosestPointResult closestPoint(
+    const Point& qp, 
+    const float& max_distance = std::numeric_limits<float>::max());
 
-    EmbreeDevicePtr device;
-    EmbreeScenePtr scene;
+  EmbreeDevicePtr device;
+  EmbreeScenePtr scene;
 
-    // container for storing meshes for faster access
-    // - meshes are also shared referenced somewhere in scene
-    // - filling is not mandatory
-    // TODO: not only meshes here. Every geometry
-    std::unordered_set<EmbreeMeshPtr> meshes;
+  // container for storing meshes for faster access
+  // - meshes are also shared referenced somewhere in scene
+  // - filling is not mandatory
+  // TODO: not only meshes here. Every geometry
+  std::unordered_set<EmbreeMeshPtr> meshes;
 };
 
 using EmbreeMapPtr = std::shared_ptr<EmbreeMap>;
