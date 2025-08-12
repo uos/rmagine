@@ -1,7 +1,7 @@
 
 
 
-if(embree_FOUND)
+if(TARGET rmagine::embree)
 
 add_executable(rmagine_benchmark_cpu
     Main.cpp
@@ -20,9 +20,9 @@ install(TARGETS rmagine_benchmark_cpu
     COMPONENT embree
 )
 
-endif(embree_FOUND)
+endif(TARGET rmagine::embree)
 
-if(OptiX_FOUND)
+if(TARGET rmagine::optix)
 
 add_executable(rmagine_benchmark_gpu 
     Main.cpp
@@ -41,4 +41,4 @@ install(TARGETS rmagine_benchmark_gpu
     COMPONENT optix
 )
 
-endif(OptiX_FOUND)
+endif(TARGET rmagine::optix)
