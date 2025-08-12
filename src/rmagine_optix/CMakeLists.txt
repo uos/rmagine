@@ -9,7 +9,13 @@
 ## - OptiX                      ##
 ##################################
 
-set(RMAGINE_OPTIX_DOWNLOAD_VERSION 9.0.0)
+# This version defines the desired OptiX version that is downloaded when 
+# RMAGINE_CPM_MODE is set to "Auto" or "Download"
+# When the driver is too older for this version, this version is automatically 
+# downgraded until it is compatible with the currently used NVIDIA driver.
+# The actual used version is then printed to the command line.
+
+set(RMAGINE_OPTIX_DOWNLOAD_VERSION "9.0.0" CACHE STRING "Desired optix version used for download.")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -52,19 +58,62 @@ if(CMAKE_CUDA_COMPILER)
         set(CUDA_cusolver_LIBRARY CUDA::cusolver)
         set(CUDA_cublas_LIBRARY CUDA::cublas)
         set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
-        set(CUDA_INCLUDE_DIRS "") # is in target instead
+        set(CUDA_INCLUDE_DIRS "") # is in target instead    
+        get_target_property(NVIDIA_DRIVER_PATH CUDA::cuda_driver LOCATION)    
     else()
         find_package(CUDA)
         if(CUDA_FOUND)
             enable_language(CUDA)
             set(CUDA_DRIVER_LIBRARY cuda)
+            get_target_property(NVIDIA_DRIVER_PATH cuda LOCATION)   
         else()
             message(STATUS "Neither CudaToolkit nor CUDA found!")
         endif(CUDA_FOUND)
     endif(CUDAToolkit_FOUND)
 endif(CMAKE_CUDA_COMPILER)
 
+
 if(CUDA_FOUND)
+
+# Resolve symlinks until we get the actual file
+get_filename_component(NVIDIA_DRIVER_REALPATH ${NVIDIA_DRIVER_PATH} REALPATH)
+
+get_filename_component(NVIDIA_DRIVER_NAME ${NVIDIA_DRIVER_REALPATH} NAME)
+
+# Try extracting version number from filename
+string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" NVIDIA_DRIVER_VERSION "${NVIDIA_DRIVER_NAME}")
+
+if(NVIDIA_DRIVER_VERSION) 
+    message(STATUS "Auto-detected NVIDIA driver version: ${NVIDIA_DRIVER_REALPATH} -> ${NVIDIA_DRIVER_VERSION}")
+
+    include(MaxOptixVersion)
+    max_optix_version(NVIDIA_DRIVER_VERSION MAX_OPTIX_VERSION)
+    message(STATUS "Maximum allowed optix version for the current nvidia driver is: ${MAX_OPTIX_VERSION}")
+
+    # TODO: override?
+    if(${RMAGINE_OPTIX_DOWNLOAD_VERSION} VERSION_GREATER ${MAX_OPTIX_VERSION})
+        message(STATUS "Decrease RMAGINE_OPTIX_DOWNLOAD_VERSION from ${RMAGINE_OPTIX_DOWNLOAD_VERSION} to ${MAX_OPTIX_VERSION}. This is the latest supported version for the currently used NVIDIA driver version ${NVIDIA_DRIVER_VERSION}")
+        set(RMAGINE_OPTIX_DOWNLOAD_VERSION ${MAX_OPTIX_VERSION})
+    endif()
+
+else()
+    message(WARNING "Could not detect driver version from path: ${NVIDIA_DRIVER_REALPATH}")
+endif()
+
+
+
+
+
+endif(CUDA_FOUND)
+
+
+
+
+
+#####
+# BUILD COMPONENT
+if(CUDA_FOUND)
+
 
 set(TMP_LIST_AUTO_LOCAL "Auto;Local")
 if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)

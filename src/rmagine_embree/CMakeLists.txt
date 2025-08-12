@@ -11,7 +11,7 @@
 # version of embree that is used for searching a local package
 set(RMAGINE_EMBREE_LOCAL_VERSION 4)
 # version of embree that is used for download
-set(RMAGINE_EMBREE_DOWNLOAD_VERSION 4.4.0)
+set(RMAGINE_EMBREE_DOWNLOAD_VERSION "4.4.0" CACHE STRING "Desired embree version used for download.")
 
 message(STATUS "Checking dependencies of rmagine::embree ...")
 
@@ -32,22 +32,42 @@ if(NOT embree_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
     # UNTIL WE FIND A SOLUTION, WE CANNOT AUTO INSTALL EMBREE!
 
-    # CPMAddPackage(
-    #     URI "gh:RenderKit/embree"
-    #     VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
-    #     OPTIONS
-    #         "EMBREE_TUTORIALS OFF"
-    #         "EMBREE_TESTING OFF"
-    #         "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
-    #         # "EMBREE_STATIC_LIB ON"
-    # )
-    # if(TARGET embree)
-    #     set(embree_FOUND TRUE)
-    #     set(embree_LIBRARY embree)
-    #     set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
-    # else()
-    #     set(embree_FOUND FALSE)
-    # endif(TARGET embree)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+
+      message(STATUS "Trying to download precompiled Embree. Linux ${CMAKE_SYSTEM_PROCESSOR}")
+      # 64 Bit linux shortcut
+      CPMAddPackage(
+        NAME embree
+        VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
+        URL https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.x86_64.linux.tar.gz
+        DOWNLOAD_ONLY YES
+      )
+
+      if(embree_ADDED)
+        set(embree_DIR ${embree_SOURCE_DIR}/lib/cmake/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION})
+        find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} REQUIRED PATHS ${embree_DIR})
+      endif(embree_ADDED)
+      
+    else()
+
+      message(STATUS "Trying to download Embree sources. This might take a while.")
+
+      CPMAddPackage(
+          URI "gh:RenderKit/embree"
+          VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
+          OPTIONS
+              "EMBREE_TUTORIALS OFF"
+              "EMBREE_TESTING OFF"
+              "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
+              # "EMBREE_STATIC_LIB ON"
+      )
+    endif() 
+
+    if(TARGET embree)
+        set(embree_FOUND TRUE)
+        set(embree_LIBRARY embree)
+        set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
+    endif(TARGET embree)
 endif()
 
 
