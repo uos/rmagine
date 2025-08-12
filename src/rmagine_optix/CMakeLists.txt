@@ -116,6 +116,8 @@ endif()
 set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
 if(NOT OptiX_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
+    message(STATUS "Searching for OptiX online")
+
     FetchContent_Declare(
         optix_header
         GIT_REPOSITORY   https://github.com/NVIDIA/optix-dev.git
@@ -369,8 +371,8 @@ set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
 list(APPEND CPACK_COMPONENTS_ALL optix)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
-else(OptiX_FOUND)
+else()
 
 message(STATUS "${Yellow}rmagine::optix${ColourReset}: Skipping. Missing Dependencies.")
 
-endif(OptiX_FOUND)
+endif()

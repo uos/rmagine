@@ -90,7 +90,7 @@ message(STATUS "EMBREE_LIBRARY: ${EMBREE_LIBRARY}")
 
 if(embree_FOUND)
 
-message(STATUS "${Green}rmagine::embree${ColourReset}: Building (Embree v${embree_VERSION})")
+message(STATUS "${Green}rmagine::embree${ColourReset}: Building (Embree v${EMBREE_VERSION})")
 
 set(RMAGINE_EMBREE_SRCS
   # Maps
