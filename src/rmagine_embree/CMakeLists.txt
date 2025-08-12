@@ -17,18 +17,18 @@ message(STATUS "Checking dependencies of rmagine::embree ...")
 
 
 set(TMP_LIST_AUTO_LOCAL "Auto;Local")
-if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+if(${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
   find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} QUIET)
 endif()
 
 ############
 # DOWNLOAD EMBREE
-# Only when embree is not available and RMAGINE_CPM_MODE is set to either "Auto" or "Download"
+# Only when embree is not available and RMAGINE_DEPENDENCY_MODE is set to either "Auto" or "Download"
 # -> In case of download all rmagine targets get extra interface links to vendor libraries 
 # that are installed to custom locations. If the locations are empty you can still install Embree
 # the standard way and ld finds the missing libraries again 
 set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
-if(NOT embree_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
     message(STATUS "Search for Embree online ...")
 

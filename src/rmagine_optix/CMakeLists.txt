@@ -10,7 +10,7 @@
 ##################################
 
 # This version defines the desired OptiX version that is downloaded when 
-# RMAGINE_CPM_MODE is set to "Auto" or "Download"
+# RMAGINE_DEPENDENCY_MODE is set to "Auto" or "Download"
 # When the driver is too older for this version, this version is automatically 
 # downgraded until it is compatible with the currently used NVIDIA driver.
 # The actual used version is then printed to the command line.
@@ -100,14 +100,7 @@ else()
     message(WARNING "Could not detect driver version from path: ${NVIDIA_DRIVER_REALPATH}")
 endif()
 
-
-
-
-
 endif(CUDA_FOUND)
-
-
-
 
 
 #####
@@ -116,26 +109,23 @@ if(CUDA_FOUND)
 
 
 set(TMP_LIST_AUTO_LOCAL "Auto;Local")
-if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+if(${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
     find_package(OptiX QUIET)
 endif()
 
 set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
-if(NOT OptiX_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+if(NOT OptiX_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
-    # TODO: Download
-    CPMAddPackage(
-            NAME optix
-            GIT_REPOSITORY https://github.com/NVIDIA/optix-dev.git
-            VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION}
-            DOWNLOAD_ONLY YES
-        )
+    FetchContent_Declare(
+        optix_header
+        GIT_REPOSITORY   https://github.com/NVIDIA/optix-dev.git
+        GIT_TAG          v${RMAGINE_OPTIX_DOWNLOAD_VERSION}
+    )
+    FetchContent_Populate(optix_header)
 
-    if(optix_ADDED)
-        set(OptiX_INCLUDE_DIRS ${optix_SOURCE_DIR}/include)
-        set(OptiX_FOUND TRUE)
-        set(OptiX_VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION})
-    endif(optix_ADDED)
+    set(OptiX_INCLUDE_DIRS ${optix_header_SOURCE_DIR}/include)
+    set(OptiX_FOUND TRUE)
+    set(OptiX_VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION})
 endif()
 
 if(OptiX_FOUND)
@@ -185,7 +175,7 @@ if(CUDAToolkit_FOUND)
 
     target_include_directories(rmagine_optix_cu_to_ptx PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        ${OptiX_INCLUDE_DIRS}
+        $<BUILD_INTERFACE:${OptiX_INCLUDE_DIRS}>
     )
 
     set_target_properties(rmagine_optix_cu_to_ptx 
@@ -193,7 +183,6 @@ if(CUDAToolkit_FOUND)
             CUDA_PTX_COMPILATION ON
             # CUDA_ARCHITECTURES all
     )
-
     
     # if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
     #     set_target_properties(rmagine_optix_cu_to_ptx PROPERTIES CUDA_ARCHITECTURES all)

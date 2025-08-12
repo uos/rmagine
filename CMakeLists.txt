@@ -8,12 +8,11 @@ option(RMAGINE_BUILD_TESTS "Build tests" ON)
 option(RMAGINE_BUILD_EXAMPLES "Build examples" OFF)
 option(RMAGINE_BUILD_DOCS "Build documentation" OFF)
 
-set(RMAGINE_CPM_MODE "Auto" CACHE STRING "Choose the dependency management mode for CPM.")
-set_property(CACHE RMAGINE_CPM_MODE PROPERTY STRINGS "Local" "Auto" "Download" "None")
+set(RMAGINE_DEPENDENCY_MODE "Auto" CACHE STRING "Choose the dependency management mode.")
+set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Download")
 # Local: Use local packages only. This is the old default behavior until v2.3.0
 # Auto: Use local package if available and download otherwise (default from v2.3.1)
 # Download: Always download.
-# None: Let CPM decide. You can setup the behavior by setting the respective CPM variables manually
 
 include(GNUInstallDirs)
 
@@ -63,8 +62,6 @@ if(NOT WIN32)
   set(BoldWhite   "${Esc}[1;37m")
 endif()
 
-
-include(cmake/CPM.cmake)
 include(FetchContent)
 
 ################################
