@@ -26,9 +26,9 @@ EmbreeGeometry::~EmbreeGeometry()
   // std::cout << "[EmbreeGeometry::~EmbreeGeometry()] destroyed." << std::endl;
 }
 
-void EmbreeGeometry::setQuality(EmbreeBuildQuality quality)
+void EmbreeGeometry::setQuality(RTCBuildQuality quality)
 {
-  rtcSetGeometryBuildQuality(m_handle, (RTCBuildQuality)quality);
+  rtcSetGeometryBuildQuality(m_handle, quality);
 }
 
 RTCGeometry EmbreeGeometry::handle() const

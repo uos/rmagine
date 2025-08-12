@@ -50,13 +50,12 @@
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.h>
 
-#define RTC_INVALID_GEOMETRY_ID ((unsigned int)-1)
+#include <embree4/rtcore.h>
 
 struct RTCGeometryTy;
 
 namespace rmagine
 {
-
 
 struct EmbreeClosestPointResult
 {
@@ -80,7 +79,6 @@ struct EmbreePointQueryUserData
 };
 
 
-
 class EmbreeGeometry
 : public std::enable_shared_from_this<EmbreeGeometry>
 {
@@ -90,7 +88,7 @@ public:
     virtual ~EmbreeGeometry();
 
     // embree fields
-    void setQuality(EmbreeBuildQuality quality);
+    void setQuality(RTCBuildQuality quality);
     RTCGeometryTy* handle() const;
 
     void setTransform(const Transform& T);

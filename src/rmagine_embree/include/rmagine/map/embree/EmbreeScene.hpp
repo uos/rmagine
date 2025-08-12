@@ -51,6 +51,8 @@
 
 #include <rmagine/math/types/Vector3.hpp>
 
+#include <embree4/rtcore.h>
+
 
 struct RTCSceneTy;
 
@@ -60,24 +62,24 @@ struct EmbreeSceneSettings
 {
   /**
    * @brief quality
-   * - EMBREE_BUILD_QUALITY_LOW
-   * - EMBREE_BUILD_QUALITY_MEDIUM
-   * - EMBREE_BUILD_QUALITY_HIGH
-   * - EMBREE_BUILD_QUALITY_REFIT
+   * - RTC_BUILD_QUALITY_LOW
+   * - RTC_BUILD_QUALITY_MEDIUM
+   * - RTC_BUILD_QUALITY_HIGH
+   * - RTC_BUILD_QUALITY_REFIT
    * 
    */
-  EmbreeBuildQuality quality = EmbreeBuildQuality::EMBREE_BUILD_QUALITY_MEDIUM;
+  RTCBuildQuality quality = RTCBuildQuality::RTC_BUILD_QUALITY_MEDIUM;
   
   /**
    * @brief flags can be combined by FLAGA | FLAGB ...
    * 
-   * - EMBREE_SCENE_FLAG_NONE (default)
-   * - EMBREE_SCENE_FLAG_DYNAMIC
-   * - EMBREE_SCENE_FLAG_COMPACT
-   * - EMBREE_SCENE_FLAG_ROBUST
-   * - EMBREE_SCENE_FLAG_CONTEXT_FILTER_FUNCTION
+   * - RTC_SCENE_FLAG_NONE (default)
+   * - RTC_SCENE_FLAG_DYNAMIC
+   * - RTC_SCENE_FLAG_COMPACT
+   * - RTC_SCENE_FLAG_ROBUST
+   * - RTC_SCENE_FLAG_CONTEXT_FILTER_FUNCTION
    */
-  EmbreeSceneFlags flags = EmbreeSceneFlags::EMBREE_SCENE_FLAG_NONE;
+  RTCSceneFlags flags = RTCSceneFlags::RTC_SCENE_FLAG_NONE;
 };
 
 /**
@@ -97,9 +99,9 @@ public:
       
   ~EmbreeScene();
 
-  void setQuality(EmbreeBuildQuality quality);
+  void setQuality(RTCBuildQuality quality);
 
-  void setFlags(EmbreeSceneFlags flags);
+  void setFlags(RTCSceneFlags flags);
 
   unsigned int add(EmbreeGeometryPtr geom);
   std::optional<unsigned int> getOpt(const EmbreeGeometryPtr geom) const;

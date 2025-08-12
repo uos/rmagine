@@ -43,16 +43,14 @@ EmbreeScene::~EmbreeScene()
   rtcReleaseScene(m_scene);
 }
 
-void EmbreeScene::setQuality(EmbreeBuildQuality quality)
+void EmbreeScene::setQuality(RTCBuildQuality quality)
 {
-  // TODO: better not cast enum. Instead use if-else or switch-case
-  rtcSetSceneBuildQuality(m_scene, (RTCBuildQuality)quality);
+  rtcSetSceneBuildQuality(m_scene, quality);
 }
 
-void EmbreeScene::setFlags(EmbreeSceneFlags flags)
+void EmbreeScene::setFlags(RTCSceneFlags flags)
 {
-  // TODO: better not cast enum. Instead use if-else or switch-case
-  rtcSetSceneFlags(m_scene, (RTCSceneFlags)flags);
+  rtcSetSceneFlags(m_scene, flags);
 }
 
 unsigned int EmbreeScene::add(EmbreeGeometryPtr geom)
