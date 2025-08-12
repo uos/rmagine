@@ -8,7 +8,7 @@ include(CMakeFindDependencyMacro)
 # find_dependency(assimp)
 
 # message(WARNING "find_dependency(embree 4 CONFIG REQUIRED)")
-# find_dependency(embree 4 CONFIG REQUIRED)
+find_dependency(embree 4 CONFIG REQUIRED)
 
 check_required_components(embree)
 

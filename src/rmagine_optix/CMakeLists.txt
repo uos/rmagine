@@ -145,7 +145,7 @@ endif(OptiX_FOUND)
 endif(CUDA_FOUND)
 
 
-if(OptiX_FOUND)
+if(OptiX_FOUND AND TARGET rmagine::cuda)
 
 message(STATUS "${Green}rmagine::optix${ColourReset}: Building (OptiX v${OptiX_VERSION})")
 

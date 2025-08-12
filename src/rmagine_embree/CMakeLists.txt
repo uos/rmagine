@@ -15,20 +15,11 @@ set(RMAGINE_EMBREE_DOWNLOAD_VERSION "4.4.0" CACHE STRING "Desired embree version
 
 message(STATUS "Checking dependencies of rmagine::embree ...")
 
+
 set(TMP_LIST_AUTO_LOCAL "Auto;Local")
 if(${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
-    find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} QUIET)
-    if(NOT embree_LIBRARY)
-        if(EMBREE_LIBRARY)
-            set(embree_LIBRARY ${EMBREE_LIBRARY})
-        elseif(Embree_LIBRARY)
-            set(embree_LIBRARY ${Embree_LIBRARY})
-        else()
-            set(embree_LIBRARY embree)
-        endif()
-    endif()
+  find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} QUIET)
 endif()
-
 
 ############
 # DOWNLOAD EMBREE
@@ -44,81 +35,58 @@ if(NOT embree_FOUND AND ${RMAGINE_CPM_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
       # 64 Bit linux shortcut
       message(STATUS "Trying to download precompiled Embree. Linux ${CMAKE_SYSTEM_PROCESSOR}")
+
+      FetchContent_Declare(
+        embree_bin
+        URL      https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.x86_64.linux.tar.gz
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
+      )
+      FetchContent_Populate(embree_bin)
+
+      set(EMBREE_ROOT "${embree_bin_SOURCE_DIR}")
+
       
-      CPMAddPackage(
-        NAME embree
-        VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
-        URL https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.x86_64.linux.tar.gz
+      # Imported target for Embree 4 (adjust names if your archive differs)
+      add_library(embree SHARED IMPORTED GLOBAL)
+
+      set_target_properties(embree PROPERTIES
+        IMPORTED_LOCATION "${EMBREE_ROOT}/lib/libembree4.so"         # Linux
+        INTERFACE_INCLUDE_DIRECTORIES "${EMBREE_ROOT}/include"
       )
 
-      if(embree_ADDED)
-        set(embree_DIR ${embree_SOURCE_DIR}/lib/cmake/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION})
-        find_package(embree ${RMAGINE_EMBREE_LOCAL_VERSION} REQUIRED PATHS ${embree_DIR})
+      # Install the vendored payload with your project
+      install(DIRECTORY "${EMBREE_ROOT}/include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+      install(DIRECTORY "${EMBREE_ROOT}/lib/"     DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-        # install some headers we need
+      set(embree_FOUND TRUE)
 
-        # SOME EMBREE HEADERS
-        message(STATUS "Install Embree Headers: ${embree_SOURCE_DIR}/include/embree4")
-
-        # HEADERS
-        install(
-          DIRECTORY ${embree_SOURCE_DIR}/include/embree4
-          COMPONENT embree
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}/vendors
-        )
-
-        # INSTALL EMBREE LIBRARIES TO DEDICATED PATH
-        install(
-          DIRECTORY ${embree_SOURCE_DIR}/lib/
-          COMPONENT embree
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/rmagine-${rmagine_VERSION}-vendors/embree4
-        )
-
-      endif(embree_ADDED)
-      
     else()
       # Else: Download sources and compile
       message(STATUS "Compile Embree from source. This might take a while.")
 
-      CPMAddPackage(
-          URI "gh:RenderKit/embree"
-          VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION}
-          OPTIONS
-              "EMBREE_TUTORIALS OFF"
-              "EMBREE_TESTING OFF"
-              "EMBREE_ISPC_SUPPORT OFF"   # turn ON if you use ISPC and have the compiler
+      # 1) Declare the source
+      FetchContent_Declare(
+        embree
+        GIT_REPOSITORY https://github.com/RenderKit/embree
+        GIT_TAG v${RMAGINE_EMBREE_DOWNLOAD_VERSION}
       )
 
-      if(embree_ADDED)
+      # 2) Set Embree's options BEFORE it's added
+      set(EMBREE_ISPC_SUPPORT OFF CACHE BOOL "" FORCE)
+      set(EMBREE_TUTORIALS    OFF CACHE BOOL "" FORCE)
+      set(EMBREE_TESTING      OFF CACHE BOOL "" FORCE)
+      set(EMBREE_TUTORIALS_GLFW OFF CACHE BOOL "" FORCE)
 
-        # HEADERS
-        install(
-          DIRECTORY ${embree_SOURCE_DIR}/include/embree4
-          COMPONENT embree
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}/vendors
-        )
+      # 3) Add the dependency (this does add_subdirectory on Embree)
+      FetchContent_MakeAvailable(embree)
 
-        # LIBRARIES
-        install(TARGETS embree
-          EXPORT EmbreeTargets
-          COMPONENT embree
-          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/rmagine-${rmagine_VERSION}-vendors/embree4
-          INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}/vendors
-        )
+      message(STATUS "INCLUDE: ${EMBREE_INCLUDE_DIR}")
 
-      endif(embree_ADDED)
-
-    endif()
-
-    if(TARGET embree)
-        set(embree_FOUND TRUE)
-        set(embree_LIBRARY embree)
-        set(embree_VERSION ${RMAGINE_EMBREE_DOWNLOAD_VERSION})
-    elseif(embree_ADDED)
-        message(FATAL "Embree added via CPM but no target 'embree' exists!")
+      set(embree_FOUND TRUE)
     endif()
 endif()
 
+message(STATUS "EMBREE_LIBRARY: ${EMBREE_LIBRARY}")
 
 if(embree_FOUND)
 
@@ -145,7 +113,7 @@ set(RMAGINE_EMBREE_SRCS
 
 ## SHARED ##
 add_library(rmagine-embree SHARED
-    ${RMAGINE_EMBREE_SRCS}
+  ${RMAGINE_EMBREE_SRCS}
 )
 
 target_include_directories(rmagine-embree
@@ -156,36 +124,10 @@ target_include_directories(rmagine-embree
 
 target_link_libraries(rmagine-embree PUBLIC
   rmagine-core
-)
-
-####
-# Specializties for downloaded Embree
-if(embree_ADDED)
-
-  # HEADERS: visible to other libraries
-  target_include_directories(rmagine-embree PUBLIC
-    $<BUILD_INTERFACE:${embree_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}/vendors>
-  )
-
-  # INTERFACE LINK DIRECTORIES: this is visible for other libraries
-  target_link_directories(rmagine-embree INTERFACE
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}/rmagine-${rmagine_VERSION}-vendors/embree4>
-  )
-
-  target_link_libraries(rmagine-embree PUBLIC
-    $<BUILD_INTERFACE:${embree_LIBRARY}>
-    $<INSTALL_INTERFACE:embree4>
-  )
-
-endif(embree_ADDED)
-
-add_dependencies(rmagine-embree
-  rmagine-core
+  embree
 )
 
 # target_compile_features(rmagine-embree PUBLIC cxx_std_17)
-
 set_target_properties(rmagine-embree
     PROPERTIES
       EXPORT_NAME embree

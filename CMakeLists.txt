@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.14)
 project(rmagine 
     LANGUAGES CXX C
     VERSION 2.3.1)# TODO update this version when merging into main-branch
@@ -65,6 +65,7 @@ endif()
 
 
 include(cmake/CPM.cmake)
+include(FetchContent)
 
 ################################
 ## REQUIRED DEPS
