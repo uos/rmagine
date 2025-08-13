@@ -4,7 +4,6 @@
 #include <assert.h>
 
 #include "rmagine/math/math.h"
-#include "rmagine/math/omp.h"
 
 #include <rmagine/util/prints.h>
 
