@@ -79,7 +79,7 @@ VulkanMeshPtr make_vulkan_mesh(Memory<float, RAM>& vertexMem_ram, Memory<uint32_
 //     // ret->computeFaceNormals();
 //     for(size_t i=0; i<num_faces; i++)//TODO
 //     {
-//         face_normals_cpu[i] = Vec3{0,0,0};
+//         face_normals_cpu[i] = Vector3{0,0,0};
 //     }
 //     ret->face_normals = face_normals_cpu;
 

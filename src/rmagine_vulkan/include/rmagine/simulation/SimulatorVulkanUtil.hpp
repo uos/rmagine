@@ -24,8 +24,8 @@ struct VulkanResultsData
 {
     Memory<uint8_t, VULKAN_DEVICE_LOCAL> hits;
     Memory<float, VULKAN_DEVICE_LOCAL> ranges;
-    Memory<Vec3, VULKAN_DEVICE_LOCAL> points;
-    Memory<Vec3, VULKAN_DEVICE_LOCAL> normals;
+    Memory<Vector3, VULKAN_DEVICE_LOCAL> points;
+    Memory<Vector3, VULKAN_DEVICE_LOCAL> normals;
     Memory<unsigned int, VULKAN_DEVICE_LOCAL> primitiveID;
     Memory<unsigned int, VULKAN_DEVICE_LOCAL> instanceID;
     Memory<unsigned int, VULKAN_DEVICE_LOCAL> geometryID;

@@ -20,11 +20,12 @@ set(RMAGINE_VULKAN_SRCS
     #   General components
     src/util/vulkan/general/Fence.cpp
     src/util/vulkan/general/CommandBuffer.cpp
+    #   Memory components
+    src/util/vulkan/memory/Buffer.cpp
+    src/util/vulkan/memory/DeviceMemory.cpp
 
     #Types
     src/types/MemoryVulkan.cpp
-    src/types/vulkan/Buffer.cpp
-    src/types/vulkan/DeviceMemory.cpp
 
     # Maps
     src/map/VulkanMap.cpp
@@ -34,13 +35,13 @@ set(RMAGINE_VULKAN_SRCS
   # src/map/vulkan/VulkanInst.cpp
   # src/map/vulkan/VulkanGeometry.cpp
   # src/map/vulkan/VulkanTransfromable.cpp
+    #   Acceleration structure
     src/map/vulkan/accelerationStructure/AccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/BottomLevelGeometryInstance.cpp
 
     # Simulators
-    src/simulation/SimulatorVulkan.cpp
     src/simulation/SphereSimulatorVulkan.cpp
     src/simulation/PinholeSimulatorVulkan.cpp
     src/simulation/O1DnSimulatorVulkan.cpp
@@ -58,14 +59,15 @@ target_include_directories(rmagine-vulkan
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
+    # ${Vulkan_INCLUDE_DIRS} # TODO: wie genau funktioniert das?
 )
 
 target_link_libraries(rmagine-vulkan
     rmagine-core
-    ${Vulkan_LIBRARIES}
-    glslang::glslang 
-    glslang::SPIRV 
-    glslang::glslang-default-resource-limits
+    ${Vulkan_LIBRARIES} # TODO: passt das so?
+    # glslang::glslang 
+    # glslang::SPIRV 
+    # glslang::glslang-default-resource-limits
 )
 
 add_dependencies(rmagine-vulkan

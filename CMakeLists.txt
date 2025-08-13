@@ -181,6 +181,20 @@ if(OptiX_FOUND)
     list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
 endif()
 
+
+######################################
+## Vulkan: ... ##
+######################################
+
+find_package(Vulkan REQUIRED)
+# find_package(glslang CONFIG REQUIRED)
+
+if(Vulkan_FOUND)
+    message(STATUS "Vulkan found")
+else()
+    message(STATUS "Vulkan not found")
+endif(Vulkan_FOUND)
+
 ###########
 ## Build ##
 ###########
@@ -217,6 +231,11 @@ if(CUDA_FOUND)
     endif(OptiX_FOUND)
 endif(CUDA_FOUND)
 
+### RMAGINE VULKAN LIB
+if(Vulkan_FOUND)
+  add_subdirectory(src/rmagine_vulkan)
+endif(Vulkan_FOUND)
+
 message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
     message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
@@ -235,6 +254,8 @@ if(BUILD_TOOLS)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
     add_subdirectory(apps/rmagine_info)
+    add_subdirectory(apps/rmagine_vulkan_benchmark)
+    add_subdirectory(apps/rmagine_vulkan_general_test)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)
@@ -245,6 +266,10 @@ endif(embree_FOUND)
 if(OptiX_FOUND)
     add_subdirectory(apps/rmagine_examples/rmagine_optix_scene)
 endif(OptiX_FOUND)
+
+if(Vulkan_FOUND)
+    add_subdirectory(apps/rmagine_examples/rmagine_vulkan_scene)
+endif(Vulkan_FOUND)
 endif(BUILD_EXAMPLES)
 
 

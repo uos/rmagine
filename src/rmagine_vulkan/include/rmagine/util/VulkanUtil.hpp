@@ -2,6 +2,7 @@
 
 #define _USE_MATH_DEFINES // needed on some devices for some reason
 #include <math.h>
+#include <memory>
 
 #include <vulkan/vulkan.h>
 

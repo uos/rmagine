@@ -1,6 +1,6 @@
-#include "DescriptorSet.hpp"
-#include "../../map/mapComponents/AccelerationStructure/TopLevelAccelerationStructure.hpp"
-#include "../../util/VulkanContext.hpp"
+#include "rmagine/simulation/vulkan/DescriptorSet.hpp"
+#include "rmagine/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 
