@@ -8,6 +8,7 @@
 
 #include <tbb/parallel_for.h>
 
+// BLOCK SIZE USED FOR THE WHOLE FILE
 #define TBB_BLOCK_SIZE 512
 
 namespace rmagine {

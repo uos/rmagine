@@ -19,6 +19,8 @@
 #include <random>
 
 
+
+#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_reduce.h>
 
@@ -416,16 +418,23 @@ void test_parallel_reduce()
   printStats(total1);
   
   
-  rm::CrossStatistics_<DataT> total2 = rm::CrossStatistics_<DataT>::Identity();
   sw();
-  // #pragma omp parallel for reduction(+: total2)
-  for(size_t i=0; i<n_points; i++)
-  {
-    total2 += data[i];
-  }
+  rm::CrossStatistics_<DataT> total2 = tbb::parallel_reduce(
+      tbb::blocked_range<size_t>(0, data.size()),
+      rm::CrossStatistics_<DataT>::Identity(),
+      [&](const tbb::blocked_range<size_t>& r, rm::CrossStatistics_<DataT> acc) 
+      {
+          for (size_t i = r.begin(); i != r.end(); ++i) 
+          {
+            acc += data[i];
+          }
+          return acc;
+      },
+      std::plus<rm::CrossStatistics_<DataT> >()
+  );
   el = sw();
 
-  std::cout << "Parallel Reduce (OpenMP): " << el << std::endl; // 0.02
+  std::cout << "Parallel Reduce (TBB): " << el << std::endl; // 0.02
 
   printStats(total2);
   
