@@ -19,28 +19,37 @@ jobs:
     - name: Deps (core)
       run: |
         brew update 
-        brew install libomp boost eigen assimp cmake
+        brew install llvm libomp boost eigen assimp cmake
         echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
         echo "HOMEBREW_PREFIX=$(brew --prefix)" >> $GITHUB_ENV
-    - name: Clone
+
+    - name: Checkout
       uses: actions/checkout@v4
       with:
         path: rmagine
+
     - name: Configure
-      working-directory: rmagine
       run: |
-        mkdir build
-        cd build
+        set -euxo pipefail
+        mkdir -p rmagine/build
+        cd rmagine/build
+
+        # Put brewed LLVM first on PATH so `clang/clang++` resolve to it
+        export PATH="${LLVM_PREFIX}/bin:${PATH}"
 
         # Use Homebrew LLVM's clang/clang++ (supports OpenMP out of the box).
-        export CC="${LLVM_PREFIX}/bin/clang"
-        export CXX="${LLVM_PREFIX}/bin/clang++"
+        export CC=clang
+        export CXX=clang++
 
-        # Help CMake find Homebrew packages (Eigen, Boost, Assimp, libomp)
-        cmake -DCMAKE_PREFIX_PATH="${HOMEBREW_PREFIX};${LLVM_PREFIX}" \
-              -DCMAKE_C_COMPILER="$CC" \
-              -DCMAKE_CXX_COMPILER="$CXX" \
-              ..
+        # Sanity check (helps diagnose path issues if it fails)
+        which clang
+        clang --version
+        ls -l "$(which clang++)"
+
+        cmake \
+            -DCMAKE_PREFIX_PATH="${HOMEBREW_PREFIX};${LLVM_PREFIX}" \
+            -DCMAKE_BUILD_TYPE=Release \
+            ..
 
     - name: Build
       working-directory: rmagine/build
