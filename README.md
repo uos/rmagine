@@ -174,7 +174,7 @@ Please reference the following papers when using the Rmagine library in your sci
 
 ```bib
 @inproceedings{mock2023rmagine,
-  title={{Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}}, 
+  title={Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}, 
   author={Mock, Alexander and Wiemann, Thomas and Hertzberg, Joachim},
   booktitle={IEEE International Conference on Robotics and Automation (ICRA)}, 
   year={2023},
