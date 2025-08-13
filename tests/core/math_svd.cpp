@@ -275,7 +275,7 @@ void parallelTest()
     double el_eigen, el_rmagine, el_rmagine2;
 
     sw();
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
@@ -305,7 +305,7 @@ void parallelTest()
     rm::Memory<rm::Matrix3x3> res_rm(num_objects);
 
     sw();
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
         rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();

@@ -89,7 +89,7 @@ template<typename DataT>
 Mem<DataT> add(const MemView<DataT>& a, const MemView<DataT>& b )
 {
     Mem<DataT> c(a.size());
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t i=0; i<a.size(); i++)
     {
         c[i] = a[i] + b[i];
@@ -100,7 +100,7 @@ Mem<DataT> add(const MemView<DataT>& a, const MemView<DataT>& b )
 template<typename DataT>
 void add(const MemView<DataT>& a, const MemView<DataT>& b, MemView<DataT>& c)
 {
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(size_t i=0; i<a.size(); i++)
     {
         c[i] = a[i] + b[i];

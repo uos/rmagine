@@ -418,7 +418,7 @@ void test_parallel_reduce()
   
   rm::CrossStatistics_<DataT> total2 = rm::CrossStatistics_<DataT>::Identity();
   sw();
-  #pragma omp parallel for reduction(+: total2)
+  // #pragma omp parallel for reduction(+: total2)
   for(size_t i=0; i<n_points; i++)
   {
     total2 += data[i];

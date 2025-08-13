@@ -142,7 +142,7 @@ void omp_vs_std_reduction()
   rm::Vector3_<DataT> D2 = {0.0, 0.0, 0.0};
 
   sw();
-  #pragma omp parallel for reduction(+: D2)
+  // #pragma omp parallel for reduction(+: D2)
   for(size_t i=0; i<n_points; i++)
   {
       D2 += points[i];
