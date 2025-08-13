@@ -62,6 +62,5 @@ jobs:
     - name: Test
       working-directory: rmagine/build
       run: |
-        cd rmagine/build
         ./bin/rmagine_version
         ctest --output-on-failure
