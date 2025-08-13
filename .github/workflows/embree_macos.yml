@@ -16,7 +16,8 @@ jobs:
       matrix:
         os: [ macos-14, macos-15 ]
     steps:
-    - name: Deps (core)
+    
+    - name: Dependencies
       run: |
         brew update 
         brew install tbb boost eigen assimp cmake

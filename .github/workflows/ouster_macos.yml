@@ -16,6 +16,7 @@ jobs:
       matrix:
         os: [ macos-14, macos-15 ]
     steps:
+    
     - name: Dependencies
       run: |
         brew update 
