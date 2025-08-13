@@ -38,8 +38,8 @@ if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOA
 
       FetchContent_Declare(
         embree_bin
-        URL      https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.x86_64.linux.tar.gz
-        DOWNLOAD_EXTRACT_TIMESTAMP ON
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        URL https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.x86_64.linux.tar.gz
       )
       FetchContent_Populate(embree_bin)
 
