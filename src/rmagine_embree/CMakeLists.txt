@@ -72,13 +72,12 @@ if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOA
       FetchContent_Populate(embree_bin)
 
       set(EMBREE_ROOT "${embree_bin_SOURCE_DIR}")
-
       
       # Imported target for Embree 4 (adjust names if your archive differs)
       add_library(embree SHARED IMPORTED GLOBAL)
 
       set_target_properties(embree PROPERTIES
-        IMPORTED_LOCATION "${EMBREE_ROOT}/lib/libembree4.so"         # Linux
+        IMPORTED_LOCATION "${EMBREE_ROOT}/lib/libembree4.dylib" # MACOS
         INTERFACE_INCLUDE_DIRECTORIES "${EMBREE_ROOT}/include"
       )
 
