@@ -433,8 +433,10 @@ void test_parallel_reduce()
   rm::CrossStatistics_<DataT> total3 = tbb::parallel_reduce(
         tbb::blocked_range<size_t>(0, data.size(), 4096),
         rm::CrossStatistics_<DataT>::Identity(),
-        [&](const tbb::blocked_range<size_t>& r, rm::CrossStatistics_<DataT> acc) {
-            for (size_t i = r.begin(); i != r.end(); ++i) {
+        [&](const tbb::blocked_range<size_t>& r, rm::CrossStatistics_<DataT> acc) 
+        {
+            for (size_t i = r.begin(); i != r.end(); ++i) 
+            {
               acc += data[i];
             }
             return acc;

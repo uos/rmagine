@@ -19,7 +19,7 @@ jobs:
     - name: Deps (core)
       run: |
         brew update 
-        brew install llvm libomp boost eigen assimp cmake
+        brew install llvm libomp tbb boost eigen assimp cmake
         echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
         echo "HOMEBREW_PREFIX=$(brew --prefix)" >> $GITHUB_ENV
 
