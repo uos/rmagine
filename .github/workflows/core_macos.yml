@@ -17,7 +17,7 @@ jobs:
         os: [ macos-15 ]
     steps:
     - name: Deps (core)
-      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+      run: brew install boost eigen assimp cmake
     - name: Clone
       uses: actions/checkout@v4
       with:
@@ -27,7 +27,7 @@ jobs:
         cd rmagine
         mkdir build
         cd build
-        cmake ..
+        cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)" ..
         make
     - name: Test
       run: |
