@@ -18,8 +18,12 @@ jobs:
     steps:
 
     - name: Dependencies
-      run: sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
-    
+      run: |
+        # required for rmagine::core
+        sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
+        # required for rmagine::ouster
+        sudo apt install -y libjsoncpp-dev
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
