@@ -7,22 +7,22 @@ namespace rmagine
 Exception::Exception(const std::string& msg)
 : std::runtime_error(msg.c_str())
 {
-    m_msg = msg;
+  m_msg = msg;
 }
 
 Exception::Exception(
-    const std::string& msg, 
-    const char* file, 
-    const char* func, 
-    int line)
+  const std::string& msg, 
+  const char* file, 
+  const char* func, 
+  int line)
 : std::runtime_error(msg.c_str())
 {
-    std::ostringstream ss;
-    ss << "\t" << msg << "\n";
-    ss << "- File:\t\t'" << file << "'\n";
-    ss << "- Location:\t" << func << "\n";
-    ss << "- Line:\t\t" << line;
-    m_msg = ss.str();
+  std::ostringstream ss;
+  ss << "\t" << msg << "\n";
+  ss << "- File:\t\t'" << file << "'\n";
+  ss << "- Location:\t" << func << "\n";
+  ss << "- Line:\t\t" << line;
+  m_msg = ss.str();
 }
 
 const char* Exception::what() const throw()
@@ -30,7 +30,7 @@ const char* Exception::what() const throw()
     return m_msg.c_str();
 }
 
-Exception::~Exception()
+Exception::~Exception() throw()
 {
 
 }
@@ -47,7 +47,7 @@ EmbreeException::EmbreeException(const std::string& msg, const char* file, const
 
 }
 
-EmbreeException::~EmbreeException()
+EmbreeException::~EmbreeException() throw()
 {
 
 }
@@ -64,7 +64,7 @@ CudaException::CudaException(const std::string& msg, const char* file, const cha
 
 }
 
-CudaException::~CudaException()
+CudaException::~CudaException() throw()
 {
 
 }
@@ -82,7 +82,7 @@ OptixException::OptixException(const std::string& msg, const char* file, const c
 
 }
 
-OptixException::~OptixException()
+OptixException::~OptixException() throw()
 {
 
 }

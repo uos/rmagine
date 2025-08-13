@@ -1,0 +1,60 @@
+name: ouster_macos
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ macos-14, macos-15 ]
+    steps:
+    - name: Dependencies
+      run: |
+        brew update 
+        # required for rmagine::core
+        brew install tbb boost eigen assimp cmake
+        # required for rmagine::ouster
+        brew install jsoncpp
+        echo 'MACOSX_DEPLOYMENT_TARGET=13.0' >> $GITHUB_ENV  # >=10.13 is enough for TBB; 13.0 is safe on macos-15
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: rmagine
+
+    - name: Configure
+      env:
+        MACOSX_DEPLOYMENT_TARGET: ${{ env.MACOSX_DEPLOYMENT_TARGET }}
+      run: |
+        set -euxo pipefail
+        mkdir -p rmagine/build
+        cd rmagine/build
+        cmake \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}" \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+            -DRMAGINE_EMBREE_DISABLE=ON \
+            -DRMAGINE_CUDA_DISABLE=ON \
+            -DRMAGINE_OPTIX_DISABLE=ON \
+            ..
+
+    - name: Build
+      working-directory: rmagine/build
+      env:
+        MACOSX_DEPLOYMENT_TARGET: ${{ env.MACOSX_DEPLOYMENT_TARGET }}
+      run: make -j"$(sysctl -n hw.logicalcpu)"
+
+    - name: Test
+      working-directory: rmagine/build
+      env:
+        MACOSX_DEPLOYMENT_TARGET: ${{ env.MACOSX_DEPLOYMENT_TARGET }}
+      run: |
+        ./bin/rmagine_version
+        ctest --output-on-failure

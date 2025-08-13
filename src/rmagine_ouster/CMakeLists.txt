@@ -8,14 +8,50 @@
 ## - jsoncpp                     ##
 ##################################
 
-# for ouster config loading
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP jsoncpp)
 
-if(TARGET PkgConfig::jsoncpp) # for downwards compatibility
+# First, try the package config that jsoncpp ships
+find_package(jsoncpp CONFIG REQUIRED)   # case-insensitive: "jsoncpp"
+
+# jsoncpp’s exported target name varies by version/packager.
+if(TARGET jsoncpp_lib)
+  set(JSONCPP_INCLUDE_DIRS "")
+  set(JSONCPP_LIBRARIES jsoncpp_lib)
+  set(JSONCPP_FOUND TRUE)
+elseif(TARGET JsonCpp::JsonCpp)
+  set(JSONCPP_INCLUDE_DIRS "")
+  set(JSONCPP_LIBRARIES JsonCpp::JsonCpp)
+  set(JSONCPP_FOUND TRUE)
+else()
+  find_package(PkgConfig QUIET)
+  pkg_check_modules(JSONCPP QUIET jsoncpp)
+
+  if(TARGET PkgConfig::jsoncpp) # for downwards compatibility
     set(JSONCPP_INCLUDE_DIRS "")
     set(JSONCPP_LIBRARIES PkgConfig::jsoncpp)
+    set(JSONCPP_FOUND TRUE)
+  else()
+    # download from internet
+
+    FetchContent_Declare(
+      jsoncpp
+      GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+      GIT_TAG        1.9.5
+    )
+    FetchContent_MakeAvailable(jsoncpp)
+
+    # jsoncpp exports "jsoncpp_lib"
+    if(TARGET jsoncpp_lib)
+      set(JSONCPP_INCLUDE_DIRS "")
+      set(JSONCPP_LIBRARIES jsoncpp_lib)
+      set(JSONCPP_FOUND TRUE)
+    elseif(TARGET JsonCpp::JsonCpp)
+      set(JSONCPP_INCLUDE_DIRS "")
+      set(JSONCPP_LIBRARIES JsonCpp::JsonCpp)
+      set(JSONCPP_FOUND TRUE)
+    endif()
+  endif()
 endif()
+
 
 if(JSONCPP_FOUND)
 

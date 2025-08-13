@@ -34,7 +34,7 @@ if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOA
 
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
       # 64 Bit linux shortcut
-      message(STATUS "Trying to download precompiled Embree. Linux ${CMAKE_SYSTEM_PROCESSOR}")
+      message(STATUS "Trying to download precompiled Embree. Linux:x86_64")
 
       FetchContent_Declare(
         embree_bin
@@ -60,9 +60,37 @@ if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOA
 
       set(embree_FOUND TRUE)
 
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+      # Darwin:arm64
+      message(STATUS "Trying to download precompiled Embree. Darwin:arm64")
+
+      FetchContent_Declare(
+        embree_bin
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        URL https://github.com/RenderKit/embree/releases/download/v${RMAGINE_EMBREE_DOWNLOAD_VERSION}/embree-${RMAGINE_EMBREE_DOWNLOAD_VERSION}.arm64.macosx.zip
+      )
+      FetchContent_Populate(embree_bin)
+
+      set(EMBREE_ROOT "${embree_bin_SOURCE_DIR}")
+      
+      # Imported target for Embree 4 (adjust names if your archive differs)
+      add_library(embree SHARED IMPORTED GLOBAL)
+
+      set_target_properties(embree PROPERTIES
+        IMPORTED_LOCATION "${EMBREE_ROOT}/lib/libembree4.dylib" # MACOS
+        INTERFACE_INCLUDE_DIRECTORIES "${EMBREE_ROOT}/include"
+      )
+
+      # Install the vendored payload with your project
+      install(DIRECTORY "${EMBREE_ROOT}/include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+      install(DIRECTORY "${EMBREE_ROOT}/lib/"     DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+      set(embree_FOUND TRUE)
     else()
+      message(STATUS "No precompiled binaries found for ${CMAKE_SYSTEM_NAME}:${CMAKE_SYSTEM_PROCESSOR}")
+
       # Else: Download sources and compile
-      message(STATUS "Compile Embree from source. This might take a while.")
+      message(STATUS "-> Compile Embree from source. This might take a while.")
 
       # 1) Declare the source
       FetchContent_Declare(

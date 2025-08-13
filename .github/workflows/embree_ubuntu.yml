@@ -1,0 +1,46 @@
+name: embree_ubuntu
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, ubuntu-24.04 ]
+    steps:
+    - name: Dependencies
+      run: sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
+    
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: rmagine
+
+    - name: Configure
+      run: |
+        set -euxo pipefail
+        mkdir -p rmagine/build
+        cd rmagine/build
+        cmake \
+            -DRMAGINE_OUSTER_DISABLE=ON \
+            -DRMAGINE_CUDA_DISABLE=ON \
+            -DRMAGINE_OPTIX_DISABLE=ON \
+            ..
+
+    - name: Build
+      working-directory: rmagine/build
+      run: make -j"$(nproc)"
+
+    - name: Test
+      working-directory: rmagine/build
+      run: |
+        ./bin/rmagine_version
+        ctest --output-on-failure

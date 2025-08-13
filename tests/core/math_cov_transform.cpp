@@ -12,8 +12,6 @@
 
 #include <cassert>
 
-#include <rmagine/math/omp.h>
-
 #include <algorithm>
 #include <random>
 

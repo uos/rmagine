@@ -275,19 +275,18 @@ void parallelTest()
     double el_eigen, el_rmagine, el_rmagine2;
 
     sw();
-    #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
-        Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
-            Eigen::ComputeFullU | Eigen::ComputeFullV);
-        auto s = svdeig.singularValues();
-        Eigen::Matrix3f Seig = Eigen::Matrix3f::Zero();
-        for(size_t i=0; i<s.rows(); i++)
-        {
-            Seig(i, i) = s(i);
-        }
-        auto uvt_eig = svdeig.matrixU() * Seig * svdeig.matrixV().transpose();
-        res_eigen[obj_id] = uvt_eig;
+      Eigen::JacobiSVD<Eigen::Matrix3f> svdeig(covs_eigen[obj_id], 
+          Eigen::ComputeFullU | Eigen::ComputeFullV);
+      auto s = svdeig.singularValues();
+      Eigen::Matrix3f Seig = Eigen::Matrix3f::Zero();
+      for(size_t i=0; i<s.rows(); i++)
+      {
+          Seig(i, i) = s(i);
+      }
+      auto uvt_eig = svdeig.matrixU() * Seig * svdeig.matrixV().transpose();
+      res_eigen[obj_id] = uvt_eig;
     }
     el_eigen = sw();
 
@@ -305,15 +304,14 @@ void parallelTest()
     rm::Memory<rm::Matrix3x3> res_rm(num_objects);
 
     sw();
-    #pragma omp parallel for
     for(size_t obj_id=0; obj_id<num_objects; obj_id++)
     {
-        rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
-        rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
-        rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
-        rm::svd(covs_rm[obj_id], Urm, Wrm, Vrm);
-        auto uvt_rm = Urm * Wrm * Vrm.T();
-        res_rm[obj_id] = uvt_rm;
+      rm::Matrix3x3 Urm = rm::Matrix3x3::Zeros();
+      rm::Matrix3x3 Wrm = rm::Matrix3x3::Zeros();
+      rm::Matrix3x3 Vrm = rm::Matrix3x3::Zeros();
+      rm::svd(covs_rm[obj_id], Urm, Wrm, Vrm);
+      auto uvt_rm = Urm * Wrm * Vrm.T();
+      res_rm[obj_id] = uvt_rm;
     }
     el_rmagine = sw();
     
