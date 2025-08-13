@@ -30,7 +30,7 @@ const char* Exception::what() const throw()
     return m_msg.c_str();
 }
 
-Exception::~Exception()
+Exception::~Exception() throw()
 {
 
 }
@@ -47,7 +47,7 @@ EmbreeException::EmbreeException(const std::string& msg, const char* file, const
 
 }
 
-EmbreeException::~EmbreeException()
+EmbreeException::~EmbreeException() throw()
 {
 
 }
@@ -64,7 +64,7 @@ CudaException::CudaException(const std::string& msg, const char* file, const cha
 
 }
 
-CudaException::~CudaException()
+CudaException::~CudaException() throw()
 {
 
 }
@@ -82,7 +82,7 @@ OptixException::OptixException(const std::string& msg, const char* file, const c
 
 }
 
-OptixException::~OptixException()
+OptixException::~OptixException() throw()
 {
 
 }
