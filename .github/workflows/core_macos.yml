@@ -27,9 +27,10 @@ jobs:
       with:
         path: rmagine
     - name: Configure
-      working-directory: rmagine/build
+      working-directory: rmagine
       run: |
-        mkdir -p
+        mkdir build
+        cd build
 
         # Use Homebrew LLVM's clang/clang++ (supports OpenMP out of the box).
         export CC="${LLVM_PREFIX}/bin/clang"
@@ -48,5 +49,6 @@ jobs:
     - name: Test
       working-directory: rmagine/build
       run: |
+        cd rmagine/build
         ./bin/rmagine_version
         ctest --output-on-failure
