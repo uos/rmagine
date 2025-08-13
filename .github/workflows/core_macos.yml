@@ -17,7 +17,11 @@ jobs:
         os: [ macos-15 ]
     steps:
     - name: Deps (core)
-      run: brew install boost eigen assimp cmake
+      run: |
+        brew update 
+        brew install libomp boost eigen assimp cmake
+        echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
+        echo "HOMEBREW_PREFIX=$(brew --prefix)" >> $GITHUB_ENV
     - name: Clone
       uses: actions/checkout@v4
       with:
@@ -27,11 +31,20 @@ jobs:
         cd rmagine
         mkdir build
         cd build
-        cmake -DCMAKE_PREFIX_PATH="$(brew --prefix)" ..
-        make
+
+        # Use Homebrew LLVM's clang/clang++ (supports OpenMP out of the box).
+        export CC="${LLVM_PREFIX}/bin/clang"
+        export CXX="${LLVM_PREFIX}/bin/clang++"
+
+        # Help CMake find Homebrew packages (Eigen, Boost, Assimp, libomp)
+        cmake -DCMAKE_PREFIX_PATH="${HOMEBREW_PREFIX};${LLVM_PREFIX}" \
+              -DCMAKE_C_COMPILER="$CC" \
+              -DCMAKE_CXX_COMPILER="$CXX" \
+
+        make -j"$(sysctl -n hw.logicalcpu)"
+
     - name: Test
       run: |
-        cd rmagine
-        cd build
+        cd rmagine/build
         ./bin/rmagine_version
-        make test
+        ctest --output-on-failure
