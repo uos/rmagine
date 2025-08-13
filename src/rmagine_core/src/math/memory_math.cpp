@@ -9,10 +9,9 @@
 #include <tbb/parallel_for.h>
 
 // BLOCK SIZE USED FOR THE WHOLE FILE
-#define TBB_BLOCK_SIZE 512
+#define RMAGINE_MEMORY_MATH_BLOCK_SIZE 512
 
 namespace rmagine {
-
 
 template<typename In1T, typename In2T, typename ResT>
 void multNxN_generic(
@@ -20,7 +19,7 @@ void multNxN_generic(
   const MemoryView<In2T, RAM>& B,
   MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -36,7 +35,7 @@ void multNx1_generic(
     const MemoryView<In2T, RAM>& b,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -52,7 +51,7 @@ void mult1xN_generic(
     const MemoryView<In2T, RAM>& B,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, B.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, B.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -68,7 +67,7 @@ void addNxN_generic(
     const MemoryView<In2T, RAM>& B,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -84,7 +83,7 @@ void subNxN_generic(
     const MemoryView<In2T, RAM>& B,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -100,7 +99,7 @@ void subNx1_generic(
     const MemoryView<In2T, RAM>& b,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -116,7 +115,7 @@ void sub1xN_generic(
     const MemoryView<In2T, RAM>& B,
     MemoryView<ResT, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, B.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, B.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -131,7 +130,7 @@ void transpose_generic(
     const MemoryView<T, RAM>& A,
     MemoryView<T, RAM>& B)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -146,7 +145,7 @@ void invert_generic(
     const MemoryView<T, RAM>& A,
     MemoryView<T, RAM>& B)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -533,7 +532,7 @@ void sub(
     const Vector& b,
     MemoryView<Vector, RAM>& C)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, A.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -741,7 +740,7 @@ void svd(
     MemoryView<Matrix3x3, RAM>& Ws,
     MemoryView<Matrix3x3, RAM>& Vs)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, As.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, As.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -780,7 +779,7 @@ void umeyama_transform(
     const MemoryView<Matrix3x3, RAM>& Cs,
     const MemoryView<unsigned int, RAM>& n_meas)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, Cs.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, Cs.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
@@ -807,7 +806,7 @@ void umeyama_transform(
     const MemoryView<Vector3, RAM>& ms,
     const MemoryView<Matrix3x3, RAM>& Cs)
 {
-  tbb::parallel_for( tbb::blocked_range<size_t>(0, Cs.size(), TBB_BLOCK_SIZE),
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, Cs.size(), RMAGINE_MEMORY_MATH_BLOCK_SIZE),
                        [&](const tbb::blocked_range<size_t>& r)
   {
     for(size_t i=r.begin(); i<r.end(); ++i)
