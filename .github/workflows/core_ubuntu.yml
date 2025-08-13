@@ -16,6 +16,7 @@ jobs:
       matrix:
         os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
+
     - name: Dependencies
       run: sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
     
@@ -30,7 +31,7 @@ jobs:
         mkdir -p rmagine/build
         cd rmagine/build
         cmake \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DRMAGINE_EMBREE_DISABLE=ON \
             -DRMAGINE_OUSTER_DISABLE=ON \
             -DRMAGINE_CUDA_DISABLE=ON \
             -DRMAGINE_OPTIX_DISABLE=ON \

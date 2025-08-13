@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ macos-15 ]
+        os: [ macos-14, macos-15 ]
     steps:
     - name: Deps (core)
       run: |
@@ -35,7 +35,6 @@ jobs:
         mkdir -p rmagine/build
         cd rmagine/build
         cmake \
-            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}" \
             -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
             -DRMAGINE_OUSTER_DISABLE=ON \

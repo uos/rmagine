@@ -35,9 +35,9 @@ jobs:
         mkdir -p rmagine/build
         cd rmagine/build
         cmake \
-            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}" \
             -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+            -DRMAGINE_EMBREE_DISABLE=ON \
             -DRMAGINE_OUSTER_DISABLE=ON \
             -DRMAGINE_CUDA_DISABLE=ON \
             -DRMAGINE_OPTIX_DISABLE=ON \
