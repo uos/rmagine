@@ -58,7 +58,11 @@ typedef uint32_t ShaderDefineFlags;
 
 ShaderDefineFlags get_sensor_mask();
 
+ShaderDefineFlags get_sensor_defines_from_flags(ShaderDefineFlags shaderDefines);
+
 ShaderDefineFlags get_result_mask();
+
+ShaderDefineFlags get_result_defines_from_flags(ShaderDefineFlags shaderDefines);
 
 bool one_sensor_defined(ShaderDefineFlags shaderDefines);
 

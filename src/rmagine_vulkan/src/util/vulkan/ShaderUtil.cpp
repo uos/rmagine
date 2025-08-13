@@ -62,15 +62,26 @@ ShaderDefineFlags get_sensor_mask()
     return ShaderDefines::Def_Sphere | ShaderDefines::Def_Pinhole | ShaderDefines::Def_O1Dn | ShaderDefines::Def_OnDn;
 }
 
+ShaderDefineFlags get_sensor_defines_from_flags(ShaderDefineFlags shaderDefines)
+{
+    return shaderDefines & get_sensor_mask();
+}
+
 ShaderDefineFlags get_result_mask()
 {
     return ShaderDefines::Def_Hits | ShaderDefines::Def_Ranges | ShaderDefines::Def_Points | ShaderDefines::Def_Normals | ShaderDefines::Def_PrimitiveID | ShaderDefines::Def_GeometryID | ShaderDefines::Def_InstanceID;
 }
 
+ShaderDefineFlags get_result_defines_from_flags(ShaderDefineFlags shaderDefines)
+{
+    return shaderDefines & get_result_mask();
+}
+
 bool one_sensor_defined(ShaderDefineFlags shaderDefines)
 {
     ShaderDefineFlags maskedShaderDefines = shaderDefines & get_sensor_mask();
-    return std::has_single_bit(maskedShaderDefines);//TODO
+    // return std::has_single_bit(maskedShaderDefines); // works only from c++20 onwards
+    return maskedShaderDefines && !(maskedShaderDefines & (maskedShaderDefines-1)); 
 }
 
 
