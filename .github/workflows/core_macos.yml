@@ -49,6 +49,10 @@ jobs:
         cmake \
             -DCMAKE_PREFIX_PATH="${HOMEBREW_PREFIX};${LLVM_PREFIX}" \
             -DCMAKE_BUILD_TYPE=Release \
+            -DRMAGINE_EMBREE_DISABLE=ON \
+            -DRMAGINE_OUSTER_DISABLE=ON \
+            -DRMAGINE_CUDA_DISABLE=ON \
+            -DRMAGINE_OPTIX_DISABLE=ON \
             ..
 
     - name: Build
