@@ -39,7 +39,61 @@ Rmagine has been specifically developed to
 
 ## Installation / Usage
 
-See [Wiki](https://uos.github.io/rmagine_docs) page for further instructions.
+Minimal instructions for installing the rmagine library on your system:
+
+<details>
+<summary>Ubuntu</summary>
+
+1. Install required dependencies
+
+```bash
+sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
+```
+
+2. Build
+
+```bash
+mkdir -p rmagine/build
+cd rmagine/build
+cmake ..
+make
+```
+
+3. Install
+
+```bash
+make install
+```
+
+</details>
+
+<details>
+<summary>MacOS</summary>
+
+1. Install required dependencies:
+
+```bash
+brew install tbb boost eigen assimp cmake
+```
+
+2. Build
+
+```bash
+mkdir -p rmagine/build
+cd rmagine/build
+cmake ..
+make
+```
+
+3. Install
+
+```bash
+make install
+```
+
+</details>
+
+For more advanced possibilities and further instructions visit the [Wiki](https://uos.github.io/rmagine_docs/installation/).
 
 ## Example
 
@@ -141,26 +195,3 @@ The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/101
 
 We welcome contributions of all kinds, including issues, pull requests, and feedback, to help us enhance this OpenSource project.
 If you'd like to enhance the [documentation](https://uos.github.io/rmagine_docs/), whether by fixing spelling errors or adding examples, don't hesitate to submit issues or pull requests in the repository at https://github.com/uos/rmagine_docs.
-
-## News
-
-### Sep 12th 2024
-
-Alongside the new version 2.2.6 we released a minimal viewer that demonstrates the sensor models of rmagine. Check it out here: [https://github.com/amock/rmagine_viewer](https://github.com/amock/rmagine_viewer).
-
-### Dec 5th 2023
-
-New version 2.2.2 is available now and brings convenience updates for ROS-users. Just place Rmagine into your ROS-workspace and it will compile. Via `find_package(rmagine COMPONENTS [...])` you can still find Rmagine's components as if you would install it globally on your system. We tested it with 
-- ROS1 - noetic
-- ROS2 - humble
-
-Normally you would set `OptiX_INCLUDE_DIR` via cmake flags. Now we provide an additional option: Set the environment variable `OPTIX_HEADER_DIR` for example in your `.bashrc`-file:
-
-```bash
-export OPTIX_INCLUDE_DIR=~/software/optix/NVIDIA-OptiX-SDK-7.4.0-linux64-x86_64/include
-```
-
-Especially if you place Rmagine into your ROS-workspace this option becomes very handy.
-
-[Older news ...](https://uos.github.io/rmagine_docs/extra/news/)
-
