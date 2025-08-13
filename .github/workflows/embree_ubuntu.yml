@@ -1,11 +1,11 @@
-name: cuda
+name: embree
 on:
   push:
     branches:
-      - 'no'
+      - 'main'
   pull_request:
     branches:
-      - 'no'
+      - 'main'
   workflow_dispatch:
     branches:
       - '*'
@@ -17,27 +17,20 @@ jobs:
         os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
     - name: Deps (APT)
-      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake 
-    - name: Deps (Embree)
-      run: |
-        wget https://github.com/embree/embree/releases/download/v4.3.0/embree-4.3.0.x86_64.linux.tar.gz
-        mkdir embree
-        tar -xf embree-4.3.0.x86_64.linux.tar.gz -C embree
+      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
     - name: Clone
       uses: actions/checkout@v4
       with:
         path: rmagine
     - name: Compile
       run: |
-        . embree/embree-vars.sh
         cd rmagine
         mkdir build
         cd build
-        cmake -Dembree_DIR=$PWD/../../embree/lib/cmake/embree-4.3.0/ ..
+        cmake ..
         make
     - name: Test
       run: |
-        . embree/embree-vars.sh
         cd rmagine
         cd build
         ./bin/rmagine_version

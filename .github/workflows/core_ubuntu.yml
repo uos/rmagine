@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ ubuntu-22.04, ubuntu-24.04, macos-15]
+        os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
     - name: Deps (core)
       run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
