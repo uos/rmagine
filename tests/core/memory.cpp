@@ -92,22 +92,29 @@ template<typename DataT>
 rm::Mem<DataT> add(const rm::MemView<DataT>& a, const rm::MemView<DataT>& b )
 {
   rm::Mem<DataT> c(a.size());
-  // #pragma omp parallel for
-  for(size_t i=0; i<a.size(); i++)
+  
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, a.size()),
+                       [&](const tbb::blocked_range<size_t>& r)
   {
-    c[i] = a[i] + b[i];
-  }
+    for(size_t i=r.begin(); i<r.end(); ++i)
+    {
+      c[i] = a[i] + b[i];
+    }
+  });
   return c;
 }
 
 template<typename DataT>
 void add(const rm::MemView<DataT>& a, const rm::MemView<DataT>& b, rm::MemView<DataT>& c)
 {
-  // #pragma omp parallel for
-  for(size_t i=0; i<a.size(); i++)
+  tbb::parallel_for( tbb::blocked_range<size_t>(0, a.size()),
+                       [&](const tbb::blocked_range<size_t>& r)
   {
-    c[i] = a[i] + b[i];
-  }
+    for(size_t i=r.begin(); i<r.end(); ++i)
+    {
+      c[i] = a[i] + b[i];
+    }
+  });
 }
 
 #define yet int blaaaa=0

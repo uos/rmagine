@@ -46,8 +46,6 @@ void multNx1_generic(
   });
 }
 
-
-
 template<typename In1T, typename In2T, typename ResT>
 void mult1xN_generic(
     const MemoryView<In1T, RAM>& a,

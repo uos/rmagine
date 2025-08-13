@@ -12,8 +12,6 @@
 #include <rmagine/math/assimp_conversions.h>
 #include <rmagine/util/assimp/helper.h>
 
-#include <omp.h>
-
 #include <embree4/rtcore.h>
 
 
