@@ -61,8 +61,10 @@ if(NOT embree_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOA
       set(embree_FOUND TRUE)
 
     else()
+      message(STATUS "No precompiled binaries found for ${CMAKE_SYSTEM_NAME}:${CMAKE_SYSTEM_PROCESSOR}")
+
       # Else: Download sources and compile
-      message(STATUS "Compile Embree from source. This might take a while.")
+      message(STATUS "-> Compile Embree from source. This might take a while.")
 
       # 1) Declare the source
       FetchContent_Declare(
