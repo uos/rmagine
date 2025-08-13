@@ -7,22 +7,22 @@ namespace rmagine
 Exception::Exception(const std::string& msg)
 : std::runtime_error(msg.c_str())
 {
-    m_msg = msg;
+  m_msg = msg;
 }
 
 Exception::Exception(
-    const std::string& msg, 
-    const char* file, 
-    const char* func, 
-    int line)
+  const std::string& msg, 
+  const char* file, 
+  const char* func, 
+  int line)
 : std::runtime_error(msg.c_str())
 {
-    std::ostringstream ss;
-    ss << "\t" << msg << "\n";
-    ss << "- File:\t\t'" << file << "'\n";
-    ss << "- Location:\t" << func << "\n";
-    ss << "- Line:\t\t" << line;
-    m_msg = ss.str();
+  std::ostringstream ss;
+  ss << "\t" << msg << "\n";
+  ss << "- File:\t\t'" << file << "'\n";
+  ss << "- Location:\t" << func << "\n";
+  ss << "- Line:\t\t" << line;
+  m_msg = ss.str();
 }
 
 const char* Exception::what() const throw()
