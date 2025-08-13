@@ -1,4 +1,4 @@
-#include "ShaderUtil.hpp"
+#include "rmagine/util/vulkan/ShaderUtil.hpp"
 
 
 
@@ -70,7 +70,7 @@ ShaderDefineFlags get_result_mask()
 bool one_sensor_defined(ShaderDefineFlags shaderDefines)
 {
     ShaderDefineFlags maskedShaderDefines = shaderDefines & get_sensor_mask();
-    return std::has_single_bit(maskedShaderDefines);
+    return std::has_single_bit(maskedShaderDefines);//TODO
 }
 
 

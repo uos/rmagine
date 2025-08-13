@@ -1,6 +1,6 @@
-#include "Pipeline.hpp"
-#include "../VulkanContext.hpp"
-#include "ShaderBindingTable.hpp"
+#include "rmagine/util/vulkan/Pipeline.hpp"
+#include "rmagine/util/VulkanContext.hpp"
+#include "rmagine/util/vulkan/ShaderBindingTable.hpp"
 
 
 

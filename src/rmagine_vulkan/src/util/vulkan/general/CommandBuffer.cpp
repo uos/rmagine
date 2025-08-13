@@ -1,8 +1,8 @@
-#include "CommandBuffer.hpp"
-#include "../VulkanContext.hpp"
-#include "../../simulators/simulatorComponents/DescriptorSet.hpp"
-#include "../contextComponents/ShaderBindingTable.hpp"
-#include "../contextComponents/Pipeline.hpp"
+#include "rmagine/util/vulkan/general/CommandBuffer.hpp"
+#include "rmagine/util/VulkanContext.hpp"
+#include "rmagine/util/vulkan/ShaderBindingTable.hpp"
+#include "rmagine/util/vulkan/Pipeline.hpp"
+#include "rmagine/simulation/vulkan/DescriptorSet.hpp"
 
 
 

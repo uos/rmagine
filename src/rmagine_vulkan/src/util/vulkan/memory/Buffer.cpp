@@ -1,5 +1,5 @@
-#include "Buffer.hpp"
-#include "../VulkanContext.hpp"
+#include "rmagine/util/vulkan/memory/Buffer.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 

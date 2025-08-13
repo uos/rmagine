@@ -1,5 +1,5 @@
-#include "DeviceMemory.hpp"
-#include "../VulkanContext.hpp"
+#include "rmagine/util/vulkan/memory/DeviceMemory.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 

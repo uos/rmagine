@@ -70,13 +70,13 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if( previousBuffers.vertexID  != map->scene()->getVertexMem().getID() ||
-        previousBuffers.indexID   != map->scene()->getIndexMem().getID()  ||/*
-        previousBuffers.sensorID  != sensorMem.getID()  ||
-        previousBuffers.resultsID != resultsMem.getID() ||
-        previousBuffers.tsbID     != tsbMem.getID()     ||*/
-        previousBuffers.tbmID     != tbmMem.getID()     ||
-        previousBuffers.tlasID    != map->scene()->getTopLevelAccelerationStructure()->getID())
+    if(previousBuffers.vertexID  != map->scene()->getVertexMem().getID() ||
+       previousBuffers.indexID   != map->scene()->getIndexMem().getID()  ||/*
+       previousBuffers.sensorID  != sensorMem.getID()  ||
+       previousBuffers.resultsID != resultsMem.getID() ||
+       previousBuffers.tsbID     != tsbMem.getID()     ||*/
+       previousBuffers.tbmID     != tbmMem.getID()     ||
+       previousBuffers.tlasID    != map->scene()->getTopLevelAccelerationStructure()->getID())
     {
         //update used buffers
         previousBuffers.vertexID  = map->scene()->getVertexMem().getID();
@@ -95,9 +95,9 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
     //check whether dimensions have changed
     //if they have changed the raytracing command needs to be rerecorded
     if(rerecordCommandBuffer ||
-        previousDimensions.width  != newDimensions.width  || 
-        previousDimensions.height != newDimensions.height || 
-        previousDimensions.depth  != newDimensions.depth)
+       previousDimensions.width  != newDimensions.width  || 
+       previousDimensions.height != newDimensions.height || 
+       previousDimensions.depth  != newDimensions.depth)
     {
         //update dimensions
         previousDimensions.width = newDimensions.width;

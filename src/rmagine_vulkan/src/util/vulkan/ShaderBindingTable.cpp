@@ -1,5 +1,5 @@
-#include "ShaderBindingTable.hpp"
-#include "../VulkanContext.hpp"
+#include "rmagine/util/vulkan/ShaderBindingTable.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 
