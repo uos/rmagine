@@ -11,7 +11,6 @@
 #include <vulkan/vulkan.h>
 
 #include "BottomLevelAccelerationStructure.hpp"
-#include "../../../util/MemoryVulkan.hpp"
 
 
 

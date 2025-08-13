@@ -12,17 +12,17 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../../util/VulkanContext.hpp"
-#include "../../util/VulkanUtil.hpp"
-#include "AccelerationStructure/BottomLevelAccelerationStructure.hpp"
-#include "AccelerationStructure/TopLevelAccelerationStructure.hpp"
-#include "AccelerationStructure/BottomLevelGeometryInstance.hpp"
+#include <rmagine/map/AssimpIO.hpp>
+#include <rmagine/util/VulkanContext.hpp>
+#include <rmagine/util/VulkanUtil.hpp>
+#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
+#include "accelerationStructure/TopLevelAccelerationStructure.hpp"
+#include "accelerationStructure/BottomLevelGeometryInstance.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
 // #include "VulkanGeometry.hpp"
 // #include "VulkanTransformable.hpp"
 // #include "VulkanInst.hpp"
-// #include "../../../rmagine_core/map/AssimpIO.hpp"
 
 
 

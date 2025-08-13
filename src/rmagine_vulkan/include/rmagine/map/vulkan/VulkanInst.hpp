@@ -11,7 +11,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../../util/MemoryVulkan.hpp"
+#include <rmagine/math/types.h>
+#include "VulkanGeometry.hpp"
 
 
 

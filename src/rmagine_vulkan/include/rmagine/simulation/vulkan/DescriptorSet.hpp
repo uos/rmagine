@@ -11,9 +11,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../../util/contextComponents/Device.hpp"
-#include "../../util/contextComponents/DescriptorSetLayout.hpp"
-#include "../../util/memoryComponents/Buffer.hpp"
+#include <rmagine/util/vulkan/Device.hpp>
+#include <rmagine/util/vulkan/DescriptorSetLayout.hpp>
+#include <rmagine/util/vulkan/memory/Buffer.hpp>
 
 
 

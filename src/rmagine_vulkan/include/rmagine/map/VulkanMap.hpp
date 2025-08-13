@@ -11,11 +11,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../util/VulkanContext.hpp"
-#include "../util/VulkanUtil.hpp"
-#include "mapComponents/VulkanScene.hpp"
-#include "../../rmagine_core/map/Map.hpp"
-// #include "../../rmagine_core/map/AssimpIO.hpp"
+#include <rmagine/map/Map.hpp>
+#include <rmagine/map/AssimpIO.hpp>
+#include <rmagine/util/VulkanContext.hpp>
+#include <rmagine/util/VulkanUtil.hpp>
+#include "vulkan/VulkanScene.hpp"
 
 
 

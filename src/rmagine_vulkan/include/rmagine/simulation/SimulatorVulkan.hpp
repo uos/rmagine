@@ -11,11 +11,13 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../util/VulkanContext.hpp"
-#include "../../rmagine_core/math/Types.hpp"
-#include "../map/VulkanMap.hpp"
-#include "simulatorComponents/DescriptorSet.hpp"
-#include "../util/contextComponents/Pipeline.hpp"
+#include <rmagine/math/types.h>
+#include <rmagine/types/sensor_models.h>
+#include <rmagine/util/VulkanContext.hpp>
+#include <rmagine/util/vulkan/Pipeline.hpp>
+#include <rmagine/util/VulkanContext.hpp>
+#include <rmagine/map/VulkanMap.hpp>
+#include "vulkan/DescriptorSet.hpp"
 #include "SimulatorVulkanUtil.hpp"
 
 

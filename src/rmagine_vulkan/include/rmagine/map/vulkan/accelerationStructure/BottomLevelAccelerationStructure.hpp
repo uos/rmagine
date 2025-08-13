@@ -10,9 +10,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/types/MemoryVulkan.hpp>
 #include "AccelerationStructure.hpp"
-#include "../../../util/MemoryVulkan.hpp"
-#include "../../../util/VulkanUtil.hpp"
 
 
 

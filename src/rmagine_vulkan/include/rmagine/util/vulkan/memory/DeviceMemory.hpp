@@ -11,7 +11,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../contextComponents/Device.hpp"
 #include "Buffer.hpp"
 
 

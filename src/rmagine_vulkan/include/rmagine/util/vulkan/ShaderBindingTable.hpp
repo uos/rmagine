@@ -11,8 +11,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../VulkanUtil.hpp"
-#include "../MemoryVulkan.hpp"
+#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/types/MemoryVulkan.hpp>
 #include "Device.hpp"
 #include "Shader.hpp"
 #include "Pipeline.hpp"

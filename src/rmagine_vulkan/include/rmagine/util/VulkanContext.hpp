@@ -12,13 +12,13 @@
 #include <vulkan/vulkan.h>
 
 #include "VulkanUtil.hpp"
-#include "contextComponents/Device.hpp"
-#include "contextComponents/CommandPool.hpp"
-#include "contextComponents/DescriptorSetLayout.hpp"
-#include "contextComponents/PipelineLayout.hpp"
-#include "contextComponents/Pipeline.hpp"
-#include "contextComponents/Shader.hpp"
-#include "generalComponents/CommandBuffer.hpp"
+#include "vulkan/Device.hpp"
+#include "vulkan/CommandPool.hpp"
+#include "vulkan/DescriptorSetLayout.hpp"
+#include "vulkan/PipelineLayout.hpp"
+#include "vulkan/Pipeline.hpp"
+#include "vulkan/Shader.hpp"
+#include "vulkan/general/CommandBuffer.hpp"
 
 
 

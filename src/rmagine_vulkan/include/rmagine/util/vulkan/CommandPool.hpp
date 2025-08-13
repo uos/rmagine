@@ -11,7 +11,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../VulkanUtil.hpp"
+#include <rmagine/util/VulkanUtil.hpp>
 #include "Device.hpp"
 
 

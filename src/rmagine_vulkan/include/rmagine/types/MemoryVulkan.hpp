@@ -11,12 +11,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include "VulkanUtil.hpp"
-#include "memoryComponents/Buffer.hpp"
-#include "memoryComponents/DeviceMemory.hpp"
-#include "VulkanContext.hpp"
-
-#include "../../rmagine_core/types/Memory.hpp"
+#include <rmagine/util/VulkanContext.hpp>
+#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/vulkan/memory/Buffer.hpp>
+#include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
+#include <rmagine/types/Memory.hpp>
 
 
 

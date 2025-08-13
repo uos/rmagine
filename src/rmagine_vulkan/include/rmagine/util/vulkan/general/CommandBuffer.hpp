@@ -11,12 +11,13 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../VulkanUtil.hpp"
-#include "../contextComponents/Device.hpp"
-#include "../contextComponents/CommandPool.hpp"
-#include "../memoryComponents/Buffer.hpp"
-#include "../contextComponents/DescriptorSetLayout.hpp"
-#include "../contextComponents/PipelineLayout.hpp"
+#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/vulkan/Device.hpp>
+#include <rmagine/util/vulkan/CommandPool.hpp>
+#include <rmagine/util/vulkan/DescriptorSetLayout.hpp>
+#include <rmagine/util/vulkan/PipelineLayout.hpp>
+#include <rmagine/util/vulkan/CommandPool.hpp>
+#include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include "Fence.hpp"
 
 

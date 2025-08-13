@@ -12,7 +12,7 @@
 
 #include "AccelerationStructure.hpp"
 #include "BottomLevelGeometryInstance.hpp"
-#include "../../../util/VulkanUtil.hpp"
+#include <rmagine/util/VulkanUtil.hpp>
 
 
 

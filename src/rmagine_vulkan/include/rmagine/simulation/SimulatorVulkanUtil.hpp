@@ -1,9 +1,8 @@
-#include "../../rmagine_core/types/Bundle.hpp"
-#include "../../rmagine_core/simulation/SimulationResults.hpp"
-
-#include "../util/MemoryVulkan.hpp"
-#include "../../rmagine_core/math/Types.hpp"
-#include "../util/contextComponents/ShaderUtil.hpp"
+#include <rmagine/math/types.h>
+#include <rmagine/types/Bundle.hpp>
+#include <rmagine/simulation/SimulationResults.hpp>
+#include <rmagine/types/MemoryVulkan.hpp>
+#include <rmagine/util/vulkan/ShaderUtil.hpp>
 
 
 

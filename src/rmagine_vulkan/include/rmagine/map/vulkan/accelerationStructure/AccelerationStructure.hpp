@@ -10,8 +10,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include "../../../util/memoryComponents/Buffer.hpp"
-#include "../../../util/memoryComponents/DeviceMemory.hpp"
+#include <rmagine/util/vulkan/memory/Buffer.hpp>
+#include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
 
 
 
