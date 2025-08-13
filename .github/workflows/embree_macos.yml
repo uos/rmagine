@@ -19,9 +19,10 @@ jobs:
     - name: Deps (core)
       run: |
         brew update 
-        brew install llvm tbb boost eigen assimp cmake
+        brew install tbb boost eigen assimp cmake
         echo "LLVM_PREFIX=$(brew --prefix llvm)" >> $GITHUB_ENV
         echo "HOMEBREW_PREFIX=$(brew --prefix)" >> $GITHUB_ENV
+        echo 'MACOSX_DEPLOYMENT_TARGET=13.0' >> $GITHUB_ENV
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -29,6 +30,8 @@ jobs:
         path: rmagine
 
     - name: Configure
+      env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ env.MACOSX_DEPLOYMENT_TARGET }}
       run: |
         set -euxo pipefail
         mkdir -p rmagine/build

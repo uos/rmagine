@@ -17,7 +17,7 @@ jobs:
         os: [ ubuntu-22.04, ubuntu-24.04 ]
     steps:
     - name: Deps (APT)
-      run: sudo apt install -y libboost-dev libeigen3-dev libassimp-dev cmake
+      run: sudo apt install -y libtbb-dev libboost-dev libeigen3-dev libassimp-dev cmake
     - name: Clone
       uses: actions/checkout@v4
       with:
