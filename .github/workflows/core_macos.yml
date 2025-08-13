@@ -14,9 +14,9 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ macos-15 ]
+        os: [ macos-14, macos-15 ]
     steps:
-    - name: Deps (core)
+    - name: Dependencies
       run: |
         brew update 
         brew install tbb boost eigen assimp cmake
