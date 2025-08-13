@@ -1,4 +1,4 @@
-name: embree
+name: embree_ubuntu
 on:
   push:
     branches:

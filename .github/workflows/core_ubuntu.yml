@@ -1,4 +1,4 @@
-name: core
+name: core_ubuntu
 on:
   push:
     branches:

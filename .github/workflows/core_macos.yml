@@ -1,4 +1,4 @@
-name: core
+name: core_macos
 on:
   push:
     branches:
