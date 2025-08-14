@@ -7,10 +7,15 @@
 #include <filesystem>
 #include <bit>
 
-// #define USE_GLSLANG_LIB
+#define USE_GLSLANG_LIB
 #if defined(USE_GLSLANG_LIB)
     #include <glslang/Include/glslang_c_interface.h>
     #include <glslang/Public/resource_limits_c.h>
+
+    #include "shaders/VulkanIncludeShader.hpp"
+    #include "shaders/VulkanShaderRGen.hpp"
+    #include "shaders/VulkanShaderCHit.hpp"
+    #include "shaders/VulkanShaderMiss.hpp"
 #endif
 
 
@@ -54,6 +59,10 @@ typedef uint32_t ShaderDefineFlags;
 
 #if defined(USE_GLSLANG_LIB)
     glslang_stage_t get_glslang_stage(ShaderType shaderType);
+
+    std::string get_shader_define_statements(ShaderDefineFlags shaderDefines);
+
+    std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 #endif
 
 ShaderDefineFlags get_sensor_mask();

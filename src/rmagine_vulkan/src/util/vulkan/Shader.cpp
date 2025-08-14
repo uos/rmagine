@@ -62,8 +62,6 @@ void Shader::createShader(std::string shaderPath)
 
 void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefines, std::string sourcePath, std::string outputPath)
 {
-    std::vector<std::string> defines = get_shader_defines(shaderDefines);
-
     #if defined(USE_GLSLANG_LIB)
         //source:   https://github.com/KhronosGroup/glslang
         //see also: https://stackoverflow.com/questions/38234986/how-to-use-glslang
@@ -71,28 +69,7 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
 
         //there is also a shaderc library - maybe use that one instead, if it works with raytracing pipeline shaders - maybe its better.
 
-        //it does not seem like there is a more elegant way to add a define to a shader, than just adding "#define TEST" to the beginning of the shader code
-        std::string shaderCodeDefines = "";
-        for(size_t i = 0; i < defines.size(); i++)
-        {
-            shaderCodeDefines += "#define " + defines[i] + "\n";
-        }
-
-        //get raw shadercode from file
-        if(!std::filesystem::exists(sourcePath))
-        {
-            throw std::runtime_error("shader source file not found: " + sourcePath);
-        }
-        std::string shaderCode = "";
-        if(std::ifstream sourceFile{sourcePath.c_str(), std::ios::ate})
-        {
-            const size_t fileSize = sourceFile.tellg();
-            std::cout << "fileSize: " << fileSize << std::endl;
-            sourceFile.seekg(0);
-            shaderCode.resize(fileSize);
-            sourceFile.read(shaderCode.data(), fileSize);
-            sourceFile.close();
-        }
+        std::string shaderCode = get_shader_code(shaderType, shaderDefines);
         
         glslang_initialize_process();
 
@@ -115,10 +92,6 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
 
         glslang_shader_t* shader = glslang_shader_create(&input);
 
-        //not sure if i can really set defines this way...
-        glslang_shader_set_preamble(shader, shaderCodeDefines.data());
-
-        //cant deal with "#include Util.glsl"...
         if (!glslang_shader_preprocess(shader, &input))
         {
             printf("GLSL preprocessing failed %s\n", sourcePath.data());
@@ -161,17 +134,13 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
         std::vector<uint32_t> words(size);
         glslang_program_SPIRV_get(program, words.data());
 
-        if(std::ofstream outputFile{outputPath.c_str(), std::ios::trunc})
-        {
-            outputFile << words.data();
-            outputFile.close();
-        }
-
         glslang_program_delete(program);
         glslang_shader_delete(shader);
 
         glslang_finalize_process();
     #else
+        std::vector<std::string> defines = get_shader_defines(shaderDefines);
+
         (void) shaderType;
 
         std::string command =  "/bin/glslangValidator --target-env vulkan1.3 ";

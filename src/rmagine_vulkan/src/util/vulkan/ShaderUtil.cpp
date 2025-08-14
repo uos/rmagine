@@ -55,6 +55,62 @@ const std::map<ShaderDefines, std::string> get_shader_define = {
     {
         return get_glslang_stage_t[shaderType];
     }
+
+    std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
+    {
+        std::vector<std::string> defines = get_shader_defines(shaderDefines);
+
+        std::string shaderCodeDefines = "";
+        for(size_t i = 0; i < defines.size(); i++)
+        {
+            shaderCodeDefines += "#define " + defines[i] + "\n";
+        }
+
+        return shaderCodeDefines;
+    }
+
+    std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+    {
+        std::string shaderCode = "";
+
+        switch (shaderType)
+        {
+        case ShaderType::RGen:
+            shaderCode += rgen_preamble;
+            break;
+        case ShaderType::CHit:
+            shaderCode += chit_preamble;
+            break;
+        case ShaderType::Miss:
+            shaderCode += chit_preamble;
+            break;
+        default:
+            throw std::invalid_argument("illegal ShaderType");
+            break;
+        }
+
+        shaderCode += get_shader_define_statements(shaderDefines);
+
+        shaderCode += util_code;
+        
+        switch (shaderType)
+        {
+        case ShaderType::RGen:
+            shaderCode += rgen_code;
+            break;
+        case ShaderType::CHit:
+            shaderCode += chit_code;
+            break;
+        case ShaderType::Miss:
+            shaderCode += chit_code;
+            break;
+        default:
+            throw std::invalid_argument("illegal ShaderType");
+            break;
+        }
+
+        return shaderCode;
+    }
 #endif
 
 ShaderDefineFlags get_sensor_mask()
