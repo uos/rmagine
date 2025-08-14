@@ -7,16 +7,13 @@
 #include <filesystem>
 #include <bit>
 
-#define USE_GLSLANG_LIB
-#if defined(USE_GLSLANG_LIB)
-    #include <glslang/Include/glslang_c_interface.h>
-    #include <glslang/Public/resource_limits_c.h>
+#include <glslang/Include/glslang_c_interface.h>
+#include <glslang/Public/resource_limits_c.h>
 
-    #include "rmagine/shaders/VulkanIncludeShader.hpp"
-    #include "rmagine/shaders/VulkanShaderRGen.hpp"
-    #include "rmagine/shaders/VulkanShaderCHit.hpp"
-    #include "rmagine/shaders/VulkanShaderMiss.hpp"
-#endif
+#include "rmagine/shaders/VulkanIncludeShader.hpp"
+#include "rmagine/shaders/VulkanShaderRGen.hpp"
+#include "rmagine/shaders/VulkanShaderCHit.hpp"
+#include "rmagine/shaders/VulkanShaderMiss.hpp"
 
 
 
@@ -30,7 +27,7 @@ enum ShaderType
     Miss,
     Call,
     //Last Element: only use it to get the size of this enum excluding this element
-    SIZE
+    SHADER_TYPE_SIZE
 };
 
 enum ShaderDefines
@@ -49,7 +46,7 @@ enum ShaderDefines
     Def_GeometryID = 1<<9,
     Def_InstanceID = 1<<10,
     //Last Element: do not use
-    END = 1<<11
+    SHADER_DEFINES_END = 1<<11
 };
 
 //Bitmask for ShaderDefines
@@ -57,13 +54,48 @@ typedef uint32_t ShaderDefineFlags;
 
 
 
-#if defined(USE_GLSLANG_LIB)
-    glslang_stage_t get_glslang_stage(ShaderType shaderType);
+glslang_stage_t get_glslang_stage(ShaderType shaderType);
 
-    std::string get_shader_define_statements(ShaderDefineFlags shaderDefines);
+/**
+ * get a vector containing all the defines given the ShaderDefineFlags
+ * 
+ * @param shaderDefines shader define flags
+ * 
+ * @return std::vector containing the defines
+ */
+std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines);
 
-    std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines);
-#endif
+/**
+ * get a string containing define statements: "#define DEFINE_A\n#define DEFINE_B\n"
+ * 
+ * @param shaderDefines shader define flags
+ * 
+ * @return string containing define statements
+ */
+std::string get_shader_define_statements(ShaderDefineFlags shaderDefines);
+
+/**
+ * get a string giving some information about the shader described by the shaderType & shaderDefines for debugging/loging
+ * 
+ * @param shaderType shader type
+ * 
+ * @param shaderDefines shader define flags
+ * 
+ * @return string containing shader information
+ */
+std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+
+/**
+ * get a string containing the entire code for the shader described by the shaderType & shaderDefines
+ * 
+ * @param shaderType shader type
+ * 
+ * @param shaderDefines shader define flags
+ * 
+ * @return string containing shader code
+ */
+std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+
 
 ShaderDefineFlags get_sensor_mask();
 
@@ -73,16 +105,16 @@ ShaderDefineFlags get_result_mask();
 
 ShaderDefineFlags get_result_defines_from_flags(ShaderDefineFlags shaderDefines);
 
-bool one_sensor_defined(ShaderDefineFlags shaderDefines);
-
-std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
 /**
- * get a vector containing all the defines given the ShaderDefineFlags
+ * check if the shaderDefines correctly define only one shader 
  * 
- * @return std::vector containing the defines
+ * @param shaderDefines shader define flags
+ * 
+ * @return true if only one shader is defined in the shaderDefines
  */
-std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines);
+bool one_sensor_defined(ShaderDefineFlags shaderDefines);
+
 
 
 } // namespace rmagine

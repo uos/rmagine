@@ -39,7 +39,7 @@ private:
 
     CommandBufferPtr defaultCommandBuffer = nullptr;
 
-    std::map<ShaderDefineFlags, ShaderPtr> shaderMaps[ShaderType::SIZE] = {
+    std::map<ShaderDefineFlags, ShaderPtr> shaderMaps[ShaderType::SHADER_TYPE_SIZE] = {
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::RGen
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::CHit
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::Miss

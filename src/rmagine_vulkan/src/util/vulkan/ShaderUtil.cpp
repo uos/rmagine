@@ -5,103 +5,99 @@
 namespace rmagine
 {
 
-const std::string get_shader_names[ShaderType::SIZE] = {
+const std::string get_shader_names[ShaderType::SHADER_TYPE_SIZE] = {
     "RayGeneration",
     "ClosestHit",
     "Miss",
     "Callable",
 };
 
-#if defined(USE_GLSLANG_LIB)
-    const glslang_stage_t get_glslang_stage_t[ShaderType::SIZE] = {
-        GLSLANG_STAGE_RAYGEN,
-        GLSLANG_STAGE_CLOSESTHIT,
-        GLSLANG_STAGE_MISS,
-        GLSLANG_STAGE_CALLABLE,
-    };
-#endif
+const glslang_stage_t get_glslang_stage_t[ShaderType::SHADER_TYPE_SIZE] = {
+    GLSLANG_STAGE_RAYGEN,
+    GLSLANG_STAGE_CLOSESTHIT,
+    GLSLANG_STAGE_MISS,
+    GLSLANG_STAGE_CALLABLE,
+};
 
 const std::map<ShaderDefines, std::string> get_shader_define = {
     //Sensor Defines
-    {ShaderDefines::Def_Sphere,       "SPHERE"      },
-    {ShaderDefines::Def_Pinhole,      "PINHOLE"     },
-    {ShaderDefines::Def_O1Dn,         "O1DN"        },
-    {ShaderDefines::Def_OnDn,         "ONDN"        },
+    {ShaderDefines::Def_Sphere,          "SPHERE"      },
+    {ShaderDefines::Def_Pinhole,         "PINHOLE"     },
+    {ShaderDefines::Def_O1Dn,            "O1DN"        },
+    {ShaderDefines::Def_OnDn,            "ONDN"        },
     //Result Defines
-    {ShaderDefines::Def_Hits,         "HITS"        },
-    {ShaderDefines::Def_Ranges,       "RANGES"      },
-    {ShaderDefines::Def_Points,       "POINTS"      },
-    {ShaderDefines::Def_Normals,      "NORMALS"     },
-    {ShaderDefines::Def_PrimitiveID,  "PRIMITIVE_ID"},
-    {ShaderDefines::Def_GeometryID,   "GEOMETRY_ID" },
-    {ShaderDefines::Def_InstanceID,   "INSTANCE_ID" },
+    {ShaderDefines::Def_Hits,            "HITS"        },
+    {ShaderDefines::Def_Ranges,          "RANGES"      },
+    {ShaderDefines::Def_Points,          "POINTS"      },
+    {ShaderDefines::Def_Normals,         "NORMALS"     },
+    {ShaderDefines::Def_PrimitiveID,     "PRIMITIVE_ID"},
+    {ShaderDefines::Def_GeometryID,      "GEOMETRY_ID" },
+    {ShaderDefines::Def_InstanceID,      "INSTANCE_ID" },
     //You should not access this
-    {ShaderDefines::END,              "ERROR"       }};
+    {ShaderDefines::SHADER_DEFINES_END, "ERROR"       }};
 
 
 
-#if defined(USE_GLSLANG_LIB)
-    glslang_stage_t get_glslang_stage(ShaderType shaderType)
+glslang_stage_t get_glslang_stage(ShaderType shaderType)
+{
+    return get_glslang_stage_t[shaderType];
+}
+
+std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
+{
+    std::vector<std::string> defines = get_shader_defines(shaderDefines);
+
+    std::string shaderCodeDefines = "";
+    for(size_t i = 0; i < defines.size(); i++)
     {
-        return get_glslang_stage_t[shaderType];
+        shaderCodeDefines += "#define " + defines[i] + "\n";
     }
 
-    std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
+    return shaderCodeDefines;
+}
+
+std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+{
+    std::string shaderCode = "";
+
+    switch (shaderType)
     {
-        std::vector<std::string> defines = get_shader_defines(shaderDefines);
-
-        std::string shaderCodeDefines = "";
-        for(size_t i = 0; i < defines.size(); i++)
-        {
-            shaderCodeDefines += "#define " + defines[i] + "\n";
-        }
-
-        return shaderCodeDefines;
+    case ShaderType::RGen:
+        shaderCode += rgen_preamble;
+        break;
+    case ShaderType::CHit:
+        shaderCode += chit_preamble;
+        break;
+    case ShaderType::Miss:
+        shaderCode += miss_preamble;
+        break;
+    default:
+        throw std::invalid_argument("illegal ShaderType");
+        break;
     }
 
-    std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+    shaderCode += get_shader_define_statements(shaderDefines);
+
+    shaderCode += util_code;
+    
+    switch (shaderType)
     {
-        std::string shaderCode = "";
-
-        switch (shaderType)
-        {
-        case ShaderType::RGen:
-            shaderCode += rgen_preamble;
-            break;
-        case ShaderType::CHit:
-            shaderCode += chit_preamble;
-            break;
-        case ShaderType::Miss:
-            shaderCode += miss_preamble;
-            break;
-        default:
-            throw std::invalid_argument("illegal ShaderType");
-            break;
-        }
-
-        shaderCode += get_shader_define_statements(shaderDefines);
-
-        shaderCode += util_code;
-        
-        switch (shaderType)
-        {
-        case ShaderType::RGen:
-            shaderCode += rgen_code;
-            break;
-        case ShaderType::CHit:
-            shaderCode += chit_code;
-            break;
-        case ShaderType::Miss:
-            shaderCode += miss_code;
-            break;
-        default:
-            throw std::invalid_argument("illegal ShaderType");
-            break;
-        }
-
-        return shaderCode;
+    case ShaderType::RGen:
+        shaderCode += rgen_code;
+        break;
+    case ShaderType::CHit:
+        shaderCode += chit_code;
+        break;
+    case ShaderType::Miss:
+        shaderCode += miss_code;
+        break;
+    default:
+        throw std::invalid_argument("illegal ShaderType");
+        break;
     }
-#endif
+
+    return shaderCode;
+}
 
 ShaderDefineFlags get_sensor_mask()
 {
@@ -132,11 +128,11 @@ bool one_sensor_defined(ShaderDefineFlags shaderDefines)
 
 std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
         throw std::invalid_argument("invalid shader defines!");
     }
-    if(shaderType >= ShaderType::SIZE)
+    if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
     {
         throw std::invalid_argument("invalid shader type!");
     }
@@ -154,13 +150,13 @@ std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefin
 
 std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
 {
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
         throw std::invalid_argument("invalid shader defines!");
     }
 
     std::vector<std::string> defines = std::vector<std::string>();
-    for(ShaderDefineFlags i = 1; i < ShaderDefines::END; i = i<<1)
+    for(ShaderDefineFlags i = 1; i < ShaderDefines::SHADER_DEFINES_END; i = i<<1)
     {
         if(i & shaderDefines)
         {

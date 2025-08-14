@@ -43,7 +43,7 @@ PipelinePtr VulkanContext::getPipeline(ShaderDefineFlags shaderDefines)
     {
         throw std::invalid_argument("illegal ShaderDefineFlags: You may only define one sensor type!");
     }
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
         throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
     }
@@ -64,7 +64,7 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
     {
         throw std::runtime_error("illegal ShaderDefineFlags: You may only define one sensor type!");
     }
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
         throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large!");
     }
@@ -128,7 +128,7 @@ void VulkanContext::cleanup()
 
 void VulkanContext::clearShaderCache()
 {
-    for(size_t i = 0; i < ShaderType::SIZE; i++)
+    for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
         for (auto const& shader : shaderMaps[i])
         {
