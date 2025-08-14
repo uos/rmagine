@@ -32,9 +32,9 @@ set(RMAGINE_VULKAN_SRCS
     #   Map Components
     src/map/vulkan/VulkanScene.cpp
     src/map/vulkan/VulkanMesh.cpp
-  # src/map/vulkan/VulkanInst.cpp
-  # src/map/vulkan/VulkanGeometry.cpp
-  # src/map/vulkan/VulkanTransfromable.cpp
+    src/map/vulkan/VulkanInst.cpp
+    src/map/vulkan/VulkanGeometry.cpp
+    src/map/vulkan/VulkanTransformable.cpp
     #   Acceleration structure
     src/map/vulkan/accelerationStructure/AccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
@@ -56,10 +56,10 @@ add_library(rmagine-vulkan SHARED
 )
 
 target_include_directories(rmagine-vulkan
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
-    # ${Vulkan_INCLUDE_DIRS}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
+        # ${Vulkan_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-vulkan
@@ -80,10 +80,10 @@ target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG) #TODO: remove later
 
 set_target_properties(rmagine-vulkan
     PROPERTIES
-      EXPORT_NAME vulkan
-      SOVERSION ${rmagine_VERSION_MAJOR}
-      VERSION ${rmagine_VERSION}
-      # CXX_STANDARD 17
+        EXPORT_NAME vulkan
+        SOVERSION ${rmagine_VERSION_MAJOR}
+        VERSION ${rmagine_VERSION}
+        # CXX_STANDARD 17
 )
 
 add_library(rmagine::vulkan ALIAS rmagine-vulkan)
@@ -98,7 +98,7 @@ set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 include(CMakePackageConfigHelpers)
 
 install(TARGETS rmagine-vulkan EXPORT rmagine-vulkan-targets
-  COMPONENT vulkan
+    COMPONENT vulkan
 )
 
 install(EXPORT rmagine-vulkan-targets
@@ -109,9 +109,9 @@ install(EXPORT rmagine-vulkan-targets
 )
 
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config-version.cmake
-  VERSION ${rmagine_VERSION}
-  COMPATIBILITY SameMajorVersion
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config-version.cmake
+    VERSION ${rmagine_VERSION}
+    COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(cmake/rmagine-vulkan-config.cmake.in
@@ -121,18 +121,18 @@ configure_package_config_file(cmake/rmagine-vulkan-config.cmake.in
 
 # CMAKE FIND PACKAGE FILES
 install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
-  COMPONENT vulkan
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
+    COMPONENT vulkan
 )
 
 # HEADERS
 install(
-  DIRECTORY include/rmagine
-  COMPONENT vulkan
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
+    DIRECTORY include/rmagine
+    COMPONENT vulkan
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
 set(CPACK_DEBIAN_VULKAN_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)

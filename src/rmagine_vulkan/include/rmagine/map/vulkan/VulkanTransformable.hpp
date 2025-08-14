@@ -12,6 +12,7 @@
 #include <vulkan/vulkan.h>
 
 #include <rmagine/math/types.h>
+#include <rmagine/math/linalg.h>
 
 
 
@@ -29,7 +30,7 @@ public:
 
     VulkanTransformable(/* args */);
 
-    virtual ~VulkanTransformable();
+    virtual ~VulkanTransformable() {}
     
 
     void setTransform(const Transform& T);
@@ -40,13 +41,15 @@ public:
 
     Vector3 scale() const;
 
-    // void setTransform(const Matrix4x4& T);
+    void setTransform(const Matrix4x4& T);
 
-    // void setTransformAndScale(const Matrix4x4& T);
+    void setTransformAndScale(const Matrix4x4& T);
 
-    // Matrix4x4 matrix() const;
+    Matrix4x4 matrix() const;
 
     bool changed() const;
+
+    virtual void apply() = 0;
 };
 
 using VulkanTransformablePtr = std::shared_ptr<VulkanTransformable>;
