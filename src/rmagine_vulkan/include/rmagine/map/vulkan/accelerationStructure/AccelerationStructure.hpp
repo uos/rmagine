@@ -2,10 +2,8 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <sstream>
 #include <cstring>
 
 #include <vulkan/vulkan.h>
