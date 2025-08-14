@@ -187,7 +187,7 @@ endif()
 ######################################
 
 find_package(Vulkan REQUIRED)
-# find_package(glslang CONFIG REQUIRED)
+find_package(glslang CONFIG REQUIRED)
 
 if(Vulkan_FOUND)
     message(STATUS "Vulkan found")

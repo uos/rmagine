@@ -12,10 +12,10 @@
     #include <glslang/Include/glslang_c_interface.h>
     #include <glslang/Public/resource_limits_c.h>
 
-    #include "shaders/VulkanIncludeShader.hpp"
-    #include "shaders/VulkanShaderRGen.hpp"
-    #include "shaders/VulkanShaderCHit.hpp"
-    #include "shaders/VulkanShaderMiss.hpp"
+    #include "rmagine/shaders/VulkanIncludeShader.hpp"
+    #include "rmagine/shaders/VulkanShaderRGen.hpp"
+    #include "rmagine/shaders/VulkanShaderCHit.hpp"
+    #include "rmagine/shaders/VulkanShaderMiss.hpp"
 #endif
 
 
@@ -75,28 +75,7 @@ ShaderDefineFlags get_result_defines_from_flags(ShaderDefineFlags shaderDefines)
 
 bool one_sensor_defined(ShaderDefineFlags shaderDefines);
 
-
-
-/**
- * returns absolute path to the bin directory
- */
-std::string get_program_dir();
-
-
-
-/**
- * returns path to shadersource given the arguments
- * 
- * @return returned path should look like this: shader_sources_dir/shaderType.fileEnding
- */
-std::string get_shader_source_path(ShaderType shaderType);
-
-/**
- * returns path to .spv file given the arguments
- * 
- * @return returned path should look like this: shaders_spv_dir/shaderType/DEFINE1_DEFINE2_DEFINE3.fileEnding
- */
-std::string get_shader_spv_path(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
 /**
  * get a vector containing all the defines given the ShaderDefineFlags

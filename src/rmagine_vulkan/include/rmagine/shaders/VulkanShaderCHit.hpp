@@ -4,7 +4,7 @@
 
 
 
-std::string chit_preamble = R""""(#version 460 core
+static const std::string chit_preamble = R""""(#version 460 core
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
@@ -15,7 +15,7 @@ std::string chit_preamble = R""""(#version 460 core
 
 
 
-std::string chit_code = R""""(
+static const std::string chit_code = R""""(
 //the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set during compilation
 
 

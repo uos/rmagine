@@ -4,7 +4,7 @@
 
 
 
-std::string rgen_preamble = R""""(#version 460 core
+static const std::string rgen_preamble = R""""(#version 460 core
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
@@ -15,7 +15,7 @@ std::string rgen_preamble = R""""(#version 460 core
 
 
 
-std::string rgen_code = R""""(
+static const std::string rgen_code = R""""(
 //the defines SPHERE, PINHOLE, O1DN & ONDN get set during compilation
 
 

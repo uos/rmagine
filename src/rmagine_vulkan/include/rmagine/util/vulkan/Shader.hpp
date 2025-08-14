@@ -27,8 +27,6 @@ private:
     VkShaderModule shaderModule = VK_NULL_HANDLE;
     
 public:
-    Shader(DevicePtr device, std::string path);
-
     Shader(DevicePtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
     ~Shader() {}
@@ -41,9 +39,9 @@ public:
     void cleanup();
 
 private:
-    void compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefines, std::string sourcePath, std::string outputPath);
+    std::vector<uint32_t> compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
-    void createShader(std::string path);
+    void createShader(std::vector<uint32_t> words);
 };
 
 using ShaderPtr = std::shared_ptr<Shader>;

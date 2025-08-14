@@ -5,73 +5,41 @@
 namespace rmagine
 {
 
-Shader::Shader(DevicePtr device, std::string path) : device(device)
-{
-    createShader(path);
-}
-
 Shader::Shader(DevicePtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines) : device(device)
 {
-    std::string outputPath = get_program_dir() + get_shader_spv_path(shaderType, shaderDefines);
-
-    bool forceShaderRecompile = false;
-    #if defined(FORCE_SHADER_RECOMPILE)
-        forceShaderRecompile = true;
-    #endif  
-    if(!std::filesystem::exists(outputPath) || forceShaderRecompile)
-    {
-        std::string sourcePath = get_program_dir() + get_shader_source_path(shaderType);
-        compileShader(shaderType, shaderDefines, sourcePath, outputPath);
-    }
-    createShader(outputPath);
+    std::cout << "compiling & creating " << get_shader_info(shaderType, shaderDefines) << std::endl;
+    createShader(compileShader(shaderType, shaderDefines));
 }
 
 
 
-void Shader::createShader(std::string shaderPath)
+void Shader::createShader(std::vector<uint32_t> words)
 {
-    if(!std::filesystem::exists(shaderPath))
+    if(words.size() == 0)
     {
-        throw std::runtime_error("Shader binary file not found: " + shaderPath);
-    }
-    std::vector<char> shaderContents;
-    if(std::ifstream shaderFile{shaderPath.c_str(), std::ios::binary | std::ios::ate})
-    {
-        const size_t fileSize = shaderFile.tellg();
-        shaderFile.seekg(0);
-        shaderContents.resize(fileSize, '\0');
-        shaderFile.read(shaderContents.data(), fileSize);
-        shaderFile.close();
-    }
-
-    if(shaderContents.size() == 0)
-    {
-        throw std::runtime_error("Shader binary file is empty: " + shaderPath);
+        throw std::runtime_error("Shader binary is empty");
     }
 
     VkShaderModuleCreateInfo shaderModuleCreateInfo{};
     shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    shaderModuleCreateInfo.codeSize = shaderContents.size();
-    shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(shaderContents.data());
+    shaderModuleCreateInfo.codeSize = words.size() * sizeof(uint32_t);
+    shaderModuleCreateInfo.pCode = words.data();
     
     if(vkCreateShaderModule(device->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create shader module: " + shaderPath);
+        throw std::runtime_error("failed to create shader module");
     }
 }
 
-void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefines, std::string sourcePath, std::string outputPath)
+
+std::vector<uint32_t> Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
     #if defined(USE_GLSLANG_LIB)
-        //source:   https://github.com/KhronosGroup/glslang
-        //see also: https://stackoverflow.com/questions/38234986/how-to-use-glslang
-        //it seems that glslang sadly does not have a proper documentation
+        //source: https://github.com/KhronosGroup/glslang
 
-        //there is also a shaderc library - maybe use that one instead, if it works with raytracing pipeline shaders - maybe its better.
+        glslang_initialize_process();
 
         std::string shaderCode = get_shader_code(shaderType, shaderDefines);
-        
-        glslang_initialize_process();
 
         glslang_stage_t stage = get_glslang_stage(shaderType);
 
@@ -94,7 +62,7 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
 
         if (!glslang_shader_preprocess(shader, &input))
         {
-            printf("GLSL preprocessing failed %s\n", sourcePath.data());
+            printf("GLSL preprocessing failed %s\n", get_shader_info(shaderType, shaderDefines).data());
             printf("%s\n", glslang_shader_get_info_log(shader));
             printf("%s\n", glslang_shader_get_info_debug_log(shader));
             printf("%s\n", input.code);
@@ -105,7 +73,7 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
 
         if (!glslang_shader_parse(shader, &input))
         {
-            printf("GLSL parsing failed %s\n", sourcePath.data());
+            printf("GLSL parsing failed %s\n", get_shader_info(shaderType, shaderDefines).data());
             printf("%s\n", glslang_shader_get_info_log(shader));
             printf("%s\n", glslang_shader_get_info_debug_log(shader));
             printf("%s\n", glslang_shader_get_preprocessed_code(shader));
@@ -119,7 +87,7 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
         
         if (!glslang_program_link(program, GLSLANG_MSG_SPV_RULES_BIT | GLSLANG_MSG_VULKAN_RULES_BIT))
         {
-            printf("GLSL linking failed %s\n", sourcePath.data());
+            printf("GLSL linking failed %s\n", get_shader_info(shaderType, shaderDefines).data());
             printf("%s\n", glslang_program_get_info_log(program));
             printf("%s\n", glslang_program_get_info_debug_log(program));
             glslang_program_delete(program);
@@ -138,31 +106,17 @@ void Shader::compileShader(ShaderType shaderType, ShaderDefineFlags shaderDefine
         glslang_shader_delete(shader);
 
         glslang_finalize_process();
-    #else
-        std::vector<std::string> defines = get_shader_defines(shaderDefines);
 
-        (void) shaderType;
-
-        std::string command =  "/bin/glslangValidator --target-env vulkan1.3 ";
-        std::string commandDefineMacro = "--define-macro ";
-        std::string commandEqDef ="=def ";
-        for(size_t i = 0; i < defines.size(); i++)
-        {
-            command = command + commandDefineMacro + defines[i] + commandEqDef;
-        }
-        command = command + "-o " + outputPath + " " + sourcePath;
-
-        // a full command could look like this:
-        // "/bin/glslangValidator --target-env vulkan1.3 "--define-macro DEFINE=def -o shaders/shaderName/DEFINE.spv shaderSources/shaderName.glsl"
-        std::cout << "Compiling shader with the command: "  << command << std::endl;
-        std::system(command.c_str());
+        return words;
     #endif
 }
+
 
 VkShaderModule Shader::getShaderModule()
 {
     return shaderModule;
 }
+
 
 void Shader::cleanup()
 {

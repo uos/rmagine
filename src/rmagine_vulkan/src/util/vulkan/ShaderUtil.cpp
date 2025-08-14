@@ -5,21 +5,13 @@
 namespace rmagine
 {
 
-const std::string shader_sources_dir = "shaderSources";
-const std::string shaders_spv_dir = "shaders";
-
 const std::string get_shader_names[ShaderType::SIZE] = {
     "RayGeneration",
     "ClosestHit",
     "Miss",
     "Callable",
 };
-const std::string get_shader_endings[ShaderType::SIZE] = {
-    ".rgen",
-    ".rchit",
-    ".rmiss",
-    ".rcall",
-};
+
 #if defined(USE_GLSLANG_LIB)
     const glslang_stage_t get_glslang_stage_t[ShaderType::SIZE] = {
         GLSLANG_STAGE_RAYGEN,
@@ -28,8 +20,6 @@ const std::string get_shader_endings[ShaderType::SIZE] = {
         GLSLANG_STAGE_CALLABLE,
     };
 #endif
-
-const std::string shader_spv_ending = ".spv";
 
 const std::map<ShaderDefines, std::string> get_shader_define = {
     //Sensor Defines
@@ -82,7 +72,7 @@ const std::map<ShaderDefines, std::string> get_shader_define = {
             shaderCode += chit_preamble;
             break;
         case ShaderType::Miss:
-            shaderCode += chit_preamble;
+            shaderCode += miss_preamble;
             break;
         default:
             throw std::invalid_argument("illegal ShaderType");
@@ -102,7 +92,7 @@ const std::map<ShaderDefines, std::string> get_shader_define = {
             shaderCode += chit_code;
             break;
         case ShaderType::Miss:
-            shaderCode += chit_code;
+            shaderCode += miss_code;
             break;
         default:
             throw std::invalid_argument("illegal ShaderType");
@@ -140,53 +130,35 @@ bool one_sensor_defined(ShaderDefineFlags shaderDefines)
     return maskedShaderDefines && !(maskedShaderDefines & (maskedShaderDefines-1)); 
 }
 
-
-
-std::string program_dir = "";
-
-std::string get_program_dir()
+std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
-    if(program_dir == "")
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
     {
-        #if defined(__linux__) || defined(linux) || defined(__linux)
-            program_dir = std::filesystem::canonical("/proc/self/exe").remove_filename().c_str();
-        #elif defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__) || defined(WIN32) || defined(__WIN32__) || defined(__NT__)
-            //TODO: For Windows: GetModuleFileNameA(NULL)
-            throw std::runtime_error("get_program_dir() not done for windows!");
-        #else
-            throw std::runtime_error("get_program_dir() not done for whatever operating sytem you are using!");
-        #endif
+        throw std::invalid_argument("invalid shader defines!");
     }
-    return program_dir;
+    if(shaderType >= ShaderType::SIZE)
+    {
+        throw std::invalid_argument("invalid shader type!");
+    }
+
+    std::string info = get_shader_names[shaderType] + ": ";
+
+    std::vector<std::string> defines = get_shader_defines(shaderDefines);
+    for(size_t i = 0; i < defines.size(); i++)
+    {
+        info += (i != 0 ? ", " : "") + defines[i];
+    }
+
+    return info;
 }
 
-
-
-std::string get_shader_source_path(ShaderType shaderType)
-{
-    return shader_sources_dir + "/" + get_shader_names[shaderType] + get_shader_endings[shaderType];
-}
-
-std::string get_shader_spv_path(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
 {
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::END)
     {
         throw std::invalid_argument("invalid shader defines!");
     }
 
-    std::string path = shaders_spv_dir + "/" + get_shader_names[shaderType] + "/";
-
-    std::vector<std::string> defines = get_shader_defines(shaderDefines);
-    for(size_t i = 0; i < defines.size(); i++)
-    {
-        path = path + (i != 0 ? "_" : "") + defines[i];
-    }
-
-    return path + shader_spv_ending;
-}
-
-std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
-{
     std::vector<std::string> defines = std::vector<std::string>();
     for(ShaderDefineFlags i = 1; i < ShaderDefines::END; i = i<<1)
     {
@@ -195,6 +167,7 @@ std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
             defines.push_back(get_shader_define.at((ShaderDefines)i));
         }
     }
+
     return defines;
 }
 

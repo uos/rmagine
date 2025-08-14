@@ -65,16 +65,16 @@ target_include_directories(rmagine-vulkan
 target_link_libraries(rmagine-vulkan
     rmagine-core
     ${Vulkan_LIBRARIES}
-    # glslang::glslang 
-    # glslang::SPIRV 
-    # glslang::glslang-default-resource-limits
+    glslang::glslang 
+    glslang::SPIRV 
+    glslang::glslang-default-resource-limits
 )
 
 add_dependencies(rmagine-vulkan
     rmagine-core
 )
 
-target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG FORCE_SHADER_RECOMPILE) #TODO: remove later
+target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG) #TODO: remove later
 
 # target_compile_features(rmagine-vulkan PUBLIC cxx_std_17)
 

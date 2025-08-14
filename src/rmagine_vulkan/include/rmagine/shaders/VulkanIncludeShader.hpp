@@ -15,7 +15,7 @@
 
 
 
-std::string util_code = R""""(
+static const std::string util_code = R""""(
 // the memory struct sent to the fpu contains a pointer, which is depending on CPU 32 or 64 Bit long
 #ifndef _32BIT
     #define _64BIT
