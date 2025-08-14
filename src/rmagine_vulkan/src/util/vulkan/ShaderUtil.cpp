@@ -40,11 +40,40 @@ const std::map<ShaderDefines, std::string> get_shader_define = {
 
 glslang_stage_t get_glslang_stage(ShaderType shaderType)
 {
+    if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
+    {
+        throw std::invalid_argument("invalid shader type!");
+    }
+    
     return get_glslang_stage_t[shaderType];
+}
+
+std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
+{
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("invalid shader defines!");
+    }
+
+    std::vector<std::string> defines = std::vector<std::string>();
+    for(ShaderDefineFlags i = 1; i < ShaderDefines::SHADER_DEFINES_END; i = i<<1)
+    {
+        if(i & shaderDefines)
+        {
+            defines.push_back(get_shader_define.at((ShaderDefines)i));
+        }
+    }
+
+    return defines;
 }
 
 std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
 {
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("invalid shader defines!");
+    }
+
     std::vector<std::string> defines = get_shader_defines(shaderDefines);
 
     std::string shaderCodeDefines = "";
@@ -56,8 +85,39 @@ std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
     return shaderCodeDefines;
 }
 
+std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+{
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("invalid shader defines!");
+    }
+    if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
+    {
+        throw std::invalid_argument("invalid shader type!");
+    }
+
+    std::string info = get_shader_names[shaderType] + ": ";
+
+    std::vector<std::string> defines = get_shader_defines(shaderDefines);
+    for(size_t i = 0; i < defines.size(); i++)
+    {
+        info += (i != 0 ? ", " : "") + defines[i];
+    }
+
+    return info;
+}
+
 std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("invalid shader defines!");
+    }
+    if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
+    {
+        throw std::invalid_argument("invalid shader type!");
+    }
+    
     std::string shaderCode = "";
 
     switch (shaderType)
@@ -124,47 +184,6 @@ bool one_sensor_defined(ShaderDefineFlags shaderDefines)
     ShaderDefineFlags maskedShaderDefines = shaderDefines & get_sensor_mask();
     // return std::has_single_bit(maskedShaderDefines); // works only from c++20 onwards
     return maskedShaderDefines && !(maskedShaderDefines & (maskedShaderDefines-1)); 
-}
-
-std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines)
-{
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
-    {
-        throw std::invalid_argument("invalid shader defines!");
-    }
-    if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
-    {
-        throw std::invalid_argument("invalid shader type!");
-    }
-
-    std::string info = get_shader_names[shaderType] + ": ";
-
-    std::vector<std::string> defines = get_shader_defines(shaderDefines);
-    for(size_t i = 0; i < defines.size(); i++)
-    {
-        info += (i != 0 ? ", " : "") + defines[i];
-    }
-
-    return info;
-}
-
-std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
-{
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
-    {
-        throw std::invalid_argument("invalid shader defines!");
-    }
-
-    std::vector<std::string> defines = std::vector<std::string>();
-    for(ShaderDefineFlags i = 1; i < ShaderDefines::SHADER_DEFINES_END; i = i<<1)
-    {
-        if(i & shaderDefines)
-        {
-            defines.push_back(get_shader_define.at((ShaderDefines)i));
-        }
-    }
-
-    return defines;
 }
 
 } // namespace rmagine
