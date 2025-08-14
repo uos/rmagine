@@ -14,6 +14,12 @@ set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Down
 # Auto: Use local package if available and download otherwise (default from v2.3.1)
 # Download: Always download.
 
+# To still use FetchContent_Populate for non CMake projects 
+# without triggering a warning
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
+endif()
+
 include(GNUInstallDirs)
 
 set(rmagine_DEFINITIONS "-DRMAGINE_VERSION=\"${rmagine_VERSION}\"")
