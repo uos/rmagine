@@ -61,6 +61,7 @@ int main()
     //allocate transformbuffer
     std::cout << "Creating transform." << std::endl;
     Transform tsb = Transform();
+    tsb.setIdentity();
     Memory<Transform, RAM> tsb_ram(1);
     tsb_ram[0] = tsb;
 
@@ -75,6 +76,10 @@ int main()
     //allocate transformsbuffer 
     std::cout << "Creating transforms." << std::endl;
     Memory<Transform, RAM> tbm_ram(1024*10);
+    for(size_t i = 0; i < tbm_ram.size(); i++)
+    {
+        tbm_ram[i] = tsb;
+    }
     Memory<Transform, VULKAN_DEVICE_LOCAL> tbm_device(tbm_ram.size());
     tbm_device = tbm_ram;
 

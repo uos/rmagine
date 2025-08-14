@@ -59,12 +59,12 @@ target_include_directories(rmagine-vulkan
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}>
-    # ${Vulkan_INCLUDE_DIRS} # TODO: wie genau funktioniert das?
+    # ${Vulkan_INCLUDE_DIRS}
 )
 
 target_link_libraries(rmagine-vulkan
     rmagine-core
-    ${Vulkan_LIBRARIES} # TODO: passt das so?
+    ${Vulkan_LIBRARIES}
     # glslang::glslang 
     # glslang::SPIRV 
     # glslang::glslang-default-resource-limits
@@ -73,6 +73,8 @@ target_link_libraries(rmagine-vulkan
 add_dependencies(rmagine-vulkan
     rmagine-core
 )
+
+target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG FORCE_SHADER_RECOMPILE) #TODO: remove later
 
 # target_compile_features(rmagine-vulkan PUBLIC cxx_std_17)
 

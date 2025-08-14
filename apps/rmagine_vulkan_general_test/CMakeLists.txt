@@ -19,7 +19,7 @@ install(TARGETS rmagine_vulkan_general_test
 
 
 
-#compile shaders:
+#dirs for shaders:
 
 #create dirs for shaders
 set(SHADER_BINARY_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders")
