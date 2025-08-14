@@ -4,22 +4,14 @@
 
 
 
-static const std::string rgen_preamble = R""""(#version 460 core
-#extension GL_EXT_ray_tracing : require
-#extension GL_EXT_buffer_reference : require
-#extension GL_EXT_buffer_reference2 : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-#extension GL_ARB_shading_language_include : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-)"""";
-
-
-
+/**
+ * this code is preceeded by the util_preamble
+ * then the define SPHERE, PINHOLE, O1DN or ONDN gets set
+ * then the util_code gets included
+ * 
+ * util_preamble & util_code can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
+ */
 static const std::string rgen_code = R""""(
-//the defines SPHERE, PINHOLE, O1DN & ONDN get set during compilation
-
-
-
 
 
 layout(location = 0) rayPayloadEXT Payload

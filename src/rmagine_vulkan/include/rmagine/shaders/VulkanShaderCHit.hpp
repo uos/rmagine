@@ -4,22 +4,14 @@
 
 
 
-static const std::string chit_preamble = R""""(#version 460 core
-#extension GL_EXT_ray_tracing : require
-#extension GL_EXT_buffer_reference : require
-#extension GL_EXT_buffer_reference2 : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-#extension GL_ARB_shading_language_include : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-)"""";
-
-
-
+/**
+ * this code is preceeded by the util_preamble
+ * then the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set
+ * then the util_code gets included
+ * 
+ * util_preamble & util_code can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
+ */
 static const std::string chit_code = R""""(
-//the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set during compilation
-
-
-
 hitAttributeEXT vec2 hitCoordinate;
 
 layout(location = 0) rayPayloadInEXT Payload

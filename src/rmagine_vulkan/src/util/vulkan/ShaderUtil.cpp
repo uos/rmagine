@@ -44,7 +44,7 @@ glslang_stage_t get_glslang_stage(ShaderType shaderType)
     {
         throw std::invalid_argument("invalid shader type!");
     }
-    
+
     return get_glslang_stage_t[shaderType];
 }
 
@@ -118,23 +118,7 @@ std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefin
         throw std::invalid_argument("invalid shader type!");
     }
     
-    std::string shaderCode = "";
-
-    switch (shaderType)
-    {
-    case ShaderType::RGen:
-        shaderCode += rgen_preamble;
-        break;
-    case ShaderType::CHit:
-        shaderCode += chit_preamble;
-        break;
-    case ShaderType::Miss:
-        shaderCode += miss_preamble;
-        break;
-    default:
-        throw std::invalid_argument("illegal ShaderType");
-        break;
-    }
+    std::string shaderCode = util_preamble;
 
     shaderCode += get_shader_define_statements(shaderDefines);
 
