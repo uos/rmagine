@@ -64,8 +64,20 @@ if(CMAKE_CUDA_COMPILER)
         find_package(CUDA)
         if(CUDA_FOUND)
             enable_language(CUDA)
-            set(CUDA_DRIVER_LIBRARY cuda)
-            get_target_property(NVIDIA_DRIVER_PATH cuda LOCATION)   
+            # 1. CUDA_DRIVER_LIBRARY <- Figure out if there is a cuda driver library available
+            if(CUDA_CUDA_LIBRARY)
+                set(CUDA_DRIVER_LIBRARY ${CUDA_CUDA_LIBRARY})
+            else()
+                find_library(CUDA_DRIVER_LIBRARY NAMES cuda)
+            endif()
+            # 2. CUDA_DRIVER_LIBRARY <- Figure out path to cuda.so
+            if(CUDA_DRIVER_LIBRARY)
+                if(TARGET ${CUDA_DRIVER_LIBRARY})
+                    get_target_property(NVIDIA_DRIVER_PATH ${CUDA_DRIVER_LIBRARY} LOCATION) # ERROR: https://github.com/uos/rmagine/issues/14
+                else() # already a path
+                    set(NVIDIA_DRIVER_PATH ${CUDA_DRIVER_LIBRARY})
+                endif()
+            endif()
         else()
             message(STATUS "Neither CudaToolkit nor CUDA found!")
         endif(CUDA_FOUND)
@@ -95,7 +107,6 @@ if(NVIDIA_DRIVER_VERSION)
         message(STATUS "Decrease RMAGINE_OPTIX_DOWNLOAD_VERSION from ${RMAGINE_OPTIX_DOWNLOAD_VERSION} to ${MAX_OPTIX_VERSION}. This is the latest supported version for the currently used NVIDIA driver version ${NVIDIA_DRIVER_VERSION}")
         set(RMAGINE_OPTIX_DOWNLOAD_VERSION ${MAX_OPTIX_VERSION})
     endif()
-
 else()
     message(WARNING "Could not detect driver version from path: ${NVIDIA_DRIVER_REALPATH}")
 endif()
@@ -125,9 +136,8 @@ if(NOT OptiX_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD
     )
     FetchContent_Populate(optix_header)
 
-    set(OptiX_INCLUDE_DIRS ${optix_header_SOURCE_DIR}/include)
-    set(OptiX_FOUND TRUE)
-    set(OptiX_VERSION ${RMAGINE_OPTIX_DOWNLOAD_VERSION})
+    set(OptiX_ROOT_DIR ${optix_header_SOURCE_DIR})
+    find_package(OptiX QUIET)
 endif()
 
 if(OptiX_FOUND)
@@ -140,6 +150,12 @@ endif(CUDA_FOUND)
 if(OptiX_FOUND AND TARGET rmagine::cuda)
 
 message(STATUS "${Green}rmagine::optix${ColourReset}: Building (OptiX v${OptiX_VERSION})")
+
+message(STATUS "OptiX HEADERS: ${OptiX_INCLUDE_DIRS}")
+
+if(NOT EXISTS "${OptiX_INCLUDE_DIRS}/optix.h")
+    message(FATAL_ERROR "Could not find ${OptiX_INCLUDE_DIRS}/optix.h")
+endif()
 
 # Optix Kernels
 set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
@@ -218,6 +234,7 @@ else(CUDAToolkit_FOUND)
         ${RMAGINE_CORE_INCLUDES}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${OptiX_INCLUDE_DIRS}>
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
