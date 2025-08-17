@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <memory>
 
 #include <vulkan/vulkan.h>
 
+#include <rmagine/util/VulkanUtil.hpp>
 #include "AccelerationStructure.hpp"
 #include "BottomLevelGeometryInstance.hpp"
-#include <rmagine/util/VulkanUtil.hpp>
 
 
 
