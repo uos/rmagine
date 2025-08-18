@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.3.1)# TODO update this version when merging into main-branch
+    VERSION 2.3.2)# TODO update this version when merging into main-branch
 
 option(RMAGINE_BUILD_TOOLS "Build tools" ON)
 option(RMAGINE_BUILD_TESTS "Build tests" ON)
