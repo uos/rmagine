@@ -6,6 +6,8 @@
 
 #include <rmagine/math/linalg.h>
 
+#include <rmagine/math/lie.h>
+
 #include <tbb/parallel_for.h>
 
 // BLOCK SIZE USED FOR THE WHOLE FILE
@@ -826,5 +828,175 @@ Memory<Transform, RAM> umeyama_transform(
     return ret;
 }
 
+Quaternion markley_mean(
+  const MemoryView<Quaternion, RAM>& Qs, 
+  const MemoryView<float, RAM> weights)
+{
+  std::cout << "WARNING: markley_mean not tested!" << std::endl;
+
+  if(Qs.empty()) 
+  {
+    throw std::runtime_error("mean_markley: empty input");
+  }
+
+  const size_t N = Qs.size();
+
+  // weights
+  std::vector<float> w(N, 1.f);
+  // if(w_opt && !w_opt->empty()) 
+  // {
+  //   w = *w_opt;
+  //   float s = 0.f; 
+  //   for(float wi : w) 
+  //   {
+  //     s += wi;
+  //   }
+  //   if(s <= 0.f)
+  //   {
+  //     throw std::runtime_error("markley_mean: nonpositive weight sum");
+  //   }
+  //   for(float& wi : w) 
+  //   {
+  //     wi /= s;
+  //   }
+  // } else {
+  //   const float invN = 1.f / static_cast<float>(N);
+  //   for(float& wi : w) wi = invN;
+  // }
+
+  // Hemisphere correction (use first quaternion as reference)
+  Quaternion ref = Qs[0];
+
+  // Build 4x4 M = sum w_i * (q_i q_i^T)
+  float M[4][4] = {{0}};
+  for(size_t i=0; i<N; ++i) 
+  {
+    Quaternion qi = hemi_align(Qs[i], ref);
+    const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        M[r][c] += w[i] * qv[r] * qv[c];
+      }
+    }
+  }
+
+  // Power iteration (sufficient for 4x4 SPD) to get principal eigenvector
+  float v[4] = {1,0,0,0};
+  for(int it=0; it<32; ++it) 
+  {
+    float nv[4] = {0,0,0,0};
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        nv[r] += M[r][c] * v[c];
+      }
+    }
+    // normalize
+    float nrm = std::sqrt(nv[0]*nv[0]+nv[1]*nv[1]+nv[2]*nv[2]+nv[3]*nv[3]);
+    for(int r=0;r<4;++r)
+    {
+      v[r] = nv[r] / (nrm + 1e-20f);
+    }
+  }
+
+  Quaternion q_mean;
+  q_mean.w = (v[0] >= 0.0f) ? v[0] : -v[0];
+  q_mean.x = (v[0] >= 0.0f) ? v[1] : -v[1];
+  q_mean.y = (v[0] >= 0.0f) ? v[2] : -v[2];
+  q_mean.z = (v[0] >= 0.0f) ? v[3] : -v[3];
+
+  // Normalize to be safe
+  {
+    float n = std::sqrt(q_mean.w*q_mean.w + q_mean.x*q_mean.x
+                      + q_mean.y*q_mean.y + q_mean.z*q_mean.z);
+    q_mean.w /= n; 
+    q_mean.x /= n; 
+    q_mean.y /= n; 
+    q_mean.z /= n;
+  }
+
+  return q_mean;
+}
+
+Transform karcher_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM> weights,
+  float tol,
+  int max_iters)
+{
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("karcher_mean: empty input.");
+  }
+
+  const size_t N = Ts.size();
+
+  // Weights (normalized)
+  std::vector<float> w(N, 1.f);
+  if(weights.size() == N)
+  {
+    for(size_t i=0; i<weights.size(); i++)
+    {
+      w[i] = weights[i];
+    }
+
+    float s = 0.f; 
+    for(float wi : w) 
+    {
+      s += wi;
+    }
+    if(s <= 0.f) 
+    {
+      throw std::runtime_error("karcher_mean: nonpositive weight sum.");
+    }
+    for(float& wi : w)
+    {
+      wi /= s;
+    }
+  }
+  else 
+  {
+    const float invN = 1.f / static_cast<float>(N);
+    for (float& wi : w) 
+    {
+      wi = invN;
+    }
+  }
+
+  // Initialize with the first pose (good enough; iteration refines it)
+  Transform Tm = Ts[0];
+
+  for (int it = 0; it < max_iters; ++it) 
+  {
+    // Accumulate weighted twists of residuals xi_i = log(Tm^{-1} Ti)
+    Vector3 vbar{0.f,0.f,0.f};
+    Vector3 wbar{0.f,0.f,0.f};
+
+    for (size_t i = 0; i < N; ++i) 
+    {
+      Transform Terr = ~Tm * Ts[i]; // relative transform
+      auto [vi, wi] = se3_log(Terr);
+      vbar.x += w[i] * vi.x; vbar.y += w[i] * vi.y; vbar.z += w[i] * vi.z;
+      wbar.x += w[i] * wi.x; wbar.y += w[i] * wi.y; wbar.z += w[i] * wi.z;
+    }
+
+    // Convergence check on combined twist norm
+    const float n2 = vbar.x*vbar.x + vbar.y*vbar.y + vbar.z*vbar.z
+                    + wbar.x*wbar.x + wbar.y*wbar.y + wbar.z*wbar.z;
+    if (n2 < tol*tol) 
+    {
+      break;
+    }
+
+    // Update: Tm = Tm * exp([vbar, wbar])
+    Transform dT = se3_exp(vbar, wbar);
+    Tm = Tm * dT;
+  }
+
+  return Tm;
+}
 
 } // namespace rmagine

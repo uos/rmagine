@@ -202,11 +202,11 @@ Transform umeyama_transform(
 RMAGINE_INLINE_FUNCTION
 Matrix3x3 so3_hat(Vector3f v)
 {
-    Matrix3x3 M;
-    M(0,0) =  0.0; M(1,0) = -v.z; M(2,0) =  v.y;
-    M(0,1) =  v.z; M(1,1) =  0.0; M(2,1) = -v.x;
-    M(0,2) = -v.y; M(1,2) =  v.x; M(2,2) =  0.0;
-    return M;
+  Matrix3x3 M;
+  M(0,0) =  0.0; M(1,0) = -v.z; M(2,0) =  v.y;
+  M(0,1) =  v.z; M(1,1) =  0.0; M(2,1) = -v.x;
+  M(0,2) = -v.y; M(1,2) =  v.x; M(2,2) =  0.0;
+  return M;
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -214,7 +214,7 @@ float GM_weight(
     const float kernel_scale,
     const float residual2)
 {
-    return sqr(kernel_scale) / sqr(kernel_scale + residual2);
+  return sqr(kernel_scale) / sqr(kernel_scale + residual2);
 }
 
 // TODO: test 
@@ -225,23 +225,23 @@ void jacobian_and_residual_p2p(
     const Vector3f& Pm, // model point
     const Vector3f& Pd) // dataset point
 {
-    // this is slightly different from kiss icp
-    // TODO: test
+  // this is slightly different from kiss icp
+  // TODO: test
 
-    // Jr top 3x3 = Identity
-    Jr(0,0) = 1.0; Jr(1,0) = 0.0; Jr(2,0) = 0.0;
-    Jr(0,1) = 0.0; Jr(1,1) = 1.0; Jr(2,1) = 0.0;
-    Jr(0,2) = 0.0; Jr(1,2) = 0.0; Jr(2,2) = 1.0;
+  // Jr top 3x3 = Identity
+  Jr(0,0) = 1.0; Jr(1,0) = 0.0; Jr(2,0) = 0.0;
+  Jr(0,1) = 0.0; Jr(1,1) = 1.0; Jr(2,1) = 0.0;
+  Jr(0,2) = 0.0; Jr(1,2) = 0.0; Jr(2,2) = 1.0;
 
-    // Jr bottom 3x3 = -1 * hat(Pd) -> only hat
-    Jr(0,3) =   0.0; Jr(1,3) = -Pd.z; Jr(2,3) =  Pd.y;
-    Jr(0,4) =  Pd.z; Jr(1,4) =   0.0; Jr(2,4) = -Pd.x;
-    Jr(0,5) = -Pd.y; Jr(1,5) =  Pd.x; Jr(2,5) =   0.0;
+  // Jr bottom 3x3 = -1 * hat(Pd) -> only hat
+  Jr(0,3) =   0.0; Jr(1,3) = -Pd.z; Jr(2,3) =  Pd.y;
+  Jr(0,4) =  Pd.z; Jr(1,4) =   0.0; Jr(2,4) = -Pd.x;
+  Jr(0,5) = -Pd.y; Jr(1,5) =  Pd.x; Jr(2,5) =   0.0;
 
-    const Vector3f res_vec = Pm - Pd; // Pm <- Pd
-    residual(0,0) = res_vec.x;
-    residual(1,0) = res_vec.y;
-    residual(2,0) = res_vec.z;
+  const Vector3f res_vec = Pm - Pd; // Pm <- Pd
+  residual(0,0) = res_vec.x;
+  residual(1,0) = res_vec.y;
+  residual(2,0) = res_vec.z;
 }
 
 
@@ -253,22 +253,22 @@ void jacobian_and_residual_p2l(
     const Vector3f& Nm, // model normal
     const Vector3f& Pd) // dataset point
 {
-    // this is slightly different from kiss icp
-    // TODO: test
+  // this is slightly different from kiss icp
+  // TODO: test
 
-    // TODO: test if we should better write Pm - Pd
-    residual = (Pd - Pm).dot(Nm);
-    // put this outside?
-    // const float w = GM_weight(5.0, residual);
+  // TODO: test if we should better write Pm - Pd
+  residual = (Pd - Pm).dot(Nm);
+  // put this outside?
+  // const float w = GM_weight(5.0, residual);
 
-    const Vector3f PdNm = Pd.cross(Nm);
+  const Vector3f PdNm = Pd.cross(Nm);
 
-    J(0,0) = PdNm.x;
-    J(0,1) = PdNm.y;
-    J(0,2) = PdNm.z;
-    J(0,3) = Nm.x;
-    J(0,4) = Nm.y;
-    J(0,5) = Nm.z;
+  J(0,0) = PdNm.x;
+  J(0,1) = PdNm.y;
+  J(0,2) = PdNm.z;
+  J(0,3) = Nm.x;
+  J(0,4) = Nm.y;
+  J(0,5) = Nm.z;
 }
 
 
@@ -284,22 +284,22 @@ void build_linear_system_p2p(
     const MemoryView<Vector, RAM>& model_points, 
     const MemoryView<Vector, RAM>& dataset_points)
 {
-    // TODO:
-    // - test
-    // - make reduction from this
-    for(size_t i=0; i<model_points.size(); i++)
-    {
-        Matrix_<float, 3, 6> J;
-        Matrix_<float, 3, 1> r;
-        
-        jacobian_and_residual_p2p(J, r, 
-          model_points[i], dataset_points[i]);
+  // TODO:
+  // - test
+  // - make reduction from this
+  for(size_t i=0; i<model_points.size(); i++)
+  {
+    Matrix_<float, 3, 6> J;
+    Matrix_<float, 3, 1> r;
+    
+    jacobian_and_residual_p2p(J, r, 
+      model_points[i], dataset_points[i]);
 
-        float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
-        float w = GM_weight(5.0, residual2);
-        JTwJ += (J.T() * w) * J; 
-        JTwr += (J.T() * w) * r;
-    }
+    float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
+    float w = GM_weight(5.0, residual2);
+    JTwJ += (J.T() * w) * J; 
+    JTwr += (J.T() * w) * r;
+  }
 }
 
 /**
@@ -315,20 +315,20 @@ void build_linear_system_p2l(
     const MemoryView<Vector, RAM>& model_normals, 
     const MemoryView<Vector, RAM>& dataset_points)
 {
-    // TODO:
-    // - test
-    // - make reduction from this
-    for(size_t i=0; i<model_points.size(); i++)
-    {
-        Matrix_<float, 1, 6> J;
-        float r;
-        jacobian_and_residual_p2l(J, r, 
-          model_points[i], model_normals[i], dataset_points[i]);
+  // TODO:
+  // - test
+  // - make reduction from this
+  for(size_t i=0; i<model_points.size(); i++)
+  {
+    Matrix_<float, 1, 6> J;
+    float r;
+    jacobian_and_residual_p2l(J, r, 
+      model_points[i], model_normals[i], dataset_points[i]);
 
-        float weight = GM_weight(5.0, r);
-        JTwJ += (J.T() * weight) * J; 
-        JTwr += (J.T() * weight) * r;
-    }
+    float weight = GM_weight(5.0, r);
+    JTwJ += (J.T() * weight) * J; 
+    JTwr += (J.T() * weight) * r;
+  }
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -338,22 +338,22 @@ void build_linear_system_p2p(
     const PointCloudView_<RAM>& model, 
     const PointCloudView_<RAM>& dataset)
 {   
-    // TODO:
-    // - test
-    // - make reduction from this
-    for(size_t i=0; i<model.points.size(); i++)
-    {
-        Matrix_<float, 3, 6> J;
-        Matrix_<float, 3, 1> r;
-        
-        jacobian_and_residual_p2p(J, r, 
-          model.points[i], dataset.points[i]);
+  // TODO:
+  // - test
+  // - make reduction from this
+  for(size_t i=0; i<model.points.size(); i++)
+  {
+    Matrix_<float, 3, 6> J;
+    Matrix_<float, 3, 1> r;
+    
+    jacobian_and_residual_p2p(J, r, 
+      model.points[i], dataset.points[i]);
 
-        float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
-        float w = GM_weight(5.0, residual2);
-        JTwJ += (J.T() * w) * J; 
-        JTwr += (J.T() * w) * r;
-    }
+    float residual2 = sqr(r(0,0)) + sqr(r(1,0)) + sqr(r(2,0)); 
+    float w = GM_weight(5.0, residual2);
+    JTwJ += (J.T() * w) * J; 
+    JTwr += (J.T() * w) * r;
+  }
 }
 
 RMAGINE_INLINE_FUNCTION
@@ -363,20 +363,20 @@ void build_linear_system_p2l(
     const PointCloudView_<RAM>& model,
     const PointCloudView_<RAM>& dataset)
 {   
-    // TODO:
-    // - test
-    // - make reduction from this
-    for(size_t i=0; i<model.points.size(); i++)
-    {
-        Matrix_<float, 1, 6> J;
-        float r;
-        jacobian_and_residual_p2l(J, r, 
-          model.points[i], model.normals[i], dataset.points[i]);
+  // TODO:
+  // - test
+  // - make reduction from this
+  for(size_t i=0; i<model.points.size(); i++)
+  {
+    Matrix_<float, 1, 6> J;
+    float r;
+    jacobian_and_residual_p2l(J, r, 
+      model.points[i], model.normals[i], dataset.points[i]);
 
-        float weight = GM_weight(5.0, r);
-        JTwJ += (J.T() * weight) * J; 
-        JTwr += (J.T() * weight) * r;
-    }
+    float weight = GM_weight(5.0, r);
+    JTwJ += (J.T() * weight) * J; 
+    JTwr += (J.T() * weight) * r;
+  }
 }
 
 // Collection of minimization strategies
@@ -388,6 +388,18 @@ void build_linear_system_p2l(
 // (Pd x Nm) * {rx,ry,rz} + Nm * {tx,ty,tz} = Nm * (Pm - Pd)
 // -> A*x = b
 // 
+
+// Dot product in R^4 (unit quaternions)
+template<typename DataT>
+DataT dot4(
+  const Quaternion_<DataT>& a, 
+  const Quaternion_<DataT>& b);
+
+// Ensure same hemisphere as reference
+template<typename DataT>
+Quaternion_<DataT> hemi_align(
+  const Quaternion_<DataT>& q, 
+  const Quaternion_<DataT>& ref);
 
 } // namespace rmagine
 

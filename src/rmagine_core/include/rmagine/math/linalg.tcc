@@ -653,4 +653,21 @@ void svd(
     }
 }
 
+template<typename DataT>
+DataT dot4(
+  const Quaternion_<DataT>& a,
+  const Quaternion_<DataT>& b)
+{
+  return a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+template<typename DataT>
+Quaternion_<DataT> hemi_align(
+  const Quaternion_<DataT>& q, 
+  const Quaternion_<DataT>& ref) 
+{
+  return (dot4(q, ref) >= 0.0) ? q : Quaternion_<DataT>{-q.x, -q.y, -q.z, -q.w};
+}
+
+
 } // namespace rmagine
