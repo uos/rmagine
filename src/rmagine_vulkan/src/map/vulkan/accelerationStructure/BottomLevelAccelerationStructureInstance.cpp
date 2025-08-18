@@ -1,6 +1,5 @@
 #include "rmagine/map/vulkan/accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 #include "rmagine/util/VulkanContext.hpp"
-#include "BottomLevelAccelerationStructureInstance.hpp"
 
 
 
