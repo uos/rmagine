@@ -27,9 +27,6 @@ namespace rmagine
 
 class VulkanMesh : public VulkanGeometry
 {
-private:
-    BottomLevelAccelerationStructurePtr bottomLevelAccelerationStructure = nullptr;
-
 public:
     Memory<Point, VULKAN_DEVICE_LOCAL>    vertices;
     Memory<Face, VULKAN_DEVICE_LOCAL>     faces;

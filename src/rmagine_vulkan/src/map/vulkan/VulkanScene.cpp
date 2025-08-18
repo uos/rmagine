@@ -19,7 +19,7 @@ void VulkanScene::createScene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t
     VkTransformMatrixKHR transformMatrix = {{{1.0, 0.0, 0.0, 0.0},
                                              {0.0, 1.0, 0.0, 0.0},
                                              {0.0, 0.0, 1.0, 0.0}}};
-    bottomLevelAccelerationStructureInstance->createBottomLevelAccelerationStructureInstance(transformMatrix, bottomLevelAccelerationStructure);
+    bottomLevelAccelerationStructureInstance->createBottomLevelAccelerationStructureInstance(transformMatrix, 0xFF, bottomLevelAccelerationStructure);
 
     topLevelAccelerationStructure->createAccelerationStructure(bottomLevelAccelerationStructureInstance);
 }
