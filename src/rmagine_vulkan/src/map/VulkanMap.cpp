@@ -1,9 +1,35 @@
 #include "rmagine/map/VulkanMap.hpp"
+#include "VulkanMap.hpp"
 
 
 
 namespace rmagine
 {
+
+VulkanMap::VulkanMap() : VulkanEntity()
+{}
+
+VulkanMap::VulkanMap(VulkanScenePtr scene) : VulkanEntity(), m_scene(scene)
+{}
+
+VulkanMap::~VulkanMap()
+{
+    std::cout << "destroying VulkanMap" << std::endl;
+    cleanup();
+}
+
+
+void VulkanMap::setScene(VulkanScenePtr scene)
+{
+    m_scene = scene;
+}
+
+
+VulkanScenePtr VulkanMap::scene() const
+{
+    return m_scene;
+}
+
 
 void VulkanMap::cleanup()
 {
@@ -16,41 +42,33 @@ void VulkanMap::cleanup()
 }
 
 
-VulkanScenePtr VulkanMap::scene() const
+
+VulkanMapPtr import_vulkan_map(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram)
 {
-    return m_scene;
+    VulkanScenePtr scene = make_vulkan_scene(vertices_ram, faces_ram);
+    scene->commit();
+    return std::make_shared<VulkanMap>(scene);
 }
 
-
-
-VulkanMapPtr import_vulkan_map(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram)
+VulkanMapPtr import_vulkan_map(const std::string& meshfile)
 {
-    VulkanScenePtr scene = std::make_shared<VulkanScene>(vertexMem_ram, indexMem_ram);
-    VulkanMapPtr map = std::make_shared<VulkanMap>(scene);
-    return map;
+    AssimpIO io;
+    // aiProcess_GenNormals does not work!
+    const aiScene* ascene = io.ReadFile(meshfile, 0);
+
+    if(!ascene)
+    {
+        std::cerr << io.Importer::GetErrorString() << std::endl;
+    }
+
+    if(!ascene->HasMeshes())
+    {
+        std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
+    }
+
+    VulkanScenePtr scene = make_vulkan_scene(ascene);
+    scene->commit();
+    return std::make_shared<VulkanMap>(scene);
 }
-
-// VulkanMapPtr import_vulkan_map(const std::string& meshfile)
-// {
-//     // (parts) taken from OptixMap.hpp
-
-//     AssimpIO io;
-//     // aiProcess_GenNormals does not work!
-//     const aiScene* ascene = io.ReadFile(meshfile, 0);
-
-//     if(!ascene)
-//     {
-//         std::cerr << io.Importer::GetErrorString() << std::endl;
-//     }
-
-//     if(!ascene->HasMeshes())
-//     {
-//         std::cerr << "ERROR: file '" << meshfile << "' contains no meshes" << std::endl;
-//     }
-
-//     VulkanScenePtr scene = make_vulkan_scene(ascene);
-//     scene->commit();
-//     return std::make_shared<VulkanMap>(scene);
-// }
 
 } // namespace rmagine

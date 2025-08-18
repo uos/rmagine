@@ -37,6 +37,10 @@ public:
     void set(VulkanScenePtr geom);
     VulkanScenePtr scene() const;
 
+    virtual void apply();
+    virtual void commit();
+    virtual unsigned int depth() const;
+
     void setId(unsigned int id);
     unsigned int id() const;
 

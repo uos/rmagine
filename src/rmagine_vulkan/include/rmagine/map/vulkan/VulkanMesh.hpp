@@ -51,15 +51,15 @@ public:
         return VulkanGeometryType::MESH;
     }
 
-    // void computeFaceNormals();
+    void computeFaceNormals();
 };
 
 using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
 
 
 
-VulkanMeshPtr make_vulkan_mesh(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
-// VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh);
+VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh);
 
 } // namespace rmagine

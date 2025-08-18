@@ -15,12 +15,12 @@ VulkanMesh::~VulkanMesh()
 
 void VulkanMesh::apply()
 {
-    
+    // does not need to do anything. is here just in case
 }
 
 void VulkanMesh::commit()
 {
-    
+    // does not need to do anything. is here just in case
 }
 
 unsigned int VulkanMesh::depth() const
@@ -28,26 +28,46 @@ unsigned int VulkanMesh::depth() const
     return 0;
 }
 
-// void VulkanMesh::computeFaceNormals()//TODO
-// {
-//     if(face_normals.size() != faces.size())
-//     {
-//         face_normals.resize(faces.size());
-//     }
-//     rmagine::computeFaceNormals(vertices, faces, face_normals);
-// }
-
-
-
-VulkanMeshPtr make_vulkan_mesh(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram)
+void VulkanMesh::computeFaceNormals()
 {
-    return nullptr;
+    throw std::runtime_error("VulkanMesh::computeFaceNormals() currently does not work, as data is already on the gpu and there is currently no function rmagine::computeFaceNormals() for VULKAN_DEVICE_LOCAL memory. please fill face_normals manually.");
+    // if(face_normals.size() != faces.size())
+    // {
+    //     face_normals.resize(faces.size());
+    // }
+    // rmagine::computeFaceNormals(vertices, faces, face_normals);
+}
+
+
+
+VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram)
+{
+    VulkanMeshPtr ret = std::make_shared<VulkanMesh>();
+
+    unsigned int num_vertices = vertices_ram.size();
+    unsigned int num_faces = faces_ram.size();
+
+    ret->vertices = vertices_ram;
+    ret->faces = faces_ram;
+
+    // ret->computeFaceNormals();
+    Memory<Vector, RAM> face_normals_ram(num_faces);
+    for(size_t i=0; i<num_faces; i++)
+    {
+        const Vector v0 = vertices_ram[faces_ram[i].v0];
+        const Vector v1 = vertices_ram[faces_ram[i].v1];
+        const Vector v2 = vertices_ram[faces_ram[i].v2];
+        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
+    }
+    ret->face_normals = face_normals_ram;
+
+    ret->apply();
+
+    return ret;
 }
 
 VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
 {
-    // (parts) taken from OptixMap.hpp
-
     VulkanMeshPtr ret = std::make_shared<VulkanMesh>();
 
     const aiVector3D* ai_vertices = amesh->mVertices;

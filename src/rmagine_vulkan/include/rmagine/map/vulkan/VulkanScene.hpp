@@ -18,9 +18,9 @@
 #include "accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
-// #include "VulkanGeometry.hpp"
-// #include "VulkanTransformable.hpp"
-// #include "VulkanInst.hpp"
+#include "VulkanGeometry.hpp"
+#include "VulkanTransformable.hpp"
+#include "VulkanInst.hpp"
 
 
 
@@ -84,8 +84,8 @@ using VulkanScenePtr = std::shared_ptr<VulkanScene>;
 
 
 
-VulkanScenePtr make_vulkan_scene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
-// VulkanScenePtr make_vulkan_scene(const aiScene* ascene);
+VulkanScenePtr make_vulkan_scene(const aiScene* ascene);
 
 } // namespace rmagine

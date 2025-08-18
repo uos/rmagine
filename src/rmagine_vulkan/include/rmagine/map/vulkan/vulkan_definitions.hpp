@@ -5,10 +5,6 @@
 
 
 
-//mostly taken from "optix_definitions.h"
-
-
-
 namespace rmagine 
 {
 

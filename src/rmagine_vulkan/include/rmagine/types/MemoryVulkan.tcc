@@ -133,7 +133,8 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator
 {
     if(this->size() != o.size())
     {
-        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
+        // throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
+        this->resize(o.size());
     }
     copy(o, *this);
     return *this;

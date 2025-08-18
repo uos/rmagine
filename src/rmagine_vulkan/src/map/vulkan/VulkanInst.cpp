@@ -8,7 +8,7 @@
 namespace rmagine
 {
 
-VulkanInst::VulkanInst()
+VulkanInst::VulkanInst() : Base()
 {
 
 }

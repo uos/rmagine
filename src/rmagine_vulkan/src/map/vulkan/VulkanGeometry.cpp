@@ -59,8 +59,6 @@ void VulkanGeometry::addParent(VulkanScenePtr parent)
     m_parents.insert(parent);
 }
 
-
-
 // VulkanScenePtr VulkanGeometry::makeScene()
 // {
 //     VulkanScenePtr geom_scene = std::make_shared<VulkanScene>();
