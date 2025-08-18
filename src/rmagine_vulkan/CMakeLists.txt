@@ -39,7 +39,7 @@ set(RMAGINE_VULKAN_SRCS
     src/map/vulkan/accelerationStructure/AccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.cpp
-    src/map/vulkan/accelerationStructure/BottomLevelGeometryInstance.cpp
+    src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructureInstance.cpp
 
     # Simulators
     src/simulation/SphereSimulatorVulkan.cpp

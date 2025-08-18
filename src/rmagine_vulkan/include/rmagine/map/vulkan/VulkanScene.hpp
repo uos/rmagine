@@ -15,7 +15,7 @@
 #include <rmagine/util/VulkanUtil.hpp>
 #include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
 #include "accelerationStructure/TopLevelAccelerationStructure.hpp"
-#include "accelerationStructure/BottomLevelGeometryInstance.hpp"
+#include "accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
 // #include "VulkanGeometry.hpp"
@@ -38,7 +38,7 @@ private:
 
     //acceleration structure
     BottomLevelAccelerationStructurePtr bottomLevelAccelerationStructure = nullptr;//TODO: multiple of these
-    BottomLevelGeometryInstancePtr bottomLevelGeometryInstance = nullptr;//TODO: multiple of these
+    BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance = nullptr;//TODO: multiple of these
     TopLevelAccelerationStructurePtr topLevelAccelerationStructure = nullptr;
 
 public:
@@ -51,7 +51,7 @@ public:
         vertexMem(Memory<float, VULKAN_DEVICE_LOCAL>(vertexMem_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)),
         indexMem(Memory<uint32_t, VULKAN_DEVICE_LOCAL>(indexMem_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)),
         bottomLevelAccelerationStructure(new BottomLevelAccelerationStructure()), 
-        bottomLevelGeometryInstance(new BottomLevelGeometryInstance),
+        bottomLevelAccelerationStructureInstance(new BottomLevelAccelerationStructureInstance),
         topLevelAccelerationStructure(new TopLevelAccelerationStructure()) 
     {
         createScene(vertexMem_ram, indexMem_ram);

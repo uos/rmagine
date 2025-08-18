@@ -6,14 +6,14 @@
 namespace rmagine
 {
 
-void TopLevelAccelerationStructure::createAccelerationStructure(BottomLevelGeometryInstancePtr bottomLevelGeometryInstance)
+void TopLevelAccelerationStructure::createAccelerationStructure(BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance)
 {
     VkAccelerationStructureGeometryDataKHR accelerationStructureGeometryData{};
     accelerationStructureGeometryData.instances = {};
     accelerationStructureGeometryData.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
     accelerationStructureGeometryData.instances.arrayOfPointers = VK_FALSE;
     accelerationStructureGeometryData.instances.data = {};
-    accelerationStructureGeometryData.instances.data.deviceAddress = bottomLevelGeometryInstance->getGeometryInstanceMemory().getBuffer()->getBufferDeviceAddress();
+    accelerationStructureGeometryData.instances.data.deviceAddress = bottomLevelAccelerationStructureInstance->getInstanceMemory().getBuffer()->getBufferDeviceAddress();
 
     VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
     accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;

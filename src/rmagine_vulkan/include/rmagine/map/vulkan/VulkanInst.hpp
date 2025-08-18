@@ -12,7 +12,7 @@
 #include <rmagine/math/types.h>
 #include "vulkan_definitions.hpp"
 #include "VulkanGeometry.hpp"
-#include "accelerationStructure/BottomLevelGeometryInstance.hpp"
+#include "accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 
 
 
@@ -24,7 +24,7 @@ class VulkanInst : VulkanGeometry
 protected:
     VulkanScenePtr m_scene;
 
-    BottomLevelGeometryInstancePtr bottomLevelGeometryInstance = nullptr;
+    BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance = nullptr;
 
 public:
     using Base = VulkanGeometry;

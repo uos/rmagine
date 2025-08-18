@@ -2,7 +2,7 @@
 
 #include <string>
 
-
+//TDOD: put strings in external shaderfiles and include them with @INCLUDE_STRING@. example in cmake/FileToString.h.in
 
 static const std::string util_preamble = R""""(#version 460 core
 #extension GL_EXT_ray_tracing : require

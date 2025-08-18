@@ -1,4 +1,4 @@
-#include "rmagine/map/vulkan/accelerationStructure/BottomLevelGeometryInstance.hpp"
+#include "rmagine/map/vulkan/accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 
 
@@ -6,7 +6,7 @@
 namespace rmagine
 {
 
-void BottomLevelGeometryInstance::createBottomLevelAccelerationStructureInstance(VkTransformMatrixKHR transformMatrix, BottomLevelAccelerationStructurePtr bottomLevelAccelerationStructure)
+void BottomLevelAccelerationStructureInstance::createBottomLevelAccelerationStructureInstance(VkTransformMatrixKHR transformMatrix, BottomLevelAccelerationStructurePtr bottomLevelAccelerationStructure)
 {
     VkAccelerationStructureInstanceKHR bottomLevelAccelerationStructureInstance{};
     bottomLevelAccelerationStructureInstance.transform = transformMatrix;
@@ -17,17 +17,17 @@ void BottomLevelGeometryInstance::createBottomLevelAccelerationStructureInstance
     bottomLevelAccelerationStructureInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
     bottomLevelAccelerationStructureInstance.accelerationStructureReference = bottomLevelAccelerationStructure->getDeviceAddress();
 
-    Memory<VkAccelerationStructureInstanceKHR, RAM> geometryInstanceMemory_ram(1);
-    geometryInstanceMemory_ram[0] = bottomLevelAccelerationStructureInstance;
-    geometryInstanceMemory = geometryInstanceMemory_ram;
+    Memory<VkAccelerationStructureInstanceKHR, RAM> instanceMemory_ram(1);
+    instanceMemory_ram[0] = bottomLevelAccelerationStructureInstance;
+    instanceMemory = instanceMemory_ram;
 }
 
-Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL>& BottomLevelGeometryInstance::getGeometryInstanceMemory()
+Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL>& BottomLevelAccelerationStructureInstance::getInstanceMemory()
 {
-    return geometryInstanceMemory;
+    return instanceMemory;
 }
 
-void BottomLevelGeometryInstance::cleanup()
+void BottomLevelAccelerationStructureInstance::cleanup()
 {
     // ...
 }

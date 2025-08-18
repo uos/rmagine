@@ -11,7 +11,7 @@
 
 #include <rmagine/util/VulkanUtil.hpp>
 #include "AccelerationStructure.hpp"
-#include "BottomLevelGeometryInstance.hpp"
+#include "BottomLevelAccelerationStructureInstance.hpp"
 
 
 
@@ -41,7 +41,7 @@ public:
 
     TopLevelAccelerationStructure(const TopLevelAccelerationStructure&) = delete;
 
-    void createAccelerationStructure(BottomLevelGeometryInstancePtr bottomLevelGeometryInstance);
+    void createAccelerationStructure(BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance);
 
     size_t getID();
 

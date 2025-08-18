@@ -19,9 +19,9 @@ void VulkanScene::createScene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t
     VkTransformMatrixKHR transformMatrix = {{{1.0, 0.0, 0.0, 0.0},
                                              {0.0, 1.0, 0.0, 0.0},
                                              {0.0, 0.0, 1.0, 0.0}}};
-    bottomLevelGeometryInstance->createBottomLevelAccelerationStructureInstance(transformMatrix, bottomLevelAccelerationStructure);
+    bottomLevelAccelerationStructureInstance->createBottomLevelAccelerationStructureInstance(transformMatrix, bottomLevelAccelerationStructure);
 
-    topLevelAccelerationStructure->createAccelerationStructure(bottomLevelGeometryInstance);
+    topLevelAccelerationStructure->createAccelerationStructure(bottomLevelAccelerationStructureInstance);
 }
 
 
@@ -34,7 +34,7 @@ void VulkanScene::cleanup()
 
     bottomLevelAccelerationStructure->cleanup();
     topLevelAccelerationStructure->cleanup();
-    bottomLevelGeometryInstance->cleanup();
+    bottomLevelAccelerationStructureInstance->cleanup();
     std::cout << "cleaned up acceleration structure." << std::endl;
 
     std::cout << "done." << std::endl;
