@@ -143,18 +143,26 @@ void VulkanScene::commit()
 {
     std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
+
+    for (auto const& geometry : m_geometries)
+    {
+        accelerationStructureGeometrys.push_back(geometry->getASGeometry());
+        accelerationStructureBuildRangeInfos.push_back(geometry->getASBuildRangeInfo());
+    }
     
     if(m_type == VulkanSceneType::INSTANCES)
     {
-        // TODO: create top level as
-        //       get all the instances and add the to the top level as
+        // create top level AS
+        // get all the instances and add the to the top level AS
         m_as = std::make_shared<TopLevelAccelerationStructure>();
+        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
-        // TODO: create bottom level as
-        //       get all the meshes and add the to the bottom level as
+        // create bottom level AS
+        // get all the meshes and add the to the bottom level AS
         m_as = std::make_shared<BottomLevelAccelerationStructure>();
+        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
 }
 
