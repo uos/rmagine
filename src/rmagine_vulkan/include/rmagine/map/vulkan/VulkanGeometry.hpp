@@ -25,6 +25,9 @@ class VulkanGeometry : public VulkanEntity, public VulkanTransformable
 protected:
     std::unordered_set<VulkanSceneWPtr> m_parents;
 
+    VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
+    VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
+
 public:
     VulkanGeometry() : VulkanEntity(), VulkanTransformable() {}
 
@@ -44,8 +47,11 @@ public:
     bool hasParent(VulkanScenePtr parent) const;
     void addParent(VulkanScenePtr parent);
 
-    // VulkanScenePtr makeScene();
-    // VulkanInstPtr instantiate();
+    VulkanScenePtr makeScene();
+    VulkanInstPtr instantiate();
+
+    const VkAccelerationStructureGeometryKHR& getASGeometry() const;
+    const VkAccelerationStructureBuildRangeInfoKHR& getASBuildRangeInfo() const;
 };
 
 using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;

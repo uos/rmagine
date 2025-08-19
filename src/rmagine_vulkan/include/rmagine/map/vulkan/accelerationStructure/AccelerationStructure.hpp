@@ -17,7 +17,7 @@
 namespace rmagine
 {
 
-class AccelerationStructure
+class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
 protected:
     DevicePtr device = nullptr;
@@ -37,7 +37,7 @@ public:
     
     AccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
-    ~AccelerationStructure() {}
+    virtual ~AccelerationStructure() {}
 
     AccelerationStructure(const AccelerationStructure&) = delete;
     
@@ -48,14 +48,22 @@ public:
 
     void cleanup();
 
+    template<typename T>
+    inline std::shared_ptr<T> this_shared()
+    {
+        return std::dynamic_pointer_cast<T>(shared_from_this());
+    }
+
 protected:
     void createAccelerationStructureBufferAndDeviceMemory(std::vector<uint32_t> maxPrimitiveCountList, 
         VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
         VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo, VkAccelerationStructureTypeKHR accelerationStructureType);
 
-    void buildAccelerationStructure(uint32_t primitiveCount, 
+    void buildAccelerationStructure(std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
         VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
         VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
 };
+
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
 } // namespace rmagine

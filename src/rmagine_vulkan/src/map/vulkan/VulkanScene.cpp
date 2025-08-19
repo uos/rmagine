@@ -1,60 +1,207 @@
 #include "rmagine/map/vulkan/VulkanScene.hpp"
+#include "VulkanScene.hpp"
 
 
 
 namespace rmagine
 {
-
-void VulkanScene::createScene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram)
+VulkanScene::VulkanScene() : VulkanEntity()
 {
-    vertexMem = vertexMem_ram;
-    indexMem = indexMem_ram;
 
-    numVerticies = vertexMem_ram.size()/3;
-    numTriangles = indexMem_ram.size()/3;
-    
-    //create acceleration structure
-    bottomLevelAccelerationStructure->createAccelerationStructure(numVerticies, vertexMem, numTriangles, indexMem);
+}
 
-    VkTransformMatrixKHR transformMatrix = {{{1.0, 0.0, 0.0, 0.0},
-                                             {0.0, 1.0, 0.0, 0.0},
-                                             {0.0, 0.0, 1.0, 0.0}}};
-    bottomLevelAccelerationStructureInstance->createBottomLevelAccelerationStructureInstance(transformMatrix, 0xFF, bottomLevelAccelerationStructure);
-
-    topLevelAccelerationStructure->createAccelerationStructure(bottomLevelAccelerationStructureInstance);
+VulkanScene::~VulkanScene()
+{
+    std::cout << "destroying VulkanScene" << std::endl;
+    cleanup();
 }
 
 
-void VulkanScene::commit() {}
+unsigned int VulkanScene::add(VulkanGeometryPtr geom)
+{
+    auto it = m_ids.find(geom);
+    if(it == m_ids.end())
+    {
+        if(m_geometries.empty())
+        {
+            // first element
+            m_geom_type = geom->type();
+            if(m_geom_type == VulkanGeometryType::INSTANCE)
+            {
+                m_type = VulkanSceneType::INSTANCES;
+            }
+            else
+            {
+                m_type = VulkanSceneType::GEOMETRIES;
+            }
+        }
+
+        if(geom->type() != m_geom_type)
+        {
+            std::cout << "[VulkanScene::add()] WARNING - used mixed types of geometries. NOT supported" << std::endl;
+            throw std::runtime_error("[VulkanScene::add()] WARNING - used mixed types of geometries. NOT supported");//just in case
+        }
+
+        // add geom to self
+        unsigned int id = gen.get();
+        m_geometries[id] = geom;
+        m_ids[geom] = id;
+
+        // add self to geom
+        geom->addParent(this_shared<VulkanScene>());
+
+        m_geom_added = true;
+
+        return id;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+unsigned int VulkanScene::get(VulkanGeometryPtr geom) const
+{
+    return m_ids.at(geom);
+}
+
+std::optional<unsigned int> VulkanScene::getOpt(VulkanGeometryPtr geom) const
+{
+    auto it = m_ids.find(geom);
+    if(it != m_ids.end())
+    {
+        return it->second;
+    }
+
+    return {};
+}
+
+bool VulkanScene::has(VulkanGeometryPtr geom) const
+{
+    return (m_ids.find(geom) != m_ids.end());
+}
+
+bool VulkanScene::has(unsigned int geom_id) const
+{
+    return (m_geometries.find(geom_id) != m_geometries.end());
+}
+
+bool VulkanScene::remove(VulkanGeometryPtr geom)
+{
+    bool ret = false;
+
+    auto it = m_ids.find(geom);
+    if(it != m_ids.end())
+    {
+        unsigned int geom_id = it->second;
+
+        m_ids.erase(it);
+        m_geometries.erase(geom_id);
+        geom->removeParent(this_shared<VulkanScene>());
+        gen.give_back(geom_id);
+
+        m_geom_removed = true;
+        ret = true;
+    }
+
+    return ret;
+}
+
+VulkanGeometryPtr VulkanScene::remove(unsigned int geom_id)
+{
+    VulkanGeometryPtr ret;
+
+    auto it = m_geometries.find(geom_id);
+    if(it != m_geometries.end())
+    {
+        VulkanGeometryPtr geom = it->second;
+
+        m_geometries.erase(it);
+        m_ids.erase(geom);
+        geom->removeParent(this_shared<VulkanScene>());
+        gen.give_back(geom_id);
+
+        m_geom_removed = true;
+
+        ret = geom;
+    }
+
+    return ret;
+}
+
+std::map<unsigned int, VulkanGeometryPtr> VulkanScene::geometries() const
+{
+    return m_geometries;
+}
+
+std::unordered_map<VulkanGeometryPtr, unsigned int> VulkanScene::ids() const
+{
+    return m_ids;
+}
+
+void VulkanScene::commit()
+{
+    if(m_type == VulkanSceneType::INSTANCES)
+    {
+        // TODO: create top level as
+        //       get all the instances and add the to the top level as
+    }
+    else if(m_type == VulkanSceneType::GEOMETRIES )
+    {
+        // TODO: create bottom level as
+        //       get all the meshes and add the to the bottom level as
+    }
+}
+
+VulkanInstPtr VulkanScene::instantiate()
+{
+    VulkanInstPtr ret = std::make_shared<VulkanInst>();
+    ret->set(this_shared<VulkanScene>());
+    return ret;
+}
+
+void VulkanScene::cleanupParents()
+{
+    for(auto it = m_parents.cbegin(); it != m_parents.cend();)
+    {
+        if (it->expired())
+        {
+            m_parents.erase(it++);    // or "it = m.erase(it)" since C++11
+        } else {
+            ++it;
+        }
+    }
+}
+
+std::unordered_set<VulkanInstPtr> VulkanScene::parents() const
+{
+    std::unordered_set<VulkanInstPtr> ret;
+
+    for(VulkanInstWPtr elem : m_parents)
+    {
+        if(auto tmp = elem.lock())
+        {
+            ret.insert(tmp);
+        }
+    }
+    
+    return ret;
+}
+
+void VulkanScene::addParent(VulkanInstPtr parent)
+{
+    m_parents.insert(parent);
+}
 
 
 void VulkanScene::cleanup()
 {
     std::cout << "cleaning up..." << std::endl;
 
-    bottomLevelAccelerationStructure->cleanup();
-    topLevelAccelerationStructure->cleanup();
-    bottomLevelAccelerationStructureInstance->cleanup();
+    m_as->cleanup();
     std::cout << "cleaned up acceleration structure." << std::endl;
 
     std::cout << "done." << std::endl;
-}
-
-
-
-Memory<float, VULKAN_DEVICE_LOCAL>& VulkanScene::getVertexMem()
-{
-    return vertexMem;
-}
-
-Memory<uint32_t, VULKAN_DEVICE_LOCAL>& VulkanScene::getIndexMem()
-{
-    return indexMem;
-}
-
-TopLevelAccelerationStructurePtr VulkanScene::getTopLevelAccelerationStructure()
-{
-    return topLevelAccelerationStructure;
 }
 
 

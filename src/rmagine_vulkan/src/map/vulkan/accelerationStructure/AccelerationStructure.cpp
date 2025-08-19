@@ -57,7 +57,7 @@ void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(std
         extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
 }
 
-void AccelerationStructure::buildAccelerationStructure(uint32_t primitiveCount, 
+void AccelerationStructure::buildAccelerationStructure(std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
     VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
     VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo)
 {
@@ -74,12 +74,12 @@ void AccelerationStructure::buildAccelerationStructure(uint32_t primitiveCount,
     accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchBuffer->getBufferDeviceAddress();
 
-    VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
-    accelerationStructureBuildRangeInfo.primitiveCount = primitiveCount;
+    // VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
+    // accelerationStructureBuildRangeInfo.primitiveCount = primitiveCount;
 
-    const VkAccelerationStructureBuildRangeInfoKHR* accelerationStructureBuildRangeInfos = &accelerationStructureBuildRangeInfo;
+    // const VkAccelerationStructureBuildRangeInfoKHR* accelerationStructureBuildRangeInfos = &accelerationStructureBuildRangeInfo;
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos);
+    get_vulkan_context()->getDefaultCommandBuffer()->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
     get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 
     std::cout << "acceleration structure has been build" << std::endl;

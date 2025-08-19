@@ -28,9 +28,7 @@ public:
 
     virtual ~VulkanEntity() {}
 
-    VulkanEntity(const VulkanEntity&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
-
-
+    
     template<typename T>
     inline std::shared_ptr<T> this_shared()
     {

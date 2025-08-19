@@ -26,9 +26,9 @@ protected:
 public:
     bool m_changed;
 
-    VulkanTransformable(/* args */);
+    VulkanTransformable();
 
-    virtual ~VulkanTransformable() {}
+    virtual ~VulkanTransformable();
     
 
     void setTransform(const Transform& T);

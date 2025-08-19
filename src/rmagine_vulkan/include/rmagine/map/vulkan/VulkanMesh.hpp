@@ -27,17 +27,21 @@ namespace rmagine
 
 class VulkanMesh : public VulkanGeometry
 {
+protected:
+    Memory<VkTransformMatrixKHR, VULKAN_DEVICE_LOCAL>   transformMatrix;
+    Memory<VkTransformMatrixKHR, RAM>   transformMatrix_ram;
+
 public:
-    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices;
-    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;
+    using Base = VulkanGeometry;
+
+    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices; // needs the bits: VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;    // needs the bits: VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
     Memory<Vector, VULKAN_DEVICE_LOCAL>   face_normals;
     Memory<Vector, VULKAN_DEVICE_LOCAL>   vertex_normals;
 
     VulkanMesh();
 
     virtual ~VulkanMesh();
-
-    VulkanMesh(const VulkanMesh&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
     virtual void apply();

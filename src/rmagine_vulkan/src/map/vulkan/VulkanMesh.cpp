@@ -3,9 +3,38 @@
 namespace rmagine
 {
 
-VulkanMesh::VulkanMesh(/* args */)
+VulkanMesh::VulkanMesh() : Base(),
+    transformMatrix(1, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR),
+    transformMatrix_ram(1)
 {
+    transformMatrix_ram[0] = {{{1.0, 0.0, 0.0, 0.0},
+                               {0.0, 1.0, 0.0, 0.0},
+                               {0.0, 0.0, 1.0, 0.0}}};
 
+
+    accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+    accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+    accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+    accelerationStructureGeometry.geometry = {};
+
+    accelerationStructureGeometry.geometry.triangles = {};
+    accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+    accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+    accelerationStructureGeometry.geometry.triangles.vertexData = {};
+    accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = vertices.getBuffer()->getBufferDeviceAddress();
+    accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(float) * 3;
+    accelerationStructureGeometry.geometry.triangles.maxVertex = vertices.size();
+    accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
+    accelerationStructureGeometry.geometry.triangles.indexData = {};
+    accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = faces.getBuffer()->getBufferDeviceAddress();
+    accelerationStructureGeometry.geometry.triangles.transformData = {};
+    accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = transformMatrix.getBuffer()->getBufferDeviceAddress();
+
+
+    accelerationStructureBuildRangeInfo.firstVertex = 0;
+    accelerationStructureBuildRangeInfo.primitiveOffset = 0;
+    accelerationStructureBuildRangeInfo.primitiveCount = faces.size();
+    accelerationStructureBuildRangeInfo.transformOffset = 0;
 }
 
 VulkanMesh::~VulkanMesh()
@@ -15,12 +44,16 @@ VulkanMesh::~VulkanMesh()
 
 void VulkanMesh::apply()
 {
-    // does not need to do anything. is here just in case
+    Matrix4x4 M = matrix();
+    transformMatrix_ram[0] = {{{M(0,0), M(0,1), M(0,3), M(0,3)},
+                               {M(1,0), M(1,1), M(1,3), M(1,3)},
+                               {M(2,0), M(2,1), M(2,3), M(2,3)}}};
+    m_changed = true;
 }
 
 void VulkanMesh::commit()
 {
-    // does not need to do anything. is here just in case
+    transformMatrix = transformMatrix_ram;
 }
 
 unsigned int VulkanMesh::depth() const
@@ -47,7 +80,10 @@ VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RA
     unsigned int num_vertices = vertices_ram.size();
     unsigned int num_faces = faces_ram.size();
 
+    ret->vertices.resize(vertices_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     ret->vertices = vertices_ram;
+
+    ret->faces.resize(faces_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     ret->faces = faces_ram;
 
     // ret->computeFaceNormals();
@@ -87,6 +123,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
             ai_vertices[i].y,
             ai_vertices[i].z};
     }
+    ret->vertices.resize(vertices_cpu.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     ret->vertices = vertices_cpu;
 
     for(size_t i=0; i<num_faces; i++)
@@ -95,6 +132,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
         faces_cpu[i].v1 = ai_faces[i].mIndices[1];
         faces_cpu[i].v2 = ai_faces[i].mIndices[2];
     }
+    ret->faces.resize(faces_cpu.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
     ret->faces = faces_cpu;
 
     // ret->computeFaceNormals();

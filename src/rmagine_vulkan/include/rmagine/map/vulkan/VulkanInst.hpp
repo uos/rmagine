@@ -12,19 +12,19 @@
 #include <rmagine/math/types.h>
 #include "vulkan_definitions.hpp"
 #include "VulkanGeometry.hpp"
-#include "accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
 
 
 
 namespace rmagine
 {
 
-class VulkanInst : VulkanGeometry
+class VulkanInst : public VulkanGeometry
 {
 protected:
     VulkanScenePtr m_scene;
 
-    BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance = nullptr;
+    Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> instance;
+    Memory<VkAccelerationStructureInstanceKHR, RAM> instance_ram;
 
 public:
     using Base = VulkanGeometry;

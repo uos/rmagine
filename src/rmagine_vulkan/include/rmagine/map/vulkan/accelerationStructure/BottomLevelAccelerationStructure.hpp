@@ -31,7 +31,7 @@ public:
 
     BottomLevelAccelerationStructure(const BottomLevelAccelerationStructure&) = delete;
 
-    void createAccelerationStructure(uint32_t numVerticies, Memory<float, VULKAN_DEVICE_LOCAL>& vertexMem, uint32_t numTriangles, Memory<uint32_t, VULKAN_DEVICE_LOCAL>& indexMem);
+    void createAccelerationStructure(std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
 };
 
 using BottomLevelAccelerationStructurePtr = std::shared_ptr<BottomLevelAccelerationStructure>;
