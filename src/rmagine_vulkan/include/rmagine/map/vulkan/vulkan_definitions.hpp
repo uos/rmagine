@@ -13,7 +13,7 @@ enum class VulkanGeometryType
     NONE,
     INSTANCE,
     MESH,
-    POINTS //TODO: what is this for, do i need this, can i do this?
+    POINTS
 };
 
 enum class VulkanSceneType

@@ -141,15 +141,20 @@ std::unordered_map<VulkanGeometryPtr, unsigned int> VulkanScene::ids() const
 
 void VulkanScene::commit()
 {
+    std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
+    
     if(m_type == VulkanSceneType::INSTANCES)
     {
         // TODO: create top level as
         //       get all the instances and add the to the top level as
+        m_as = std::make_shared<TopLevelAccelerationStructure>();
     }
-    else if(m_type == VulkanSceneType::GEOMETRIES )
+    else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // TODO: create bottom level as
         //       get all the meshes and add the to the bottom level as
+        m_as = std::make_shared<BottomLevelAccelerationStructure>();
     }
 }
 
