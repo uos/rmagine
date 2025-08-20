@@ -24,8 +24,7 @@ class VulkanInst : public VulkanGeometry
 protected:
     VulkanScenePtr m_scene;
 
-    Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> instance;
-    Memory<VkAccelerationStructureInstanceKHR, RAM> instance_ram;
+    VkAccelerationStructureInstanceKHR* m_data;
 
 public:
     using Base = VulkanGeometry;
@@ -52,6 +51,8 @@ public:
     {
         return VulkanGeometryType::INSTANCE;
     }
+
+    const VkAccelerationStructureInstanceKHR* data() const;
 };
 
 using VulkanInstPtr = std::shared_ptr<VulkanInst>;

@@ -77,14 +77,4 @@ VulkanInstPtr VulkanGeometry::instantiate()
     return geom_inst;
 }
 
-const VkAccelerationStructureGeometryKHR& VulkanGeometry::getASGeometry() const
-{
-    return accelerationStructureGeometry;
-}
-
-const VkAccelerationStructureBuildRangeInfoKHR& VulkanGeometry::getASBuildRangeInfo() const
-{
-    return accelerationStructureBuildRangeInfo;
-}
-
 } // namespace rmagine

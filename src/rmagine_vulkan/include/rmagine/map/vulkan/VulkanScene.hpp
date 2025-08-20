@@ -46,8 +46,10 @@ private:
     bool m_geom_removed = false;
 
     // filled after commit
-    unsigned int m_traversable_graph_flags = 0;
     unsigned int m_depth = 0;
+
+    //only used for top level as
+    Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> instances;
 
 public:
     //TODO: TEMP; FIX LATER
@@ -100,11 +102,6 @@ public:
     inline AccelerationStructurePtr as() const
     {
         return m_as;
-    }
-
-    inline unsigned int traversableGraphFlags() const
-    {
-        return m_traversable_graph_flags;
     }
 
     inline unsigned int depth() const 

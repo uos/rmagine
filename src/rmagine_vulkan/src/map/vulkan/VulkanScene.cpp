@@ -142,25 +142,63 @@ void VulkanScene::commit()
     std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
 
-    for (auto const& geometry : m_geometries)
-    {
-        accelerationStructureGeometrys.push_back(geometry.second->getASGeometry());
-        accelerationStructureBuildRangeInfos.push_back(geometry.second->getASBuildRangeInfo());
-    }
     
     if(m_type == VulkanSceneType::INSTANCES)
     {
         // create top level AS
-        // get all the instances and add the to the top level AS
         m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+
+        // get all the instances and add the to the top level AS
+        Memory<VkAccelerationStructureInstanceKHR, RAM> instances_ram(numOfChildNodes());
+        instances.resize(numOfChildNodes(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR);
+
+        size_t i = 0;
+        unsigned int depth_ = 0;
+        for(auto const& geometry : m_geometries)
+        {
+            instances_ram[i] = *(geometry.second->this_shared<VulkanInst>()->data());
+
+            depth_ = std::max(depth_, geometry.second->this_shared<VulkanInst>()->scene()->depth() + 1);
+            
+            i++;
+        }
+        instances = instances_ram;
+
+        VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
+        accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+        accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+        accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+        accelerationStructureGeometry.geometry = {};
+        accelerationStructureGeometry.geometry.instances = {};
+        accelerationStructureGeometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+        accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
+        accelerationStructureGeometry.geometry.instances.data = {};
+        accelerationStructureGeometry.geometry.instances.data.deviceAddress = instances.getBuffer()->getBufferDeviceAddress();
+        accelerationStructureGeometrys.push_back(accelerationStructureGeometry);
+
+        VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
+        accelerationStructureBuildRangeInfo.firstVertex = 0;
+        accelerationStructureBuildRangeInfo.primitiveOffset = 0;
+        accelerationStructureBuildRangeInfo.primitiveCount = numOfChildNodes();
+        accelerationStructureBuildRangeInfo.transformOffset = 0;
+        accelerationStructureBuildRangeInfos.push_back(accelerationStructureBuildRangeInfo);
+
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // create bottom level AS
-        // get all the meshes and add the to the bottom level AS
         m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
+
+        // get all the meshes and add the to the bottom level AS
+        for(auto const& geometry : m_geometries)
+        {
+            accelerationStructureGeometrys.push_back(geometry.second->this_shared<VulkanMesh>()->getASGeometry());
+            accelerationStructureBuildRangeInfos.push_back(geometry.second->this_shared<VulkanMesh>()->getASBuildRangeInfo());
+        }
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+
+        m_depth = 1;
     }
 
     //TODO: alle vertex/index/normal buffer aufsammeln, damit simulator diese für descriptorset abfragen kann
@@ -225,6 +263,15 @@ VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, 
     geom_inst->apply();
     geom_inst->commit();
     scene->add(geom_inst);
+
+    VulkanInstPtr geom_inst_2 = mesh->instantiate();
+    Transform tf;
+    tf.setIdentity();
+    tf.t.y = 20;
+    geom_inst_2->setTransform(tf);
+    geom_inst_2->apply();
+    geom_inst_2->commit();
+    scene->add(geom_inst_2);
 
     return scene;
 }

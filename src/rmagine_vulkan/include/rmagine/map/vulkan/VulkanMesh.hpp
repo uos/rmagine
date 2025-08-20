@@ -30,6 +30,9 @@ protected:
     Memory<VkTransformMatrixKHR, VULKAN_DEVICE_LOCAL>   transformMatrix;
     Memory<VkTransformMatrixKHR, RAM>   transformMatrix_ram;
 
+    VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
+    VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
+
 public:
     using Base = VulkanGeometry;
 
@@ -55,6 +58,9 @@ public:
     }
 
     void computeFaceNormals();
+
+    const VkAccelerationStructureGeometryKHR& getASGeometry() const;
+    const VkAccelerationStructureBuildRangeInfoKHR& getASBuildRangeInfo() const;
 };
 
 using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;

@@ -78,6 +78,16 @@ void VulkanMesh::computeFaceNormals()
     // rmagine::computeFaceNormals(vertices, faces, face_normals);
 }
 
+const VkAccelerationStructureGeometryKHR& VulkanMesh::getASGeometry() const
+{
+    return accelerationStructureGeometry;
+}
+
+const VkAccelerationStructureBuildRangeInfoKHR& VulkanMesh::getASBuildRangeInfo() const
+{
+    return accelerationStructureBuildRangeInfo;
+}
+
 
 
 VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram)
