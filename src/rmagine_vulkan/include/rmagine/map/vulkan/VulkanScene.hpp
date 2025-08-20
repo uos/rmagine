@@ -50,6 +50,10 @@ private:
 
     //only used for top level as
     Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> instances;
+    // std::map<uint64_t, Memory<Point, VULKAN_DEVICE_LOCAL>& > vertices_refs;
+    // std::map<uint64_t, Memory<Face, VULKAN_DEVICE_LOCAL>& > faces_refs;
+    // std::map<uint64_t, Memory<Vector, VULKAN_DEVICE_LOCAL>& > face_normals_refs;
+    // std::map<uint64_t, Memory<Vector, VULKAN_DEVICE_LOCAL>& > vertex_normals_refs;
 
 public:
     //TODO: TEMP; FIX LATER

@@ -142,7 +142,6 @@ void VulkanScene::commit()
     std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
 
-    
     if(m_type == VulkanSceneType::INSTANCES)
     {
         // create top level AS
@@ -186,10 +185,11 @@ void VulkanScene::commit()
         accelerationStructureBuildRangeInfos.push_back(accelerationStructureBuildRangeInfo);
 
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+
+        //TODO: alle vertex/index/normal buffer aufsammeln, damit simulator diese für descriptorset abfragen kann
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
-
         // create bottom level AS
         m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
 
@@ -229,10 +229,6 @@ void VulkanScene::commit()
 
         m_depth = 1;
     }
-
-    //TODO: alle vertex/index/normal buffer aufsammeln, damit simulator diese für descriptorset abfragen kann
-    // std::map<uint64_t, Memory<Point, VULKAN_DEVICE_LOCAL>& > vetexMemRefs;
-    // std::map<uint64_t, Memory<Face, VULKAN_DEVICE_LOCAL>& > indexMemRefs;
 }
 
 VulkanInstPtr VulkanScene::instantiate()
