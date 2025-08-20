@@ -10,31 +10,6 @@ VulkanMesh::VulkanMesh() : Base(),
     transformMatrix_ram[0] = {{{1.0, 0.0, 0.0, 0.0},
                                {0.0, 1.0, 0.0, 0.0},
                                {0.0, 0.0, 1.0, 0.0}}};
-
-
-    accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-    accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-    accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-    accelerationStructureGeometry.geometry = {};
-
-    accelerationStructureGeometry.geometry.triangles = {};
-    accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-    accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-    accelerationStructureGeometry.geometry.triangles.vertexData = {};
-    accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = 0; // deviceAddess not yet known
-    accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(float) * 3;
-    accelerationStructureGeometry.geometry.triangles.maxVertex = 0; // count not yet known
-    accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
-    accelerationStructureGeometry.geometry.triangles.indexData = {};
-    accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = 0; // deviceAddess not yet known
-    accelerationStructureGeometry.geometry.triangles.transformData = {};
-    accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = 0; // deviceAddess not yet known
-
-
-    accelerationStructureBuildRangeInfo.firstVertex = 0;
-    accelerationStructureBuildRangeInfo.primitiveOffset = 0;
-    accelerationStructureBuildRangeInfo.primitiveCount = 0; // count not yet known
-    accelerationStructureBuildRangeInfo.transformOffset = 0;
 }
 
 VulkanMesh::~VulkanMesh()
@@ -54,13 +29,6 @@ void VulkanMesh::apply()
 void VulkanMesh::commit()
 {
     transformMatrix = transformMatrix_ram;
-
-    accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = vertices.getBuffer()->getBufferDeviceAddress();
-    accelerationStructureGeometry.geometry.triangles.maxVertex = vertices.size();
-    accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = faces.getBuffer()->getBufferDeviceAddress();
-    accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = transformMatrix.getBuffer()->getBufferDeviceAddress();
-
-    accelerationStructureBuildRangeInfo.primitiveCount = faces.size();
 }
 
 unsigned int VulkanMesh::depth() const
@@ -76,16 +44,6 @@ void VulkanMesh::computeFaceNormals()
     //     face_normals.resize(faces.size());
     // }
     // rmagine::computeFaceNormals(vertices, faces, face_normals);
-}
-
-const VkAccelerationStructureGeometryKHR& VulkanMesh::getASGeometry() const
-{
-    return accelerationStructureGeometry;
-}
-
-const VkAccelerationStructureBuildRangeInfoKHR& VulkanMesh::getASBuildRangeInfo() const
-{
-    return accelerationStructureBuildRangeInfo;
 }
 
 
@@ -104,15 +62,16 @@ VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RA
     ret->faces = faces_ram;
 
     // ret->computeFaceNormals();
-    // Memory<Vector, RAM> face_normals_ram(num_faces);
-    // for(size_t i=0; i<num_faces; i++)
-    // {
-    //     const Vector v0 = vertices_ram[faces_ram[i].v0];
-    //     const Vector v1 = vertices_ram[faces_ram[i].v1];
-    //     const Vector v2 = vertices_ram[faces_ram[i].v2];
-    //     face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
-    // }
-    // ret->face_normals = face_normals_ram;
+    Memory<Vector, RAM> face_normals_ram(num_faces);
+    for(size_t i=0; i<num_faces; i++)
+    {
+        const Vector v0 = vertices_ram[faces_ram[i].v0];
+        const Vector v1 = vertices_ram[faces_ram[i].v1];
+        const Vector v2 = vertices_ram[faces_ram[i].v2];
+        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
+    }
+    ret->face_normals.resize(num_faces);
+    ret->face_normals = face_normals_ram;
 
     ret->apply();
 
@@ -160,6 +119,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
         const Vector v2 = vertices_cpu[faces_cpu[i].v2];
         face_normals_cpu[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
     }
+    ret->face_normals.resize(num_faces);
     ret->face_normals = face_normals_cpu;
 
     if(amesh->HasNormals())
@@ -172,6 +132,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
             vertex_normals_cpu[i] = convert(amesh->mNormals[i]);
         }
         // upload
+        ret->vertex_normals.resize(num_vertices);
         ret->vertex_normals = vertex_normals_cpu;
     }
 

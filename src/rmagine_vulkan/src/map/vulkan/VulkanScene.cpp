@@ -156,9 +156,11 @@ void VulkanScene::commit()
         unsigned int depth_ = 0;
         for(auto const& geometry : m_geometries)
         {
-            instances_ram[i] = *(geometry.second->this_shared<VulkanInst>()->data());
+            VulkanInstPtr inst = geometry.second->this_shared<VulkanInst>();
 
-            depth_ = std::max(depth_, geometry.second->this_shared<VulkanInst>()->scene()->depth() + 1);
+            instances_ram[i] = *(inst->data());
+
+            depth_ = std::max(depth_, inst->scene()->depth() + 1);
             
             i++;
         }
@@ -187,15 +189,42 @@ void VulkanScene::commit()
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
+
         // create bottom level AS
         m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
 
         // get all the meshes and add the to the bottom level AS
         for(auto const& geometry : m_geometries)
         {
-            accelerationStructureGeometrys.push_back(geometry.second->this_shared<VulkanMesh>()->getASGeometry());
-            accelerationStructureBuildRangeInfos.push_back(geometry.second->this_shared<VulkanMesh>()->getASBuildRangeInfo());
+            VulkanMeshPtr mesh = geometry.second->this_shared<VulkanMesh>();
+
+            VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
+            accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+            accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+            accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+            accelerationStructureGeometry.geometry = {};
+            accelerationStructureGeometry.geometry.triangles = {};
+            accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+            accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+            accelerationStructureGeometry.geometry.triangles.vertexData = {};
+            accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = mesh->vertices.getBuffer()->getBufferDeviceAddress();
+            accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(float) * 3;
+            accelerationStructureGeometry.geometry.triangles.maxVertex = mesh->vertices.size();
+            accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
+            accelerationStructureGeometry.geometry.triangles.indexData = {};
+            accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = mesh->faces.getBuffer()->getBufferDeviceAddress();
+            accelerationStructureGeometry.geometry.triangles.transformData = {};
+            accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = mesh->transformMatrix.getBuffer()->getBufferDeviceAddress();
+            accelerationStructureGeometrys.push_back(accelerationStructureGeometry);
+
+            VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
+            accelerationStructureBuildRangeInfo.firstVertex = 0;
+            accelerationStructureBuildRangeInfo.primitiveOffset = 0;
+            accelerationStructureBuildRangeInfo.primitiveCount = mesh->faces.size();
+            accelerationStructureBuildRangeInfo.transformOffset = 0;
+            accelerationStructureBuildRangeInfos.push_back(accelerationStructureBuildRangeInfo);
         }
+
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
 
         m_depth = 1;
