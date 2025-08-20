@@ -6,25 +6,62 @@
 namespace rmagine
 {
 
-AccelerationStructure::AccelerationStructure() : 
+AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType) : 
+    accelerationStructureType(accelerationStructureType),
     device(get_vulkan_context()->getDevice()), 
     extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
 {
 
 }
 
-AccelerationStructure::AccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) : 
+AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
+    accelerationStructureType(accelerationStructureType), 
     device(device), 
     extensionFunctionsPtr(extensionFunctionsPtr)
 {
     
 }
 
+AccelerationStructure::~AccelerationStructure()
+{
+    cleanup();
+}
 
-void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(std::vector<uint32_t> maxPrimitiveCountList, 
+void AccelerationStructure::createAccelerationStructure(
+    std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos)
+{
+    VkAccelerationStructureBuildGeometryInfoKHR accelerationStructureBuildGeometryInfo{};
+    accelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+    accelerationStructureBuildGeometryInfo.type = accelerationStructureType;
+    accelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+    accelerationStructureBuildGeometryInfo.geometryCount = accelerationStructureGeometrys.size();
+    accelerationStructureBuildGeometryInfo.pGeometries = accelerationStructureGeometrys.data();
+    accelerationStructureBuildGeometryInfo.scratchData = {};
+    accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = 0;
+
+    VkAccelerationStructureBuildSizesInfoKHR accelerationStructureBuildSizesInfo{};
+    accelerationStructureBuildSizesInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+    accelerationStructureBuildSizesInfo.accelerationStructureSize = 0;
+    accelerationStructureBuildSizesInfo.updateScratchSize = 0;
+    accelerationStructureBuildSizesInfo.buildScratchSize = 0;
+
+    std::vector<uint32_t> maxPrimitiveCountList;
+    for(size_t i = 0; i < accelerationStructureBuildRangeInfos.size(); i++)
+    {
+        maxPrimitiveCountList.push_back(accelerationStructureBuildRangeInfos[i].primitiveCount);
+    }
+
+    createAccelerationStructureBufferAndDeviceMemory(maxPrimitiveCountList, accelerationStructureBuildGeometryInfo, accelerationStructureBuildSizesInfo);
+
+    buildAccelerationStructure(accelerationStructureBuildRangeInfos, accelerationStructureBuildGeometryInfo, accelerationStructureBuildSizesInfo);
+}
+
+
+void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(
+    std::vector<uint32_t>& maxPrimitiveCountList, 
     VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-    VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo, 
-    VkAccelerationStructureTypeKHR accelerationStructureType)
+    VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo)
 {
     if(accelerationStructureBuffer != nullptr)
     {
@@ -64,7 +101,9 @@ void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(std
         extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
 }
 
-void AccelerationStructure::buildAccelerationStructure(std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
+
+void AccelerationStructure::buildAccelerationStructure(
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
     VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
     VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo)
 {
@@ -81,26 +120,24 @@ void AccelerationStructure::buildAccelerationStructure(std::vector<VkAcceleratio
     accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchBuffer->getBufferDeviceAddress();
 
-    // VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
-    // accelerationStructureBuildRangeInfo.primitiveCount = primitiveCount;
-
-    // const VkAccelerationStructureBuildRangeInfoKHR* accelerationStructureBuildRangeInfos = &accelerationStructureBuildRangeInfo;
-
     get_vulkan_context()->getDefaultCommandBuffer()->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
     get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 
     std::cout << "acceleration structure has been build" << std::endl;
 }
 
+
 VkDeviceAddress AccelerationStructure::getDeviceAddress()
 {
     return accelerationStructureDeviceAddress;
 }
 
+
 VkAccelerationStructureKHR* AccelerationStructure::getAcceleratiionStructurePtr()
 {
     return &accelerationStructure;
 }
+
 
 void AccelerationStructure::cleanup()
 {
@@ -116,4 +153,22 @@ void AccelerationStructure::cleanup()
     }
 }
 
+
+size_t AccelerationStructure::getID()
+{
+    return asID;
+}
+
+
+
+size_t AccelerationStructure::asIDcounter = 0;
+
+size_t AccelerationStructure::getNewAsID()
+{
+    if(asIDcounter == SIZE_MAX)
+    {
+        throw std::runtime_error("You created way too many top level acceleration structures!"); 
+    }
+    return ++asIDcounter;
+}
 } // namespace rmagine

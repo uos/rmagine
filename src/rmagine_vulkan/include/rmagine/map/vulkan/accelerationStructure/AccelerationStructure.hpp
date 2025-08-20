@@ -19,49 +19,60 @@ namespace rmagine
 
 class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
-protected:
+private:
+    VkAccelerationStructureTypeKHR accelerationStructureType = VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
+
     DevicePtr device = nullptr;
     ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
 
     VkAccelerationStructureKHR accelerationStructure = VK_NULL_HANDLE;
-    VkDeviceAddress accelerationStructureDeviceAddress = uint64_t(~0);
+    VkDeviceAddress accelerationStructureDeviceAddress = 0;
     // for acceleration structure
     BufferPtr accelerationStructureBuffer = nullptr;
     DeviceMemoryPtr accelerationStructureDeviceMemory = nullptr;
     // for building acceleration structure
     BufferPtr accelerationStructureScratchBuffer = nullptr;
     DeviceMemoryPtr accelerationStructureScratchDeviceMemory = nullptr;
+
+    size_t asID = 0;
     
 public:
-    AccelerationStructure();
+    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
     
-    AccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
+    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
-    virtual ~AccelerationStructure() {}
+    virtual ~AccelerationStructure();
 
     AccelerationStructure(const AccelerationStructure&) = delete;
     
+
+    void createAccelerationStructure(
+        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
 
     VkDeviceAddress getDeviceAddress();
 
     VkAccelerationStructureKHR* getAcceleratiionStructurePtr();
 
-    void cleanup();
+    size_t getID();
 
-    template<typename T>
-    inline std::shared_ptr<T> this_shared()
-    {
-        return std::dynamic_pointer_cast<T>(shared_from_this());
-    }
-
-protected:
-    void createAccelerationStructureBufferAndDeviceMemory(std::vector<uint32_t> maxPrimitiveCountList, 
-        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo, VkAccelerationStructureTypeKHR accelerationStructureType);
-
-    void buildAccelerationStructure(std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
+private:
+    void createAccelerationStructureBufferAndDeviceMemory(
+        std::vector<uint32_t>& maxPrimitiveCountList, 
         VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
         VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
+
+    void buildAccelerationStructure(
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
+        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
+        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
+
+    void cleanup();
+
+private:
+    static size_t asIDcounter;
+
+    static size_t getNewAsID();
 };
 
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;

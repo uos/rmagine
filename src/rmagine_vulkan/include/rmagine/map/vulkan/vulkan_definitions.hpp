@@ -32,8 +32,6 @@ class VulkanInst;
 class VulkanMesh;
 class VulkanScene;
 class AccelerationStructure;
-class BottomLevelAccelerationStructure;
-class TopLevelAccelerationStructure;
 
 
 
@@ -43,8 +41,6 @@ using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;
 using VulkanInstPtr = std::shared_ptr<VulkanInst>;
 using VulkanScenePtr = std::shared_ptr<VulkanScene>;
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
-using BottomLevelAccelerationStructurePtr = std::shared_ptr<BottomLevelAccelerationStructure>;
-using TopLevelAccelerationStructurePtr = std::shared_ptr<TopLevelAccelerationStructure>;
 
 using VulkanEntityWPtr = std::weak_ptr<VulkanEntity>;
 using VulkanTransformableWPtr = std::weak_ptr<VulkanTransformable>;
@@ -52,8 +48,6 @@ using VulkanGeometryWPtr = std::weak_ptr<VulkanGeometry>;
 using VulkanInstWPtr = std::weak_ptr<VulkanInst>;
 using VulkanSceneWPtr = std::weak_ptr<VulkanScene>;
 using AccelerationStructureWPtr = std::weak_ptr<AccelerationStructure>;
-using BottomLevelAccelerationStructureWPtr = std::weak_ptr<BottomLevelAccelerationStructure>;
-using TopLevelAccelerationStructureWPtr = std::weak_ptr<TopLevelAccelerationStructure>;
 
 } // namespace rmagine
 

@@ -34,7 +34,7 @@ VulkanInst::VulkanInst() : Base(),
 
     accelerationStructureBuildRangeInfo.firstVertex = 0;
     accelerationStructureBuildRangeInfo.primitiveOffset = 0;
-    accelerationStructureBuildRangeInfo.primitiveCount = 0;
+    accelerationStructureBuildRangeInfo.primitiveCount = 0; // count not yet known
     accelerationStructureBuildRangeInfo.transformOffset = 0;
 }
 
@@ -53,8 +53,6 @@ void VulkanInst::set(VulkanScenePtr scene)
     m_scene = scene;
     scene->addParent(this_shared<VulkanInst>());
     instance_ram[0].accelerationStructureReference = m_scene->as()->getDeviceAddress();
-
-    accelerationStructureBuildRangeInfo.primitiveCount = scene->numOfChildNodes();
 }
 
 VulkanScenePtr VulkanInst::scene() const
@@ -76,6 +74,8 @@ void VulkanInst::commit()
     if(m_scene)
     {
         instance = instance_ram;
+
+        accelerationStructureBuildRangeInfo.primitiveCount = m_scene->numOfChildNodes();
     }
 }
 
@@ -84,7 +84,9 @@ unsigned int VulkanInst::depth() const
     if(m_scene)
     {
         return m_scene->depth();
-    } else {
+    }
+    else
+    {
         return 0;
     }
 }

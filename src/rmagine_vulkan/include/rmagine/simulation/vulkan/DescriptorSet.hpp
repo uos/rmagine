@@ -19,8 +19,8 @@ namespace rmagine
 {
 
 //forward declaration
-class TopLevelAccelerationStructure;
-using TopLevelAccelerationStructurePtr = std::shared_ptr<TopLevelAccelerationStructure>;
+class AccelerationStructure;
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
 
 
@@ -46,7 +46,7 @@ public:
     void updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexBuffer, 
                              BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
                              BufferPtr tsbBuffer, BufferPtr tbmBuffer, 
-                             TopLevelAccelerationStructurePtr topLevelAccelerationStructure);
+                             AccelerationStructurePtr accelerationStructure);
 
     VkDescriptorSet* getDescriptorSetPtr();
 

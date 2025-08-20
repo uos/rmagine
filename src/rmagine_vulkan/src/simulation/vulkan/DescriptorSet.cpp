@@ -1,5 +1,5 @@
 #include "rmagine/simulation/vulkan/DescriptorSet.hpp"
-#include "rmagine/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.hpp"
+#include "rmagine/map/vulkan/accelerationStructure/AccelerationStructure.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 
 
@@ -37,12 +37,12 @@ void DescriptorSet::allocateDescriptorSet()
 void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexBuffer, 
                                         BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
                                         BufferPtr tsbBuffer, BufferPtr tbmBuffer, 
-                                        TopLevelAccelerationStructurePtr topLevelAccelerationStructure)
+                                        AccelerationStructurePtr accelerationStructure)
 {
     VkWriteDescriptorSetAccelerationStructureKHR accelerationStructureDescriptorInfo{};
     accelerationStructureDescriptorInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
     accelerationStructureDescriptorInfo.accelerationStructureCount = 1;
-    accelerationStructureDescriptorInfo.pAccelerationStructures = topLevelAccelerationStructure->getAcceleratiionStructurePtr();
+    accelerationStructureDescriptorInfo.pAccelerationStructures = accelerationStructure->getAcceleratiionStructurePtr();
 
     VkDescriptorBufferInfo sensorDescriptorInfo{};
     sensorDescriptorInfo.buffer = sensorBuffer->getBuffer();

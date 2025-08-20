@@ -11,8 +11,7 @@ VulkanScene::VulkanScene() : VulkanEntity()
 
 VulkanScene::~VulkanScene()
 {
-    std::cout << "destroying VulkanScene" << std::endl;
-    cleanup();
+    
 }
 
 
@@ -153,15 +152,15 @@ void VulkanScene::commit()
     {
         // create top level AS
         // get all the instances and add the to the top level AS
-        m_as = std::make_shared<TopLevelAccelerationStructure>();
-        m_as->this_shared<TopLevelAccelerationStructure>()->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // create bottom level AS
         // get all the meshes and add the to the bottom level AS
-        m_as = std::make_shared<BottomLevelAccelerationStructure>();
-        m_as->this_shared<BottomLevelAccelerationStructure>()->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
+        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
 
     //TODO: alle vertex/index/normal buffer aufsammeln, damit simulator diese für descriptorset abfragen kann
@@ -207,17 +206,6 @@ std::unordered_set<VulkanInstPtr> VulkanScene::parents() const
 void VulkanScene::addParent(VulkanInstPtr parent)
 {
     m_parents.insert(parent);
-}
-
-
-void VulkanScene::cleanup()
-{
-    std::cout << "cleaning up..." << std::endl;
-
-    m_as->cleanup();
-    std::cout << "cleaned up acceleration structure." << std::endl;
-
-    std::cout << "done." << std::endl;
 }
 
 

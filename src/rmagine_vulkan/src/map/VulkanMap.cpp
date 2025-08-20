@@ -6,15 +6,18 @@ namespace rmagine
 {
 
 VulkanMap::VulkanMap() : VulkanEntity()
-{}
+{
+
+}
 
 VulkanMap::VulkanMap(VulkanScenePtr scene) : VulkanEntity(), m_scene(scene)
-{}
+{
+
+}
 
 VulkanMap::~VulkanMap()
 {
-    std::cout << "destroying VulkanMap" << std::endl;
-    cleanup();
+    
 }
 
 
@@ -27,17 +30,6 @@ void VulkanMap::setScene(VulkanScenePtr scene)
 VulkanScenePtr VulkanMap::scene() const
 {
     return m_scene;
-}
-
-
-void VulkanMap::cleanup()
-{
-    std::cout << "cleaning up..." << std::endl;
-
-    m_scene->cleanup();
-    std::cout << "cleaned up scene." << std::endl;
-
-    std::cout << "done." << std::endl;
 }
 
 

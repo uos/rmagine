@@ -36,9 +36,6 @@ public:
     void setScene(VulkanScenePtr scene);
 
     VulkanScenePtr scene() const;
-
-private:
-    void cleanup();
 };
 
 using VulkanMapPtr = std::shared_ptr<VulkanMap>;

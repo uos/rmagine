@@ -76,7 +76,7 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
        previousBuffers.resultsID != resultsMem.getID() ||
        previousBuffers.tsbID     != tsbMem.getID()     ||*/
        previousBuffers.tbmID     != tbmMem.getID()     ||
-       previousBuffers.tlasID    != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->getID())
+       previousBuffers.asID    != map->scene()->as()->getID())
     {
         //update used buffers
         previousBuffers.vertexID  = map->scene()->vertexptr->getID();
@@ -85,9 +85,9 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
         previousBuffers.resultsID = resultsMem.getID();
         previousBuffers.tsbID     = tsbMem.getID();
         previousBuffers.tbmID     = tbmMem.getID();
-        previousBuffers.tlasID    = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->getID();
+        previousBuffers.asID    = map->scene()->as()->getID();
 
-        descriptorSet->updateDescriptorSet(map->scene()->vertexptr->getBuffer(), map->scene()->indexptr->getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->as()->this_shared<TopLevelAccelerationStructure>());
+        descriptorSet->updateDescriptorSet(map->scene()->vertexptr->getBuffer(), map->scene()->indexptr->getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->as());
         std::cout << "updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
@@ -121,7 +121,7 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::resetBufferHistory()
     previousBuffers.resultsID = 0;
     previousBuffers.tsbID = 0;
     previousBuffers.tbmID = 0;
-    previousBuffers.tlasID = 0;
+    previousBuffers.asID = 0;
 }
 
 

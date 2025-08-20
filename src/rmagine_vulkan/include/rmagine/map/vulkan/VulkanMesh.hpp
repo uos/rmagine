@@ -17,7 +17,6 @@
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 #include "vulkan_definitions.hpp"
-#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
 #include "VulkanGeometry.hpp"
 
 

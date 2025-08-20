@@ -37,8 +37,6 @@ set(RMAGINE_VULKAN_SRCS
     src/map/vulkan/VulkanTransformable.cpp
     #   Acceleration structure
     src/map/vulkan/accelerationStructure/AccelerationStructure.cpp
-    src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
-    src/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.cpp
 
     # Simulators
     src/simulation/SphereSimulatorVulkan.cpp

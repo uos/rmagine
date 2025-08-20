@@ -49,7 +49,7 @@ protected:
         size_t resultsID = 0;
         size_t tsbID = 0;
         size_t tbmID = 0;
-        size_t tlasID = 0;
+        size_t asID = 0;
     }previousBuffers;
 
     ShaderDefineFlags previousShaderDefines = 0;

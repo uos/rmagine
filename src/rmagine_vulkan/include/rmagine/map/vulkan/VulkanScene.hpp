@@ -15,8 +15,7 @@
 #include <rmagine/util/VulkanContext.hpp>
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/util/IDGen.hpp>
-#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
-#include "accelerationStructure/TopLevelAccelerationStructure.hpp"
+#include "accelerationStructure/AccelerationStructure.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
 #include "VulkanGeometry.hpp"
@@ -117,8 +116,6 @@ public:
     {
         return m_geometries.size();
     }
-
-    void cleanup();
 };
 
 using VulkanScenePtr = std::shared_ptr<VulkanScene>;
