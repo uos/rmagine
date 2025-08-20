@@ -45,9 +45,9 @@ VulkanMesh::~VulkanMesh()
 void VulkanMesh::apply()
 {
     Matrix4x4 M = matrix();
-    transformMatrix_ram[0] = {{{M(0,0), M(0,1), M(0,3), M(0,3)},
-                               {M(1,0), M(1,1), M(1,3), M(1,3)},
-                               {M(2,0), M(2,1), M(2,3), M(2,3)}}};
+    transformMatrix_ram[0] = {{{M(0,0), M(0,1), M(0,2), M(0,3)},
+                               {M(1,0), M(1,1), M(1,2), M(1,3)},
+                               {M(2,0), M(2,1), M(2,2), M(2,3)}}};
     m_changed = true;
 }
 
