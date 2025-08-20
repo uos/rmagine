@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.h>
 
 #include <rmagine/math/types.h>
+#include <rmagine/types/MemoryVulkan.hpp>
 #include "vulkan_definitions.hpp"
 #include "VulkanGeometry.hpp"
 

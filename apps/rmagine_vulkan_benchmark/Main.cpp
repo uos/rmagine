@@ -19,20 +19,20 @@ int main()
     std::cout << "Main start." << std::endl;
 
     //mapdata
-    Memory<float, RAM> vertexMem_ram(9);
-    Memory<uint32_t, RAM> indexMem_ram(3);
+    Memory<Point, RAM> vertexMem_ram(3);
+    Memory<Face, RAM> indexMem_ram(1);
     //Vertecies
-    // vertexMem_ram[ 0] =  20.0f; vertexMem_ram[ 1] = -10.0f; vertexMem_ram[ 2] = -10.0f;
-    // vertexMem_ram[ 3] =  20.0f; vertexMem_ram[ 4] =  10.0f; vertexMem_ram[ 5] = -10.0f;
-    // vertexMem_ram[ 6] =  20.0f; vertexMem_ram[ 7] =   0.0f; vertexMem_ram[ 8] =  10.0f;
-    vertexMem_ram[ 0] =  0.0f; vertexMem_ram[ 1] =  0.0f; vertexMem_ram[ 2] =  0.0f;
-    vertexMem_ram[ 3] =  1.0f; vertexMem_ram[ 4] =  0.0f; vertexMem_ram[ 5] =  0.0f;
-    vertexMem_ram[ 6] =  0.0f; vertexMem_ram[ 7] =  1.0f; vertexMem_ram[ 8] =  0.0f;
+    // vertexMem_ram[0] = {20.0f, -10.0f, -10.0f};
+    // vertexMem_ram[1] = {20.0f,  10.0f, -10.0f};
+    // vertexMem_ram[2] = {20.0f,   0.0f,  10.0f};
+    vertexMem_ram[0] = {0.0f, 0.0f, 0.0f};
+    vertexMem_ram[1] = {1.0f, 0.0f, 0.0f};
+    vertexMem_ram[2] = {0.0f, 1.0f, 0.0f};
     //Indicies
-    indexMem_ram[ 0] = 0; indexMem_ram[ 1] = 1; indexMem_ram[ 2] = 2;
+    indexMem_ram[0] = {0, 1, 2};
     //logging
-    uint32_t numVerticies = vertexMem_ram.size()/3;
-    uint32_t numTriangles = indexMem_ram.size()/3;
+    uint32_t numVerticies = vertexMem_ram.size();
+    uint32_t numTriangles = indexMem_ram.size();
     std::cout << "Using Mesh with " << numVerticies << " Verticies & " << numTriangles << " Triangles." << std::endl;
 
 

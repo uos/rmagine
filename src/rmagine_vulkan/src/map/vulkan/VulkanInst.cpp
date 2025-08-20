@@ -45,11 +45,16 @@ VulkanInst::~VulkanInst()
 
 void VulkanInst::set(VulkanScenePtr scene)
 {
+    if(scene->type() != VulkanSceneType::GEOMETRIES)
+    {
+        throw std::runtime_error("can only instanciate a scene containing meshes, not one containing other instances.");
+    }
+
     m_scene = scene;
     scene->addParent(this_shared<VulkanInst>());
     instance_ram[0].accelerationStructureReference = m_scene->as()->getDeviceAddress();
 
-    accelerationStructureBuildRangeInfo.primitiveCount = 1; // TODO: number of meshes in parent scene
+    accelerationStructureBuildRangeInfo.primitiveCount = scene->numOfChildNodes();
 }
 
 VulkanScenePtr VulkanInst::scene() const

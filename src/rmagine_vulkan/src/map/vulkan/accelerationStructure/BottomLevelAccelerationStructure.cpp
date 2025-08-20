@@ -32,7 +32,7 @@ void BottomLevelAccelerationStructure::createAccelerationStructure(std::vector<V
     accelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     accelerationStructureBuildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
     accelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-    accelerationStructureBuildGeometryInfo.geometryCount = accelerationStructureGeometrys.size();//TODO: only works for 1 right now
+    accelerationStructureBuildGeometryInfo.geometryCount = accelerationStructureGeometrys.size();
     accelerationStructureBuildGeometryInfo.pGeometries = accelerationStructureGeometrys.data();
     accelerationStructureBuildGeometryInfo.scratchData = {};
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = 0;

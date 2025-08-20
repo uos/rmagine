@@ -8,10 +8,17 @@ namespace rmagine
 
 AccelerationStructure::AccelerationStructure() : 
     device(get_vulkan_context()->getDevice()), 
-    extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()) {}
+    extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
+{
+
+}
 
 AccelerationStructure::AccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) : 
-    device(device), extensionFunctionsPtr(extensionFunctionsPtr) {}
+    device(device), 
+    extensionFunctionsPtr(extensionFunctionsPtr)
+{
+    
+}
 
 
 void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(std::vector<uint32_t> maxPrimitiveCountList, 

@@ -1,5 +1,4 @@
 #include "rmagine/map/vulkan/VulkanScene.hpp"
-#include "VulkanScene.hpp"
 
 
 
@@ -146,8 +145,8 @@ void VulkanScene::commit()
 
     for (auto const& geometry : m_geometries)
     {
-        accelerationStructureGeometrys.push_back(geometry->getASGeometry());
-        accelerationStructureBuildRangeInfos.push_back(geometry->getASBuildRangeInfo());
+        accelerationStructureGeometrys.push_back(geometry.second->getASGeometry());
+        accelerationStructureBuildRangeInfos.push_back(geometry.second->getASBuildRangeInfo());
     }
     
     if(m_type == VulkanSceneType::INSTANCES)
@@ -155,15 +154,19 @@ void VulkanScene::commit()
         // create top level AS
         // get all the instances and add the to the top level AS
         m_as = std::make_shared<TopLevelAccelerationStructure>();
-        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+        m_as->this_shared<TopLevelAccelerationStructure>()->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // create bottom level AS
         // get all the meshes and add the to the bottom level AS
         m_as = std::make_shared<BottomLevelAccelerationStructure>();
-        m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+        m_as->this_shared<BottomLevelAccelerationStructure>()->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
     }
+
+    //TODO: alle vertex/index/normal buffer aufsammeln, damit simulator diese für descriptorset abfragen kann
+    // std::map<uint64_t, Memory<Point, VULKAN_DEVICE_LOCAL>& > vetexMemRefs;
+    // std::map<uint64_t, Memory<Face, VULKAN_DEVICE_LOCAL>& > indexMemRefs;
 }
 
 VulkanInstPtr VulkanScene::instantiate()
@@ -226,7 +229,14 @@ VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, 
     VulkanMeshPtr mesh = make_vulkan_mesh(vertices_ram, faces_ram);
     mesh->commit();
 
-    //TODO: create one instance of the mesh
+    //TODO: TEMP; FIX LATER
+    scene->vertexptr = &(mesh->vertices);
+    scene->indexptr = &(mesh->faces);
+
+    VulkanInstPtr geom_inst = mesh->instantiate();
+    geom_inst->apply();
+    geom_inst->commit();
+    scene->add(geom_inst);
 
     return scene;
 }
@@ -316,18 +326,10 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
     //     if(instanciated_meshes.find(mesh) == instanciated_meshes.end())
     //     {
     //         // mesh was never instanciated. add to scene
-    //         if(scene->type() != VulkanSceneType::INSTANCES)
-    //         {
-    //             scene->add(mesh);
-    //         }
-    //         else
-    //         {
-    //             // mesh->instantiate();
-    //             VulkanInstPtr geom_inst = mesh->instantiate();
-    //             geom_inst->apply();
-    //             geom_inst->commit();
-    //             scene->add(geom_inst);
-    //         }
+    //         VulkanInstPtr geom_inst = mesh->instantiate();
+    //         geom_inst->apply();
+    //         geom_inst->commit();
+    //         scene->add(geom_inst);
     //     }
     // }
 

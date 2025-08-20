@@ -31,7 +31,7 @@ namespace rmagine
 class VulkanScene : public VulkanEntity
 {
 private:
-    AccelerationStructurePtr m_as = nullptr; // TODO: at some point create a top/bottom level as here depending on the type geometrys/instances
+    AccelerationStructurePtr m_as = nullptr;
 
     VulkanSceneType m_type = VulkanSceneType::NONE;
     VulkanGeometryType m_geom_type = VulkanGeometryType::MESH;
@@ -51,6 +51,10 @@ private:
     unsigned int m_depth = 0;
 
 public:
+    //TODO: TEMP; FIX LATER
+    Memory<Point, VULKAN_DEVICE_LOCAL>* vertexptr = nullptr;
+    Memory<Face, VULKAN_DEVICE_LOCAL>* indexptr = nullptr;
+
     VulkanScene();
 
     virtual ~VulkanScene();
@@ -107,6 +111,11 @@ public:
     inline unsigned int depth() const 
     {
         return m_depth;
+    }
+
+    size_t numOfChildNodes() const
+    {
+        return m_geometries.size();
     }
 
     void cleanup();

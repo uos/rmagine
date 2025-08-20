@@ -70,24 +70,24 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if(previousBuffers.vertexID  != map->scene()->getVertexMem().getID() ||
-       previousBuffers.indexID   != map->scene()->getIndexMem().getID()  ||/*
+    if(previousBuffers.vertexID  != map->scene()->vertexptr->getID() ||
+       previousBuffers.indexID   != map->scene()->indexptr->getID()  ||/*
        previousBuffers.sensorID  != sensorMem.getID()  ||
        previousBuffers.resultsID != resultsMem.getID() ||
        previousBuffers.tsbID     != tsbMem.getID()     ||*/
        previousBuffers.tbmID     != tbmMem.getID()     ||
-       previousBuffers.tlasID    != map->scene()->getTopLevelAccelerationStructure()->getID())
+       previousBuffers.tlasID    != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->getID())
     {
         //update used buffers
-        previousBuffers.vertexID  = map->scene()->getVertexMem().getID();
-        previousBuffers.indexID   = map->scene()->getIndexMem().getID();
+        previousBuffers.vertexID  = map->scene()->vertexptr->getID();
+        previousBuffers.indexID   = map->scene()->indexptr->getID();
         previousBuffers.sensorID  = sensorMem.getID();
         previousBuffers.resultsID = resultsMem.getID();
         previousBuffers.tsbID     = tsbMem.getID();
         previousBuffers.tbmID     = tbmMem.getID();
-        previousBuffers.tlasID    = map->scene()->getTopLevelAccelerationStructure()->getID();
+        previousBuffers.tlasID    = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->getID();
 
-        descriptorSet->updateDescriptorSet(map->scene()->getVertexMem().getBuffer(), map->scene()->getIndexMem().getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->getTopLevelAccelerationStructure());
+        descriptorSet->updateDescriptorSet(map->scene()->vertexptr->getBuffer(), map->scene()->indexptr->getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->as()->this_shared<TopLevelAccelerationStructure>());
         std::cout << "updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
