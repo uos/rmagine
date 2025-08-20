@@ -26,9 +26,10 @@ VulkanInst::~VulkanInst()
 
 void VulkanInst::set(VulkanScenePtr scene)
 {
+    //TODO: pretty sure this does not work
     if(scene->type() != VulkanSceneType::GEOMETRIES)
     {
-        throw std::runtime_error("can only instanciate a scene containing meshes, not one containing other instances.");
+        throw std::runtime_error("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
     }
 
     m_scene = scene;

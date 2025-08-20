@@ -38,7 +38,7 @@ unsigned int VulkanMesh::depth() const
 
 void VulkanMesh::computeFaceNormals()
 {
-    throw std::runtime_error("VulkanMesh::computeFaceNormals() currently does not work, as data is already on the gpu and there is currently no function rmagine::computeFaceNormals() for VULKAN_DEVICE_LOCAL memory. please fill face_normals manually.");
+    throw std::runtime_error("[VulkanMesh::computeFaceNormals()] ERROR - currently does not work, as data is already on the gpu and there is currently no function rmagine::computeFaceNormals() for VULKAN_DEVICE_LOCAL memory. please fill face_normals manually.");
     // if(face_normals.size() != faces.size())
     // {
     //     face_normals.resize(faces.size());

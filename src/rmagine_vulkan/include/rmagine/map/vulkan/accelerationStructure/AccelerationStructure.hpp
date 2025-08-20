@@ -11,11 +11,20 @@
 
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
+#include "vulkan_definitions.hpp"
 
 
 
 namespace rmagine
 {
+
+enum AccelerationStructureType
+{
+    TOP_LEVEL,
+    BOTTOM_LEVEL
+};
+
+
 
 class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
@@ -73,6 +82,14 @@ private:
     static size_t asIDcounter;
 
     static size_t getNewAsID();
+
+    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanScenePtr scene);
+
+    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanMeshPtr mesh);
+
+    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanScenePtr scene);
+
+    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanMeshPtr mesh);
 };
 
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;

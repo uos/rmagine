@@ -23,7 +23,22 @@ VulkanMap::~VulkanMap()
 
 void VulkanMap::setScene(VulkanScenePtr scene)
 {
-    m_scene = scene;
+    if(scene->type() == VulkanSceneType::INSTANCES)
+    {
+        m_scene = scene;
+    }
+    else if(scene->type() == VulkanSceneType::GEOMETRIES)
+    {
+        throw std::runtime_error("[VulkanMap::setScene()] ERROR - Map needs a scene containing instances not one containing meshes.");
+        // TODO: maybe create topLevelScene from bottomLevelScene
+        // m_scene = std::make_shared<VulkanScene>();
+        // VulkanInstPtr inst = scene->instantiate();
+        // m_scene->add(inst);
+    }
+    else
+    {
+        throw std::runtime_error("[VulkanMap::setScene()] ERROR - This should never happen.");
+    }
 }
 
 

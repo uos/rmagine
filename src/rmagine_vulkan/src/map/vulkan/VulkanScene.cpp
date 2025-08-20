@@ -36,8 +36,9 @@ unsigned int VulkanScene::add(VulkanGeometryPtr geom)
 
         if(geom->type() != m_geom_type)
         {
-            std::cout << "[VulkanScene::add()] WARNING - used mixed types of geometries. NOT supported" << std::endl;
-            throw std::runtime_error("[VulkanScene::add()] WARNING - used mixed types of geometries. NOT supported");//just in case
+            // throw error instead, as the program would crash anyways when calling commit()
+            throw std::runtime_error("[VulkanScene::add()] ERROR - used mixed types of geometries. NOT supported");
+            // std::cout << "[VulkanScene::add()] WARNING - used mixed types of geometries. NOT supported" << std::endl;
         }
 
         // add geom to self
@@ -148,8 +149,8 @@ void VulkanScene::commit()
         m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
         // get all the instances and add the to the top level AS
-        Memory<VkAccelerationStructureInstanceKHR, RAM> instances_ram(numOfChildNodes());
-        instances.resize(numOfChildNodes(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR);
+        m_asInstances_ram.resize(numOfChildNodes());
+        m_asInstances.resize(numOfChildNodes(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR);
 
         size_t i = 0;
         unsigned int depth_ = 0;
@@ -157,13 +158,13 @@ void VulkanScene::commit()
         {
             VulkanInstPtr inst = geometry.second->this_shared<VulkanInst>();
 
-            instances_ram[i] = *(inst->data());
+            m_asInstances_ram[i] = *(inst->data());
 
             depth_ = std::max(depth_, inst->scene()->depth() + 1);
             
             i++;
         }
-        instances = instances_ram;
+        m_asInstances = m_asInstances_ram;
 
         VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
         accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
@@ -174,7 +175,7 @@ void VulkanScene::commit()
         accelerationStructureGeometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
         accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
         accelerationStructureGeometry.geometry.instances.data = {};
-        accelerationStructureGeometry.geometry.instances.data.deviceAddress = instances.getBuffer()->getBufferDeviceAddress();
+        accelerationStructureGeometry.geometry.instances.data.deviceAddress = m_asInstances.getBuffer()->getBufferDeviceAddress();
         accelerationStructureGeometrys.push_back(accelerationStructureGeometry);
 
         VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
@@ -233,6 +234,12 @@ void VulkanScene::commit()
 
 VulkanInstPtr VulkanScene::instantiate()
 {
+    //TODO: pretty sure this does not work
+    if(m_type != VulkanSceneType::GEOMETRIES)
+    {
+        throw std::runtime_error("[VulkanScene::instantiate()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.")
+    }
+
     VulkanInstPtr ret = std::make_shared<VulkanInst>();
     ret->set(this_shared<VulkanScene>());
     return ret;
@@ -245,7 +252,9 @@ void VulkanScene::cleanupParents()
         if (it->expired())
         {
             m_parents.erase(it++);    // or "it = m.erase(it)" since C++11
-        } else {
+        }
+        else
+        {
             ++it;
         }
     }
@@ -305,7 +314,6 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
 {
     VulkanScenePtr scene = std::make_shared<VulkanScene>();
 
-    //NOTE: meshes entsprechen den bottom level acceleration structures
     // 1. meshes
     std::map<unsigned int, VulkanMeshPtr> meshes;
     std::cout << "[make_vulkan_scene()] Loading Meshes..." << std::endl;
@@ -329,69 +337,68 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
         }
     }
 
-    // //NOTE: nodes entsprechen den bottom level geometry instances (und sind somit die instanzen bottom level acceleration structures)
-    // // 2. instances (if available)
-    // std::unordered_set<VulkanGeometryPtr> instanciated_meshes;
-    // const aiNode* root_node = ascene->mRootNode;
-    // std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
-    // for(size_t i=0; i<mesh_nodes.size(); i++)
-    // {
-    //     const aiNode* node = mesh_nodes[i];
+    // 2. instances (if available)
+    std::unordered_set<VulkanGeometryPtr> instanciated_meshes;
+    const aiNode* root_node = ascene->mRootNode;
+    std::vector<const aiNode*> mesh_nodes = get_nodes_with_meshes(root_node);
+    for(size_t i=0; i<mesh_nodes.size(); i++)
+    {
+        const aiNode* node = mesh_nodes[i];
         
-    //     Matrix4x4 M = global_transform(node);
-    //     Transform T;
-    //     Vector3 scale;
-    //     decompose(M, T, scale);
+        Matrix4x4 M = global_transform(node);
+        Transform T;
+        Vector3 scale;
+        decompose(M, T, scale);
 
-    //     VulkanScenePtr mesh_scene = std::make_shared<VulkanScene>();
+        VulkanScenePtr mesh_scene = std::make_shared<VulkanScene>();
 
-    //     for(unsigned int i = 0; i<node->mNumMeshes; i++)
-    //     {
-    //         unsigned int mesh_id = node->mMeshes[i];
-    //         auto mesh_it = meshes.find(mesh_id);
-    //         if(mesh_it != meshes.end())
-    //         {
-    //             // mesh found
-    //             VulkanMeshPtr mesh = mesh_it->second;
-    //             instanciated_meshes.insert(mesh);
-    //             mesh_scene->add(mesh);
-    //             mesh_scene->commit();
-    //         }
-    //         else
-    //         {
-    //             std::cout << "[make_vulkan_scene()] WARNING: could not find mesh_id " 
-    //                 << mesh_id << " in meshes during instantiation" << std::endl;
-    //         }
-    //     }
+        for(unsigned int i = 0; i<node->mNumMeshes; i++)
+        {
+            unsigned int mesh_id = node->mMeshes[i];
+            auto mesh_it = meshes.find(mesh_id);
+            if(mesh_it != meshes.end())
+            {
+                // mesh found
+                VulkanMeshPtr mesh = mesh_it->second;
+                instanciated_meshes.insert(mesh);
+                mesh_scene->add(mesh);
+                mesh_scene->commit();
+            }
+            else
+            {
+                std::cout << "[make_vulkan_scene()] WARNING: could not find mesh_id " 
+                    << mesh_id << " in meshes during instantiation" << std::endl;
+            }
+        }
 
-    //     mesh_scene->commit();
+        mesh_scene->commit();
 
-    //     // std::cout << "--- mesh added to mesh_scene" << std::endl;
-    //     VulkanInstPtr mesh_instance = std::make_shared<VulkanInst>();
-    //     mesh_instance->set(mesh_scene);
-    //     mesh_instance->name = node->mName.C_Str();
-    //     mesh_instance->setTransform(T);
-    //     mesh_instance->setScale(scale);
-    //     mesh_instance->apply();
-    //     mesh_instance->commit();
-    //     // std::cout << "--- mesh_instance created" << std::endl;
-    //     unsigned int inst_id = scene->add(mesh_instance);
-    //     // std::cout << "Instance " << inst_id << " (" << mesh_instance->name << ") added" << std::endl;
-    // }
+        // std::cout << "--- mesh added to mesh_scene" << std::endl;
+        VulkanInstPtr mesh_instance = std::make_shared<VulkanInst>();
+        mesh_instance->set(mesh_scene);
+        mesh_instance->name = node->mName.C_Str();
+        mesh_instance->setTransform(T);
+        mesh_instance->setScale(scale);
+        mesh_instance->apply();
+        mesh_instance->commit();
+        // std::cout << "--- mesh_instance created" << std::endl;
+        unsigned int inst_id = scene->add(mesh_instance);
+        // std::cout << "Instance " << inst_id << " (" << mesh_instance->name << ") added" << std::endl;
+    }
 
-    // // ADD MESHES THAT ARE NOT INSTANCIATED
-    // for(auto elem : meshes)
-    // {
-    //     auto mesh = elem.second;
-    //     if(instanciated_meshes.find(mesh) == instanciated_meshes.end())
-    //     {
-    //         // mesh was never instanciated. add to scene
-    //         VulkanInstPtr geom_inst = mesh->instantiate();
-    //         geom_inst->apply();
-    //         geom_inst->commit();
-    //         scene->add(geom_inst);
-    //     }
-    // }
+    // ADD MESHES THAT ARE NOT INSTANCIATED
+    for(auto elem : meshes)
+    {
+        auto mesh = elem.second;
+        if(instanciated_meshes.find(mesh) == instanciated_meshes.end())
+        {
+            // mesh was never instanciated. add to scene
+            VulkanInstPtr geom_inst = mesh->instantiate();
+            geom_inst->apply();
+            geom_inst->commit();
+            scene->add(geom_inst);
+        }
+    }
 
     return scene;
 }

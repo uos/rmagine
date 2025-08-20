@@ -39,6 +39,7 @@ using VulkanEntityPtr = std::shared_ptr<VulkanEntity>;
 using VulkanTransformablePtr = std::shared_ptr<VulkanTransformable>;
 using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;
 using VulkanInstPtr = std::shared_ptr<VulkanInst>;
+using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
 using VulkanScenePtr = std::shared_ptr<VulkanScene>;
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
@@ -46,6 +47,7 @@ using VulkanEntityWPtr = std::weak_ptr<VulkanEntity>;
 using VulkanTransformableWPtr = std::weak_ptr<VulkanTransformable>;
 using VulkanGeometryWPtr = std::weak_ptr<VulkanGeometry>;
 using VulkanInstWPtr = std::weak_ptr<VulkanInst>;
+using VulkanMeshWPtr = std::weak_ptr<VulkanMesh>;
 using VulkanSceneWPtr = std::weak_ptr<VulkanScene>;
 using AccelerationStructureWPtr = std::weak_ptr<AccelerationStructure>;
 
@@ -55,6 +57,24 @@ using AccelerationStructureWPtr = std::weak_ptr<AccelerationStructure>;
 
 namespace std
 {
+
+// MESH
+template<>
+struct hash<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_hash<rmagine::VulkanMesh>
+{};
+
+template<>
+struct equal_to<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_equal_to<rmagine::VulkanMesh>
+{};
+
+template<>
+struct less<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_less<rmagine::VulkanMesh>
+{};
+
+
 
 // INSTANCE
 template<>
