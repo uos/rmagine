@@ -146,44 +146,28 @@ void VulkanScene::commit()
     if(m_type == VulkanSceneType::INSTANCES)
     {
         // create top level AS
-        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+        m_as = std::make_shared<AccelerationStructure>(AccelerationStructureType::TOP_LEVEL);
 
         // get all the instances and add the to the top level AS
         m_asInstances_ram.resize(numOfChildNodes());
         m_asInstances.resize(numOfChildNodes(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR);
 
-        size_t i = 0;
         unsigned int depth_ = 0;
+        size_t idx = 0;
         for(auto const& geometry : m_geometries)
         {
             VulkanInstPtr inst = geometry.second->this_shared<VulkanInst>();
 
-            m_asInstances_ram[i] = *(inst->data());
+            m_asInstances_ram[idx] = *(inst->data());
 
             depth_ = std::max(depth_, inst->scene()->depth() + 1);
             
-            i++;
+            idx++;
         }
         m_asInstances = m_asInstances_ram;
 
-        VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
-        accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-        accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-        accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-        accelerationStructureGeometry.geometry = {};
-        accelerationStructureGeometry.geometry.instances = {};
-        accelerationStructureGeometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-        accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
-        accelerationStructureGeometry.geometry.instances.data = {};
-        accelerationStructureGeometry.geometry.instances.data.deviceAddress = m_asInstances.getBuffer()->getBufferDeviceAddress();
-        accelerationStructureGeometrys.push_back(accelerationStructureGeometry);
-
-        VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
-        accelerationStructureBuildRangeInfo.firstVertex = 0;
-        accelerationStructureBuildRangeInfo.primitiveOffset = 0;
-        accelerationStructureBuildRangeInfo.primitiveCount = numOfChildNodes();
-        accelerationStructureBuildRangeInfo.transformOffset = 0;
-        accelerationStructureBuildRangeInfos.push_back(accelerationStructureBuildRangeInfo);
+        accelerationStructureGeometrys.push_back(AccelerationStructure::GetASGeometry(this_shared<VulkanScene>()));
+        accelerationStructureBuildRangeInfos.push_back(AccelerationStructure::GetASBuildRange(this_shared<VulkanScene>()));
 
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
 
@@ -192,38 +176,19 @@ void VulkanScene::commit()
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // create bottom level AS
-        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
+        m_as = std::make_shared<AccelerationStructure>(AccelerationStructureType::BOTTOM_LEVEL);
 
         // get all the meshes and add the to the bottom level AS
+
+        size_t idx = 0;
         for(auto const& geometry : m_geometries)
         {
             VulkanMeshPtr mesh = geometry.second->this_shared<VulkanMesh>();
 
-            VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
-            accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-            accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-            accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-            accelerationStructureGeometry.geometry = {};
-            accelerationStructureGeometry.geometry.triangles = {};
-            accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-            accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-            accelerationStructureGeometry.geometry.triangles.vertexData = {};
-            accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = mesh->vertices.getBuffer()->getBufferDeviceAddress();
-            accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(float) * 3;
-            accelerationStructureGeometry.geometry.triangles.maxVertex = mesh->vertices.size();
-            accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
-            accelerationStructureGeometry.geometry.triangles.indexData = {};
-            accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = mesh->faces.getBuffer()->getBufferDeviceAddress();
-            accelerationStructureGeometry.geometry.triangles.transformData = {};
-            accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = mesh->transformMatrix.getBuffer()->getBufferDeviceAddress();
-            accelerationStructureGeometrys.push_back(accelerationStructureGeometry);
+            accelerationStructureGeometrys.push_back(AccelerationStructure::GetASGeometry(mesh));
+            accelerationStructureBuildRangeInfos.push_back(AccelerationStructure::GetASBuildRange(mesh));
 
-            VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo{};
-            accelerationStructureBuildRangeInfo.firstVertex = 0;
-            accelerationStructureBuildRangeInfo.primitiveOffset = 0;
-            accelerationStructureBuildRangeInfo.primitiveCount = mesh->faces.size();
-            accelerationStructureBuildRangeInfo.transformOffset = 0;
-            accelerationStructureBuildRangeInfos.push_back(accelerationStructureBuildRangeInfo);
+            idx++;
         }
 
         m_as->createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
@@ -234,10 +199,10 @@ void VulkanScene::commit()
 
 VulkanInstPtr VulkanScene::instantiate()
 {
-    //TODO: pretty sure this does not work
+    //TODO: pretty sure the tree can only have depth one & you cannot instatiate a scene containing other instances
     if(m_type != VulkanSceneType::GEOMETRIES)
     {
-        throw std::runtime_error("[VulkanScene::instantiate()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.")
+        throw std::runtime_error("[VulkanScene::instantiate()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
     }
 
     VulkanInstPtr ret = std::make_shared<VulkanInst>();

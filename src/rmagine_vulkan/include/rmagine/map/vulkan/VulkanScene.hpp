@@ -15,6 +15,7 @@
 #include <rmagine/util/VulkanContext.hpp>
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/util/IDGen.hpp>
+#include <rmagine/util/assimp/helper.h>
 #include "accelerationStructure/AccelerationStructure.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
@@ -26,6 +27,16 @@
 
 namespace rmagine
 {
+
+struct MeshDescription
+{
+    VkDeviceAddress vertexAddress;
+    VkDeviceAddress faceAddress;
+    VkDeviceAddress faceNormalAddress;
+    VkDeviceAddress vertexNormalAddress;
+};
+
+
 
 class VulkanScene : public VulkanEntity
 {
@@ -48,12 +59,17 @@ private:
     // filled after commit
     unsigned int m_depth = 0;
 
-    //only used for top level as
+public:
+    //only used for top level as - filled after commit
     Memory<VkAccelerationStructureInstanceKHR, RAM> m_asInstances_ram;
     Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> m_asInstances;
-    // std::unordered_set<VulkanMeshWPtr> m_meshes;
+    Memory<VkDeviceAddress, RAM> m_blasDescriptions_ram;
+    Memory<VkDeviceAddress, VULKAN_DEVICE_LOCAL> m_blasDescriptions;
 
-public:
+    //only used for bottom level as - filled after commit
+    Memory<MeshDescription, RAM> m_meshDescriptions_ram;
+    Memory<MeshDescription, VULKAN_DEVICE_LOCAL> m_meshDescriptions;
+
     //TODO: TEMP; FIX LATER
     Memory<Point, VULKAN_DEVICE_LOCAL>* vertexptr = nullptr;
     Memory<Face, VULKAN_DEVICE_LOCAL>* indexptr = nullptr;
@@ -114,11 +130,6 @@ public:
     size_t numOfChildNodes() const
     {
         return m_geometries.size();
-    }
-
-    Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL>& getASInstances()
-    {
-        return m_asInstances;
     }
 };
 

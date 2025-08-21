@@ -26,7 +26,7 @@ VulkanInst::~VulkanInst()
 
 void VulkanInst::set(VulkanScenePtr scene)
 {
-    //TODO: pretty sure this does not work
+    //TODO: pretty sure the tree can only have depth one & you cannot instatiate a scene containing other instances
     if(scene->type() != VulkanSceneType::GEOMETRIES)
     {
         throw std::runtime_error("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");

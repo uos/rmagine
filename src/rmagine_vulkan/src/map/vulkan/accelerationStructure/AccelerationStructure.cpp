@@ -1,23 +1,30 @@
 #include "rmagine/map/vulkan/accelerationStructure/AccelerationStructure.hpp"
 #include "rmagine/util/VulkanContext.hpp"
-#include "VulkanMesh.hpp"
-#include "VulkanInst.hpp"
+#include "rmagine/map/vulkan/VulkanMesh.hpp"
+#include "rmagine/map/vulkan/VulkanScene.hpp"
 
 
 
 namespace rmagine
 {
 
-AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType) : 
-    accelerationStructureType(accelerationStructureType),
+const VkAccelerationStructureTypeKHR getAccelerationStructureType[2] = {
+    VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
+    VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR
+};
+
+
+
+AccelerationStructure::AccelerationStructure(AccelerationStructureType accelerationStructureType) : 
+    accelerationStructureType(getAccelerationStructureType[accelerationStructureType]),
     device(get_vulkan_context()->getDevice()), 
     extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
 {
 
 }
 
-AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
-    accelerationStructureType(accelerationStructureType), 
+AccelerationStructure::AccelerationStructure(AccelerationStructureType accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
+    accelerationStructureType(getAccelerationStructureType[accelerationStructureType]), 
     device(device), 
     extensionFunctionsPtr(extensionFunctionsPtr)
 {
@@ -207,7 +214,7 @@ VkAccelerationStructureGeometryKHR AccelerationStructure::GetASGeometry(VulkanSc
     accelerationStructureGeometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
     accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
     accelerationStructureGeometry.geometry.instances.data = {};
-    accelerationStructureGeometry.geometry.instances.data.deviceAddress = mesh->getASInstances().getBuffer()->getBufferDeviceAddress();
+    accelerationStructureGeometry.geometry.instances.data.deviceAddress = scene->m_asInstances.getBuffer()->getBufferDeviceAddress();
     return accelerationStructureGeometry;
 }
 

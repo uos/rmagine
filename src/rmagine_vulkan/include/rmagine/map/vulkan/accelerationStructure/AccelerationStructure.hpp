@@ -11,7 +11,7 @@
 
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
-#include "vulkan_definitions.hpp"
+#include <rmagine/map/vulkan/vulkan_definitions.hpp>
 
 
 
@@ -46,9 +46,9 @@ private:
     size_t asID = 0;
     
 public:
-    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
+    AccelerationStructure(AccelerationStructureType accelerationStructureType);
     
-    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
+    AccelerationStructure(AccelerationStructureType accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
     virtual ~AccelerationStructure();
 
@@ -65,6 +65,16 @@ public:
 
     size_t getID();
 
+
+    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanScenePtr scene);
+
+    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanMeshPtr mesh);
+
+    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanScenePtr scene);
+
+    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanMeshPtr mesh);
+
+    
 private:
     void createAccelerationStructureBufferAndDeviceMemory(
         std::vector<uint32_t>& maxPrimitiveCountList, 
@@ -78,18 +88,10 @@ private:
 
     void cleanup();
 
-private:
+
     static size_t asIDcounter;
 
     static size_t getNewAsID();
-
-    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanScenePtr scene);
-
-    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanMeshPtr mesh);
-
-    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanScenePtr scene);
-
-    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanMeshPtr mesh);
 };
 
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
