@@ -12,19 +12,12 @@
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
 #include <rmagine/map/vulkan/vulkan_definitions.hpp>
+#include <rmagine/types/MemoryVulkan.hpp>
 
 
 
 namespace rmagine
 {
-
-enum AccelerationStructureType
-{
-    TOP_LEVEL,
-    BOTTOM_LEVEL
-};
-
-
 
 class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
@@ -46,9 +39,9 @@ private:
     size_t asID = 0;
     
 public:
-    AccelerationStructure(AccelerationStructureType accelerationStructureType);
+    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
     
-    AccelerationStructure(AccelerationStructureType accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
+    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
     virtual ~AccelerationStructure();
 
@@ -65,6 +58,12 @@ public:
 
     size_t getID();
 
+    template<typename T>
+    inline std::shared_ptr<T> this_shared()
+    {
+        return std::dynamic_pointer_cast<T>(shared_from_this());
+    }
+
 
     static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanScenePtr scene);
 
@@ -74,18 +73,8 @@ public:
 
     static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanMeshPtr mesh);
 
-    
+
 private:
-    void createAccelerationStructureBufferAndDeviceMemory(
-        std::vector<uint32_t>& maxPrimitiveCountList, 
-        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
-
-    void buildAccelerationStructure(
-        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
-        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
-
     void cleanup();
 
 

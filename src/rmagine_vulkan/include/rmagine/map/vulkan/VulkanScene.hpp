@@ -16,7 +16,10 @@
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/util/IDGen.hpp>
 #include <rmagine/util/assimp/helper.h>
+#include "vulkan_definitions.hpp"
 #include "accelerationStructure/AccelerationStructure.hpp"
+#include "accelerationStructure/TopLevelAccelerationStructure.hpp"
+#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
 #include "VulkanGeometry.hpp"
@@ -27,16 +30,6 @@
 
 namespace rmagine
 {
-
-struct MeshDescription
-{
-    VkDeviceAddress vertexAddress;
-    VkDeviceAddress faceAddress;
-    VkDeviceAddress faceNormalAddress;
-    VkDeviceAddress vertexNormalAddress;
-};
-
-
 
 class VulkanScene : public VulkanEntity
 {
@@ -60,15 +53,9 @@ private:
     unsigned int m_depth = 0;
 
 public:
-    //only used for top level as - filled after commit
+    //TODO: TEMP; moved to tlas
     Memory<VkAccelerationStructureInstanceKHR, RAM> m_asInstances_ram;
     Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> m_asInstances;
-    Memory<VkDeviceAddress, RAM> m_blasDescriptions_ram;
-    Memory<VkDeviceAddress, VULKAN_DEVICE_LOCAL> m_blasDescriptions;
-
-    //only used for bottom level as - filled after commit
-    Memory<MeshDescription, RAM> m_meshDescriptions_ram;
-    Memory<MeshDescription, VULKAN_DEVICE_LOCAL> m_meshDescriptions;
 
     //TODO: TEMP; FIX LATER
     Memory<Point, VULKAN_DEVICE_LOCAL>* vertexptr = nullptr;

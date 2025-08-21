@@ -8,23 +8,16 @@
 namespace rmagine
 {
 
-const VkAccelerationStructureTypeKHR getAccelerationStructureType[2] = {
-    VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
-    VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR
-};
-
-
-
-AccelerationStructure::AccelerationStructure(AccelerationStructureType accelerationStructureType) : 
-    accelerationStructureType(getAccelerationStructureType[accelerationStructureType]),
+AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType) : 
+    accelerationStructureType(accelerationStructureType),
     device(get_vulkan_context()->getDevice()), 
     extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
 {
 
 }
 
-AccelerationStructure::AccelerationStructure(AccelerationStructureType accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
-    accelerationStructureType(getAccelerationStructureType[accelerationStructureType]), 
+AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
+    accelerationStructureType(accelerationStructureType), 
     device(device), 
     extensionFunctionsPtr(extensionFunctionsPtr)
 {
@@ -61,22 +54,6 @@ void AccelerationStructure::createAccelerationStructure(
         maxPrimitiveCountList.push_back(accelerationStructureBuildRangeInfos[i].primitiveCount);
     }
 
-    createAccelerationStructureBufferAndDeviceMemory(maxPrimitiveCountList, accelerationStructureBuildGeometryInfo, accelerationStructureBuildSizesInfo);
-
-    buildAccelerationStructure(accelerationStructureBuildRangeInfos, accelerationStructureBuildGeometryInfo, accelerationStructureBuildSizesInfo);
-}
-
-
-void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(
-    std::vector<uint32_t>& maxPrimitiveCountList, 
-    VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-    VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo)
-{
-    if(accelerationStructureBuffer != nullptr)
-    {
-        throw std::runtime_error("acceleration structure buffer has already been created!");
-    }
-
     extensionFunctionsPtr->pvkGetAccelerationStructureBuildSizesKHR(
         device->getLogicalDevice(), 
         VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, 
@@ -84,6 +61,7 @@ void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(
         maxPrimitiveCountList.data(), 
         &accelerationStructureBuildSizesInfo);
 
+    //TODO: Memory Objects
     accelerationStructureBuffer = std::make_shared<Buffer>(
         accelerationStructureBuildSizesInfo.accelerationStructureSize,
         VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
@@ -108,19 +86,8 @@ void AccelerationStructure::createAccelerationStructureBufferAndDeviceMemory(
 
     accelerationStructureDeviceAddress = 
         extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
-}
-
-
-void AccelerationStructure::buildAccelerationStructure(
-    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos, 
-    VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-    VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo)
-{
-    if(accelerationStructureBuffer == nullptr)
-    {
-        throw std::runtime_error("acceleration structure buffer has to get created before acceleration structure can be build!");
-    }
-
+    
+    //TODO: Memory Objects
     accelerationStructureScratchBuffer = std::make_shared<Buffer>(
         accelerationStructureBuildSizesInfo.buildScratchSize,
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);

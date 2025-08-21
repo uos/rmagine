@@ -8,6 +8,16 @@
 namespace rmagine 
 {
 
+struct MeshDescription
+{
+    VkDeviceAddress vertexAddress;
+    VkDeviceAddress faceAddress;
+    VkDeviceAddress faceNormalAddress;
+    VkDeviceAddress vertexNormalAddress;
+};
+
+
+
 enum class VulkanGeometryType
 {
     NONE,

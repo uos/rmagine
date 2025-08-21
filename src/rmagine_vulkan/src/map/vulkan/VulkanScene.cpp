@@ -146,7 +146,7 @@ void VulkanScene::commit()
     if(m_type == VulkanSceneType::INSTANCES)
     {
         // create top level AS
-        m_as = std::make_shared<AccelerationStructure>(AccelerationStructureType::TOP_LEVEL);
+        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
         // get all the instances and add the to the top level AS
         m_asInstances_ram.resize(numOfChildNodes());
@@ -176,7 +176,7 @@ void VulkanScene::commit()
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
         // create bottom level AS
-        m_as = std::make_shared<AccelerationStructure>(AccelerationStructureType::BOTTOM_LEVEL);
+        m_as = std::make_shared<AccelerationStructure>(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
 
         // get all the meshes and add the to the bottom level AS
 
