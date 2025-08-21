@@ -53,10 +53,6 @@ private:
     unsigned int m_depth = 0;
 
 public:
-    //TODO: TEMP; moved to tlas
-    Memory<VkAccelerationStructureInstanceKHR, RAM> m_asInstances_ram;
-    Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> m_asInstances;
-
     //TODO: TEMP; FIX LATER
     Memory<Point, VULKAN_DEVICE_LOCAL>* vertexptr = nullptr;
     Memory<Face, VULKAN_DEVICE_LOCAL>* indexptr = nullptr;

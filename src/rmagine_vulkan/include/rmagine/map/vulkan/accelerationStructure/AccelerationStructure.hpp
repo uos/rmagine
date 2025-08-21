@@ -64,16 +64,6 @@ public:
         return std::dynamic_pointer_cast<T>(shared_from_this());
     }
 
-
-    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanScenePtr scene);
-
-    static VkAccelerationStructureBuildRangeInfoKHR GetASBuildRange(VulkanMeshPtr mesh);
-
-    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanScenePtr scene);
-
-    static VkAccelerationStructureGeometryKHR GetASGeometry(VulkanMeshPtr mesh);
-
-
 private:
     void cleanup();
 
