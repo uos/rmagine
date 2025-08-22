@@ -454,8 +454,12 @@ Memory<Transform, RAM> umeyama_transform(
 //         q_mean = -q_mean
 
 Quaternion markley_mean(
-  const MemoryView<Quaternion, RAM>& Qs, 
-  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty() );
+  const MemoryView<Quaternion, RAM> Qs, 
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty());
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM>& weights = MemoryView<float, RAM>::Empty());
 
 /**
  * Karcher mean on SE(3) with right-invariant metric.
