@@ -46,11 +46,7 @@ public:
     virtual ~AccelerationStructure();
 
     AccelerationStructure(const AccelerationStructure&) = delete;
-    
 
-    void createAccelerationStructure(
-        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
-        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
 
     VkDeviceAddress getDeviceAddress();
 
@@ -63,6 +59,11 @@ public:
     {
         return std::dynamic_pointer_cast<T>(shared_from_this());
     }
+
+protected:
+    void createAccelerationStructure(
+        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
 
 private:
     void cleanup();

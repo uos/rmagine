@@ -5,7 +5,7 @@
 namespace rmagine
 {
 
-void SphereSimulatorVulkan::setModel(Memory<SphericalModel, RAM>& sensorMem_ram)
+void SphereSimulatorVulkan::setModel(const Memory<SphericalModel, RAM>& sensorMem_ram)
 {
     this->sensorMem = sensorMem_ram;
     newDimensions.width = sensorMem_ram[0].theta.size;

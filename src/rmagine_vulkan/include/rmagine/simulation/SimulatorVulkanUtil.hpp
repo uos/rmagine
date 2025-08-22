@@ -36,10 +36,10 @@ struct VulkanResultsData
  */
 struct VulkanSensorData
 {
-    // Memory<Transform, VULKAN_DEVICE_LOCAL> tsb;
     // Memory<Transform, VULKAN_DEVICE_LOCAL> tbm;
-
-    // Memory<SensorModelUnion, VULKAN_DEVICE_LOCAL> sensor;
+    
+    // Memory<Vector, VULKAN_DEVICE_LOCAL> origs;
+    // Memory<Vector, VULKAN_DEVICE_LOCAL> dirs;
 };
 
 

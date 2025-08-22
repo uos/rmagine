@@ -101,7 +101,7 @@ void main()
     #if defined(INSTANCE_ID)
         //gl_InstanceID
         uint_array instanceID_buffer = uint_array(resultsBuffer.data.instanceID.bufferDeviceAddress);
-        instanceID_buffer[rayIndex].i = uint(gl_InstanceID); // uint(gl_InstanceCustomIndexEXT); // TODO: which one do I use?
+        instanceID_buffer[rayIndex].i = uint(gl_InstanceCustomIndexEXT); // uint(gl_InstanceID); // TODO: which one do I use?
     #endif
 }
 

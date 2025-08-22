@@ -55,15 +55,15 @@ protected:
     ShaderDefineFlags previousShaderDefines = 0;
 
     struct PreviousDimensions{
-        uint64_t width = uint64_t(~0);
-        uint64_t height = uint64_t(~0);
-        uint64_t depth = uint64_t(~0);
+        uint64_t width = 0;
+        uint64_t height = 0;
+        uint64_t depth = 0;
     }previousDimensions;
 
     struct NewDimensions{
-        uint64_t width = uint64_t(~0);
-        uint64_t height = uint64_t(~0);
-        uint64_t depth = uint64_t(~0);
+        uint64_t width = 0;
+        uint64_t height = 0;
+        uint64_t depth = 0;
     }newDimensions;
 
 
@@ -86,9 +86,11 @@ public:
 
     SimulatorVulkan(const SimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
-    void setTsb(Memory<Transform, RAM>& tsbMem);
+    void setTsb(const Memory<Transform, RAM>& tsbMem);
+    void setTsb(const Transform& Tsb);//TODO
 
-    void setModel(Memory<SensorModelRamT, RAM>& sensorMem_ram);
+    void setModel(const Memory<SensorModelRamT, RAM>& sensorMem_ram);
+    void setModel(const SensorModelRamT& sensorMem_ram);//TODO
 
     template<typename BundleT>
     void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, BundleT& ret);

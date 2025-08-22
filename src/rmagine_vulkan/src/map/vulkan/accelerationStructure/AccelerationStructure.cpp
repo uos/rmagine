@@ -1,7 +1,5 @@
 #include "rmagine/map/vulkan/accelerationStructure/AccelerationStructure.hpp"
 #include "rmagine/util/VulkanContext.hpp"
-#include "rmagine/map/vulkan/VulkanMesh.hpp"
-#include "rmagine/map/vulkan/VulkanScene.hpp"
 
 
 

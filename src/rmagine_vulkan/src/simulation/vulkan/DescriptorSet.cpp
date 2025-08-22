@@ -79,7 +79,7 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
          .pImageInfo = nullptr,
          .pBufferInfo = nullptr,
          .pTexelBufferView = nullptr},
-        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//sensor uniform buffer
+        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//sensor buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
          .dstBinding = 1,

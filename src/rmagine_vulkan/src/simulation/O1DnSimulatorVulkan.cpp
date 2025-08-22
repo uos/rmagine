@@ -5,7 +5,7 @@
 namespace rmagine
 {
 
-void O1DnSimulatorVulkan::setModel(Memory<O1DnModel, RAM>& sensorMem_ram)
+void O1DnSimulatorVulkan::setModel(const Memory<O1DnModel, RAM>& sensorMem_ram)
 {
     sensorMem_half_ram[0].range = sensorMem_ram[0].range;
     sensorMem_half_ram[0].width = sensorMem_ram[0].width;

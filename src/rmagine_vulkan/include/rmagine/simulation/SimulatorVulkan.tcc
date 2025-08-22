@@ -6,7 +6,7 @@ namespace rmagine
 {
 
 template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::setTsb(Memory<Transform, RAM>& tsbMem)
+void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::setTsb(const Memory<Transform, RAM>& tsbMem)
 {
     this->tsbMem = tsbMem;
 }
