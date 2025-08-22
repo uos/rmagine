@@ -852,11 +852,12 @@ Quaternion markley_mean(
     {
       Quaternion qi = hemi_align(Qs[i], ref);
       const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      const float w = weights[i];
       for(int r=0;r<4;++r)
       {
         for(int c=0;c<4;++c)
         {
-          M[r][c] += weights[i] * qv[r] * qv[c];
+          M[r][c] += w * qv[r] * qv[c];
         }
       }
     }
@@ -933,11 +934,12 @@ Transform markley_mean(
     {
       Quaternion qi = hemi_align(Ts[i].R, ref.R);
       const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      const float w = weights[i];
       for(int r=0;r<4;++r)
       {
         for(int c=0;c<4;++c)
         {
-          M[r][c] += weights[i] * qv[r] * qv[c];
+          M[r][c] += w * qv[r] * qv[c];
         }
       }
       t_mean += Ts[i].t * weights[i];
@@ -987,8 +989,6 @@ Transform markley_mean(
   T_mean.R.normalizeInplace();
 
   T_mean.t = t_mean;
-
-  std::cout << "HEEY" << std::endl;
 
   return T_mean;
 }
