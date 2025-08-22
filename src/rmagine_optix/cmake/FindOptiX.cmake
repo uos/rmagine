@@ -1,22 +1,17 @@
 ### FindOptiX
 # Variables Set:
 # Pure Optix:
-# - OptiX_INCLUDE_DIR
-# - OptiX_LIBRARY
-# - OptiX_VERSION
-# - OptiX_FOUND
+# - OptiX_LIBRARY (Path to optix library)
+# - OptiX_LIBRARY_DRIVER_VERSION (NVIDIA driver version for optix library, fetched from library name)
+# - OptiX_INCLUDE_DIR (Path to OptiX header folder)
+# - OptiX_VERSION (fetched from headers)
+# - OptiX_FOUND (= TRUE, only if header & lib is found) 
 # Additional:
 # - OptiX_INCLUDE_DIRS
 # - Optix_LIBRARIES
-# Aliases:
-# example: OPTIX_INCLUDE_DIR = OptiX_INCLUDE_DIR
-
-
 
 find_package(PkgConfig)
 pkg_check_modules(OptiX QUIET optix)
-
-
 
 # 1. LIBRARY
 
