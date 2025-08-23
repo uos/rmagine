@@ -23,8 +23,8 @@ private:
     Memory<VkAccelerationStructureInstanceKHR, VULKAN_DEVICE_LOCAL> m_asInstances;
 
 public:
-    Memory<VkDeviceAddress, RAM> m_blasMeshDescriptions_ram;
-    Memory<VkDeviceAddress, VULKAN_DEVICE_LOCAL> m_blasMeshDescriptions;
+    Memory<VkDeviceAddress, RAM> m_asInstancesDescriptions_ram;
+    Memory<VkDeviceAddress, VULKAN_DEVICE_LOCAL> m_asInstancesDescriptions;
     
     TopLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries);
     ~TopLevelAccelerationStructure();

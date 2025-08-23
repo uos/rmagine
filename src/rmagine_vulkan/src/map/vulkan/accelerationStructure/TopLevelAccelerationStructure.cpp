@@ -13,8 +13,8 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::map<unsigned i
     AccelerationStructure(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR),
     m_asInstances_ram(geometries.size()),
     m_asInstances(geometries.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR),
-    m_blasMeshDescriptions_ram(geometries.size()),
-    m_blasMeshDescriptions(geometries.size())
+    m_asInstancesDescriptions_ram(geometries.size()),
+    m_asInstancesDescriptions(geometries.size())
 {
     std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
@@ -26,13 +26,29 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::map<unsigned i
 
         m_asInstances_ram[idx] = *(inst->data());
 
-        m_blasMeshDescriptions_ram[idx] = inst->scene()->as()->this_shared<BottomLevelAccelerationStructure>()->m_meshDescriptions.getBuffer()->getBufferDeviceAddress();
+        if(inst->scene()->type() == VulkanSceneType::GEOMETRIES)
+        {
+            m_asInstancesDescriptions_ram[idx] = inst->scene()->as()->this_shared<BottomLevelAccelerationStructure>()->m_meshDescriptions.getBuffer()->getBufferDeviceAddress();
+        }
+        else if(inst->scene()->type() == VulkanSceneType::INSTANCES)
+        {
+            // TODO: should instatiation of top level acceleration structures be possible and allowed in this application
+            //       you would need to do soemthing like this:
+            // m_asInstancesDescriptions_ram[idx] = inst->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress();
+            throw std::runtime_error("[TopLevelAccelerationStructure::TopLevelAccelerationStructure()] ERROR - top level acceleration structure cannot hold instance of another top level acceleration structure");
+        }
+        else
+        {
+            throw std::runtime_error("[TopLevelAccelerationStructure::TopLevelAccelerationStructure()] ERROR - invalid scene type, this should never happen");
+        }
 
         idx++;
     }
     m_asInstances = m_asInstances_ram;
-    m_blasMeshDescriptions = m_blasMeshDescriptions_ram;
+    m_asInstancesDescriptions = m_asInstancesDescriptions_ram;
 
+    // tlas must have geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR
+    // https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03789
     VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
     accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
     accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;

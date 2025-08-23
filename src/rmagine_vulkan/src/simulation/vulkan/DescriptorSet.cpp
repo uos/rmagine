@@ -34,27 +34,22 @@ void DescriptorSet::allocateDescriptorSet()
 }
 
 
-void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexBuffer, 
+void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                                         BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
-                                        BufferPtr tsbBuffer, BufferPtr tbmBuffer, 
-                                        AccelerationStructurePtr accelerationStructure)
+                                        BufferPtr tsbBuffer, BufferPtr tbmBuffer)
 {
     VkWriteDescriptorSetAccelerationStructureKHR accelerationStructureDescriptorInfo{};
     accelerationStructureDescriptorInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
     accelerationStructureDescriptorInfo.accelerationStructureCount = 1;
     accelerationStructureDescriptorInfo.pAccelerationStructures = accelerationStructure->getAcceleratiionStructurePtr();
+  
+    VkDescriptorBufferInfo mapDataDescriptorInfo{};
+    mapDataDescriptorInfo.buffer = mapDataBuffer->getBuffer();
+    mapDataDescriptorInfo.range = VK_WHOLE_SIZE;
 
     VkDescriptorBufferInfo sensorDescriptorInfo{};
     sensorDescriptorInfo.buffer = sensorBuffer->getBuffer();
     sensorDescriptorInfo.range = VK_WHOLE_SIZE;
-  
-    VkDescriptorBufferInfo indexDescriptorInfo{};
-    indexDescriptorInfo.buffer = indexBuffer->getBuffer();
-    indexDescriptorInfo.range = VK_WHOLE_SIZE;
-  
-    VkDescriptorBufferInfo vertexDescriptorInfo{};
-    vertexDescriptorInfo.buffer = vertexBuffer->getBuffer();
-    vertexDescriptorInfo.range = VK_WHOLE_SIZE;
 
     VkDescriptorBufferInfo resultsDescriptorInfo{};
     resultsDescriptorInfo.buffer = resultsBuffer->getBuffer();
@@ -79,7 +74,7 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
          .pImageInfo = nullptr,
          .pBufferInfo = nullptr,
          .pTexelBufferView = nullptr},
-        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//sensor buffer
+        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//mapData buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
          .dstBinding = 1,
@@ -87,9 +82,9 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
          .descriptorCount = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          .pImageInfo = nullptr,
-         .pBufferInfo = &sensorDescriptorInfo,
+         .pBufferInfo = &mapDataDescriptorInfo,
          .pTexelBufferView = nullptr},
-        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//index buffer
+        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//sensor buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
          .dstBinding = 2,
@@ -97,22 +92,12 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
          .descriptorCount = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          .pImageInfo = nullptr,
-         .pBufferInfo = &indexDescriptorInfo,
-         .pTexelBufferView = nullptr},
-        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//vertex buffer
-         .pNext = nullptr,
-         .dstSet = descriptorSet,
-         .dstBinding = 3,
-         .dstArrayElement = 0,
-         .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-         .pImageInfo = nullptr,
-         .pBufferInfo = &vertexDescriptorInfo,
+         .pBufferInfo = &sensorDescriptorInfo,
          .pTexelBufferView = nullptr},
         {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//results buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
-         .dstBinding = 4,
+         .dstBinding = 3,
          .dstArrayElement = 0,
          .descriptorCount = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -122,7 +107,7 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
         {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//tbs buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
-         .dstBinding = 5,
+         .dstBinding = 4,
          .dstArrayElement = 0,
          .descriptorCount = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -132,7 +117,7 @@ void DescriptorSet::updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexB
         {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//tbm buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
-         .dstBinding = 6,
+         .dstBinding = 5,
          .dstArrayElement = 0,
          .descriptorCount = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,

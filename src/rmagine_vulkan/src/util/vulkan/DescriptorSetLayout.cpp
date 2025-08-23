@@ -9,7 +9,7 @@ void DescriptorSetLayout::createDescriptorPool()
 {
     std::vector<VkDescriptorPoolSize> descriptorPoolSizeList = {
         {.type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, .descriptorCount = 1},//accelaration structure
-        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 6}};//Index, Vertex, Result, Sensor, tsb & tbm
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 5}};//MapData, Result, Sensor, tsb & tbm
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -36,33 +36,28 @@ void DescriptorSetLayout::createDescriptorSetLayout()
         {.binding = 1,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-         .pImmutableSamplers = nullptr},//sensor
+         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
+         .pImmutableSamplers = nullptr},//mapData
         {.binding = 2,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
-         .pImmutableSamplers = nullptr},//Index buffer
+         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+         .pImmutableSamplers = nullptr},//sensor
         {.binding = 3,
          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
-         .pImmutableSamplers = nullptr},//Vertex buffer
-         {.binding = 4,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
-          .pImmutableSamplers = nullptr},//results
-         {.binding = 5,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-          .pImmutableSamplers = nullptr},//tsb
-         {.binding = 6,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-          .pImmutableSamplers = nullptr}};//tbm
+         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
+         .pImmutableSamplers = nullptr},//results
+        {.binding = 4,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorCount = 1,
+         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+         .pImmutableSamplers = nullptr},//tsb
+        {.binding = 5,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorCount = 1,
+         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+         .pImmutableSamplers = nullptr}};//tbm
 
     
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};

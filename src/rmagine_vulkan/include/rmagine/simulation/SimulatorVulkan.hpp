@@ -43,13 +43,9 @@ protected:
 
     //for checking whether buffers have changed
     struct PreviousBuffers{
-        size_t vertexID = 0;
-        size_t indexID = 0;
-        size_t sensorID = 0;
-        size_t resultsID = 0;
-        size_t tsbID = 0;
-        size_t tbmID = 0;
         size_t asID = 0;
+        size_t mapDataID = 0;
+        size_t tbmID = 0;
     }previousBuffers;
 
     ShaderDefineFlags previousShaderDefines = 0;

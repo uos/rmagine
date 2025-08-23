@@ -143,6 +143,9 @@ void VulkanScene::commit()
     std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
 
+    // TODO: only update as instead of recreating it when just these things were changed:
+    //       instance definitions, transform matrices, and vertex positions
+
     if(m_type == VulkanSceneType::INSTANCES)
     {
         std::cout << "[VulkanScene::commit()] INFO - creating tlas" << std::endl;
@@ -171,11 +174,14 @@ void VulkanScene::commit()
 
         std::cout << "[VulkanScene::commit()] INFO - created blas" << std::endl;
     }
+    
+    m_geom_added = false;
+    m_geom_removed = false;
 }
 
 VulkanInstPtr VulkanScene::instantiate()
 {
-    //TODO: pretty sure the tree can only have depth one & you cannot instatiate a scene containing other instances
+    //TODO: it seems that maybe you can create instances of top level acceleration structures, but this is currently not supported
     if(m_type != VulkanSceneType::GEOMETRIES)
     {
         throw std::runtime_error("[VulkanScene::instantiate()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
@@ -229,10 +235,6 @@ VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, 
 
     VulkanMeshPtr mesh = make_vulkan_mesh(vertices_ram, faces_ram);
     mesh->commit();
-
-    //TODO: TEMP; FIX LATER
-    scene->vertexptr = &(mesh->vertices);
-    scene->indexptr = &(mesh->faces);
 
     VulkanInstPtr geom_inst = mesh->instantiate();
     geom_inst->apply();

@@ -43,10 +43,9 @@ public:
 
     void cleanup();
 
-    void updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexBuffer, 
+    void updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                              BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
-                             BufferPtr tsbBuffer, BufferPtr tbmBuffer, 
-                             AccelerationStructurePtr accelerationStructure);
+                             BufferPtr tsbBuffer, BufferPtr tbmBuffer);
 
     VkDescriptorSet* getDescriptorSetPtr();
 

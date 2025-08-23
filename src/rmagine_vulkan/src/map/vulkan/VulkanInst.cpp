@@ -26,7 +26,7 @@ VulkanInst::~VulkanInst()
 
 void VulkanInst::set(VulkanScenePtr scene)
 {
-    //TODO: pretty sure the tree can only have depth one & you cannot instatiate a scene containing other instances
+    //TODO: it seems that maybe you can create instances of top level acceleration structures, but this is currently not supported
     if(scene->type() != VulkanSceneType::GEOMETRIES)
     {
         throw std::runtime_error("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");

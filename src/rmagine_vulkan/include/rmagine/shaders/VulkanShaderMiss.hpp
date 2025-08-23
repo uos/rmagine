@@ -20,10 +20,8 @@ layout(location = 0) rayPayloadInEXT Payload
     Transform sensorTf;
 } payload;
 
-layout(binding = 4, set = 0) buffer ResultsBuffer{ Result data; } resultsBuffer;
 
-
-
+layout(binding = 3, set = 0) buffer ResultsBuffer{ Result data; } resultsBuffer;
 
 
 

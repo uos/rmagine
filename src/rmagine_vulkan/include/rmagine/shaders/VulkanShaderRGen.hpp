@@ -20,17 +20,19 @@ layout(location = 0) rayPayloadEXT Payload
     Transform sensorTf;
 } payload;
 
+
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 
+
 #if defined(SPHERE)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         DiscreteInterval phi;
         DiscreteInterval theta;
         Interval range;
     } sensor;
 #elif defined(PINHOLE)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -39,7 +41,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
         vec2 center;
     } sensor;
 #elif defined(O1DN)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -48,7 +50,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
         Memory dirsMem;
     } sensor;
 #elif defined(ONDN)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -60,8 +62,9 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
     #error One of the the sensor types has to be defined // compile time error
 #endif
 
-layout(binding = 5, set = 0) buffer TransformBuffer{ Transform tsb; } tsb;
-layout(binding = 6, set = 0) buffer TransformsBuffer{ Transform tbm[]; } tbm;
+
+layout(binding = 4, set = 0) buffer TransformBuffer{ Transform tsb; } tsb;
+layout(binding = 5, set = 0) buffer TransformsBuffer{ Transform tbm[]; } tbm;
 
 
 

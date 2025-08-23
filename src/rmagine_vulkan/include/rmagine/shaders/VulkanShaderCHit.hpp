@@ -20,29 +20,53 @@ layout(location = 0) rayPayloadInEXT Payload
     Transform sensorTf;
 } payload;
 
-layout(binding = 4, set = 0) buffer ResultsBuffer{ Result data; } resultsBuffer;
 
-layout(binding = 2, set = 0) buffer IndexBuffer { uint data[]; } indexBuffer;
-layout(binding = 3, set = 0) buffer VertexBuffer { float data[]; } vertexBuffer;
+layout(binding = 3, set = 0) buffer ResultsBuffer{ Result data; } resultsBuffer;
+
+
+layout(binding = 1, set = 0) buffer MapDataBuffer { uint64_t data[]; } mapDataBuffer;
+
+struct MeshDescription
+{
+    uint64_t vertexAddress;
+    uint64_t faceAddress;
+    uint64_t faceNormalAddress;
+    uint64_t vertexNormalAddress;
+};
+
+layout(buffer_reference, std430, buffer_reference_align = 32) buffer meshDesc_array
+{
+    MeshDescription meshDesc;
+};
 
 
 
 void main()
 {
     #if defined(POINTS) || defined(NORMALS)
-        ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0],
-                              indexBuffer.data[3 * gl_PrimitiveID + 1],
-                              indexBuffer.data[3 * gl_PrimitiveID + 2]);
 
-        vec3 vertexA = vec3(vertexBuffer.data[3 * indices.x + 0],
-                            vertexBuffer.data[3 * indices.x + 1],
-                            vertexBuffer.data[3 * indices.x + 2]);
-        vec3 vertexB = vec3(vertexBuffer.data[3 * indices.y + 0],
-                            vertexBuffer.data[3 * indices.y + 1],
-                            vertexBuffer.data[3 * indices.y + 2]);
-        vec3 vertexC = vec3(vertexBuffer.data[3 * indices.z + 0],
-                            vertexBuffer.data[3 * indices.z + 1],
-                            vertexBuffer.data[3 * indices.z + 2]);
+        meshDesc_array meshDescs = meshDesc_array(mapDataBuffer.data[gl_InstanceID]);
+
+        float_array verticies     = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexAddress);
+        uint_array  faces         =  uint_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceAddress);
+        // TODO: only assign these if the address is not 0:
+        // float_array faceNormals   = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress);
+        // float_array vertesNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress);
+
+
+        ivec3 indices = ivec3(faces[3 * gl_PrimitiveID + 0],
+                              faces[3 * gl_PrimitiveID + 1],
+                              faces[3 * gl_PrimitiveID + 2]);
+
+        vec3 vertexA = vec3(verticies[3 * indices.x + 0],
+                            verticies[3 * indices.x + 1],
+                            verticies[3 * indices.x + 2]);
+        vec3 vertexB = vec3(verticies[3 * indices.y + 0],
+                            verticies[3 * indices.y + 1],
+                            verticies[3 * indices.y + 2]);
+        vec3 vertexC = vec3(verticies[3 * indices.z + 0],
+                            verticies[3 * indices.z + 1],
+                            verticies[3 * indices.z + 2]);
     #endif
 
     #if defined(POINTS)

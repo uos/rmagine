@@ -21,6 +21,8 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(std::map<unsi
     {
         VulkanMeshPtr mesh = geometry.second->this_shared<VulkanMesh>();
 
+        // blas must not have geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR (instead: VK_GEOMETRY_TYPE_TRIANGLES_KHR or VK_GEOMETRY_TYPE_AABBS_KHR)
+        // https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03791
         VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
         accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
         accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;

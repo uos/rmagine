@@ -34,10 +34,11 @@ void VulkanMap::setScene(VulkanScenePtr scene)
         // m_scene = std::make_shared<VulkanScene>();
         // VulkanInstPtr inst = scene->instantiate();
         // m_scene->add(inst);
+        // m_scene->commit();
     }
     else
     {
-        throw std::runtime_error("[VulkanMap::setScene()] ERROR - This should never happen.");
+        throw std::runtime_error("[VulkanMap::setScene()] ERROR - invalid scene type, this should never happen.");
     }
 }
 

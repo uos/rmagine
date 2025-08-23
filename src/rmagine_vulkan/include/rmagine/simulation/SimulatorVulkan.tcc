@@ -63,31 +63,25 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
         previousShaderDefines = newShaderDefines;
 
         pipeline = vulkan_context->getPipeline(newShaderDefines);
-        std::cout << "recieved pipeline & shader binding table" << std::endl;
+        std::cout << "recieved pipeline, shaders & shader binding table" << std::endl;
 
         rerecordCommandBuffer = true;
     }
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if(previousBuffers.vertexID  != map->scene()->vertexptr->getID() ||
-       previousBuffers.indexID   != map->scene()->indexptr->getID()  ||/*
-       previousBuffers.sensorID  != sensorMem.getID()  ||
-       previousBuffers.resultsID != resultsMem.getID() ||
-       previousBuffers.tsbID     != tsbMem.getID()     ||*/
-       previousBuffers.tbmID     != tbmMem.getID()     ||
-       previousBuffers.asID    != map->scene()->as()->getID())
+    if(previousBuffers.asID      != map->scene()->as()->getID() ||
+       previousBuffers.mapDataID != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress() ||
+       previousBuffers.tbmID     != tbmMem.getID())
     {
         //update used buffers
-        previousBuffers.vertexID  = map->scene()->vertexptr->getID();
-        previousBuffers.indexID   = map->scene()->indexptr->getID();
-        previousBuffers.sensorID  = sensorMem.getID();
-        previousBuffers.resultsID = resultsMem.getID();
-        previousBuffers.tsbID     = tsbMem.getID();
+        previousBuffers.asID      = map->scene()->as()->getID();
+        previousBuffers.mapDataID = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress();
         previousBuffers.tbmID     = tbmMem.getID();
-        previousBuffers.asID    = map->scene()->as()->getID();
 
-        descriptorSet->updateDescriptorSet(map->scene()->vertexptr->getBuffer(), map->scene()->indexptr->getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->as());
+        descriptorSet->updateDescriptorSet(map->scene()->as(), 
+                                           map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
+                                           sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer());
         std::cout << "updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
@@ -115,13 +109,9 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
 template<typename SensorModelRamT, typename SensorModelDeviceT>
 void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::resetBufferHistory()
 {
-    previousBuffers.indexID = 0;
-    previousBuffers.vertexID = 0;
-    previousBuffers.sensorID = 0;
-    previousBuffers.resultsID = 0;
-    previousBuffers.tsbID = 0;
-    previousBuffers.tbmID = 0;
     previousBuffers.asID = 0;
+    previousBuffers.mapDataID = 0;
+    previousBuffers.tbmID = 0;
 }
 
 
