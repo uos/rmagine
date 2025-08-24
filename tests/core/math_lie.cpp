@@ -1,5 +1,6 @@
 #include <iostream>
 #include <rmagine/math/lie.h>
+#include <rmagine/math/linalg.h>
 
 #include <rmagine/math/memory_math.h>
 #include <random>
@@ -57,9 +58,8 @@ rm::Memory<rm::Transform> sample(
   return Ts;
 }
 
-int main(int argc, char** argv)
+void test1_sample_mean()
 {
-  std::cout << "RMAGINE CORE MATH LIE" << std::endl;
   std::mt19937 rng(42);
 
   rm::Transform T_true;
@@ -81,6 +81,45 @@ int main(int argc, char** argv)
   std::cout << "- True: " << T_true << std::endl;
   std::cout << "- Mean (karcher):" << T_karcher_mean << ", delta: " << ~T_true * T_karcher_mean << std::endl;
   std::cout << "- Mean (markley): " << T_markley_mean << ", delta: " << ~T_true * T_markley_mean << std::endl;
+
+}
+
+void test2_sample_mean()
+{
+  rm::Transform T1, T2;
+  T1.t = {0.0, 0.0, 0.0};
+  T1.R = rm::EulerAngles{0.0, 0.0, 0.0};
+  T2.t = {0.0, 0.0, 0.0};
+  T2.R = rm::EulerAngles{0.0, 0.0, M_PI};
+
+
+  rm::Memory<rm::Transform, rm::RAM> Ts(2);
+  Ts[0] = T1;
+  Ts[1] = T2;
+  
+  rm::Transform T_karcher_mean = rm::karcher_mean(Ts);
+  rm::Transform T_markley_mean = rm::markley_mean(Ts);
+
+  
+
+  std::cout << "Results: " << std::endl;
+  std::cout << "- Mean (karcher):" << T_karcher_mean << std::endl;
+  std::cout << "- Mean (markley): " << T_markley_mean << std::endl;
+
+
+  rm::Transform T_int = polate(T1, T2, 0.5);
+
+  std::cout << "- T_int: " << T_int << std::endl;
+
+}
+
+int main(int argc, char** argv)
+{
+  std::cout << "RMAGINE CORE MATH LIE" << std::endl;
+  
+  // test1_sample_mean();
+
+  test2_sample_mean();
 
   return 0;
 }

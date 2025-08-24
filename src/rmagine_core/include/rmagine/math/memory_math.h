@@ -469,9 +469,11 @@ Transform markley_mean(
  * max_iters:iteration cap
  */
 Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
-                          const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty(),
-                          float tol = 1e-10f,
-                          int max_iters = 50);
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty(),
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform mock_mean(const MemoryView<Transform, RAM> Ts);
 
 } // namespace rmagine
 

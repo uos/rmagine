@@ -5,8 +5,8 @@
 #include <cassert>
 
 #include <rmagine/math/linalg.h>
-
 #include <rmagine/math/lie.h>
+#include <rmagine/math/optimization.h>
 
 #include <tbb/parallel_for.h>
 
@@ -1069,6 +1069,31 @@ Transform karcher_mean(
   }
 
   return Tm;
+}
+
+Transform mock_mean(const MemoryView<Transform, RAM> Ts)
+{
+  // Ttot = w[0] * Ts[0] + w[1] * Ts[1] + ... + w[n] * Ts[n];
+
+  // sum w = 1
+
+  // Ttot = Identity;
+  // wtot = 0.0;
+  // Ttot = Ttot * wtot + w[0] * Ts[0];
+  // wtot += w[0];
+
+  Transform Ttot = Transform::Identity();
+  float wtot = 0.0;
+
+  float w = 1.0 / static_cast<float>(Ts.size());
+
+  // for(size_t i=0; i<Ts.size(); i++)
+  // {
+  //   polate(Ttot, Ts[i], w);
+  //   wtot += w;
+  // }
+
+  return Ttot;
 }
 
 } // namespace rmagine

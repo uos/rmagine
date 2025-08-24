@@ -8,10 +8,10 @@ namespace rmagine
 template<typename DataT>
 Matrix3x3_<DataT> omega_hat(const Vector3_<DataT>& w)
 {
-  Matrix3x3 W;
-  W(0,0)=0.f;    W(0,1)=-w.z;  W(0,2)= w.y;
-  W(1,0)= w.z;   W(1,1)=0.f;   W(1,2)=-w.x;
-  W(2,0)=-w.y;   W(2,1)= w.x;  W(2,2)=0.f;
+  Matrix3x3_<DataT> W;
+  W(0,0) =  0.0; W(0,1) = -w.z; W(0,2) =  w.y;
+  W(1,0) =  w.z; W(1,1) =  0.0; W(1,2) = -w.x;
+  W(2,0) = -w.y; W(2,1) =  w.x; W(2,2) =  0.f;
   return W;
 }
 
@@ -38,7 +38,8 @@ Matrix3x3_<DataT> rodrigues(
   const DataT t2 = theta * theta;
   Matrix3x3_<DataT> R;
 
-  if(t2 < 1e-12f) {
+  if(t2 < 1e-12f) 
+  {
     // R ≈ I + θ K + 1/2 θ^2 K^2
     const float a1 = theta;
     const float a2 = 0.5f * t2;
