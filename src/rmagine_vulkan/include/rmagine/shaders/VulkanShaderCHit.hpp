@@ -43,19 +43,28 @@ layout(buffer_reference, std430, buffer_reference_align = 32) buffer meshDesc_ar
 
 void main()
 {
+    #if defined(POINTS) || defined(NORMALS)
+        vec3 ray_dir_s = rotateVec3(payload.sensorTf.rot, gl_WorldRayDirectionEXT);
+    #endif
+
+
     #if defined(POINTS)
         vec3 ray_pos_s = displaceVec3(payload.sensorTf, gl_WorldRayOriginEXT);
 
-        vec3 ray_dir_s = rotateVec3(payload.sensorTf.rot, gl_WorldRayDirectionEXT);
-
-        vec3 positionTransfromed = ray_pos_s + (gl_HitTEXT * ray_dir_s);
+        vec3 position = ray_pos_s + (gl_HitTEXT * ray_dir_s);
     #endif
 
 
     #if defined(NORMALS)
-        vec3 geometricNormal;
+        //normal in object space
+        vec3 normal_object;
 
         meshDesc_array meshDescs = meshDesc_array(mapDataBuffer.data[gl_InstanceID]);
+
+        // summary:
+        // use (interpolated) vertex normals if possible
+        // else use face normals if possible
+        // else calculate face normals yourself using verticies and indicies
 
         if(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress != 0)
         {
@@ -80,7 +89,7 @@ void main()
                                       vertexNormals[3 * indices.z + 1].f,
                                       vertexNormals[3 * indices.z + 2].f);
             
-            geometricNormal = (barycentric.x * vertexNormalA) + (barycentric.y * vertexNormalB) + (barycentric.z * vertexNormalC);
+            normal_object = (barycentric.x * vertexNormalA) + (barycentric.y * vertexNormalB) + (barycentric.z * vertexNormalC);
         }
         else if(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress != 0)
         {
@@ -88,9 +97,9 @@ void main()
 
             float_array faceNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress);
 
-            geometricNormal = vec3(faceNormals[3 * gl_PrimitiveID + 0].f,
-                                   faceNormals[3 * gl_PrimitiveID + 1].f,
-                                   faceNormals[3 * gl_PrimitiveID + 2].f);
+            normal_object = vec3(faceNormals[3 * gl_PrimitiveID + 0].f,
+                                 faceNormals[3 * gl_PrimitiveID + 1].f,
+                                 faceNormals[3 * gl_PrimitiveID + 2].f);
         }
         else
         {
@@ -113,10 +122,20 @@ void main()
                                 verticies[3 * indices.z + 1].f,
                                 verticies[3 * indices.z + 2].f);
 
-            geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
+            normal_object = normalize(cross(vertexB - vertexA, vertexC - vertexA));
         }
 
-        //TODO:transform normal to sensor space
+        //transform normal from object to world space
+        vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT)* normal_object);
+
+        //transform normal from world to sensor space
+        vec3 normal = rotateVec3(payload.sensorTf.rot, normal_world);
+
+        //flip?
+        if(dot(ray_dir_s, normal) > 0.0)
+        {
+            normal *= -1.0;
+        }
     #endif
 
 
@@ -137,18 +156,18 @@ void main()
         ranges_buffer[rayIndex].f = gl_HitTEXT;
     #endif
     #if defined(POINTS)
-        //positionTransfromed
+        //position
         float_array points_buffer = float_array(resultsBuffer.data.points.bufferDeviceAddress);
-        points_buffer[3*rayIndex    ].f = positionTransfromed.x;
-        points_buffer[3*rayIndex + 1].f = positionTransfromed.y;
-        points_buffer[3*rayIndex + 2].f = positionTransfromed.z;
+        points_buffer[3*rayIndex    ].f = position.x;
+        points_buffer[3*rayIndex + 1].f = position.y;
+        points_buffer[3*rayIndex + 2].f = position.z;
     #endif
     #if defined(NORMALS)
-        //geometricNormal
+        //normal
         float_array normals_buffer = float_array(resultsBuffer.data.normals.bufferDeviceAddress);
-        normals_buffer[3*rayIndex    ].f = geometricNormal.x;
-        normals_buffer[3*rayIndex + 1].f = geometricNormal.y;
-        normals_buffer[3*rayIndex + 2].f = geometricNormal.z;
+        normals_buffer[3*rayIndex    ].f = normal.x;
+        normals_buffer[3*rayIndex + 1].f = normal.y;
+        normals_buffer[3*rayIndex + 2].f = normal.z;
     #endif
     #if defined(PRIMITIVE_ID)
         //gl_PrimitiveID

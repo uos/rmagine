@@ -16,10 +16,8 @@ using namespace rmagine;
 
 
 
-int main()
+VulkanMapPtr createCustomMap()
 {
-    std::cout << "Main start." << std::endl;
-
     //mapdata:
     Memory<Point, RAM> vertexMem_ram(6);
     Memory<Face, RAM> indexMem_ram(2);
@@ -39,9 +37,40 @@ int main()
     std::cout << "Using Mesh with " << numVerticies << " Verticies & " << numTriangles << " Triangles." << std::endl;
 
 
+    Transform tf90;
+    tf90.setIdentity();
+    tf90.R = {0, 0, 0.7071068, 0.7071068};
+
+
+    VulkanMeshPtr mesh = make_vulkan_mesh(vertexMem_ram, indexMem_ram);
+    mesh->commit();
+
+    VulkanInstPtr geom_inst = mesh->instantiate();
+    geom_inst->apply();
+    geom_inst->commit();
+
+    VulkanInstPtr geom_inst_2 = mesh->instantiate();
+    geom_inst_2->setTransform(tf90);
+    geom_inst_2->apply();
+    geom_inst_2->commit();
+
+    VulkanScenePtr scene = std::make_shared<VulkanScene>();
+    scene->add(geom_inst);
+    scene->add(geom_inst_2);
+    scene->commit();
+
+    return std::make_shared<VulkanMap>(scene);
+}
+
+
+
+int main()
+{
+    std::cout << "Main start." << std::endl;
+
     //create map
-    std::cout << "Creating map main." << std::endl;
-    VulkanMapPtr map = import_vulkan_map(vertexMem_ram, indexMem_ram);
+    std::cout << "Creating map." << std::endl;
+    VulkanMapPtr map = createCustomMap();
 
 
     //allocate sphere sensorbuffer
