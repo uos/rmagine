@@ -29,7 +29,7 @@ public:
     O1DnSimulatorVulkan(const O1DnSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    void setModel(Memory<O1DnModel, RAM>& sensorMem);
+    void setModel(const Memory<O1DnModel, RAM>& sensorMem);
 };
 
 using O1DnSimulatorVulkanPtr = std::shared_ptr<O1DnSimulatorVulkan>;

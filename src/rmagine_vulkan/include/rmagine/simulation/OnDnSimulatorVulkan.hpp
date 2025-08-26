@@ -29,7 +29,7 @@ public:
     OnDnSimulatorVulkan(const OnDnSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    void setModel(Memory<OnDnModel, RAM>& sensorMem_ram);
+    void setModel(const Memory<OnDnModel, RAM>& sensorMem_ram);
 };
 
 using OnDnSimulatorVulkanPtr = std::shared_ptr<OnDnSimulatorVulkan>;

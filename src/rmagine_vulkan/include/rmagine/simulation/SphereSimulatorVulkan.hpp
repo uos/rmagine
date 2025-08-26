@@ -26,7 +26,7 @@ public:
     SphereSimulatorVulkan(const SphereSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    void setModel(Memory<SphericalModel, RAM>& sensorMem_ram);
+    void setModel(const Memory<SphericalModel, RAM>& sensorMem_ram);
 };
 
 using SphereSimulatorVulkanPtr = std::shared_ptr<SphereSimulatorVulkan>;

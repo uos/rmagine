@@ -54,19 +54,19 @@ void main()
         // float_array vertesNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress);
 
 
-        ivec3 indices = ivec3(faces[3 * gl_PrimitiveID + 0],
-                              faces[3 * gl_PrimitiveID + 1],
-                              faces[3 * gl_PrimitiveID + 2]);
+        uvec3 indices = uvec3(faces[3 * gl_PrimitiveID + 0].i,
+                              faces[3 * gl_PrimitiveID + 1].i,
+                              faces[3 * gl_PrimitiveID + 2].i);
 
-        vec3 vertexA = vec3(verticies[3 * indices.x + 0],
-                            verticies[3 * indices.x + 1],
-                            verticies[3 * indices.x + 2]);
-        vec3 vertexB = vec3(verticies[3 * indices.y + 0],
-                            verticies[3 * indices.y + 1],
-                            verticies[3 * indices.y + 2]);
-        vec3 vertexC = vec3(verticies[3 * indices.z + 0],
-                            verticies[3 * indices.z + 1],
-                            verticies[3 * indices.z + 2]);
+        vec3 vertexA = vec3(verticies[3 * indices.x + 0].f,
+                            verticies[3 * indices.x + 1].f,
+                            verticies[3 * indices.x + 2].f);
+        vec3 vertexB = vec3(verticies[3 * indices.y + 0].f,
+                            verticies[3 * indices.y + 1].f,
+                            verticies[3 * indices.y + 2].f);
+        vec3 vertexC = vec3(verticies[3 * indices.z + 0].f,
+                            verticies[3 * indices.z + 1].f,
+                            verticies[3 * indices.z + 2].f);
     #endif
 
     #if defined(POINTS)
