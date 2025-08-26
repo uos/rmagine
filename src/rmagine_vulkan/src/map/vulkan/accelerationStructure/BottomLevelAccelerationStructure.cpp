@@ -51,10 +51,18 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(std::map<unsi
 
         m_meshDescriptions_ram[idx].vertexAddress = mesh->vertices.getBuffer()->getBufferDeviceAddress();
         m_meshDescriptions_ram[idx].faceAddress = mesh->faces.getBuffer()->getBufferDeviceAddress();
-        if(mesh->face_normals.size() > 0)
+        if(mesh->face_normals.size() == mesh->faces.size())
+        {
             m_meshDescriptions_ram[idx].faceNormalAddress = mesh->face_normals.getBuffer()->getBufferDeviceAddress();
-        if(mesh->vertex_normals.size() > 0)
+        } else {
+            m_meshDescriptions_ram[idx].faceNormalAddress = 0;
+        }
+        if(mesh->vertex_normals.size() == mesh->vertices.size())
+        {
             m_meshDescriptions_ram[idx].vertexNormalAddress = mesh->vertex_normals.getBuffer()->getBufferDeviceAddress();
+        } else {
+            m_meshDescriptions_ram[idx].vertexNormalAddress = 0;
+        }
 
         idx++;
     }

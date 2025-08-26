@@ -59,7 +59,7 @@ void main()
 
         if(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress != 0)
         {
-            //interpolate vertex normals to get hit normal - TODO: not tested
+            //interpolate vertex normals to get hit normal
 
             uint_array  faces     =  uint_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceAddress);
             float_array vertexNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress);

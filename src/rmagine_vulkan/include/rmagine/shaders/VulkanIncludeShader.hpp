@@ -23,14 +23,14 @@ static const std::string util_code = R""""(
 
 
 
-#if defined(O1DN) || defined(ONDN) || defined(RANGES) || defined(POINTS) || defined(NORMALS) || defined(POINTS) || defined(NORMALS)
+#if defined(O1DN) || defined(ONDN) || defined(RANGES) || defined(NORMALS)
     layout(buffer_reference, std430, buffer_reference_align = 4) buffer float_array //cant be a vec3 array as that would introduce 4 bytes of padding 
     {
         float f;
     };
 #endif
-#if defined(PRIMITIVE_ID) || defined(GEOMETRY_ID) || defined(INSTANCE_ID) || defined(POINTS) || defined(NORMALS)
-    layout(buffer_reference, std430, buffer_reference_align = 4) buffer uint_array 
+#if defined(PRIMITIVE_ID) || defined(GEOMETRY_ID) || defined(INSTANCE_ID) || defined(NORMALS)
+    layout(buffer_reference, std430, buffer_reference_align = 4) buffer uint_array //cant be a uvec3 array as that would introduce 4 bytes of padding 
     {
         uint i;
     };
