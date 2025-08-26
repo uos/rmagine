@@ -37,11 +37,11 @@ VulkanMapPtr createCustomMap()
     Memory<Point, RAM> vertexMem_2_ram(3);
     Memory<Face, RAM> indexMem_2_ram(1);
     //Vertecies
-    vertexMem_ram[0] = { 30.0f,   0.0f, -30.0f};
-    vertexMem_ram[1] = {-30.0f,  30.0f, -30.0f};
-    vertexMem_ram[2] = {-30.0f, -30.0f, -30.0f};
+    vertexMem_2_ram[0] = { 30.0f,   0.0f, -30.0f};
+    vertexMem_2_ram[1] = {-30.0f,  30.0f, -30.0f};
+    vertexMem_2_ram[2] = {-30.0f, -30.0f, -30.0f};
     //Indicies
-    indexMem_ram[0] = {0, 1, 2};
+    indexMem_2_ram[0] = {0, 1, 2};
 
 
     Transform tf90;
