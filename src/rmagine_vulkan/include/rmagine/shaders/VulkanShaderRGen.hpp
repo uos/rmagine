@@ -14,6 +14,7 @@
 static const std::string rgen_code = R""""(
 
 
+
 layout(location = 0) rayPayloadEXT Payload
 {
     //needed for transforming to sensor coordinates

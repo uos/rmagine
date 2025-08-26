@@ -3,7 +3,7 @@
 namespace rmagine
 {
 
-//MemoryView - VULKAN_DEVICE_LOCAL
+//// MemoryView - VULKAN_DEVICE_LOCAL
 
 template<typename DataT>
 size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::size() const
@@ -75,7 +75,7 @@ DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingDeviceMemory()
 
 
 
-//Memory - VULKAN_DEVICE_LOCAL
+//// Memory - VULKAN_DEVICE_LOCAL
 
 template<typename DataT>
 Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory()
@@ -146,6 +146,7 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator
 
 
 //// VULKAN_DEVICE_LOCAL
+
 template<typename DataT>
 DataT* VULKAN_DEVICE_LOCAL::alloc(size_t N)
 {

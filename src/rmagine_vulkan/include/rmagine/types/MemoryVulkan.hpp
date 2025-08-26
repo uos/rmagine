@@ -20,6 +20,20 @@
 namespace rmagine
 {
 
+struct VULKAN_HOST_VISIBLE
+{
+    template<typename DataT>
+    static DataT* alloc(size_t N);
+
+    template<typename DataT>
+    static DataT* realloc(DataT* mem, size_t Nold, size_t Nnew);
+
+    template<typename DataT>
+    static void free(DataT* mem, size_t N);
+};
+
+
+
 struct VULKAN_DEVICE_LOCAL
 {
     template<typename DataT>
@@ -34,6 +48,8 @@ struct VULKAN_DEVICE_LOCAL
 
 
 
+//TODO: make into id gen and transfer mem holder
+//      might have to move this down as it needs to hold hostvis mem
 struct MemoryData
 {
     size_t size = 0;
@@ -73,10 +89,126 @@ using MemoryDataPtr = std::shared_ptr<MemoryData>;
 
 
 
+//// MemoryView - VULKAN_HOST_VISIBLE
+
+template<typename DataT>
+class MemoryView<DataT, VULKAN_HOST_VISIBLE>
+{
+protected:
+    //TODO: not used
+    size_t m_size = 0;
+    size_t m_offset = 0;
+    size_t m_memID = 0;
+    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    BufferPtr m_buffer = nullptr;
+    DeviceMemoryPtr m_deviceMemory = nullptr;
+
+    //TODO: remove laters
+    VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
+    MemoryDataPtr memoryData = nullptr;  // reduces footprint on gpu, bundels data & allows memoryViews to access the same data as the correspondeing memory objects easily
+
+public:
+    // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+
+    // template<typename MemT2>
+    // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+
+    // DataT& at(size_t idx);
+
+    // const DataT& at(size_t idx) const;
+
+    // DataT& operator[](size_t idx);
+
+    // const DataT& operator[](size_t idx) const;
+
+    // DataT& operator*();
+
+    // const DataT& operator*() const;
+
+    // MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end);
+
+    // const MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end) const;
+
+    // MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end);
+
+    // const MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end) const;
+
+    // TODO:
+    // raw() & operator->() cannot be implementet.
+    // i am not sure about at(size_t idx), operator[](size_t idx) & operator*().
+    // but slice(size_t idx_start, size_t idx_end) & operator()(size_t idx_start, size_t idx_end) should probably work (i will just need to save an offset and a stride)
+
+    size_t size() const;
+
+    size_t getID() const;
+
+    BufferPtr getBuffer() const;
+
+    DeviceMemoryPtr getDeviceMemory() const;
+};
+
+
+
+//// Memory - VULKAN_HOST_VISIBLE
+
+template<typename DataT>
+class Memory<DataT, VULKAN_HOST_VISIBLE> : public MemoryView<DataT, VULKAN_HOST_VISIBLE>
+{
+public:
+    using Base = MemoryView<DataT, VULKAN_HOST_VISIBLE>;
+
+    Memory();
+    
+    Memory(size_t size);
+
+    Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
+
+    ~Memory() {};
+
+
+    void resize(size_t N);
+
+    void resize(size_t N, VkBufferUsageFlags bufferUsageFlags);
+
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, VULKAN_HOST_VISIBLE>& o) = default;//TODO: make it work like the other operator= function
+
+    // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+
+    template<typename MemT2>
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, MemT2>& o);
+
+    // template<typename MemT2>
+    // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+
+protected:
+    using Base::m_size;
+    using Base::m_offset;
+    using Base::m_memID;
+    using Base::m_bufferUsageFlags;
+    using Base::m_buffer;
+    using Base::m_deviceMemory;
+
+    using Base::bufferDeviceAddress;
+    using Base::memoryData;
+};
+
+
+
+//// MemoryView - VULKAN_DEVICE_LOCAL
+
 template<typename DataT>
 class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 {
 protected:
+    //TODO: not used
+    size_t m_size = 0;
+    size_t m_offset = 0;
+    size_t m_memID = 0;
+    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    BufferPtr m_buffer = nullptr;
+    DeviceMemoryPtr m_deviceMemory = nullptr;
+
+    //TODO: remove laters
     VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
     MemoryDataPtr memoryData = nullptr;  // reduces footprint on gpu, bundels data & allows memoryViews to access the same data as the correspondeing memory objects easily
 
@@ -126,6 +258,8 @@ public:
 
 
 
+//// Memory - VULKAN_DEVICE_LOCAL
+
 template<typename DataT>
 class Memory<DataT, VULKAN_DEVICE_LOCAL> : public MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 {
@@ -156,6 +290,13 @@ public:
     // Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
 protected:
+    using Base::m_size;
+    using Base::m_offset;
+    using Base::m_memID;
+    using Base::m_bufferUsageFlags;
+    using Base::m_buffer;
+    using Base::m_deviceMemory;
+
     using Base::bufferDeviceAddress;
     using Base::memoryData;
 };
@@ -164,6 +305,8 @@ protected:
 
 
 
+
+//// VULKAN_DEVICE_LOCAL
 
 //////////////////////////
 ///   HOST TO DEVICE   ///
@@ -226,6 +369,63 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
     get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 }
 
+
+
+//// VULKAN_HOST_VISIBLE
+
+//////////////////////////
+///   HOST TO DEVICE   ///
+//////////////////////////
+template<typename DataT>
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+{
+    
+}
+
+
+//////////////////////////
+///   DEVICE TO HOST   ///
+//////////////////////////
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, RAM>& to)
+{
+    
+}
+
+
+////////////////////////////
+///   DEVICE TO DEVICE   ///
+////////////////////////////
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+{
+    
+}
+
+
+
+//// VULKAN_DEVICE_LOCAL & VULKAN_HOST_VISIBLE
+
+////////////////////////////
+///   DEVICE TO DEVICE   ///
+////////////////////////////
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+{
+    
+}
+
+
+////////////////////////////
+///   DEVICE TO DEVICE   ///
+////////////////////////////
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+{
+    
+}
+
 } // namespace rmagine
 
-#include "MemoryVulkan.tcc"
+#include "MemoryVulkanHostVisible.tcc"
+#include "MemoryVulkanDeviceLocal.tcc"

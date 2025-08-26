@@ -14,6 +14,7 @@
 static const std::string chit_code = R""""(
 hitAttributeEXT vec2 hitCoordinate;
 
+
 layout(location = 0) rayPayloadInEXT Payload
 {
     //needed for transforming to sensor coordinates

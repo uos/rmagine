@@ -14,6 +14,7 @@
 static const std::string miss_code = R""""(
 
 
+
 layout(location = 0) rayPayloadInEXT Payload
 {
     //needed for transforming to sensor coordinates
