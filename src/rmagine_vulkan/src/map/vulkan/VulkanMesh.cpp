@@ -62,16 +62,16 @@ VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RA
     ret->faces = faces_ram;
 
     // ret->computeFaceNormals();
-    Memory<Vector, RAM> face_normals_ram(num_faces);
-    for(size_t i=0; i<num_faces; i++)
-    {
-        const Vector v0 = vertices_ram[faces_ram[i].v0];
-        const Vector v1 = vertices_ram[faces_ram[i].v1];
-        const Vector v2 = vertices_ram[faces_ram[i].v2];
-        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
-    }
-    ret->face_normals.resize(num_faces);
-    ret->face_normals = face_normals_ram;
+    // Memory<Vector, RAM> face_normals_ram(num_faces);
+    // for(size_t i=0; i<num_faces; i++)
+    // {
+    //     const Vector v0 = vertices_ram[faces_ram[i].v0];
+    //     const Vector v1 = vertices_ram[faces_ram[i].v1];
+    //     const Vector v2 = vertices_ram[faces_ram[i].v2];
+    //     face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
+    // }
+    // ret->face_normals.resize(num_faces);
+    // ret->face_normals = face_normals_ram;
 
     ret->apply();
 

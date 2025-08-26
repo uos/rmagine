@@ -43,42 +43,80 @@ layout(buffer_reference, std430, buffer_reference_align = 32) buffer meshDesc_ar
 
 void main()
 {
-    #if defined(POINTS) || defined(NORMALS)
+    #if defined(POINTS)
+        vec3 ray_pos_s = displaceVec3(payload.sensorTf, gl_WorldRayOriginEXT);
+
+        vec3 ray_dir_s = rotateVec3(payload.sensorTf.rot, gl_WorldRayDirectionEXT);
+
+        vec3 positionTransfromed = ray_pos_s + (gl_HitTEXT * ray_dir_s);
+    #endif
+
+
+    #if defined(NORMALS)
+        vec3 geometricNormal;
 
         meshDesc_array meshDescs = meshDesc_array(mapDataBuffer.data[gl_InstanceID]);
 
-        float_array verticies     = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexAddress);
-        uint_array  faces         =  uint_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceAddress);
-        // TODO: only assign these if the address is not 0:
-        // float_array faceNormals   = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress);
-        // float_array vertesNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress);
+        if(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress != 0)
+        {
+            //interpolate vertex normals to get hit normal - TODO: not tested
 
+            uint_array  faces     =  uint_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceAddress);
+            float_array vertexNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexNormalAddress);
 
-        uvec3 indices = uvec3(faces[3 * gl_PrimitiveID + 0].i,
-                              faces[3 * gl_PrimitiveID + 1].i,
-                              faces[3 * gl_PrimitiveID + 2].i);
+            vec3 barycentric = vec3(1.0 - hitCoordinate.x - hitCoordinate.y, hitCoordinate.x, hitCoordinate.y);
 
-        vec3 vertexA = vec3(verticies[3 * indices.x + 0].f,
-                            verticies[3 * indices.x + 1].f,
-                            verticies[3 * indices.x + 2].f);
-        vec3 vertexB = vec3(verticies[3 * indices.y + 0].f,
-                            verticies[3 * indices.y + 1].f,
-                            verticies[3 * indices.y + 2].f);
-        vec3 vertexC = vec3(verticies[3 * indices.z + 0].f,
-                            verticies[3 * indices.z + 1].f,
-                            verticies[3 * indices.z + 2].f);
-    #endif
+            uvec3 indices = uvec3(faces[3 * gl_PrimitiveID + 0].i,
+                                  faces[3 * gl_PrimitiveID + 1].i,
+                                  faces[3 * gl_PrimitiveID + 2].i);
 
-    #if defined(POINTS)
-        vec3 barycentric = vec3(1.0 - hitCoordinate.x - hitCoordinate.y, hitCoordinate.x, hitCoordinate.y);
+            vec3 vertexNormalA = vec3(vertexNormals[3 * indices.x + 0].f,
+                                      vertexNormals[3 * indices.x + 1].f,
+                                      vertexNormals[3 * indices.x + 2].f);
+            vec3 vertexNormalB = vec3(vertexNormals[3 * indices.y + 0].f,
+                                      vertexNormals[3 * indices.y + 1].f,
+                                      vertexNormals[3 * indices.y + 2].f);
+            vec3 vertexNormalC = vec3(vertexNormals[3 * indices.z + 0].f,
+                                      vertexNormals[3 * indices.z + 1].f,
+                                      vertexNormals[3 * indices.z + 2].f);
+            
+            geometricNormal = (barycentric.x * vertexNormalA) + (barycentric.y * vertexNormalB) + (barycentric.z * vertexNormalC);
+        }
+        else if(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress != 0)
+        {
+            //grab face normal from array
 
-        vec3 position = vertexA * barycentric.x + vertexB * barycentric.y + vertexC * barycentric.z;
+            float_array faceNormals = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress);
 
-        vec3 positionTransfromed = rotateVec3(payload.sensorTf.rot, (position - payload.sensorTf.pos));//CHECK: test if math is correct...
-    #endif
+            geometricNormal = vec3(faceNormals[3 * gl_PrimitiveID + 0].f,
+                                   faceNormals[3 * gl_PrimitiveID + 1].f,
+                                   faceNormals[3 * gl_PrimitiveID + 2].f);
+        }
+        else
+        {
+            //calculate face normal from vertex and index data
 
-    #if defined(NORMALS)
-        vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
+            uint_array  faces     =  uint_array(meshDescs[gl_GeometryIndexEXT].meshDesc.faceAddress);
+            float_array verticies = float_array(meshDescs[gl_GeometryIndexEXT].meshDesc.vertexAddress);
+
+            uvec3 indices = uvec3(faces[3 * gl_PrimitiveID + 0].i,
+                                  faces[3 * gl_PrimitiveID + 1].i,
+                                  faces[3 * gl_PrimitiveID + 2].i);
+
+            vec3 vertexA = vec3(verticies[3 * indices.x + 0].f,
+                                verticies[3 * indices.x + 1].f,
+                                verticies[3 * indices.x + 2].f);
+            vec3 vertexB = vec3(verticies[3 * indices.y + 0].f,
+                                verticies[3 * indices.y + 1].f,
+                                verticies[3 * indices.y + 2].f);
+            vec3 vertexC = vec3(verticies[3 * indices.z + 0].f,
+                                verticies[3 * indices.z + 1].f,
+                                verticies[3 * indices.z + 2].f);
+
+            geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
+        }
+
+        //TODO:transform normal to sensor space
     #endif
 
 

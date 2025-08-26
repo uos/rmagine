@@ -126,4 +126,9 @@ Transform multTransforms(Transform t1, Transform t2)
     return t3;
 }
 
+vec3 displaceVec3(Transform t, vec3 v)
+{
+    return rotateVec3(t.rot, v) + t.pos;
+}
+
 )"""";

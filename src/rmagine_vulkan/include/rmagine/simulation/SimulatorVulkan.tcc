@@ -99,7 +99,7 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
         previousDimensions.depth = newDimensions.depth;
 
         commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, pipeline, newDimensions.width, newDimensions.height, newDimensions.depth);
-        std::cout << "rerecorded instructions to command buffer" << std::endl;
+        std::cout << "(re)recorded instructions to command buffer" << std::endl;
     }
 
     commandBuffer->submitRecordedCommandAndWait();
