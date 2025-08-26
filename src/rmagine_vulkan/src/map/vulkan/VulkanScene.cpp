@@ -296,7 +296,7 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
                 VulkanMeshPtr mesh = mesh_it->second;
                 instanciated_meshes.insert(mesh);
                 mesh_scene->add(mesh);
-                mesh_scene->commit();
+                // mesh_scene->commit();
             }
             else
             {
