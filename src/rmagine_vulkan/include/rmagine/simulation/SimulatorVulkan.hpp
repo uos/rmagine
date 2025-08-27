@@ -23,7 +23,7 @@
 namespace rmagine
 {
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
+template<typename SensorModelRamT>
 class SimulatorVulkan
 {
 private:
@@ -37,7 +37,7 @@ protected:
     DescriptorSetPtr descriptorSet = nullptr;
     PipelinePtr pipeline = nullptr;
 
-    Memory<SensorModelDeviceT, VULKAN_DEVICE_LOCAL> sensorMem;
+    Memory<SensorModelRamT, VULKAN_DEVICE_LOCAL> sensorMem;
     Memory<Transform, VULKAN_DEVICE_LOCAL> tsbMem;
     Memory<VulkanResultsData, VULKAN_DEVICE_LOCAL> resultsMem;
     Memory<VulkanOrigsDirsAndTransformsData, VULKAN_DEVICE_LOCAL> origsDirsAndTransformsMem;
@@ -46,12 +46,11 @@ protected:
     struct PreviousBuffers{
         VkDeviceAddress asAddress = 0;
         VkDeviceAddress mapDataAddress = 0;
-        size_t tbmID = 0;
 
         VulkanResultsData resultsAddresses{};
         VulkanOrigsDirsAndTransformsData origsDirsAndTransformsAddresses{};
 
-    }previousBuffers;
+    }previousBuffers;//TODO: rename previous addresses
 
     ShaderDefineFlags previousShaderDefines = 0;
 

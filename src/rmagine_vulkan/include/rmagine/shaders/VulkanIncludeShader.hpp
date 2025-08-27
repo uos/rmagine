@@ -60,16 +60,17 @@ struct DiscreteInterval
     int size;
 };
 
+// this is just a placeholder-struct, 
+// as nothing in this shader actually reads from this struct
+// but it is part of the o1dn and ondn sensors
 struct Memory
 {
-    uint64_t bufferDeviceAddress;
-    //the memory object contains a shared pointer which consists of 2 pointers (irrelevant1 & irrelevant2)
     #if defined(_64BIT)
-        uint64_t irrelevant1;
-        uint64_t irrelevant2;
+        uint64_t ptr;
+        uint64_t size;
     #elif defined(_32BIT)
-        int irrelevant1;
-        int irrelevant2;
+        int ptr;
+        int size;
     #endif
 };
 

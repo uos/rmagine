@@ -45,7 +45,7 @@ public:
 
     void updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                              BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
-                             BufferPtr tsbBuffer, BufferPtr tbmBuffer);
+                             BufferPtr tsbBuffer, BufferPtr origsDirsAndTransformsBuffer);
 
     VkDescriptorSet* getDescriptorSetPtr();
 

@@ -16,10 +16,10 @@
 namespace rmagine
 {
 
-class SphereSimulatorVulkan : public SimulatorVulkan<SphericalModel, SphericalModel>
+class SphereSimulatorVulkan : public SimulatorVulkan<SphericalModel>
 {
 public:
-    SphereSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<SphericalModel, SphericalModel>(map) {}
+    SphereSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<SphericalModel>(map) {}
 
     ~SphereSimulatorVulkan() {}
 

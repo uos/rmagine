@@ -16,13 +16,13 @@
 namespace rmagine
 {
 
-class O1DnSimulatorVulkan : public SimulatorVulkan<O1DnModel, O1DnModel_<VULKAN_DEVICE_LOCAL>>
+class O1DnSimulatorVulkan : public SimulatorVulkan<O1DnModel>
 {
 private:
-    Memory<O1DnModel_<VULKAN_DEVICE_LOCAL>, RAM> sensorMem_half_ram;
+    Memory<Vector, VULKAN_DEVICE_LOCAL> dirs;
 
 public:
-    O1DnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<O1DnModel, O1DnModel_<VULKAN_DEVICE_LOCAL>>(map), sensorMem_half_ram(1) {}
+    O1DnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<O1DnModel>(map) {}
 
     ~O1DnSimulatorVulkan() {}
 
@@ -30,6 +30,8 @@ public:
 
 
     void setModel(const Memory<O1DnModel, RAM>& sensorMem);
+
+    void updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
 };
 
 using O1DnSimulatorVulkanPtr = std::shared_ptr<O1DnSimulatorVulkan>;

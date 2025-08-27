@@ -36,7 +36,7 @@ void DescriptorSet::allocateDescriptorSet()
 
 void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                                         BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
-                                        BufferPtr tsbBuffer, BufferPtr tbmBuffer)
+                                        BufferPtr tsbBuffer, BufferPtr origsDirsAndTransformsBuffer)
 {
     VkWriteDescriptorSetAccelerationStructureKHR accelerationStructureDescriptorInfo{};
     accelerationStructureDescriptorInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
@@ -59,9 +59,9 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
     tsbDescriptorInfo.buffer = tsbBuffer->getBuffer();
     tsbDescriptorInfo.range = VK_WHOLE_SIZE;
     
-    VkDescriptorBufferInfo tbmDescriptorInfo{};
-    tbmDescriptorInfo.buffer = tbmBuffer->getBuffer();
-    tbmDescriptorInfo.range = VK_WHOLE_SIZE;
+    VkDescriptorBufferInfo origsDirsAndTransformsDescriptorInfo{};
+    origsDirsAndTransformsDescriptorInfo.buffer = origsDirsAndTransformsBuffer->getBuffer();
+    origsDirsAndTransformsDescriptorInfo.range = VK_WHOLE_SIZE;
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSetList = {
         {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//acceleration structure
@@ -90,7 +90,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 2,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
          .pImageInfo = nullptr,
          .pBufferInfo = &sensorDescriptorInfo,
          .pTexelBufferView = nullptr},
@@ -100,7 +100,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 3,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
          .pImageInfo = nullptr,
          .pBufferInfo = &resultsDescriptorInfo,
          .pTexelBufferView = nullptr},
@@ -110,19 +110,19 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 4,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
          .pImageInfo = nullptr,
          .pBufferInfo = &tsbDescriptorInfo,
          .pTexelBufferView = nullptr},
-        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//tbm buffer
+        {.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,//origsDirsAndTransforms buffer
          .pNext = nullptr,
          .dstSet = descriptorSet,
          .dstBinding = 5,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
          .pImageInfo = nullptr,
-         .pBufferInfo = &tbmDescriptorInfo,
+         .pBufferInfo = &origsDirsAndTransformsDescriptorInfo,
          .pTexelBufferView = nullptr}};
 
     vkUpdateDescriptorSets(device->getLogicalDevice(), writeDescriptorSetList.size(), writeDescriptorSetList.data(), 0, NULL);

@@ -16,10 +16,10 @@
 namespace rmagine
 {
 
-class PinholeSimulatorVulkan : public SimulatorVulkan<PinholeModel, PinholeModel>
+class PinholeSimulatorVulkan : public SimulatorVulkan<PinholeModel>
 {
 public:
-    PinholeSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<PinholeModel, PinholeModel>(map) {}
+    PinholeSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<PinholeModel>(map) {}
 
     ~PinholeSimulatorVulkan() {}
 

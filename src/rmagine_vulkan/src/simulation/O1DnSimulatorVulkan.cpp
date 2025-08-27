@@ -7,17 +7,43 @@ namespace rmagine
 
 void O1DnSimulatorVulkan::setModel(const Memory<O1DnModel, RAM>& sensorMem_ram)
 {
-    sensorMem_half_ram[0].range = sensorMem_ram[0].range;
-    sensorMem_half_ram[0].width = sensorMem_ram[0].width;
-    sensorMem_half_ram[0].height = sensorMem_ram[0].height;
-    sensorMem_half_ram[0].orig = sensorMem_ram[0].orig;
-    sensorMem_half_ram[0].dirs = Memory<Vector3, VULKAN_DEVICE_LOCAL>(sensorMem_ram[0].dirs.size());
-    sensorMem_half_ram[0].dirs = sensorMem_ram[0].dirs;
+    sensorMem = sensorMem_ram;
 
-    sensorMem = sensorMem_half_ram;
+    dirs.resize(sensorMem_ram[0].dirs.size());
+    dirs = sensorMem_ram[0].dirs;
     
     newDimensions.width = sensorMem_ram[0].width;
     newDimensions.height = sensorMem_ram[0].height;
+}
+
+void O1DnSimulatorVulkan::updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram)
+{
+    if(previousBuffers.resultsAddresses.hitsAddress        != resultsMem_ram[0].hitsAddress        ||
+       previousBuffers.resultsAddresses.rangesAddress      != resultsMem_ram[0].rangesAddress      ||
+       previousBuffers.resultsAddresses.pointsAddress      != resultsMem_ram[0].pointsAddress      ||
+       previousBuffers.resultsAddresses.normalsAddress     != resultsMem_ram[0].normalsAddress     ||
+       previousBuffers.resultsAddresses.primitiveIdAddress != resultsMem_ram[0].primitiveIdAddress ||
+       previousBuffers.resultsAddresses.instanceIdAddress  != resultsMem_ram[0].instanceIdAddress  ||
+       previousBuffers.resultsAddresses.geometryIdAddress  != resultsMem_ram[0].geometryIdAddress)
+    {
+        previousBuffers.resultsAddresses = resultsMem_ram[0];
+
+        resultsMem = resultsMem_ram;
+    }
+
+    if(previousBuffers.origsDirsAndTransformsAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
+       previousBuffers.origsDirsAndTransformsAddresses.origsAddress != 0 ||
+       previousBuffers.origsDirsAndTransformsAddresses.dirsAddress  != dirs.getBuffer()->getBufferDeviceAddress())
+    {
+        Memory<VulkanOrigsDirsAndTransformsData, RAM> origsDirsAndTransformsMem_ram(1);
+        origsDirsAndTransformsMem_ram[0].tbmAddress   = tbmMem.getBuffer()->getBufferDeviceAddress();
+        origsDirsAndTransformsMem_ram[0].origsAddress = 0;
+        origsDirsAndTransformsMem_ram[0].dirsAddress  = dirs.getBuffer()->getBufferDeviceAddress();
+
+        previousBuffers.origsDirsAndTransformsAddresses = origsDirsAndTransformsMem_ram[0];
+
+        origsDirsAndTransformsMem = origsDirsAndTransformsMem_ram;
+    }
 }
 
 } // namespace rmagine
