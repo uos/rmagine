@@ -50,42 +50,12 @@ struct VULKAN_DEVICE_LOCAL
 
 //TODO: make into id gen and transfer mem holder
 //      might have to move this down as it needs to hold hostvis mem
-struct MemoryData
+struct MemoryHelper
 {
-    size_t size = 0;
-    size_t memID = 0;
-    BufferPtr buffer = nullptr;
-    DeviceMemoryPtr deviceMemory = nullptr;
-    BufferPtr stagingBuffer = nullptr;
-    DeviceMemoryPtr stagingDeviceMemory = nullptr;
+    static size_t MemIDcounter;
 
-    MemoryData()
-    {
-        memID = getNewMemID();
-        std::cout << "New Memory with memID: " << memID << std::endl;
-    };
-
-    ~MemoryData()
-    {
-        std::cout << "Destroying Memory with memID: " << memID << std::endl;
-        if(deviceMemory != nullptr)
-            deviceMemory->cleanup();
-        if(buffer != nullptr)
-            buffer->cleanup();
-        if(stagingDeviceMemory != nullptr)
-            stagingDeviceMemory->cleanup();
-        if(stagingBuffer != nullptr)
-            stagingBuffer->cleanup();
-    }
-
-    MemoryData(const MemoryData&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
-
-private:
-    static size_t memIDcounter;
-
-    static size_t getNewMemID();
+    static size_t GetNewMemID();
 };
-using MemoryDataPtr = std::shared_ptr<MemoryData>;
 
 
 
@@ -95,17 +65,12 @@ template<typename DataT>
 class MemoryView<DataT, VULKAN_HOST_VISIBLE>
 {
 protected:
-    //TODO: not used
     size_t m_size = 0;
     size_t m_offset = 0;
     size_t m_memID = 0;
     VkBufferUsageFlags m_bufferUsageFlags = 0;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
-
-    //TODO: remove laters
-    VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
-    MemoryDataPtr memoryData = nullptr;  // reduces footprint on gpu, bundels data & allows memoryViews to access the same data as the correspondeing memory objects easily
 
 public:
     // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
@@ -187,9 +152,6 @@ protected:
     using Base::m_bufferUsageFlags;
     using Base::m_buffer;
     using Base::m_deviceMemory;
-
-    using Base::bufferDeviceAddress;
-    using Base::memoryData;
 };
 
 
@@ -200,7 +162,6 @@ template<typename DataT>
 class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 {
 protected:
-    //TODO: not used
     size_t m_size = 0;
     size_t m_offset = 0;
     size_t m_memID = 0;
@@ -209,10 +170,6 @@ protected:
     DeviceMemoryPtr m_deviceMemory = nullptr;
     BufferPtr stagingBuffer = nullptr; //TODO: remove later
     DeviceMemoryPtr stagingDeviceMemory = nullptr; //TODO: remove later
-
-    //TODO: remove laters
-    VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
-    MemoryDataPtr memoryData = nullptr;  // reduces footprint on gpu, bundels data & allows memoryViews to access the same data as the correspondeing memory objects easily
 
 public:
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
@@ -300,9 +257,6 @@ protected:
     using Base::m_deviceMemory;
     using Base::stagingBuffer; //TODO: remove later
     using Base::stagingDeviceMemory; //TODO: remove later
-
-    using Base::bufferDeviceAddress;
-    using Base::memoryData;
 };
 
 

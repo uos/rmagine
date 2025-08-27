@@ -5,15 +5,15 @@
 namespace rmagine
 {
 
-size_t MemoryData::memIDcounter = 0;
+size_t MemoryHelper::MemIDcounter = 0;
 
-size_t MemoryData::getNewMemID()
+size_t MemoryHelper::GetNewMemID()
 {
-    if(memIDcounter == SIZE_MAX)
+    if(MemIDcounter == SIZE_MAX)
     {
         throw std::runtime_error("You created way too many memory objects!"); 
     }
-    return ++memIDcounter;
+    return ++MemIDcounter;
 }
 
 } // namespace rmagine

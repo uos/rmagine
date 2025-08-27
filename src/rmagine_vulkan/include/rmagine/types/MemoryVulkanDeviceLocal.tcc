@@ -8,66 +8,42 @@ namespace rmagine
 template<typename DataT>
 size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::size() const
 {
-    if(memoryData == nullptr)
-    {
-        return 0;
-    }
-    return memoryData->size;
+    return m_size;
 }
 
 
 template <typename DataT>
 size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getID() const
 {
-    if(memoryData == nullptr)
-    {
-        return 0;
-    }
-    return memoryData->memID;
+    return m_memID;
 }
 
 
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getBuffer() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->buffer;
+    return m_buffer;
 }
 
 
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingBuffer() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->stagingBuffer;
+    return m_stagingBuffer;
 }
 
 
 template<typename DataT>
 DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getDeviceMemory() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->deviceMemory;
+    return m_deviceMemory;
 }
 
 
 template<typename DataT>
 DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingDeviceMemory() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->stagingDeviceMemory;
+    return m_stagingDeviceMemory;
 }
 
 
@@ -80,7 +56,7 @@ DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingDeviceMemory()
 template<typename DataT>
 Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory()
 {
-    bufferDeviceAddress = 0;
+    
 }
 
 template<typename DataT>
@@ -106,24 +82,40 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
 template<typename DataT>
 void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N, VkBufferUsageFlags bufferUsageFlags)
 {
-    MemoryDataPtr newMemoryData = std::make_shared<MemoryData>();
-    newMemoryData->size = N;
-
-    newMemoryData->stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    newMemoryData->stagingDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newMemoryData->stagingBuffer);
-    
-    newMemoryData->buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    newMemoryData->deviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newMemoryData->buffer);
-
-    if(Base::size() != 0)//CHECK: test if the copying works as intended
+    if(N != 0)
     {
-        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(memoryData->buffer, newMemoryData->buffer);
-        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
-    }
+        size_t newSize = N;
 
-    memoryData.reset();
-    memoryData = newMemoryData;
-    bufferDeviceAddress = newMemoryData->buffer->getBufferDeviceAddress();
+        BufferPtr newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        DeviceMemoryPtr newStagingDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
+        
+        BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
+
+        //CHECK: test if the copying works as intended
+        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+
+        m_buffer.reset();
+        m_deviceMemory.reset();
+        stagingBuffer.reset();
+        stagingDeviceMemory.reset();
+
+        m_size = newSize;
+        m_memID = MemoryHelper::GetNewMemID();
+        m_buffer = newBuffer;
+        m_deviceMemory = newDeviceMemory;
+        stagingBuffer = newStagingBuffer;
+        stagingDeviceMemory = newStagingDeviceMemory;
+    }
+    else
+    {
+        m_size = 0;
+        m_buffer = nullptr;
+        m_deviceMemory = nullptr;
+        stagingBuffer = nullptr;
+        stagingDeviceMemory = nullptr;
+    }
 }
 
 

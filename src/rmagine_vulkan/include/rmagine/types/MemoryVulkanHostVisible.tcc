@@ -8,44 +8,28 @@ namespace rmagine
 template<typename DataT>
 size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::size() const
 {
-    if(memoryData == nullptr)
-    {
-        return 0;
-    }
-    return memoryData->size;
+    return m_size;
 }
 
 
 template <typename DataT>
 size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::getID() const
 {
-    if(memoryData == nullptr)
-    {
-        return 0;
-    }
-    return memoryData->memID;
+    return m_memID;
 }
 
 
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_HOST_VISIBLE>::getBuffer() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->buffer;
+    return m_buffer;
 }
 
 
 template<typename DataT>
 DeviceMemoryPtr MemoryView<DataT, VULKAN_HOST_VISIBLE>::getDeviceMemory() const
 {
-    if(memoryData == nullptr)
-    {
-        return nullptr;
-    }
-    return memoryData->deviceMemory;
+    return m_deviceMemory;
 }
 
 
@@ -58,7 +42,7 @@ DeviceMemoryPtr MemoryView<DataT, VULKAN_HOST_VISIBLE>::getDeviceMemory() const
 template<typename DataT>
 Memory<DataT, VULKAN_HOST_VISIBLE>::Memory()
 {
-    bufferDeviceAddress = 0;
+    
 }
 
 template<typename DataT>
@@ -84,21 +68,31 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
 template<typename DataT>
 void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N, VkBufferUsageFlags bufferUsageFlags)
 {
-    MemoryDataPtr newMemoryData = std::make_shared<MemoryData>();
-    newMemoryData->size = N;
-
-    newMemoryData->buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    newMemoryData->deviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newMemoryData->buffer);
-
-    if(Base::size() != 0)//CHECK: test if the copying works as intended
+    if(N != 0)
     {
-        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(memoryData->buffer, newMemoryData->buffer);
-        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
-    }
+        size_t newSize = N;
 
-    memoryData.reset();
-    memoryData = newMemoryData;
-    bufferDeviceAddress = newMemoryData->buffer->getBufferDeviceAddress();
+        BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newBuffer);
+
+        //CHECK: test if the copying works as intended
+        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+
+        m_buffer.reset();
+        m_deviceMemory.reset();
+
+        m_size = newSize;
+        m_memID = MemoryHelper::GetNewMemID();
+        m_buffer = newBuffer;
+        m_deviceMemory = newDeviceMemory;
+    }
+    else
+    {
+        m_size = 0;
+        m_buffer = nullptr;
+        m_deviceMemory = nullptr;
+    }
 }
 
 
