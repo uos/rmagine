@@ -37,35 +37,31 @@ protected:
     DescriptorSetPtr descriptorSet = nullptr;
     PipelinePtr pipeline = nullptr;
 
+    //Simulator internal Memory
     Memory<SensorModelRamT, VULKAN_DEVICE_LOCAL> sensorMem;
     Memory<Transform, VULKAN_DEVICE_LOCAL> tsbMem;
-    Memory<VulkanResultsData, VULKAN_DEVICE_LOCAL> resultsMem;
-    Memory<VulkanOrigsDirsAndTransformsData, VULKAN_DEVICE_LOCAL> origsDirsAndTransformsMem;
+
+    //Memory for the deviceAddresses of external Buffers
+    //moving these buffers to the gpu via their deviceAddresses means that the Descriptorset does not have to get updated so often
+    //(that would take more time and would mean and the command would have to get rerecorded as well)
+    Memory<VulkanResultsAddresses, VULKAN_DEVICE_LOCAL> resultsMem;
+    Memory<VulkanTbmAndSensorSpecificAddresses, VULKAN_DEVICE_LOCAL> origsDirsAndTransformsMem;
 
     //for checking whether buffers have changed
-    struct PreviousBuffers{
+    struct PreviousAddresses{
         VkDeviceAddress asAddress = 0;
         VkDeviceAddress mapDataAddress = 0;
 
-        VulkanResultsData resultsAddresses{};
-        VulkanOrigsDirsAndTransformsData origsDirsAndTransformsAddresses{};
+        VulkanResultsAddresses resultsAddresses{};
+        VulkanTbmAndSensorSpecificAddresses tbmAndSensorSpecificAddresses{};
 
-    }previousBuffers;//TODO: rename previous addresses
+    }previousAddresses;
 
     ShaderDefineFlags previousShaderDefines = 0;
 
-    struct PreviousDimensions{
-        uint64_t width = 0;
-        uint64_t height = 0;
-        uint64_t depth = 0;
-    }previousDimensions;
+    VulkanDimensions previousDimensions;
 
-    struct NewDimensions{
-        uint64_t width = 0;
-        uint64_t height = 0;
-        uint64_t depth = 0;
-    }newDimensions;
-
+    VulkanDimensions newDimensions;
 
 public:
     SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), resultsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), origsDirsAndTransformsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
@@ -98,10 +94,12 @@ public:
     template<typename BundleT>
     BundleT simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
     
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
 
 protected:
-    virtual void updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+    void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
+    
+    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
 
     void resetBufferHistory();
 

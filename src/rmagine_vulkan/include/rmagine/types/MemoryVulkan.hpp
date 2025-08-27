@@ -96,12 +96,12 @@ class MemoryView<DataT, VULKAN_HOST_VISIBLE>
 {
 protected:
     //TODO: not used
-    // size_t m_size = 0;
-    // size_t m_offset = 0;
-    // size_t m_memID = 0;
-    // VkBufferUsageFlags m_bufferUsageFlags = 0;
-    // BufferPtr m_buffer = nullptr;
-    // DeviceMemoryPtr m_deviceMemory = nullptr;
+    size_t m_size = 0;
+    size_t m_offset = 0;
+    size_t m_memID = 0;
+    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    BufferPtr m_buffer = nullptr;
+    DeviceMemoryPtr m_deviceMemory = nullptr;
 
     //TODO: remove laters
     VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
@@ -181,12 +181,12 @@ public:
     // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
 
 protected:
-    // using Base::m_size;
-    // using Base::m_offset;
-    // using Base::m_memID;
-    // using Base::m_bufferUsageFlags;
-    // using Base::m_buffer;
-    // using Base::m_deviceMemory;
+    using Base::m_size;
+    using Base::m_offset;
+    using Base::m_memID;
+    using Base::m_bufferUsageFlags;
+    using Base::m_buffer;
+    using Base::m_deviceMemory;
 
     using Base::bufferDeviceAddress;
     using Base::memoryData;
@@ -201,12 +201,14 @@ class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 {
 protected:
     //TODO: not used
-    // size_t m_size = 0;
-    // size_t m_offset = 0;
-    // size_t m_memID = 0;
-    // VkBufferUsageFlags m_bufferUsageFlags = 0;
-    // BufferPtr m_buffer = nullptr;
-    // DeviceMemoryPtr m_deviceMemory = nullptr;
+    size_t m_size = 0;
+    size_t m_offset = 0;
+    size_t m_memID = 0;
+    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    BufferPtr m_buffer = nullptr;
+    DeviceMemoryPtr m_deviceMemory = nullptr;
+    BufferPtr stagingBuffer = nullptr; //TODO: remove later
+    DeviceMemoryPtr stagingDeviceMemory = nullptr; //TODO: remove later
 
     //TODO: remove laters
     VkDeviceAddress bufferDeviceAddress; // needs to be read on gpu
@@ -290,12 +292,14 @@ public:
     // Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
 protected:
-    // using Base::m_size;
-    // using Base::m_offset;
-    // using Base::m_memID;
-    // using Base::m_bufferUsageFlags;
-    // using Base::m_buffer;
-    // using Base::m_deviceMemory;
+    using Base::m_size;
+    using Base::m_offset;
+    using Base::m_memID;
+    using Base::m_bufferUsageFlags;
+    using Base::m_buffer;
+    using Base::m_deviceMemory;
+    using Base::stagingBuffer; //TODO: remove later
+    using Base::stagingDeviceMemory; //TODO: remove later
 
     using Base::bufferDeviceAddress;
     using Base::memoryData;

@@ -21,6 +21,7 @@ class O1DnSimulatorVulkan : public SimulatorVulkan<O1DnModel>
 private:
     Memory<Vector, VULKAN_DEVICE_LOCAL> dirs;
 
+
 public:
     O1DnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<O1DnModel>(map) {}
 
@@ -29,9 +30,9 @@ public:
     O1DnSimulatorVulkan(const O1DnSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    void setModel(const Memory<O1DnModel, RAM>& sensorMem);
+    void setModel(const Memory<O1DnModel, RAM>& sensorMem_ram);
 
-    void updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+    void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
 };
 
 using O1DnSimulatorVulkanPtr = std::shared_ptr<O1DnSimulatorVulkan>;

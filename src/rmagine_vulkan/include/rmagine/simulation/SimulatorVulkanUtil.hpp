@@ -20,7 +20,7 @@ using InstanceIds = ObjectIds<MemT>;
 
 
 
-struct VulkanResultsData
+struct VulkanResultsAddresses
 {
     VkDeviceAddress hitsAddress = 0;
     VkDeviceAddress rangesAddress = 0;
@@ -32,7 +32,7 @@ struct VulkanResultsData
 };
 
 
-struct VulkanOrigsDirsAndTransformsData
+struct VulkanTbmAndSensorSpecificAddresses
 {
     VkDeviceAddress tbmAddress = 0;
     
@@ -41,9 +41,17 @@ struct VulkanOrigsDirsAndTransformsData
 };
 
 
+struct VulkanDimensions
+{
+    uint64_t width = 0;
+    uint64_t height = 0;
+    uint64_t depth = 0;
+}
+
+
 
 template<typename BundleT>
-static void set_vulkan_results_data(BundleT& res, VulkanResultsData& mem)
+static void set_vulkan_results_data(BundleT& res, VulkanResultsAddresses& mem)
 {
     if constexpr(BundleT::template has<Hits<VULKAN_DEVICE_LOCAL> >())
     {
@@ -216,7 +224,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 // }
 
 
-static ShaderDefineFlags get_result_flags(const VulkanResultsData& res)
+static ShaderDefineFlags get_result_flags(const VulkanResultsAddresses& res)
 {
     ShaderDefineFlags resultFlags = 0;
 
@@ -259,9 +267,9 @@ static ShaderDefineFlags get_result_flags(const VulkanResultsData& res)
 }
 
 
-static inline ShaderDefineFlags get_result_flags(const Memory<VulkanResultsData, RAM>& resultsMem_ram)
+static inline ShaderDefineFlags get_result_flags(const Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
-    VulkanResultsData res = resultsMem_ram[0];
+    VulkanResultsAddresses res = resultsMem_ram[0];
     return get_result_flags(res);
 }
 

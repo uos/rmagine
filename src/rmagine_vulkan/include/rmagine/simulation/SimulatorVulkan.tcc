@@ -16,10 +16,10 @@ template <typename SensorModelRamT>
 template <typename BundleT>
 inline void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
 {
-    VulkanResultsData results{};
+    VulkanResultsAddresses results{};
     set_vulkan_results_data(ret, results);
 
-    Memory<VulkanResultsData, RAM> resultsMem_ram(1);
+    Memory<VulkanResultsAddresses, RAM> resultsMem_ram(1);
     resultsMem_ram[0] = results;
     simulate(tbmMem, resultsMem_ram);
 }
@@ -37,7 +37,7 @@ inline BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULK
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram)
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
     newDimensions.depth = tbmMem.size();
     if(newDimensions.width == 0 || newDimensions.height == 0 || newDimensions.depth == 0)
@@ -50,7 +50,8 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
 
     //upload addresses if neccessary
-    updateAddresses(tbmMem, resultsMem_ram);
+    updateResultsAddresses(resultsMem_ram);
+    updateTbmAndSensorSpecificAddresses(tbmMem);
     
 
     bool rerecordCommandBuffer = false;
@@ -69,12 +70,12 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if(previousBuffers.asAddress      != map->scene()->as()->getDeviceAddress() ||
-       previousBuffers.mapDataAddress != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress())
+    if(previousAddresses.asAddress      != map->scene()->as()->getDeviceAddress() ||
+       previousAddresses.mapDataAddress != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress())
     {
         //update used buffers
-        previousBuffers.asAddress      = map->scene()->as()->getDeviceAddress();
-        previousBuffers.mapDataAddress = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress();
+        previousAddresses.asAddress      = map->scene()->as()->getDeviceAddress();
+        previousAddresses.mapDataAddress = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress();
 
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
@@ -104,31 +105,36 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram)
+void SimulatorVulkan<SensorModelRamT>::updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
-    if(previousBuffers.resultsAddresses.hitsAddress        != resultsMem_ram[0].hitsAddress        ||
-       previousBuffers.resultsAddresses.rangesAddress      != resultsMem_ram[0].rangesAddress      ||
-       previousBuffers.resultsAddresses.pointsAddress      != resultsMem_ram[0].pointsAddress      ||
-       previousBuffers.resultsAddresses.normalsAddress     != resultsMem_ram[0].normalsAddress     ||
-       previousBuffers.resultsAddresses.primitiveIdAddress != resultsMem_ram[0].primitiveIdAddress ||
-       previousBuffers.resultsAddresses.instanceIdAddress  != resultsMem_ram[0].instanceIdAddress  ||
-       previousBuffers.resultsAddresses.geometryIdAddress  != resultsMem_ram[0].geometryIdAddress)
+    if(previousAddresses.resultsAddresses.hitsAddress        != resultsMem_ram[0].hitsAddress        ||
+       previousAddresses.resultsAddresses.rangesAddress      != resultsMem_ram[0].rangesAddress      ||
+       previousAddresses.resultsAddresses.pointsAddress      != resultsMem_ram[0].pointsAddress      ||
+       previousAddresses.resultsAddresses.normalsAddress     != resultsMem_ram[0].normalsAddress     ||
+       previousAddresses.resultsAddresses.primitiveIdAddress != resultsMem_ram[0].primitiveIdAddress ||
+       previousAddresses.resultsAddresses.instanceIdAddress  != resultsMem_ram[0].instanceIdAddress  ||
+       previousAddresses.resultsAddresses.geometryIdAddress  != resultsMem_ram[0].geometryIdAddress)
     {
-        previousBuffers.resultsAddresses = resultsMem_ram[0];
+        previousAddresses.resultsAddresses = resultsMem_ram[0];
 
         resultsMem = resultsMem_ram;
     }
+}
 
-    if(previousBuffers.origsDirsAndTransformsAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
-       previousBuffers.origsDirsAndTransformsAddresses.origsAddress != 0 ||
-       previousBuffers.origsDirsAndTransformsAddresses.dirsAddress  != 0)
+
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
+{
+    if(previousAddresses.tbmAndSensorSpecificAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
+       previousAddresses.tbmAndSensorSpecificAddresses.origsAddress != 0 ||
+       previousAddresses.tbmAndSensorSpecificAddresses.dirsAddress  != 0)
     {
-        Memory<VulkanOrigsDirsAndTransformsData, RAM> origsDirsAndTransformsMem_ram(1);
+        Memory<VulkanTbmAndSensorSpecificAddresses, RAM> origsDirsAndTransformsMem_ram(1);
         origsDirsAndTransformsMem_ram[0].tbmAddress   = tbmMem.getBuffer()->getBufferDeviceAddress();
         origsDirsAndTransformsMem_ram[0].origsAddress = 0;
         origsDirsAndTransformsMem_ram[0].dirsAddress  = 0;
 
-        previousBuffers.origsDirsAndTransformsAddresses = origsDirsAndTransformsMem_ram[0];
+        previousAddresses.tbmAndSensorSpecificAddresses = origsDirsAndTransformsMem_ram[0];
 
         origsDirsAndTransformsMem = origsDirsAndTransformsMem_ram;
     }
@@ -138,11 +144,11 @@ void SimulatorVulkan<SensorModelRamT>::updateAddresses(Memory<Transform, VULKAN_
 template<typename SensorModelRamT>
 void SimulatorVulkan<SensorModelRamT>::resetBufferHistory()
 {
-    previousBuffers.asAddress = 0;
-    previousBuffers.mapDataAddress = 0;
+    previousAddresses.asAddress = 0;
+    previousAddresses.mapDataAddress = 0;
 
-    previousBuffers.resultsAddresses = {};
-    previousBuffers.origsDirsAndTransformsAddresses = {};
+    previousAddresses.resultsAddresses = {};
+    previousAddresses.tbmAndSensorSpecificAddresses = {};
 }
 
 

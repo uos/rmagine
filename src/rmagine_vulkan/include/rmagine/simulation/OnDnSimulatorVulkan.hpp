@@ -32,7 +32,7 @@ public:
 
     void setModel(const Memory<OnDnModel, RAM>& sensorMem_ram);
 
-    void updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+    void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
 };
 
 using OnDnSimulatorVulkanPtr = std::shared_ptr<OnDnSimulatorVulkan>;
