@@ -9,7 +9,8 @@ void DescriptorSetLayout::createDescriptorPool()
 {
     std::vector<VkDescriptorPoolSize> descriptorPoolSizeList = {
         {.type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, .descriptorCount = 1},//accelaration structure
-        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 5}};//MapData, Result, Sensor, tsb & tbm
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 2},//MapData, Sensor
+        {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = 3}};//Result, tsb & origsDirsAndTransforms
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -44,17 +45,17 @@ void DescriptorSetLayout::createDescriptorSetLayout()
          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
          .pImmutableSamplers = nullptr},//sensor
         {.binding = 3,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .descriptorCount = 1,
          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
          .pImmutableSamplers = nullptr},//results
         {.binding = 4,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .descriptorCount = 1,
          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
          .pImmutableSamplers = nullptr},//tsb
         {.binding = 5,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .descriptorCount = 1,
          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
          .pImmutableSamplers = nullptr}};//tbm

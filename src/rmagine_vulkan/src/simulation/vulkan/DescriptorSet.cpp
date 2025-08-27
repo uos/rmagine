@@ -100,7 +100,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 3,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .pImageInfo = nullptr,
          .pBufferInfo = &resultsDescriptorInfo,
          .pTexelBufferView = nullptr},
@@ -110,7 +110,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 4,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .pImageInfo = nullptr,
          .pBufferInfo = &tsbDescriptorInfo,
          .pTexelBufferView = nullptr},
@@ -120,7 +120,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 5,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
+         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          .pImageInfo = nullptr,
          .pBufferInfo = &origsDirsAndTransformsDescriptorInfo,
          .pTexelBufferView = nullptr}};

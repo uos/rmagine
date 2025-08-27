@@ -22,7 +22,7 @@ layout(location = 0) rayPayloadInEXT Payload
 } payload;
 
 
-layout(binding = 3, set = 0) buffer ResultsBuffer{ Result data; } resultsBuffer;
+layout(binding = 3, set = 0) uniform ResultsBuffer{ Result data; } resultsBuffer;
 
 
 layout(binding = 1, set = 0) buffer MapDataBuffer { uint64_t data[]; } mapDataBuffer;

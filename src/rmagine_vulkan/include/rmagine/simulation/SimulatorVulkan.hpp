@@ -68,7 +68,7 @@ protected:
 
 
 public:
-    SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1), resultsMem(1), origsDirsAndTransformsMem(1)
+    SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), resultsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), origsDirsAndTransformsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
     {
         checkTemplateArgs();
 

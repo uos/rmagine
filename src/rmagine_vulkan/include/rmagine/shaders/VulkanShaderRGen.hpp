@@ -64,7 +64,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 #endif
 
 
-layout(binding = 4, set = 0) buffer TransformBuffer{ Transform tsb; } tsb;
+layout(binding = 4, set = 0) uniform TransformBuffer{ Transform tsb; } tsb;
 
 
 struct OrigsDirsAndTransforms
@@ -75,7 +75,7 @@ struct OrigsDirsAndTransforms
     uint64_t dirsAddress;
 };
 
-layout(binding = 5, set = 0) buffer OrigsDirsAndTransformsBuffer{ OrigsDirsAndTransforms data; } origsDirsAndTransforms;
+layout(binding = 5, set = 0) uniform OrigsDirsAndTransformsBuffer{ OrigsDirsAndTransforms data; } origsDirsAndTransforms;
 
 layout(buffer_reference, std430, buffer_reference_align = 32) buffer transform_array 
 {
