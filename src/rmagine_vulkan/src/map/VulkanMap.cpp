@@ -29,12 +29,18 @@ void VulkanMap::setScene(VulkanScenePtr scene)
     }
     else if(scene->type() == VulkanSceneType::GEOMETRIES)
     {
-        throw std::runtime_error("[VulkanMap::setScene()] ERROR - Map needs a scene containing instances not one containing meshes.");
-        // TODO: maybe create topLevelScene from bottomLevelScene
-        // m_scene = std::make_shared<VulkanScene>();
-        // VulkanInstPtr inst = scene->instantiate();
-        // m_scene->add(inst);
-        // m_scene->commit();
+        // throw std::runtime_error("[VulkanMap::setScene()] ERROR - Map needs a scene containing instances not one containing meshes.");
+
+        // create an instance-scene from the mesh-scene
+        // by instanitating the mesh-scene and adding it to a newly created instance-scene
+
+        VulkanInstPtr inst = scene->instantiate();
+        inst->apply();
+        inst->commit();
+
+        m_scene = std::make_shared<VulkanScene>();
+        m_scene->add(inst);
+        m_scene->commit();
     }
     else
     {

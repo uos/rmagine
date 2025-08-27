@@ -11,8 +11,10 @@ namespace rmagine
 VulkanInst::VulkanInst() : Base(),
     m_data(new VkAccelerationStructureInstanceKHR)
 {
-    *m_data = {};
     m_data->flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    m_data->instanceShaderBindingTableRecordOffset = 0;
+    m_data->accelerationStructureReference = 0;
+    m_data->instanceCustomIndex = 0;
     m_data->mask = 0xFF;
     m_data->transform = {{{1.0, 0.0, 0.0, 0.0},
                           {0.0, 1.0, 0.0, 0.0},
