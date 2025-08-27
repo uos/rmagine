@@ -54,7 +54,6 @@ protected:
 
         VulkanResultsAddresses resultsAddresses{};
         VulkanTbmAndSensorSpecificAddresses tbmAndSensorSpecificAddresses{};
-
     }previousAddresses;
 
     ShaderDefineFlags previousShaderDefines = 0;
@@ -75,9 +74,9 @@ public:
     ~SimulatorVulkan()
     {
         std::cout << "destroying SimulatorVulkan" << std::endl;
-        resetBufferHistory();
         resetPipeline();
-        cleanup();
+        descriptorSet->cleanup();
+        commandBuffer->cleanup();
     }
 
     SimulatorVulkan(const SimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
@@ -89,23 +88,20 @@ public:
     void setModel(const SensorModelRamT& sensorMem_ram);//TODO
 
     template<typename BundleT>
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, BundleT& ret);
+    BundleT simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
 
     template<typename BundleT>
-    BundleT simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
+    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, BundleT& ret);
     
     void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
 
 protected:
     void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
-    
     virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
 
-    void resetBufferHistory();
+    void resetAddressHistory();
 
     void resetPipeline();
-
-    void cleanup();
 
 private:
     void checkTemplateArgs();

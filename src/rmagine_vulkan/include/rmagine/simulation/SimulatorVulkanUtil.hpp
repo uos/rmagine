@@ -22,6 +22,8 @@ using InstanceIds = ObjectIds<MemT>;
 
 struct VulkanResultsAddresses
 {
+    //TODO: maybe add mapData address here as well
+
     VkDeviceAddress hitsAddress = 0;
     VkDeviceAddress rangesAddress = 0;
     VkDeviceAddress pointsAddress = 0;

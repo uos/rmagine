@@ -14,6 +14,17 @@ void SimulatorVulkan<SensorModelRamT>::setTsb(const Memory<Transform, RAM>& tsbM
 
 template <typename SensorModelRamT>
 template <typename BundleT>
+inline BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
+{
+    BundleT res;
+    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res, newDimensions.width, newDimensions.height, tbmMem.size());
+    simulate(tbmMem, res);
+    return res;
+}
+
+
+template <typename SensorModelRamT>
+template <typename BundleT>
 inline void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
 {
     VulkanResultsAddresses results{};
@@ -22,17 +33,6 @@ inline void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_
     Memory<VulkanResultsAddresses, RAM> resultsMem_ram(1);
     resultsMem_ram[0] = results;
     simulate(tbmMem, resultsMem_ram);
-}
-
-
-template <typename SensorModelRamT>
-template <typename BundleT>
-inline BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
-{
-    BundleT res;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res, newDimensions.width, newDimensions.height, tbmMem.size());
-    simulate(tbmMem, res);
-    return res;
 }
 
 
@@ -46,9 +46,6 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
     }
 
 
-    ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
-
-
     //upload addresses if neccessary
     updateResultsAddresses(resultsMem_ram);
     updateTbmAndSensorSpecificAddresses(tbmMem);
@@ -57,6 +54,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
     bool rerecordCommandBuffer = false;
     //check whether other shaders are needed
     //if they are, a new pipeline need to get fetched
+    ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
     if(previousShaderDefines != newShaderDefines)
     {
         //update current pipeline/shader configuration
@@ -142,7 +140,7 @@ void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memor
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::resetBufferHistory()
+void SimulatorVulkan<SensorModelRamT>::resetAddressHistory()
 {
     previousAddresses.asAddress = 0;
     previousAddresses.mapDataAddress = 0;
@@ -156,21 +154,6 @@ template<typename SensorModelRamT>
 void SimulatorVulkan<SensorModelRamT>::resetPipeline()
 {
     pipeline.reset();
-}
-
-
-template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::cleanup()
-{
-    std::cout << "cleaning up..." << std::endl;;
-
-    descriptorSet->cleanup();
-    std::cout << "cleaned up descriptor set." << std::endl;
-
-    commandBuffer->cleanup();
-    std::cout << "cleaned up command buffer." << std::endl;
-
-    std::cout << "done." << std::endl;
 }
 
 
