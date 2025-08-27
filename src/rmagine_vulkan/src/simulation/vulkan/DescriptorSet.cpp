@@ -90,7 +90,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .dstBinding = 2,
          .dstArrayElement = 0,
          .descriptorCount = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: make uniform buffer
+         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,//TODO: for some reason cant be made into a uniform buffer, i dont know why... (maybe becaue it does not always hold the same type of data?)
          .pImageInfo = nullptr,
          .pBufferInfo = &sensorDescriptorInfo,
          .pTexelBufferView = nullptr},
