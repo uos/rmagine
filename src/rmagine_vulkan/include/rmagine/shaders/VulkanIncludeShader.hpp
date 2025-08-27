@@ -75,13 +75,13 @@ struct Memory
 
 struct Result
 {
-    Memory hits;
-    Memory ranges;
-    Memory points;
-    Memory normals;
-    Memory primitiveID;
-    Memory instanceID;
-    Memory geometryID;
+    uint64_t hitsAddress;
+    uint64_t rangesAddress;
+    uint64_t pointsAddress;
+    uint64_t normalsAddress;
+    uint64_t primitiveIdAddress;
+    uint64_t instanceIdAddress;
+    uint64_t geometryIdAddress;
 };
 
 

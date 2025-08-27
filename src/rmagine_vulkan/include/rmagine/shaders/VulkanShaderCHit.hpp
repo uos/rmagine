@@ -148,41 +148,41 @@ void main()
     //write data to buffer(s)
     #if defined(HITS)
         //1
-        uint8_array hits_buffer = uint8_array(resultsBuffer.data.hits.bufferDeviceAddress);
+        uint8_array hits_buffer = uint8_array(resultsBuffer.data.hitsAddress);
         hits_buffer[rayIndex].i = uint8_t(1);
     #endif
     #if defined(RANGES)
         //gl_HitTEXT
-        float_array ranges_buffer = float_array(resultsBuffer.data.ranges.bufferDeviceAddress);
+        float_array ranges_buffer = float_array(resultsBuffer.data.rangesAddress);
         ranges_buffer[rayIndex].f = gl_HitTEXT;
     #endif
     #if defined(POINTS)
         //position
-        float_array points_buffer = float_array(resultsBuffer.data.points.bufferDeviceAddress);
+        float_array points_buffer = float_array(resultsBuffer.data.pointsAddress);
         points_buffer[3*rayIndex    ].f = position.x;
         points_buffer[3*rayIndex + 1].f = position.y;
         points_buffer[3*rayIndex + 2].f = position.z;
     #endif
     #if defined(NORMALS)
         //normal
-        float_array normals_buffer = float_array(resultsBuffer.data.normals.bufferDeviceAddress);
+        float_array normals_buffer = float_array(resultsBuffer.data.normalsAddress);
         normals_buffer[3*rayIndex    ].f = normal.x;
         normals_buffer[3*rayIndex + 1].f = normal.y;
         normals_buffer[3*rayIndex + 2].f = normal.z;
     #endif
     #if defined(PRIMITIVE_ID)
         //gl_PrimitiveID
-        uint_array primitiveID_buffer = uint_array(resultsBuffer.data.primitiveID.bufferDeviceAddress);
+        uint_array primitiveID_buffer = uint_array(resultsBuffer.data.primitiveIdAddress);
         primitiveID_buffer[rayIndex].i = uint(gl_PrimitiveID);
     #endif
     #if defined(GEOMETRY_ID)
         //gl_GeometryIndexEXT
-        uint_array geometryID_buffer = uint_array(resultsBuffer.data.geometryID.bufferDeviceAddress);
+        uint_array geometryID_buffer = uint_array(resultsBuffer.data.geometryIdAddress);
         geometryID_buffer[rayIndex].i = uint(gl_GeometryIndexEXT);
     #endif
     #if defined(INSTANCE_ID)
         //gl_InstanceID
-        uint_array instanceID_buffer = uint_array(resultsBuffer.data.instanceID.bufferDeviceAddress);
+        uint_array instanceID_buffer = uint_array(resultsBuffer.data.instanceIdAddress);
         instanceID_buffer[rayIndex].i = uint(gl_InstanceCustomIndexEXT); // uint(gl_InstanceID); // TODO: which one do I use?
     #endif
 }

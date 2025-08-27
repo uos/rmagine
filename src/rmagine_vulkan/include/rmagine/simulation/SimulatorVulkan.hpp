@@ -40,12 +40,17 @@ protected:
     Memory<SensorModelDeviceT, VULKAN_DEVICE_LOCAL> sensorMem;
     Memory<Transform, VULKAN_DEVICE_LOCAL> tsbMem;
     Memory<VulkanResultsData, VULKAN_DEVICE_LOCAL> resultsMem;
+    Memory<VulkanOrigsDirsAndTransformsData, VULKAN_DEVICE_LOCAL> origsDirsAndTransformsMem;
 
     //for checking whether buffers have changed
     struct PreviousBuffers{
-        size_t asID = 0;
-        size_t mapDataID = 0;
+        VkDeviceAddress asAddress = 0;
+        VkDeviceAddress mapDataAddress = 0;
         size_t tbmID = 0;
+
+        VulkanResultsData resultsAddresses{};
+        VulkanOrigsDirsAndTransformsData origsDirsAndTransformsAddresses{};
+
     }previousBuffers;
 
     ShaderDefineFlags previousShaderDefines = 0;
@@ -64,7 +69,7 @@ protected:
 
 
 public:
-    SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1), resultsMem(1)
+    SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1), resultsMem(1), origsDirsAndTransformsMem(1)
     {
         checkTemplateArgs();
 
@@ -97,6 +102,8 @@ public:
     void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
 
 protected:
+    virtual void updateAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+
     void resetBufferHistory();
 
     void resetPipeline();

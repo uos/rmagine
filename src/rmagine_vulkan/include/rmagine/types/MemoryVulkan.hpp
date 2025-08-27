@@ -306,11 +306,25 @@ protected:
 
 
 
-//// VULKAN_DEVICE_LOCAL
-
 //////////////////////////
 ///   HOST TO DEVICE   ///
 //////////////////////////
+
+template<typename DataT>
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+{
+    if(to.size() == 0)
+    {
+        throw std::runtime_error("cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::runtime_error("given memory objects have to have the same size!");
+    }
+
+    to.getDeviceMemory()->copyToDeviceMemory(from.raw());
+}
+
 template<typename DataT>
 void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
@@ -332,6 +346,22 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LO
 //////////////////////////
 ///   DEVICE TO HOST   ///
 //////////////////////////
+
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, RAM>& to)
+{
+    if(from.size() == 0)
+    {
+        throw std::runtime_error("cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::runtime_error("given memory objects have to have the same size!");
+    }
+    
+    from.getDeviceMemory()->copyFromDeviceMemory(to.raw());
+}
+
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, RAM>& to)
 {
@@ -353,6 +383,23 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 ////////////////////////////
 ///   DEVICE TO DEVICE   ///
 ////////////////////////////
+
+template<typename DataT>
+void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+{
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::runtime_error("cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::runtime_error("given memory objects have to have the same size!");
+    }
+
+    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+}
+
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
@@ -369,60 +416,36 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
     get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 }
 
-
-
-//// VULKAN_HOST_VISIBLE
-
-//////////////////////////
-///   HOST TO DEVICE   ///
-//////////////////////////
-template<typename DataT>
-void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
-{
-    
-}
-
-
-//////////////////////////
-///   DEVICE TO HOST   ///
-//////////////////////////
-template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, RAM>& to)
-{
-    
-}
-
-
-////////////////////////////
-///   DEVICE TO DEVICE   ///
-////////////////////////////
-template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
-{
-    
-}
-
-
-
-//// VULKAN_DEVICE_LOCAL & VULKAN_HOST_VISIBLE
-
-////////////////////////////
-///   DEVICE TO DEVICE   ///
-////////////////////////////
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
-    
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::runtime_error("cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::runtime_error("given memory objects have to have the same size!");
+    }
+
+    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 }
 
-
-////////////////////////////
-///   DEVICE TO DEVICE   ///
-////////////////////////////
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
 {
-    
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::runtime_error("cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::runtime_error("given memory objects have to have the same size!");
+    }
+
+    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 } // namespace rmagine
