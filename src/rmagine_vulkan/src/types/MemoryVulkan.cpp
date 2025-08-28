@@ -11,7 +11,10 @@ size_t MemoryHelper::GetNewMemID()
 {
     if(MemIDcounter == SIZE_MAX)
     {
-        throw std::runtime_error("You created way too many memory objects!"); 
+        #ifdef VDEBUG
+            std::cout << "[MemoryHelper::GetNewMemID()] DEBUG WARNING - created too many MemIDs, restarting at 1!" << std::endl;
+        #endif
+        ++MemIDcounter;//skip 0 - it is supposed to be an invalid value
     }
     return ++MemIDcounter;
 }

@@ -48,8 +48,7 @@ struct VULKAN_DEVICE_LOCAL
 
 
 
-//TODO: make into id gen and transfer mem holder
-//      might have to move this down as it needs to hold hostvis mem
+// used for debugging to see when memory objects get created and destroyed
 struct MemoryHelper
 {
     static size_t MemIDcounter;
@@ -77,6 +76,10 @@ public:
 
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+
+    // static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty();
+
+    // bool empty() const;
 
     // DataT& at(size_t idx);
 
@@ -168,14 +171,18 @@ protected:
     VkBufferUsageFlags m_bufferUsageFlags = 0;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
-    BufferPtr m_stagingBuffer = nullptr; //TODO: remove later
-    DeviceMemoryPtr m_stagingDeviceMemory = nullptr; //TODO: remove later
+    BufferPtr m_stagingBuffer = nullptr;
+    DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
 
 public:
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
 
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
+
+    // static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty();
+
+    // bool empty() const;
 
     // DataT& at(size_t idx);
 
@@ -255,8 +262,8 @@ protected:
     using Base::m_bufferUsageFlags;
     using Base::m_buffer;
     using Base::m_deviceMemory;
-    using Base::m_stagingBuffer; //TODO: remove later
-    using Base::m_stagingDeviceMemory; //TODO: remove later
+    using Base::m_stagingBuffer;
+    using Base::m_stagingDeviceMemory;
 };
 
 

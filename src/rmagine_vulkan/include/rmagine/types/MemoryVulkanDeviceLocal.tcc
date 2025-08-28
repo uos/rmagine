@@ -74,8 +74,10 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VkBufferUsageFlags bufferUs
 template<typename DataT>
 Memory<DataT, VULKAN_DEVICE_LOCAL>::~Memory()
 {
-    if(m_memID != 0)
-        std::cout << "retired m_memID = " << m_memID << std::endl;
+    #ifdef VDEBUG
+        if(m_memID != 0)
+            std::cout << "retired m_memID = " << m_memID << std::endl;
+    #endif
 }
 
 
@@ -128,10 +130,14 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N, VkBufferUsageFlags buf
     m_stagingBuffer = newStagingBuffer;
     m_stagingDeviceMemory = newStagingDeviceMemory;
 
-    if(m_memID != 0)
-        std::cout << "retired m_memID = " << m_memID << std::endl;
+    #ifdef VDEBUG
+        if(m_memID != 0)
+            std::cout << "retired m_memID = " << m_memID << std::endl;
+    #endif
     m_memID = MemoryHelper::GetNewMemID();
-    std::cout << "new m_memID = " << m_memID << std::endl;
+    #ifdef VDEBUG
+        std::cout << "new m_memID = " << m_memID << std::endl;
+    #endif
 }
 
 

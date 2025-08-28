@@ -24,7 +24,7 @@ class VulkanInst : public VulkanGeometry
 protected:
     VulkanScenePtr m_scene;
 
-    VkAccelerationStructureInstanceKHR* m_data;
+    VkAccelerationStructureInstanceKHR* m_data;// is a pointer just to be consistent with the OptixInst
 
 public:
     using Base = VulkanGeometry;
