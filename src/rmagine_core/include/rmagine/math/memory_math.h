@@ -43,6 +43,7 @@
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/math/types.h>
+#include <functional>
 
 namespace rmagine
 {
@@ -473,7 +474,14 @@ Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
   float tol = 1e-10f,
   int max_iters = 50);
 
-Transform mock_mean(const MemoryView<Transform, RAM> Ts);
+Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func,
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform mock_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func);
 
 } // namespace rmagine
 

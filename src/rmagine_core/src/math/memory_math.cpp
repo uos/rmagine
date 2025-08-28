@@ -1071,7 +1071,58 @@ Transform karcher_mean(
   return Tm;
 }
 
-Transform mock_mean(const MemoryView<Transform, RAM> Ts)
+
+Transform karcher_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func,
+  float tol,
+  int max_iters)
+{
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("karcher_mean: empty input.");
+  }
+
+  // Initialize with the first pose (good enough; iteration refines it)
+  Transform Tm = Ts[0];
+
+  for (int it = 0; it < max_iters; ++it) 
+  {
+    // Accumulate weighted twists of residuals xi_i = log(Tm^{-1} Ti)
+    Vector3 vbar{0.f,0.f,0.f};
+    Vector3 wbar{0.f,0.f,0.f};
+
+    for (size_t i = 0; i < Ts.size(); ++i) 
+    {
+      const Transform Terr = ~Tm * Ts[i]; // relative transform
+      auto [vi, wi] = se3_log(Terr);
+      vbar.x += weight_func(i) * vi.x;
+      vbar.y += weight_func(i) * vi.y;
+      vbar.z += weight_func(i) * vi.z;
+      wbar.x += weight_func(i) * wi.x;
+      wbar.y += weight_func(i) * wi.y;
+      wbar.z += weight_func(i) * wi.z;
+    }
+
+    // Convergence check on combined twist norm
+    const float n2 = vbar.x*vbar.x + vbar.y*vbar.y + vbar.z*vbar.z
+                    + wbar.x*wbar.x + wbar.y*wbar.y + wbar.z*wbar.z;
+    if (n2 < tol*tol) 
+    {
+      break;
+    }
+
+    // Update: Tm = Tm * exp([vbar, wbar])
+    Transform dT = se3_exp(vbar, wbar);
+    Tm = Tm * dT;
+  }
+
+  return Tm;
+}
+
+Transform mock_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func)
 {
   // Ttot = w[0] * Ts[0] + w[1] * Ts[1] + ... + w[n] * Ts[n];
 
@@ -1082,16 +1133,54 @@ Transform mock_mean(const MemoryView<Transform, RAM> Ts)
   // Ttot = Ttot * wtot + w[0] * Ts[0];
   // wtot += w[0];
 
-  Transform Ttot = Transform::Identity();
-  float wtot = 0.0;
+  Transform Ttot = Ts[0];
+  float wtot = weight_func(0);
 
-  float w = 1.0 / static_cast<float>(Ts.size());
+  for(size_t i=1; i<Ts.size(); i++)
+  {
+    // weight w in [0, 0] (sum of all weights equals 1)
+    const float wnew = weight_func(i);
+    if(wnew < 0.000001)
+    {
+      continue;
+    }
+    const float wtot_new = wtot + wnew;
+    
+    // 1 == wnew/wtot_new + wtot/wtot_new == (wnew + wtot) / wtot_new
+    // A' = A * pA + B * pB 
+    //    = A * (1-pB) + B * pB
+    //    = A - A*pB + B*pB
+    //    = A + (B - A) * pB
+    // B:new, A:old
 
-  // for(size_t i=0; i<Ts.size(); i++)
-  // {
-  //   polate(Ttot, Ts[i], w);
-  //   wtot += w;
-  // }
+    const float pnew = wnew / wtot_new;
+
+    Transform Tdiff = Ttot.to(Ts[i]); // (B-A)
+
+    Tdiff.R.normalizeInplace();
+
+    const Transform Tdiff_part = Tdiff.pow(pnew);
+
+    Ttot = Ttot * Tdiff_part;
+
+    if(! (std::isfinite(Ttot.t.x)
+      && std::isfinite(Ttot.t.y)
+      && std::isfinite(Ttot.t.z)
+      && std::isfinite(Ttot.R.x)
+      && std::isfinite(Ttot.R.y)
+      && std::isfinite(Ttot.R.z)
+      && std::isfinite(Ttot.R.w)))
+    {
+      std::cout << " ----- " << i << "- - -- -- " << std::endl;
+      std::cout << " - Diff: " << Tdiff.t << " " << Tdiff.R << std::endl;
+      std::cout << " - Part: " << Tdiff_part.t << " " << Tdiff_part.R << std::endl;
+      std::cout << " - new: " << Ttot << std::endl;
+
+      throw std::runtime_error("NOO");
+    }
+    
+    wtot = wtot_new;
+  }
 
   return Ttot;
 }
