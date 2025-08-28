@@ -49,10 +49,16 @@ struct VULKAN_DEVICE_LOCAL
 
 
 // used for debugging to see when memory objects get created and destroyed
-struct MemoryHelper
+class MemoryHelper
 {
+private:
+    // TODO: maybe hold these as global staging buffers for device local memory
+    // static BufferPtr m_stagingBuffer;
+    // static DeviceMemoryPtr m_stagingDeviceMemory;
+
     static size_t MemIDcounter;
 
+public:
     static size_t GetNewMemID();
 };
 
@@ -66,20 +72,31 @@ class MemoryView<DataT, VULKAN_HOST_VISIBLE>
 protected:
     size_t m_size = 0;
     size_t m_offset = 0;
-    size_t m_memID = 0;
     VkBufferUsageFlags m_bufferUsageFlags = 0;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
 
 public:
+    MemoryView() = delete;
+
+    MemoryView(size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+               BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory);
+
+    
+    static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty()
+    {
+        MemoryView(0, 0, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, nullptr, nullptr);
+    }
+
+    bool empty() const
+    {
+        return (m_size == 0);
+    }
+
     // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
 
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
-
-    // static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty();
-
-    // bool empty() const;
 
     // DataT& at(size_t idx);
 
@@ -108,8 +125,6 @@ public:
 
     size_t size() const;
 
-    size_t getID() const;
-
     BufferPtr getBuffer() const;
 
     DeviceMemoryPtr getDeviceMemory() const;
@@ -122,6 +137,9 @@ public:
 template<typename DataT>
 class Memory<DataT, VULKAN_HOST_VISIBLE> : public MemoryView<DataT, VULKAN_HOST_VISIBLE>
 {
+private:
+    size_t m_memID = 0;
+
 public:
     using Base = MemoryView<DataT, VULKAN_HOST_VISIBLE>;
 
@@ -129,6 +147,13 @@ public:
     
     Memory(size_t size);
 
+    /**
+     * some memory objects are used for special puposes, such as:
+     * building or holding an accleration structure,
+     * holding the shaderBindingTable or
+     * being a uniform buffer (for better performance)
+     * in these cases special bufferUsageFlags besides the default storage buffer are needed
+     */
     Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
 
     ~Memory();
@@ -148,10 +173,11 @@ public:
     // template<typename MemT2>
     // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
 
+    size_t getID() const;
+
 protected:
     using Base::m_size;
     using Base::m_offset;
-    using Base::m_memID;
     using Base::m_bufferUsageFlags;
     using Base::m_buffer;
     using Base::m_deviceMemory;
@@ -167,7 +193,6 @@ class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 protected:
     size_t m_size = 0;
     size_t m_offset = 0;
-    size_t m_memID = 0;
     VkBufferUsageFlags m_bufferUsageFlags = 0;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
@@ -175,14 +200,28 @@ protected:
     DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
 
 public:
+    MemoryView() = delete;
+
+    MemoryView(size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+               BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
+               BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory);
+
+    
+    static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty()
+    {
+        MemoryView(0, 0, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, nullptr, nullptr, nullptr, nullptr);
+    }
+
+    bool empty() const
+    {
+        return (m_size == 0);
+    }
+
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
 
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    // static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty();
-
-    // bool empty() const;
 
     // DataT& at(size_t idx);
 
@@ -211,8 +250,6 @@ public:
 
     size_t size() const;
 
-    size_t getID() const;
-
     BufferPtr getBuffer() const;
 
     BufferPtr getStagingBuffer() const;
@@ -229,6 +266,9 @@ public:
 template<typename DataT>
 class Memory<DataT, VULKAN_DEVICE_LOCAL> : public MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 {
+private:
+    size_t m_memID = 0;
+
 public:
     using Base = MemoryView<DataT, VULKAN_DEVICE_LOCAL>;
 
@@ -236,14 +276,19 @@ public:
     
     Memory(size_t size);
 
+    /**
+     * some memory objects are used for special puposes, such as:
+     * building or holding an accleration structure,
+     * holding the shaderBindingTable or
+     * being a uniform buffer (for better performance)
+     * in these cases special bufferUsageFlags besides the default storage buffer are needed
+     */
     Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
 
     ~Memory();
 
 
     void resize(size_t N);
-
-    void resize(size_t N, VkBufferUsageFlags bufferUsageFlags);
 
     Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, VULKAN_DEVICE_LOCAL>& o) = default;//TODO: make it work like the other operator= function
 
@@ -255,10 +300,11 @@ public:
     // template<typename MemT2>
     // Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
+    size_t getID() const;
+
 protected:
     using Base::m_size;
     using Base::m_offset;
-    using Base::m_memID;
     using Base::m_bufferUsageFlags;
     using Base::m_buffer;
     using Base::m_deviceMemory;

@@ -4,8 +4,12 @@ namespace rmagine
 {
 
 VulkanMesh::VulkanMesh() : Base(),
+    transformMatrix_ram(1),
     transformMatrix(1, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR),
-    transformMatrix_ram(1)
+    vertices(0, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),
+    faces(0, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),
+    face_normals(0),
+    vertex_normals(0)
 {
     transformMatrix_ram[0] = {{{1.0, 0.0, 0.0, 0.0},
                                {0.0, 1.0, 0.0, 0.0},
@@ -55,10 +59,10 @@ VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RA
     unsigned int num_vertices = vertices_ram.size();
     unsigned int num_faces = faces_ram.size();
 
-    ret->vertices.resize(vertices_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    ret->vertices.resize(vertices_ram.size());
     ret->vertices = vertices_ram;
 
-    ret->faces.resize(faces_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    ret->faces.resize(faces_ram.size());
     ret->faces = faces_ram;
 
     // ret->computeFaceNormals();
@@ -99,7 +103,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
             ai_vertices[i].y,
             ai_vertices[i].z};
     }
-    ret->vertices.resize(vertices_cpu.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    ret->vertices.resize(vertices_cpu.size());
     ret->vertices = vertices_cpu;
 
     for(size_t i=0; i<num_faces; i++)
@@ -108,7 +112,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
         faces_cpu[i].v1 = ai_faces[i].mIndices[1];
         faces_cpu[i].v2 = ai_faces[i].mIndices[2];
     }
-    ret->faces.resize(faces_cpu.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    ret->faces.resize(faces_cpu.size());
     ret->faces = faces_cpu;
 
     // ret->computeFaceNormals();

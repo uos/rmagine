@@ -6,13 +6,19 @@
 namespace rmagine
 {
 
-ShaderBindingTable::ShaderBindingTable(PipelinePtr pipeline) : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
+ShaderBindingTable::ShaderBindingTable(PipelinePtr pipeline) : 
+    device(get_vulkan_context()->getDevice()),
+    extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()),
+    shaderBindingTableMemory(0, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR)
 {
     createShaderBindingTable(pipeline);
 }
 
 
-ShaderBindingTable::ShaderBindingTable(DevicePtr device, PipelinePtr pipeline, ExtensionFunctionsPtr extensionFunctionsPtr) : device(device), extensionFunctionsPtr(extensionFunctionsPtr)
+ShaderBindingTable::ShaderBindingTable(DevicePtr device, PipelinePtr pipeline, ExtensionFunctionsPtr extensionFunctionsPtr) : 
+    device(device),
+    extensionFunctionsPtr(extensionFunctionsPtr),
+    shaderBindingTableMemory(0, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR)
 {
     createShaderBindingTable(pipeline);
 }
@@ -26,7 +32,7 @@ void ShaderBindingTable::createShaderBindingTable(PipelinePtr pipeline)
 
     VkDeviceSize shaderBindingTableSize = progSize * 3;
 
-    shaderBindingTableMemory.resize(shaderBindingTableSize, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR);
+    shaderBindingTableMemory.resize(shaderBindingTableSize);
 
     //get the group handels
     Memory<char, RAM> shaderBindingTableMemory_ram(shaderBindingTableSize);

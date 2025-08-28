@@ -121,4 +121,10 @@ void DeviceMemory::cleanup()
     }
 }
 
+
+BufferPtr DeviceMemory::getBuffer()
+{
+    return buffer;
+}
+
 } // namespace rmagine

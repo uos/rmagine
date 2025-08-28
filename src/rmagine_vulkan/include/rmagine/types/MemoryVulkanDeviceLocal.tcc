@@ -6,16 +6,21 @@ namespace rmagine
 //// MemoryView - VULKAN_DEVICE_LOCAL
 
 template<typename DataT>
+MemoryView<DataT, VULKAN_DEVICE_LOCAL>::MemoryView(
+    size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+    BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
+    BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory) :
+    m_size(p_size), m_offset(p_offset), m_bufferUsageFlags(p_bufferUsageFlags),
+    m_buffer(p_buffer), m_deviceMemory(p_deviceMemory),
+    m_stagingBuffer(p_stagingBuffer), m_stagingDeviceMemory(p_stagingDeviceMemory)
+{
+
+}
+
+template<typename DataT>
 size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::size() const
 {
     return m_size;
-}
-
-
-template <typename DataT>
-size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getID() const
-{
-    return m_memID;
 }
 
 
@@ -54,21 +59,29 @@ DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingDeviceMemory()
 //// Memory - VULKAN_DEVICE_LOCAL
 
 template<typename DataT>
-Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory()
+Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory() : Memory(0)
 {
     
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N)
+Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N) : Memory(N, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
 {
-    resize(N);
+    
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VkBufferUsageFlags bufferUsageFlags)
+Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VkBufferUsageFlags bufferUsageFlags) :
+    Base(N, 0, bufferUsageFlags, nullptr, nullptr, nullptr, nullptr)
 {
-    resize(N, bufferUsageFlags);
+    if(N > 0)
+    {
+        m_stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        m_stagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_stagingBuffer);
+        
+        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_buffer);
+    }
 }
 
 template<typename DataT>
@@ -83,13 +96,6 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>::~Memory()
 
 template<typename DataT>
 void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
-{
-    resize(N, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-}
-
-
-template<typename DataT>
-void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N, VkBufferUsageFlags bufferUsageFlags)
 {
     if(N == m_size)
     {
@@ -108,11 +114,12 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N, VkBufferUsageFlags buf
     size_t newSize = N;
 
     BufferPtr newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    DeviceMemoryPtr newStagingDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
+    DeviceMemoryPtr newStagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
     
-    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
+    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), m_bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    DeviceMemoryPtr newDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
 
+    //copy from old buffer to new buffer, if old buffer wasnt empty
     if(m_size != 0)
     {
         get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
@@ -147,11 +154,18 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator
 {
     if(this->size() != o.size())
     {
-        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
-        // this->resize(o.size());
+        // throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
+        this->resize(o.size());
     }
     copy(o, *this);
     return *this;
+}
+
+
+template <typename DataT>
+size_t Memory<DataT, VULKAN_DEVICE_LOCAL>::getID() const
+{
+    return m_memID;
 }
 
 

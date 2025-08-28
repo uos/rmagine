@@ -49,6 +49,8 @@ public:
      * free the DeviceMemory
      */
     void cleanup();
+
+    BufferPtr getBuffer();
     
 private:
     /**
