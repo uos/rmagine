@@ -97,7 +97,7 @@ public:
 
 protected:
     void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
-    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
+    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
 
     void resetAddressHistory();
 

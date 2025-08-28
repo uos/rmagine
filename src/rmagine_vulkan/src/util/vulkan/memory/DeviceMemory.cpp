@@ -16,6 +16,11 @@ DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr 
     allocateDeviceMemory(memoryPropertyFlags, true);
 }
 
+DeviceMemory::~DeviceMemory()
+{
+    cleanup();
+}
+
 
 
 void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, bool withAllocateFlags)
@@ -61,47 +66,6 @@ void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlag
 }
 
 
-void DeviceMemory::map(void** ptr)
-{
-    map(ptr, 0, buffer->getBufferSize());
-}
-
-
-void DeviceMemory::map(void** ptr, size_t offset, size_t stride)
-{
-    if(persistentlyMapped)
-    {
-        throw std::runtime_error("cant map a buffer that has already been mapped!");
-    }
-    if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
-    {
-        throw std::runtime_error("offset and/or stride too large for this buffer!");
-    }
-
-    persistentlyMapped = true;
-    if(vkMapMemory(device->getLogicalDevice(), deviceMemory, offset, stride, 0, ptr) != VK_SUCCESS)//only map the data that gets written to
-    {
-        throw std::runtime_error("failed to map memory!");
-    }
-}
-
-
-void DeviceMemory::unMap()
-{
-    if(!persistentlyMapped)
-    {
-        vkUnmapMemory(device->getLogicalDevice(), deviceMemory);
-        persistentlyMapped = false;
-    }
-}
-
-
-bool DeviceMemory::isPersistentlyMapped()
-{
-    return persistentlyMapped;
-}
-
-
 void DeviceMemory::copyToDeviceMemory(const void* src)
 {
     copyToDeviceMemory(src, 0, buffer->getBufferSize());
@@ -110,10 +74,6 @@ void DeviceMemory::copyToDeviceMemory(const void* src)
 
 void DeviceMemory::copyToDeviceMemory(const void *src, size_t offset, size_t stride)
 {
-    if(persistentlyMapped)
-    {
-        throw std::runtime_error("cant map a buffer that has already been mapped!");
-    }
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
         throw std::runtime_error("offset and/or stride too large for this buffer!");
@@ -137,10 +97,6 @@ void DeviceMemory::copyFromDeviceMemory(void *dst)
 
 void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
 {
-    if(persistentlyMapped)
-    {
-        throw std::runtime_error("cant map a buffer that has already been mapped!");
-    }
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
         throw std::runtime_error("offset and/or stride too large for this buffer!");
@@ -158,10 +114,6 @@ void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
 
 void DeviceMemory::cleanup()
 {
-    if(persistentlyMapped)
-    {
-        unMap();
-    }
     if(deviceMemory  != VK_NULL_HANDLE)
     {
         vkFreeMemory(device->getLogicalDevice(), deviceMemory, nullptr);

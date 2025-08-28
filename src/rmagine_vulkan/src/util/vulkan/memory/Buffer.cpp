@@ -16,6 +16,11 @@ Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, Dev
     createBuffer(bufferUsageFlags);
 }
 
+Buffer::~Buffer()
+{
+    cleanup();
+}
+
 
 
 void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)

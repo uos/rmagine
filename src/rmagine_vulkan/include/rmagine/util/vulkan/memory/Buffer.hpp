@@ -34,7 +34,7 @@ public:
 
     Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
-    ~Buffer() {}
+    ~Buffer();
 
     Buffer(const Buffer&) = delete;
 

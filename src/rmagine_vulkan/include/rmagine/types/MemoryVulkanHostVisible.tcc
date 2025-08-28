@@ -57,6 +57,13 @@ Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VkBufferUsageFlags bufferUs
     resize(N, bufferUsageFlags);
 }
 
+template<typename DataT>
+Memory<DataT, VULKAN_HOST_VISIBLE>::~Memory()
+{
+    if(m_memID != 0)
+        std::cout << "retired m_memID = " << m_memID << std::endl;
+}
+
 
 template<typename DataT>
 void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
@@ -68,31 +75,40 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
 template<typename DataT>
 void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N, VkBufferUsageFlags bufferUsageFlags)
 {
-    if(N != 0)
+    if(N == m_size)
     {
-        size_t newSize = N;
-
-        BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-        DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newBuffer);
-
-        //CHECK: test if the copying works as intended
-        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
-        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
-
-        m_buffer.reset();
-        m_deviceMemory.reset();
-
-        m_size = newSize;
-        m_memID = MemoryHelper::GetNewMemID();
-        m_buffer = newBuffer;
-        m_deviceMemory = newDeviceMemory;
+        return;
     }
-    else
+    else if(N == 0)
     {
         m_size = 0;
         m_buffer = nullptr;
         m_deviceMemory = nullptr;
+        return;
     }
+
+    size_t newSize = N;
+
+    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newBuffer);
+
+    if(m_size != 0)
+    {
+        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    }
+
+    m_buffer.reset();
+    m_deviceMemory.reset();
+
+    m_size = newSize;
+    m_buffer = newBuffer;
+    m_deviceMemory = newDeviceMemory;
+
+    if(m_memID != 0)
+        std::cout << "retired m_memID = " << m_memID << std::endl;
+    m_memID = MemoryHelper::GetNewMemID();
+    std::cout << "new m_memID = " << m_memID << std::endl;
 }
 
 

@@ -71,6 +71,13 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VkBufferUsageFlags bufferUs
     resize(N, bufferUsageFlags);
 }
 
+template<typename DataT>
+Memory<DataT, VULKAN_DEVICE_LOCAL>::~Memory()
+{
+    if(m_memID != 0)
+        std::cout << "retired m_memID = " << m_memID << std::endl;
+}
+
 
 template<typename DataT>
 void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
@@ -82,40 +89,49 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
 template<typename DataT>
 void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N, VkBufferUsageFlags bufferUsageFlags)
 {
-    if(N != 0)
+    if(N == m_size)
     {
-        size_t newSize = N;
-
-        BufferPtr newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-        DeviceMemoryPtr newStagingDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
-        
-        BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-        DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
-
-        //CHECK: test if the copying works as intended
-        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
-        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
-
-        m_buffer.reset();
-        m_deviceMemory.reset();
-        stagingBuffer.reset();
-        stagingDeviceMemory.reset();
-
-        m_size = newSize;
-        m_memID = MemoryHelper::GetNewMemID();
-        m_buffer = newBuffer;
-        m_deviceMemory = newDeviceMemory;
-        stagingBuffer = newStagingBuffer;
-        stagingDeviceMemory = newStagingDeviceMemory;
+        return;
     }
-    else
+    else if(N == 0)
     {
         m_size = 0;
         m_buffer = nullptr;
         m_deviceMemory = nullptr;
-        stagingBuffer = nullptr;
-        stagingDeviceMemory = nullptr;
+        m_stagingBuffer = nullptr;
+        m_stagingDeviceMemory = nullptr;
+        return;
     }
+
+    size_t newSize = N;
+
+    BufferPtr newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    DeviceMemoryPtr newStagingDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
+    
+    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    DeviceMemoryPtr newDeviceMemory =std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
+
+    if(m_size != 0)
+    {
+        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    }
+
+    m_buffer.reset();
+    m_deviceMemory.reset();
+    m_stagingBuffer.reset();
+    m_stagingDeviceMemory.reset();
+
+    m_size = newSize;
+    m_buffer = newBuffer;
+    m_deviceMemory = newDeviceMemory;
+    m_stagingBuffer = newStagingBuffer;
+    m_stagingDeviceMemory = newStagingDeviceMemory;
+
+    if(m_memID != 0)
+        std::cout << "retired m_memID = " << m_memID << std::endl;
+    m_memID = MemoryHelper::GetNewMemID();
+    std::cout << "new m_memID = " << m_memID << std::endl;
 }
 
 

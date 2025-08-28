@@ -24,8 +24,6 @@ private:
 
     VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 
-    bool persistentlyMapped = false;
-
 public:
     /**
      * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
@@ -34,18 +32,10 @@ public:
 
     DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr device, BufferPtr buffer);
 
-    ~DeviceMemory() {}
+    ~DeviceMemory();
 
     DeviceMemory(const DeviceMemory&) = delete;
 
-
-    void map(void** ptr);
-
-    void map(void** ptr, size_t offset, size_t stride);
-
-    void unMap();
-
-    bool isPersistentlyMapped();
 
     void copyToDeviceMemory(const void* src);
 

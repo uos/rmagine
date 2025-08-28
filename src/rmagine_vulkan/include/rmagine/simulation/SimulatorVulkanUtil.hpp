@@ -48,7 +48,7 @@ struct VulkanDimensions
     uint64_t width = 0;
     uint64_t height = 0;
     uint64_t depth = 0;
-}
+};
 
 
 

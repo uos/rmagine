@@ -128,7 +128,7 @@ public:
 
     Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
 
-    ~Memory() {};
+    ~Memory();
 
 
     void resize(size_t N);
@@ -168,8 +168,8 @@ protected:
     VkBufferUsageFlags m_bufferUsageFlags = 0;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
-    BufferPtr stagingBuffer = nullptr; //TODO: remove later
-    DeviceMemoryPtr stagingDeviceMemory = nullptr; //TODO: remove later
+    BufferPtr m_stagingBuffer = nullptr; //TODO: remove later
+    DeviceMemoryPtr m_stagingDeviceMemory = nullptr; //TODO: remove later
 
 public:
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
@@ -231,7 +231,7 @@ public:
 
     Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
 
-    ~Memory() {};
+    ~Memory();
 
 
     void resize(size_t N);
@@ -255,8 +255,8 @@ protected:
     using Base::m_bufferUsageFlags;
     using Base::m_buffer;
     using Base::m_deviceMemory;
-    using Base::stagingBuffer; //TODO: remove later
-    using Base::stagingDeviceMemory; //TODO: remove later
+    using Base::m_stagingBuffer; //TODO: remove later
+    using Base::m_stagingDeviceMemory; //TODO: remove later
 };
 
 
