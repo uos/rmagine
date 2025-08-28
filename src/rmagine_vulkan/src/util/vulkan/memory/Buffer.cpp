@@ -18,7 +18,11 @@ Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, Dev
 
 Buffer::~Buffer()
 {
-    cleanup();
+    if(buffer != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
+        buffer = VK_NULL_HANDLE;
+    }
 }
 
 
@@ -43,18 +47,6 @@ void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
         throw std::runtime_error("failed to create buffer!");
     }
 }
-
-
-
-void Buffer::cleanup()
-{
-    if(buffer != VK_NULL_HANDLE)
-    {
-        vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
-        buffer = VK_NULL_HANDLE;
-    }
-}
-
 
 
 VkDeviceAddress Buffer::getBufferDeviceAddress()

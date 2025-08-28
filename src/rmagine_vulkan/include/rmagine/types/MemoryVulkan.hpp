@@ -53,6 +53,7 @@ class MemoryHelper
 {
 private:
     // TODO: maybe hold these as global staging buffers for device local memory
+    //       might make problems with thread safety though...
     // static BufferPtr m_stagingBuffer;
     // static DeviceMemoryPtr m_stagingDeviceMemory;
 

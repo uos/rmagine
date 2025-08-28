@@ -37,25 +37,19 @@ public:
     ~Buffer();
 
     Buffer(const Buffer&) = delete;
-
-
-    /**
-     * free the Buffer
-     */
-    void cleanup();
     
-private:
-    /**
-     * create the Buffer
-     */
-    void createBuffer(VkBufferUsageFlags bufferUsageFlags);
-
-public:
+    
     VkDeviceAddress getBufferDeviceAddress();
 
     VkDeviceSize getBufferSize();
 
     VkBuffer getBuffer();
+
+private:
+    /**
+     * create the Buffer
+     */
+    void createBuffer(VkBufferUsageFlags bufferUsageFlags);
 };
 
 using BufferPtr = std::shared_ptr<Buffer>;

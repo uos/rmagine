@@ -18,7 +18,11 @@ DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr 
 
 DeviceMemory::~DeviceMemory()
 {
-    cleanup();
+    if(deviceMemory  != VK_NULL_HANDLE)
+    {
+        vkFreeMemory(device->getLogicalDevice(), deviceMemory, nullptr);
+        deviceMemory = VK_NULL_HANDLE;
+    }
 }
 
 
@@ -109,16 +113,6 @@ void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
     }
     memcpy(dst, hostMemoryBuffer, stride);
     vkUnmapMemory(device->getLogicalDevice(), deviceMemory);
-}
-
-
-void DeviceMemory::cleanup()
-{
-    if(deviceMemory  != VK_NULL_HANDLE)
-    {
-        vkFreeMemory(device->getLogicalDevice(), deviceMemory, nullptr);
-        deviceMemory = VK_NULL_HANDLE;
-    }
 }
 
 

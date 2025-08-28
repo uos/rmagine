@@ -45,10 +45,6 @@ public:
 
     void copyFromDeviceMemory(void* dst, size_t offset, size_t stride);
 
-    /**
-     * free the DeviceMemory
-     */
-    void cleanup();
 
     BufferPtr getBuffer();
     

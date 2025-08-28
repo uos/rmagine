@@ -24,7 +24,16 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR acce
 
 AccelerationStructure::~AccelerationStructure()
 {
-    cleanup();
+    if(accelerationStructure != VK_NULL_HANDLE)
+    {
+        accelerationStructureDeviceMemory.reset();
+        accelerationStructureBuffer.reset();
+        accelerationStructureScratchDeviceMemory.reset();
+        accelerationStructureScratchBuffer.reset();
+
+        extensionFunctionsPtr->pvkDestroyAccelerationStructureKHR(device->getLogicalDevice(), accelerationStructure, nullptr);
+        accelerationStructure = VK_NULL_HANDLE;
+    }
 }
 
 void AccelerationStructure::createAccelerationStructure(
@@ -96,8 +105,6 @@ void AccelerationStructure::createAccelerationStructure(
 
     get_vulkan_context()->getDefaultCommandBuffer()->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
     get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
-
-    std::cout << "acceleration structure has been build" << std::endl;
 }
 
 
@@ -110,40 +117,6 @@ VkDeviceAddress AccelerationStructure::getDeviceAddress()
 VkAccelerationStructureKHR* AccelerationStructure::getAcceleratiionStructurePtr()
 {
     return &accelerationStructure;
-}
-
-
-void AccelerationStructure::cleanup()
-{
-    if(accelerationStructure != VK_NULL_HANDLE)
-    {
-        accelerationStructureDeviceMemory->cleanup();
-        accelerationStructureBuffer->cleanup();
-        accelerationStructureScratchDeviceMemory->cleanup();
-        accelerationStructureScratchBuffer->cleanup();
-
-        extensionFunctionsPtr->pvkDestroyAccelerationStructureKHR(device->getLogicalDevice(), accelerationStructure, nullptr);
-        accelerationStructure = VK_NULL_HANDLE;
-    }
-}
-
-
-size_t AccelerationStructure::getID()
-{
-    return asID;
-}
-
-
-
-size_t AccelerationStructure::asIDcounter = 0;
-
-size_t AccelerationStructure::getNewAsID()
-{
-    if(asIDcounter == SIZE_MAX)
-    {
-        throw std::runtime_error("You created way too many top level acceleration structures!"); 
-    }
-    return ++asIDcounter;
 }
 
 } // namespace rmagine

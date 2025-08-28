@@ -35,8 +35,6 @@ private:
     // for building acceleration structure
     BufferPtr accelerationStructureScratchBuffer = nullptr;
     DeviceMemoryPtr accelerationStructureScratchDeviceMemory = nullptr;
-
-    size_t asID = 0;
     
 public:
     AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
@@ -64,14 +62,6 @@ protected:
     void createAccelerationStructure(
         std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
         std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
-
-private:
-    void cleanup();
-
-
-    static size_t asIDcounter;
-
-    static size_t getNewAsID();
 };
 
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;

@@ -58,8 +58,16 @@ template<typename DataT>
 Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VkBufferUsageFlags bufferUsageFlags)
     : Base(N, 0, bufferUsageFlags, nullptr, nullptr)
 {
-    m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_buffer);
+    if(N > 0)
+    {
+        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_buffer);
+
+        m_memID = MemoryHelper::GetNewMemID();
+        #ifdef VDEBUG
+            std::cout << "VULKAN_HOST_VISIBLE: new m_memID = " << m_memID << std::endl;
+        #endif
+    }
 }
 
 template<typename DataT>
@@ -67,7 +75,7 @@ Memory<DataT, VULKAN_HOST_VISIBLE>::~Memory()
 {
     #ifdef VDEBUG
         if(m_memID != 0)
-            std::cout << "retired m_memID = " << m_memID << std::endl;
+            std::cout << "VULKAN_HOST_VISIBLE: retired m_memID = " << m_memID << std::endl;
     #endif
 }
 
@@ -108,11 +116,11 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
 
     #ifdef VDEBUG
         if(m_memID != 0)
-            std::cout << "retired m_memID = " << m_memID << std::endl;
+            std::cout << "VULKAN_HOST_VISIBLE: retired m_memID = " << m_memID << std::endl;
     #endif
     m_memID = MemoryHelper::GetNewMemID();
     #ifdef VDEBUG
-        std::cout << "new m_memID = " << m_memID << std::endl;
+        std::cout << "VULKAN_HOST_VISIBLE: new m_memID = " << m_memID << std::endl;
     #endif
 }
 

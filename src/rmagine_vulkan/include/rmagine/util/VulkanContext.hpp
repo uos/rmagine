@@ -43,6 +43,9 @@ private:
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::Miss
         std::map<ShaderDefineFlags, ShaderPtr>()};    // ShaderType::Call
 
+    //TODO: thread safety
+    // might need a lock each for pipelines/sbts & shaders
+
 public:
     VulkanContext() : extensionFunctionsPtr(new ExtensionFunctions)
     {
