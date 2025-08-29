@@ -22,16 +22,24 @@ private:
 
     VkInstance instance = VK_NULL_HANDLE;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR physicalDeviceRayTracingPipelineProperties{};
-    uint32_t queueFamilyIndex = uint32_t(~0);
     VkDevice logicalDevice = VK_NULL_HANDLE;
     VkQueue queue = VK_NULL_HANDLE;
+
+    uint32_t queueFamilyIndex = uint32_t(~0);
+
+    uint32_t shaderGroupBaseAlignment = 0;
+    uint32_t shaderGroupHandleSize = 0;
+    
+    uint32_t maxPrimitiveCount = 0;
+    uint32_t maxGeometryCount = 0;
+    uint32_t maxInstanceCount = 0;
 
 public:
     Device()
     {
         createInstance();
         choosePhysicalDevice();
+        chooseQueueFamily();
         createLogicalDevice();
     }
 
@@ -56,11 +64,20 @@ public:
 
     VkDeviceSize getShaderGroupHandleSize();
 
+    uint32_t getMaxPrimitiveCount();
+
+    uint32_t getMaxGeometryCount();
+
+    uint32_t getMaxInstanceCount();
+
 private:
-    
     void createInstance(std::string appName = "VulkanApp");
 
     void choosePhysicalDevice();
+    bool evaluatePhysicalDeviceType(VkPhysicalDeviceType currentPysicalDeviceType, VkPhysicalDeviceType newPysicalDeviceType);
+    bool evaluatePhysicalDeviceFeatures(const VkPhysicalDevice &physicalDevice);
+
+    void chooseQueueFamily();
 
     void createLogicalDevice();
 };
