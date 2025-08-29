@@ -20,11 +20,6 @@ Fence::Fence(DevicePtr device) : device(device)
 
 void Fence::createFence()
 {
-    if(fence != VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("tried to create a fence that already exists!");
-    }
-
     VkFenceCreateInfo fenceCreateInfo{};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
