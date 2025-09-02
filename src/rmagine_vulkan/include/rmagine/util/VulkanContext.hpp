@@ -59,19 +59,18 @@ public:
 
 
     ShaderPtr getShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
-
+    void removeShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+    size_t getShaderCacheSize();
     void clearShaderCache();
 
     ShaderBindingTablePtr getShaderBindingTable(ShaderDefineFlags shaderDefines);
-
+    void removeShaderBindingTable(ShaderDefineFlags shaderDefines);
+    size_t getShaderBindingTableCacheSize();
     void clearShaderBindingTableCache();
 
     DevicePtr getDevice();
-
     CommandPoolPtr getCommandPool();
-
     DescriptorSetLayoutPtr getDescriptorSetLayout();
-
     PipelineLayoutPtr getPipelineLayout();
 
 private:

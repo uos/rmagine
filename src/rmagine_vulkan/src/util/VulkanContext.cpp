@@ -65,26 +65,6 @@ void VulkanContext::loadExtensionFunctions()
 }
 
 
-ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags shaderDefines)
-{
-    if(!one_sensor_defined(shaderDefines))
-    {
-        throw std::invalid_argument("illegal ShaderDefineFlags: You may only define one sensor type!");
-    }
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
-    {
-        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
-    }
-
-    if(shaderBindingTableMap.count(shaderDefines) == 0)
-    {
-        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
-    }
-
-    return shaderBindingTableMap.at(shaderDefines);
-}
-
-
 ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
     if(!one_sensor_defined(shaderDefines))
@@ -125,12 +105,69 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
 }
 
 
+void VulkanContext::removeShader(ShaderType shaderType, ShaderDefineFlags shaderDefines)
+{
+    if(shaderMaps[shaderType].count(shaderDefines) == 1)
+    {
+        auto it = shaderMaps[shaderType].find(shaderDefines);
+        shaderMaps[shaderType].erase(it);
+    }
+}
+
+
+size_t VulkanContext::getShaderCacheSize()
+{
+    size_t size = 0;
+    for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
+    {
+        size += shaderMaps[i].size();
+    }
+    return size;
+}
+
+
 void VulkanContext::clearShaderCache()
 {
     for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
         shaderMaps[i].clear();
     }
+}
+
+
+ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags shaderDefines)
+{
+    if(!one_sensor_defined(shaderDefines))
+    {
+        throw std::invalid_argument("illegal ShaderDefineFlags: You may only define one sensor type!");
+    }
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
+    }
+
+    if(shaderBindingTableMap.count(shaderDefines) == 0)
+    {
+        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
+    }
+
+    return shaderBindingTableMap.at(shaderDefines);
+}
+
+
+void VulkanContext::removeShaderBindingTable(ShaderDefineFlags shaderDefines)
+{
+    if(shaderBindingTableMap.count(shaderDefines) == 1)
+    {
+        auto it = shaderBindingTableMap.find(shaderDefines);
+        shaderBindingTableMap.erase(it);
+    }
+}
+
+
+size_t VulkanContext::getShaderBindingTableCacheSize()
+{
+    return shaderBindingTableMap.size();
 }
 
 
