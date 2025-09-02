@@ -1,4 +1,4 @@
-#include "rmagine/util/vulkan/general/Fence.hpp"
+#include "rmagine/util/vulkan/command/Fence.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 
 

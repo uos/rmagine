@@ -17,9 +17,9 @@ set(RMAGINE_VULKAN_SRCS
     src/util/vulkan/ShaderBindingTable.cpp
     src/util/vulkan/Shader.cpp
     src/util/vulkan/ShaderUtil.cpp
-    #   General components
-    src/util/vulkan/general/Fence.cpp
-    src/util/vulkan/general/CommandBuffer.cpp
+    #   Command components
+    src/util/vulkan/command/Fence.cpp
+    src/util/vulkan/command/CommandBuffer.cpp
     #   Memory components
     src/util/vulkan/memory/Buffer.cpp
     src/util/vulkan/memory/DeviceMemory.cpp

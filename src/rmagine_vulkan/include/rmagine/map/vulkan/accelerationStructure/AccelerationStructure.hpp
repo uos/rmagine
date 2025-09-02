@@ -11,7 +11,7 @@
 
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
-#include <rmagine/util/vulkan/general/CommandBuffer.hpp>
+#include <rmagine/util/vulkan/command/CommandBuffer.hpp>
 #include <rmagine/map/vulkan/vulkan_definitions.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 

@@ -1,4 +1,4 @@
-#include "rmagine/util/vulkan/general/CommandBuffer.hpp"
+#include "rmagine/util/vulkan/command/CommandBuffer.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 #include "rmagine/util/vulkan/ShaderBindingTable.hpp"
 #include "rmagine/simulation/vulkan/DescriptorSet.hpp"
