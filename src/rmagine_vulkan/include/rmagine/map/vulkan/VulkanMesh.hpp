@@ -34,8 +34,8 @@ public:
 
     Memory<VkTransformMatrixKHR, VULKAN_DEVICE_LOCAL>   transformMatrix;
 
-    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices; // TODO: needs the bits: VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
-    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;    // TODO: needs the bits: VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices;
+    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;
     Memory<Vector, VULKAN_DEVICE_LOCAL>   face_normals;
     Memory<Vector, VULKAN_DEVICE_LOCAL>   vertex_normals;
 

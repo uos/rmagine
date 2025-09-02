@@ -21,6 +21,21 @@
 namespace rmagine
 {
 
+enum VulkanMemoryUsage
+{
+    Usage_Default,
+    Usage_Uniform,
+    Usage_AccelerationStructureMeshData,
+    Usage_AccelerationStructureInstanceData,
+    Usage_AccelerationStructureScratch,
+    Usage_AccelerationStructure,
+    Usage_ShaderBindingTable,
+    //Last Element: only use it to get the size of this enum excluding this element
+    VULKAN_MEMORY_USEAGE_SIZE
+};
+
+
+
 struct VULKAN_HOST_VISIBLE
 {
     template<typename DataT>
@@ -55,8 +70,8 @@ class MemoryHelper
 private:
     // TODO: maybe hold these as global staging buffers for device local memory
     //       might make problems with thread safety though...
-    // static BufferPtr MemStagingBuffer;
-    // static DeviceMemoryPtr MemStagingDeviceMemory;
+    static BufferPtr MemStagingBuffer;
+    static DeviceMemoryPtr MemStagingDeviceMemory;
 
     static CommandBufferPtr MemCommandBuffer;
 
