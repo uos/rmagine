@@ -8,32 +8,28 @@ namespace rmagine
 
 AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType) : 
     accelerationStructureType(accelerationStructureType),
-    device(get_vulkan_context()->getDevice()), 
-    extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
-{
-
-}
-
-AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
-    accelerationStructureType(accelerationStructureType), 
-    device(device), 
-    extensionFunctionsPtr(extensionFunctionsPtr)
+    vulkan_context(get_vulkan_context_weak()),
+    commandBuffer(new CommandBuffer(vulkan_context))
 {
     
 }
 
 AccelerationStructure::~AccelerationStructure()
 {
+    std::cout << "Destroying AccelerationStructure" << std::endl;
     if(accelerationStructure != VK_NULL_HANDLE)
     {
+        commandBuffer.reset();
+
         accelerationStructureDeviceMemory.reset();
         accelerationStructureBuffer.reset();
         accelerationStructureScratchDeviceMemory.reset();
         accelerationStructureScratchBuffer.reset();
 
-        extensionFunctionsPtr->pvkDestroyAccelerationStructureKHR(device->getLogicalDevice(), accelerationStructure, nullptr);
+        vulkan_context->extensionFuncs.vkDestroyAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), accelerationStructure, nullptr);
         accelerationStructure = VK_NULL_HANDLE;
     }
+    std::cout << "AccelerationStructure destroyed" << std::endl;
 }
 
 void AccelerationStructure::createAccelerationStructure(
@@ -61,8 +57,8 @@ void AccelerationStructure::createAccelerationStructure(
         maxPrimitiveCountList.push_back(accelerationStructureBuildRangeInfos[i].primitiveCount);
     }
 
-    extensionFunctionsPtr->pvkGetAccelerationStructureBuildSizesKHR(
-        device->getLogicalDevice(), 
+    vulkan_context->extensionFuncs.vkGetAccelerationStructureBuildSizesKHR(
+        vulkan_context->getDevice()->getLogicalDevice(), 
         VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, 
         &accelerationStructureBuildGeometryInfo, 
         maxPrimitiveCountList.data(), 
@@ -82,7 +78,7 @@ void AccelerationStructure::createAccelerationStructure(
     accelerationStructureCreateInfo.type = accelerationStructureType;
     accelerationStructureCreateInfo.deviceAddress = 0;
 
-    if(extensionFunctionsPtr->pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, nullptr, &accelerationStructure) != VK_SUCCESS)
+    if(vulkan_context->extensionFuncs.vkCreateAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), &accelerationStructureCreateInfo, nullptr, &accelerationStructure) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to creates acceleration structure!");
     }
@@ -91,8 +87,9 @@ void AccelerationStructure::createAccelerationStructure(
     accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
     accelerationStructureDeviceAddressInfo.accelerationStructure = accelerationStructure;
 
-    accelerationStructureDeviceAddress = 
-        extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
+    accelerationStructureDeviceAddress = vulkan_context->extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR(
+        vulkan_context->getDevice()->getLogicalDevice(), 
+        &accelerationStructureDeviceAddressInfo);
     
     //TODO: Memory Objects
     accelerationStructureScratchBuffer = std::make_shared<Buffer>(
@@ -103,8 +100,8 @@ void AccelerationStructure::createAccelerationStructure(
     accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchBuffer->getBufferDeviceAddress();
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    commandBuffer->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
+    commandBuffer->submitRecordedCommandAndWait();
 }
 
 

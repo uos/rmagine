@@ -1,9 +1,33 @@
 #include "rmagine/util/vulkan/DescriptorSetLayout.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 
 namespace rmagine
 {
+
+DescriptorSetLayout::DescriptorSetLayout(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+{
+    createDescriptorPool();
+    createDescriptorSetLayout();
+}
+
+DescriptorSetLayout::~DescriptorSetLayout()
+{
+    std::cout << "Destroying DescriptorSetLayout" << std::endl;
+    if(descriptorSetLayout != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorSetLayout(device->getLogicalDevice(), descriptorSetLayout, nullptr);
+    }
+    if(descriptorPool != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(device->getLogicalDevice(), descriptorPool, nullptr);
+    }
+    device.reset();
+    std::cout << "DescriptorSetLayout destroyed" << std::endl;
+}
+
+
 
 void DescriptorSetLayout::createDescriptorPool()
 {
@@ -19,7 +43,7 @@ void DescriptorSetLayout::createDescriptorPool()
     descriptorPoolCreateInfo.poolSizeCount = (uint32_t)descriptorPoolSizeList.size();
     descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizeList.data();
 
-    if(vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    if(vkCreateDescriptorPool(vulkan_context.lock()->getDevice()->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -66,27 +90,18 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     descriptorSetLayoutCreateInfo.bindingCount = (uint32_t)descriptorSetLayoutBindingList.size();
     descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindingList.data();
     
-    if(vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    if(vkCreateDescriptorSetLayout(vulkan_context.lock()->getDevice()->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
 
 
-void DescriptorSetLayout::cleanup()
-{
-    if(descriptorSetLayout != VK_NULL_HANDLE)
-        vkDestroyDescriptorSetLayout(device->getLogicalDevice(), descriptorSetLayout, nullptr);
-    if(descriptorPool != VK_NULL_HANDLE)
-        vkDestroyDescriptorPool(device->getLogicalDevice(), descriptorPool, nullptr);
-}
-
-
-
 VkDescriptorPool DescriptorSetLayout::getDescriptorPool()
 {
     return descriptorPool;
 }
+
 
 VkDescriptorSetLayout* DescriptorSetLayout::getDescriptorSetLayoutPtr()
 {

@@ -1,16 +1,27 @@
 #include "rmagine/util/vulkan/Shader.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 
 namespace rmagine
 {
 
-Shader::Shader(DevicePtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines) : device(device)
+Shader::Shader(VulkanContextWPtr vulkan_context, ShaderType shaderType, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
 {
     std::cout << "compiling & creating " << get_shader_info(shaderType, shaderDefines) << std::endl;
     createShader(compileShader(shaderType, shaderDefines));
 }
 
+Shader::~Shader()
+{
+    std::cout << "Destroying Shader" << std::endl;
+    if(shaderModule != VK_NULL_HANDLE)
+    {
+        vkDestroyShaderModule(device->getLogicalDevice(), shaderModule, nullptr);
+    }
+    device.reset();
+    std::cout << "Shader destroyed" << std::endl;
+}
 
 
 void Shader::createShader(std::vector<uint32_t> words)
@@ -25,7 +36,7 @@ void Shader::createShader(std::vector<uint32_t> words)
     shaderModuleCreateInfo.codeSize = words.size() * sizeof(uint32_t);
     shaderModuleCreateInfo.pCode = words.data();
     
-    if(vkCreateShaderModule(device->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    if(vkCreateShaderModule(vulkan_context.lock()->getDevice()->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create shader module");
     }
@@ -113,16 +124,6 @@ std::vector<uint32_t> Shader::compileShader(ShaderType shaderType, ShaderDefineF
 VkShaderModule Shader::getShaderModule()
 {
     return shaderModule;
-}
-
-
-void Shader::cleanup()
-{
-    if(shaderModule != VK_NULL_HANDLE)
-    {
-        vkDestroyShaderModule(device->getLogicalDevice(), shaderModule, nullptr);
-        shaderModule = VK_NULL_HANDLE;
-    }
 }
 
 } // namespace rmagine

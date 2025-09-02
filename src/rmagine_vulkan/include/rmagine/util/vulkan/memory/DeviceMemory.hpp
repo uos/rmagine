@@ -19,18 +19,15 @@ namespace rmagine
 class DeviceMemory
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
+
     BufferPtr buffer = nullptr;
 
     VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 
 public:
-    /**
-     * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
-     */
     DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer);
-
-    DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr device, BufferPtr buffer);
 
     ~DeviceMemory();
 

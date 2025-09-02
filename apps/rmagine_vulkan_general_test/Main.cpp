@@ -265,6 +265,8 @@ int main()
     std::cout << "Simulating ondn..." << std::endl;
     sim_gpu_ondn->simulate(tbm_device, res_ondn);
 
+    std::cout << std::endl;
+
 
     //get sphere results
     sphereHits_ram = res_sphere.hits;

@@ -127,8 +127,9 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
     //copy from old buffer to new buffer, if old buffer wasnt empty
     if(m_size != 0)
     {
-        get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
-        get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+        //TODO: use copy here when its done for non equal sizes
+        MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
     }
 
     m_buffer.reset();
@@ -144,11 +145,11 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
 
     #ifdef VDEBUG
         if(m_memID != 0)
-            std::cout << "VULKAN_DEVICE_LOCAL: retired m_memID = " << m_memID << std::endl;
+            std::cout << "VULKAN_DEVICE_LOCAL: retired m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
     m_memID = MemoryHelper::GetNewMemID();
     #ifdef VDEBUG
-        std::cout << "VULKAN_DEVICE_LOCAL: new m_memID = " << m_memID << std::endl;
+        std::cout << "VULKAN_DEVICE_LOCAL: new m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
 }
 

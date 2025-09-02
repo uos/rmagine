@@ -5,6 +5,11 @@
 namespace rmagine
 {
 
+// BufferPtr MemoryHelper::MemStagingBuffer = nullptr;
+// DeviceMemoryPtr MemoryHelper::MemStagingDeviceMemory = nullptr;
+
+CommandBufferPtr MemoryHelper::MemCommandBuffer = nullptr;
+
 size_t MemoryHelper::MemIDcounter = 0;
 
 size_t MemoryHelper::GetNewMemID()
@@ -17,6 +22,15 @@ size_t MemoryHelper::GetNewMemID()
         ++MemIDcounter;//skip 0 - it is supposed to be an invalid value
     }
     return ++MemIDcounter;
+}
+
+CommandBufferPtr MemoryHelper::GetMemCommandBuffer()
+{
+    if(MemCommandBuffer == nullptr)
+    {
+        MemCommandBuffer = std::make_shared<CommandBuffer>(get_vulkan_context());
+    }
+    return MemCommandBuffer;
 }
 
 } // namespace rmagine

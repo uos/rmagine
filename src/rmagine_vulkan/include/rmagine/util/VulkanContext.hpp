@@ -14,28 +14,27 @@
 #include "vulkan/CommandPool.hpp"
 #include "vulkan/DescriptorSetLayout.hpp"
 #include "vulkan/PipelineLayout.hpp"
-#include "vulkan/Pipeline.hpp"
 #include "vulkan/Shader.hpp"
-#include "vulkan/general/CommandBuffer.hpp"
 
 
 
 namespace rmagine
 {
 
-class VulkanContext : std::enable_shared_from_this<VulkanContext>
+//forward declaration
+class ShaderBindingTable;
+using ShaderBindingTablePtr = std::shared_ptr<ShaderBindingTable>;
+
+
+
+class VulkanContext : public std::enable_shared_from_this<VulkanContext>
 {
 private:
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
-
     DevicePtr device = nullptr;
+
     CommandPoolPtr commandPool = nullptr;
     DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
     PipelineLayoutPtr pipelineLayout = nullptr;
-
-    std::map<ShaderDefineFlags, PipelinePtr> pipelineMap = std::map<ShaderDefineFlags, PipelinePtr>();
-
-    CommandBufferPtr defaultCommandBuffer = nullptr;
 
     std::map<ShaderDefineFlags, ShaderPtr> shaderMaps[ShaderType::SHADER_TYPE_SIZE] = {
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::RGen
@@ -43,54 +42,29 @@ private:
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::Miss
         std::map<ShaderDefineFlags, ShaderPtr>()};    // ShaderType::Call
 
+    std::map<ShaderDefineFlags, ShaderBindingTablePtr> shaderBindingTableMap = std::map<ShaderDefineFlags, ShaderBindingTablePtr>();
+
     //TODO: thread safety
-    // might need a lock each for pipelines/sbts & shaders
+    // might need a lock each for sbts & shaders
 
 public:
-    VulkanContext() : extensionFunctionsPtr(new ExtensionFunctions)
-    {
-        std::cout << "creating VulkanContext" << std::endl;
+    ExtensionFunctions extensionFuncs;
 
-        device = std::make_shared<Device>();
-        loadExtensionFunctions();
 
-        commandPool = std::make_shared<CommandPool>(device);
-        descriptorSetLayout = std::make_shared<DescriptorSetLayout>(device);
-        pipelineLayout = std::make_shared<PipelineLayout>(device, descriptorSetLayout);
+    VulkanContext();
 
-        defaultCommandBuffer = std::make_shared<CommandBuffer>(device, extensionFunctionsPtr, commandPool, pipelineLayout);
-
-        std::cout << "VulkanContext created" << std::endl;
-    }
-
-    ~VulkanContext()
-    {
-        std::cout << "destroying VulkanContext" << std::endl;
-        cleanup();
-    }
+    ~VulkanContext();
 
     VulkanContext(const VulkanContext&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    PipelinePtr getPipeline(ShaderDefineFlags shaderDefines);
-
     ShaderPtr getShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
-private:
-    /**
-     * functions from extensions are not available directly and have to be loaded manually via vkGetDeviceProcAddr()
-     */
-    void loadExtensionFunctions();
-
-    /**
-     * call cleanup functions of components
-     */
-    void cleanup();
-
-public:
     void clearShaderCache();
 
-    void clearPipelineCache();
+    ShaderBindingTablePtr getShaderBindingTable(ShaderDefineFlags shaderDefines);
+
+    void clearShaderBindingTableCache();
 
     DevicePtr getDevice();
 
@@ -100,20 +74,20 @@ public:
 
     PipelineLayoutPtr getPipelineLayout();
 
-    ExtensionFunctionsPtr getExtensionFunctionsPtr();
-
-    CommandBufferPtr getDefaultCommandBuffer();
+private:
+    /**
+     * functions from extensions are not available directly and have to be loaded manually via vkGetDeviceProcAddr()
+     */
+    void loadExtensionFunctions();
 };
 
-
-
-
-
 using VulkanContextPtr = std::shared_ptr<VulkanContext>;
-using VulkanContextWeakPtr = std::weak_ptr<VulkanContext>;
+using VulkanContextWPtr = std::weak_ptr<VulkanContext>;
+
+
 
 VulkanContextPtr get_vulkan_context();
 
-VulkanContextWeakPtr get_vulkan_context_weak();
+VulkanContextWPtr get_vulkan_context_weak();
 
 } // namespace rmagine

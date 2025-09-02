@@ -6,14 +6,20 @@
 namespace rmagine
 {
 
-Fence::Fence() : device(get_vulkan_context()->getDevice())
+Fence::Fence(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
 {
     createFence();
 }
 
-Fence::Fence(DevicePtr device) : device(device)
+Fence::~Fence()
 {
-    createFence();
+    std::cout << "Destroying Fence" << std::endl;
+    if(fence != VK_NULL_HANDLE)
+    {
+        vkDestroyFence(device->getLogicalDevice(), fence, nullptr);
+    }
+    device.reset();
+    std::cout << "Fence destroyed" << std::endl;
 }
 
 
@@ -23,7 +29,7 @@ void Fence::createFence()
     VkFenceCreateInfo fenceCreateInfo{};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-    if(vkCreateFence(device->getLogicalDevice(), &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
+    if(vkCreateFence(vulkan_context.lock()->getDevice()->getLogicalDevice(), &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create fence!");
     }
@@ -39,7 +45,7 @@ void Fence::submitWithFenceAndWait(VkSubmitInfo& submitInfo)
 
 void Fence::submitWithFence(VkSubmitInfo& submitInfo)
 {
-    if(vkQueueSubmit(device->getQueue(), 1,  &submitInfo, fence) != VK_SUCCESS)
+    if(vkQueueSubmit(vulkan_context.lock()->getDevice()->getQueue(), 1,  &submitInfo, fence) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to submit build!");
     }
@@ -48,22 +54,12 @@ void Fence::submitWithFence(VkSubmitInfo& submitInfo)
 
 void Fence::waitForFence()
 {
-    if(vkWaitForFences(device->getLogicalDevice(), 1, &fence, true, UINT64_MAX) != VK_SUCCESS)
+    if(vkWaitForFences(vulkan_context.lock()->getDevice()->getLogicalDevice(), 1, &fence, true, UINT64_MAX) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to wait for fence!");
     }
 
-    vkResetFences(device->getLogicalDevice(), 1, &fence);
-}
-
-
-void Fence::cleanup()
-{
-    if(fence != VK_NULL_HANDLE)
-    {
-        vkDestroyFence(device->getLogicalDevice(), fence, nullptr);
-        fence = VK_NULL_HANDLE;
-    }
+    vkResetFences(vulkan_context.lock()->getDevice()->getLogicalDevice(), 1, &fence);
 }
 
 } // namespace rmagine

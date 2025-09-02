@@ -28,17 +28,21 @@ namespace rmagine
 
 struct ExtensionFunctions
 {
-    PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR;
-    PFN_vkCreateRayTracingPipelinesKHR pvkCreateRayTracingPipelinesKHR;
-    PFN_vkGetAccelerationStructureBuildSizesKHR pvkGetAccelerationStructureBuildSizesKHR;
-    PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR;
-    PFN_vkDestroyAccelerationStructureKHR pvkDestroyAccelerationStructureKHR;
-    PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR;
-    PFN_vkCmdBuildAccelerationStructuresKHR pvkCmdBuildAccelerationStructuresKHR;
-    PFN_vkGetRayTracingShaderGroupHandlesKHR pvkGetRayTracingShaderGroupHandlesKHR;
-    PFN_vkCmdTraceRaysKHR pvkCmdTraceRaysKHR;
+    PFN_vkCreateRayTracingPipelinesKHR vkCreateRayTracingPipelinesKHR;
+    PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR;
+    PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR;
+    PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
+    PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR;
+    PFN_vkCmdBuildAccelerationStructuresKHR vkCmdBuildAccelerationStructuresKHR;
+    PFN_vkGetRayTracingShaderGroupHandlesKHR vkGetRayTracingShaderGroupHandlesKHR;
+    PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR;
 };
 
-using ExtensionFunctionsPtr = std::shared_ptr<ExtensionFunctions>;
+
+
+//forward declaration
+class VulkanContext;
+using VulkanContextPtr = std::shared_ptr<VulkanContext>;
+using VulkanContextWPtr = std::weak_ptr<VulkanContext>;
 
 } // namespace rmagine

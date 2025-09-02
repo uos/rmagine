@@ -20,22 +20,18 @@ namespace rmagine
 class CommandPool
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
 public:
-    CommandPool(DevicePtr device) : device(device)
-    {
-        createCommandPool();
-    }
+    CommandPool(VulkanContextWPtr vulkan_context);
 
-    ~CommandPool() {}
+    ~CommandPool();
 
     CommandPool(const CommandPool&) = delete;
 
-
-    void cleanup();
 
     VkCommandPool getCommandPool();
 

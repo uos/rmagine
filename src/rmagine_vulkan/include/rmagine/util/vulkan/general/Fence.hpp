@@ -8,6 +8,8 @@
 #include <memory>
 
 #include <vulkan/vulkan.h>
+
+#include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/util/vulkan/Device.hpp>
 
 
@@ -18,19 +20,15 @@ namespace rmagine
 class Fence
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
 
     VkFence fence = VK_NULL_HANDLE;
 
 public:
-    /**
-     * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
-     */
-    Fence();
+    Fence(VulkanContextWPtr vulkan_context);
 
-    Fence(DevicePtr device);
-
-    ~Fence() {}
+    ~Fence();
 
     Fence(const Fence&) = delete;
 
@@ -54,11 +52,6 @@ public:
      * wait until the task that has been submit to the gpu with this Fence has been completed
      */
     void waitForFence();
-
-    /**
-     * free the Fence
-     */
-    void cleanup();
     
 private:
     /**

@@ -11,7 +11,6 @@
 
 #include <rmagine/util/VulkanUtil.hpp>
 #include "Device.hpp"
-#include "DescriptorSetLayout.hpp"
 
 
 
@@ -21,23 +20,18 @@ namespace rmagine
 class PipelineLayout
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
-    DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 public:
-    PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
-    {
-        createPipelineLayout();
-    }
+    PipelineLayout(VulkanContextWPtr vulkan_context);
 
-    ~PipelineLayout() {}
+    ~PipelineLayout();
 
     PipelineLayout(const PipelineLayout&) = delete;
 
-
-    void cleanup();
 
     VkPipelineLayout getPipelineLayout();
 

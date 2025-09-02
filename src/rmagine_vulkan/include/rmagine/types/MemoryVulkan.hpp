@@ -13,6 +13,7 @@
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
+#include <rmagine/util/vulkan/general/CommandBuffer.hpp>
 #include <rmagine/types/Memory.hpp>
 
 
@@ -54,13 +55,17 @@ class MemoryHelper
 private:
     // TODO: maybe hold these as global staging buffers for device local memory
     //       might make problems with thread safety though...
-    // static BufferPtr m_stagingBuffer;
-    // static DeviceMemoryPtr m_stagingDeviceMemory;
+    // static BufferPtr MemStagingBuffer;
+    // static DeviceMemoryPtr MemStagingDeviceMemory;
+
+    static CommandBufferPtr MemCommandBuffer;
 
     static size_t MemIDcounter;
 
 public:
     static size_t GetNewMemID();
+
+    static CommandBufferPtr GetMemCommandBuffer();
 };
 
 
@@ -350,8 +355,8 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LO
     }
 
     to.getStagingDeviceMemory()->copyToDeviceMemory(from.raw());
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(to.getStagingBuffer(), to.getBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(to.getStagingBuffer(), to.getBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 
@@ -386,8 +391,8 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
         throw std::runtime_error("given memory objects have to have the same size!");
     }
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), from.getStagingBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), from.getStagingBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
     from.getStagingDeviceMemory()->copyFromDeviceMemory(to.raw());
 }
 
@@ -408,8 +413,8 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
         throw std::runtime_error("given memory objects have to have the same size!");
     }
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 template<typename DataT>
@@ -424,8 +429,8 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
         throw std::runtime_error("given memory objects have to have the same size!");
     }
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 template<typename DataT>
@@ -440,8 +445,8 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
         throw std::runtime_error("given memory objects have to have the same size!");
     }
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 template<typename DataT>
@@ -456,8 +461,8 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
         throw std::runtime_error("given memory objects have to have the same size!");
     }
 
-    get_vulkan_context()->getDefaultCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_vulkan_context()->getDefaultCommandBuffer()->submitRecordedCommandAndWait();
+    MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
+    MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
 }
 
 } // namespace rmagine

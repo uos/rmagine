@@ -35,21 +35,13 @@ private:
     uint32_t maxInstanceCount = 0;
 
 public:
-    Device()
-    {
-        createInstance();
-        choosePhysicalDevice();
-        chooseQueueFamily();
-        createLogicalDevice();
-    }
+    Device();
 
-    ~Device() {}
+    ~Device();
 
     Device(const Device&) = delete;
 
 
-    void cleanup();
-    
     VkDevice getLogicalDevice();
 
     VkPhysicalDevice getPhysicalDevice();
@@ -71,14 +63,13 @@ public:
     uint32_t getMaxInstanceCount();
 
 private:
-    void createInstance(std::string appName = "VulkanApp");
+    void createInstance();
 
     void choosePhysicalDevice();
     bool evaluatePhysicalDeviceType(VkPhysicalDeviceType currentPysicalDeviceType, VkPhysicalDeviceType newPysicalDeviceType);
     bool evaluatePhysicalDeviceFeatures(const VkPhysicalDevice &physicalDevice);
 
     void chooseQueueFamily();
-
     void createLogicalDevice();
 };
 

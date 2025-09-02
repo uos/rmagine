@@ -11,7 +11,6 @@
 
 #include <rmagine/util/VulkanUtil.hpp>
 #include "Device.hpp"
-#include "PipelineLayout.hpp"
 #include "ShaderUtil.hpp"
 
 
@@ -19,41 +18,24 @@
 namespace rmagine
 {
 
-//forward declaration
-class ShaderBindingTable;
-using ShaderBindingTablePtr = std::shared_ptr<ShaderBindingTable>;
-
-
-
-class Pipeline : public std::enable_shared_from_this<Pipeline>
+class Pipeline
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
-    PipelineLayoutPtr pipelineLayout = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
 
     VkPipelineCache pipelineCache = VK_NULL_HANDLE;
     VkPipeline pipeline = VK_NULL_HANDLE;
 
-    ShaderBindingTablePtr shaderBindingTable = nullptr;
-
 public:
-    Pipeline(ShaderDefineFlags shaderDefines);
+    Pipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
 
-    Pipeline(DevicePtr device, PipelineLayoutPtr pipelineLayout, ExtensionFunctionsPtr extensionFunctionsPtr, ShaderDefineFlags shaderDefines);
-
-    ~Pipeline() {}
+    ~Pipeline();
 
     Pipeline(const Pipeline&) = delete;
 
 
-    void createShaderBindingTable();
-
-    void cleanup();
-
     VkPipeline getPipeline();
-
-    ShaderBindingTablePtr getShaderBindingTable();
 
 private:
     void createPipelineCache();

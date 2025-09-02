@@ -53,15 +53,15 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
     bool rerecordCommandBuffer = false;
     //check whether other shaders are needed
-    //if they are, a new pipeline need to get fetched
+    //if they are, a new shaderBindingTable (+ pipeline & shader) need to get fetched
     ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
     if(previousShaderDefines != newShaderDefines)
     {
-        //update current pipeline/shader configuration
+        //update current shaderBindingTable configuration
         previousShaderDefines = newShaderDefines;
 
-        pipeline = vulkan_context->getPipeline(newShaderDefines);
-        std::cout << "recieved pipeline, shaders & shader binding table" << std::endl;
+        shaderBindingTable = vulkan_context->getShaderBindingTable(newShaderDefines);
+        std::cout << "recieved shader binding table with pipeline & shaders" << std::endl;
 
         rerecordCommandBuffer = true;
     }
@@ -82,7 +82,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
         rerecordCommandBuffer = true;
     }
-    //check whether dimensions, descriptorset or pipeline have changed
+    //check whether dimensions, descriptorset or shaderBindingTable have changed
     //if they have changed the raytracing command needs to be rerecorded
     if(rerecordCommandBuffer ||
        previousDimensions.width  != newDimensions.width  || 
@@ -94,7 +94,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
         previousDimensions.height = newDimensions.height;
         previousDimensions.depth  = newDimensions.depth;
 
-        commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, pipeline, newDimensions.width, newDimensions.height, newDimensions.depth);
+        commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, shaderBindingTable, newDimensions.width, newDimensions.height, newDimensions.depth);
         std::cout << "(re)recorded instructions to command buffer" << std::endl;
     }
 
@@ -151,9 +151,9 @@ void SimulatorVulkan<SensorModelRamT>::resetAddressHistory()
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::resetPipeline()
+void SimulatorVulkan<SensorModelRamT>::resetShaderBindingTable()
 {
-    pipeline.reset();
+    shaderBindingTable.reset();
 }
 
 

@@ -150,7 +150,7 @@ int main()
     }
 
     std::cout << std::endl;
-    std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
+    std::cout << "Result: " << velos_per_second_mean << " velos/s\n" << std::endl;
 
     return EXIT_SUCCESS;
 }

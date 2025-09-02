@@ -12,7 +12,7 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/VulkanContext.hpp>
-#include <rmagine/util/vulkan/Pipeline.hpp>
+#include <rmagine/util/vulkan/ShaderBindingTable.hpp>
 #include <rmagine/util/VulkanContext.hpp>
 #include <rmagine/map/VulkanMap.hpp>
 #include "vulkan/DescriptorSet.hpp"
@@ -35,7 +35,7 @@ protected:
     
     CommandBufferPtr commandBuffer = nullptr;
     DescriptorSetPtr descriptorSet = nullptr;
-    PipelinePtr pipeline = nullptr;
+    ShaderBindingTablePtr shaderBindingTable = nullptr;
 
     //Simulator internal Memory
     Memory<SensorModelRamT, VULKAN_DEVICE_LOCAL> sensorMem;
@@ -67,16 +67,17 @@ public:
     {
         checkTemplateArgs();
 
-        commandBuffer = std::make_shared<CommandBuffer>();
-        descriptorSet = std::make_shared<DescriptorSet>();
+        commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+        descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
     }
 
     ~SimulatorVulkan()
     {
-        std::cout << "destroying SimulatorVulkan" << std::endl;
-        resetPipeline();
-        descriptorSet->cleanup();
-        commandBuffer->cleanup();
+        std::cout << "Destroying SimulatorVulkan" << std::endl;
+        resetShaderBindingTable();
+        descriptorSet.reset();
+        commandBuffer.reset();
+        std::cout << "SimulatorVulkan destroyed" << std::endl;
     }
 
     SimulatorVulkan(const SimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
@@ -101,7 +102,7 @@ protected:
 
     void resetAddressHistory();
 
-    void resetPipeline();
+    void resetShaderBindingTable();
 
 private:
     void checkTemplateArgs();

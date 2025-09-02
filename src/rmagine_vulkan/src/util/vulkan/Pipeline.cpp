@@ -1,38 +1,41 @@
 #include "rmagine/util/vulkan/Pipeline.hpp"
 #include "rmagine/util/VulkanContext.hpp"
-#include "rmagine/util/vulkan/ShaderBindingTable.hpp"
 
 
 
 namespace rmagine
 {
 
-Pipeline::Pipeline(ShaderDefineFlags shaderDefines) : 
-    device(get_vulkan_context()->getDevice()), pipelineLayout(get_vulkan_context()->getPipelineLayout()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
+Pipeline::Pipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
 {
     createPipelineCache();
     createPipeline(shaderDefines);
 }
 
 
-Pipeline::Pipeline(DevicePtr device, PipelineLayoutPtr pipelineLayout, ExtensionFunctionsPtr extensionFunctionsPtr, ShaderDefineFlags shaderDefines) : 
-    device(device), pipelineLayout(pipelineLayout), extensionFunctionsPtr(extensionFunctionsPtr)
+Pipeline::~Pipeline() 
 {
-    createPipelineCache();
-    createPipeline(shaderDefines);
+    std::cout << "Destroying Pipeline" << std::endl;
+    if(pipelineCache != VK_NULL_HANDLE)
+    {
+        vkDestroyPipelineCache(device->getLogicalDevice(), pipelineCache, nullptr);
+    }
+    if(pipeline != VK_NULL_HANDLE)
+    {
+        vkDestroyPipeline(device->getLogicalDevice(), pipeline, nullptr);
+    }
+    device.reset();
+    std::cout << "Pipeline destroyed" << std::endl;
 }
 
 
 
 void Pipeline::createPipelineCache()
 {
-    if(pipelineCache != VK_NULL_HANDLE)
-        vkDestroyPipelineCache(device->getLogicalDevice(), pipelineCache, nullptr);
-    
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
     pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-    if(vkCreatePipelineCache(device->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
+    if(vkCreatePipelineCache(vulkan_context.lock()->getDevice()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline cache!");
     }
@@ -97,45 +100,20 @@ void Pipeline::createPipeline(ShaderDefineFlags shaderDefines)
     pipelineCreateInfo.groupCount = (uint32_t)rayTracingShaderGroupCreateInfoList.size();
     pipelineCreateInfo.pGroups = rayTracingShaderGroupCreateInfoList.data();
     pipelineCreateInfo.maxPipelineRayRecursionDepth = 1;
-    pipelineCreateInfo.layout = pipelineLayout->getPipelineLayout(),
+    pipelineCreateInfo.layout = vulkan_context.lock()->getPipelineLayout()->getPipelineLayout(),
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = 0;
 
-    if(extensionFunctionsPtr->pvkCreateRayTracingPipelinesKHR(device->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
+    if(vulkan_context.lock()->extensionFuncs.vkCreateRayTracingPipelinesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline!");
     }
 }
 
 
-void Pipeline::createShaderBindingTable()
-{
-    // do not call thos function from the constructor. shared_from_this() does not like that.
-    shaderBindingTable = std::make_shared<ShaderBindingTable>(device, shared_from_this(), extensionFunctionsPtr);
-}
-
-
-void Pipeline::cleanup()
-{
-    if(shaderBindingTable != nullptr)
-        shaderBindingTable->cleanup();
-    if(pipelineCache != VK_NULL_HANDLE)
-        vkDestroyPipelineCache(device->getLogicalDevice(), pipelineCache, nullptr);
-    if(pipeline != VK_NULL_HANDLE)
-        vkDestroyPipeline(device->getLogicalDevice(), pipeline, nullptr);
-}
-
-
-
 VkPipeline Pipeline::getPipeline()
 {
     return pipeline;
-}
-
-
-ShaderBindingTablePtr Pipeline::getShaderBindingTable()
-{
-    return shaderBindingTable;
 }
 
 } // namespace rmagine

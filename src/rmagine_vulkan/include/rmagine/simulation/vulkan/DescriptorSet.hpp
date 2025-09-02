@@ -27,21 +27,17 @@ using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 class DescriptorSet
 {
 private:
-    DevicePtr device = nullptr;
-    DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
+    VulkanContextPtr vulkan_context = nullptr;
 
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
 public:
-    DescriptorSet();
+    DescriptorSet(VulkanContextPtr vulkan_context);
 
-    DescriptorSet(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
-
-    ~DescriptorSet() {}
+    ~DescriptorSet();
 
     DescriptorSet(const DescriptorSet&) = delete;
 
-    void cleanup();
 
     void updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                              BufferPtr sensorBuffer, BufferPtr resultsBuffer, 

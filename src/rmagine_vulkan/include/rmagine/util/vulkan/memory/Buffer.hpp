@@ -20,19 +20,14 @@ namespace rmagine
 class Buffer
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
 
     VkDeviceSize bufferSize = 0;
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceAddress deviceAddress = 0;
 public:
-    /**
-     * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
-     */
     Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags);
-
-    Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
     ~Buffer();
 

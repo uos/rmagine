@@ -6,12 +6,10 @@
 namespace rmagine
 {
 
-Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags) : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()), bufferSize(bufferSize)
-{
-    createBuffer(bufferUsageFlags);
-}
-
-Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) : device(device), extensionFunctionsPtr(extensionFunctionsPtr), bufferSize(bufferSize)
+Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags) :
+    vulkan_context(get_vulkan_context_weak()),
+    device(vulkan_context.lock()->getDevice()),
+    bufferSize(bufferSize)
 {
     createBuffer(bufferUsageFlags);
 }
@@ -21,8 +19,8 @@ Buffer::~Buffer()
     if(buffer != VK_NULL_HANDLE)
     {
         vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
-        buffer = VK_NULL_HANDLE;
     }
+    device.reset();
 }
 
 
@@ -40,9 +38,9 @@ void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
     bufferCreateInfo.usage = bufferUsageFlags;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferCreateInfo.queueFamilyIndexCount = 1;
-    bufferCreateInfo.pQueueFamilyIndices = device->getQueueFamilyIndexPtr();
+    bufferCreateInfo.pQueueFamilyIndices = vulkan_context.lock()->getDevice()->getQueueFamilyIndexPtr();
 
-    if(vkCreateBuffer(device->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
+    if(vkCreateBuffer(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create buffer!");
     }
@@ -63,7 +61,7 @@ VkDeviceAddress Buffer::getBufferDeviceAddress()
     bufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     bufferDeviceAddressInfo.buffer = buffer;
     
-    deviceAddress = extensionFunctionsPtr->pvkGetBufferDeviceAddressKHR(device->getLogicalDevice(), &bufferDeviceAddressInfo);
+    deviceAddress = vkGetBufferDeviceAddress(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferDeviceAddressInfo);
     return deviceAddress;
 }
 

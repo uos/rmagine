@@ -6,23 +6,21 @@
 namespace rmagine
 {
 
-DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer) : device(get_vulkan_context()->getDevice()), buffer(buffer)
-{
-    allocateDeviceMemory(memoryPropertyFlags, true);
-}
-
-DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr device, BufferPtr buffer) : device(device), buffer(buffer)
+DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer) :
+    vulkan_context(get_vulkan_context_weak()),
+    device(vulkan_context.lock()->getDevice()),
+    buffer(buffer)
 {
     allocateDeviceMemory(memoryPropertyFlags, true);
 }
 
 DeviceMemory::~DeviceMemory()
 {
-    if(deviceMemory  != VK_NULL_HANDLE)
+    if(deviceMemory != VK_NULL_HANDLE)
     {
         vkFreeMemory(device->getLogicalDevice(), deviceMemory, nullptr);
-        deviceMemory = VK_NULL_HANDLE;
     }
+    device.reset();
 }
 
 
@@ -30,10 +28,10 @@ DeviceMemory::~DeviceMemory()
 void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, bool withAllocateFlags)
 {
     VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(device->getLogicalDevice(), buffer->getBuffer(), &memoryRequirements);
+    vkGetBufferMemoryRequirements(vulkan_context.lock()->getDevice()->getLogicalDevice(), buffer->getBuffer(), &memoryRequirements);
 
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(device->getPhysicalDevice(), &physicalDeviceMemoryProperties);
+    vkGetPhysicalDeviceMemoryProperties(vulkan_context.lock()->getDevice()->getPhysicalDevice(), &physicalDeviceMemoryProperties);
 
     //find compatible memory type
     uint32_t memoryTypeIndex = uint32_t(~0);
@@ -57,13 +55,13 @@ void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlag
     memoryAllocateInfo.allocationSize = memoryRequirements.size;
     memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
-    if(vkAllocateMemory(device->getLogicalDevice(), &memoryAllocateInfo, nullptr, &deviceMemory) != VK_SUCCESS)
+    if(vkAllocateMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), &memoryAllocateInfo, nullptr, &deviceMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate device memory!");
     }
 
     //bind memory to buffer
-    if(vkBindBufferMemory(device->getLogicalDevice(), buffer->getBuffer(), deviceMemory, 0) != VK_SUCCESS)
+    if(vkBindBufferMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), buffer->getBuffer(), deviceMemory, 0) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to bind buffer!");
     }
@@ -84,12 +82,12 @@ void DeviceMemory::copyToDeviceMemory(const void *src, size_t offset, size_t str
     }
 
     void *hostMemoryBuffer;
-    if(vkMapMemory(device->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets written to
+    if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets written to
     {
         throw std::runtime_error("failed to map memory!");
     }
     memcpy(hostMemoryBuffer, src, stride);
-    vkUnmapMemory(device->getLogicalDevice(), deviceMemory);
+    vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);
 }
 
 
@@ -107,12 +105,12 @@ void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
     }
 
     void *hostMemoryBuffer;
-    if(vkMapMemory(device->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets read from
+    if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets read from
     {
         throw std::runtime_error("failed to map memory!");
     }
     memcpy(dst, hostMemoryBuffer, stride);
-    vkUnmapMemory(device->getLogicalDevice(), deviceMemory);
+    vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);
 }
 
 

@@ -1,7 +1,6 @@
 #include "rmagine/util/vulkan/general/CommandBuffer.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 #include "rmagine/util/vulkan/ShaderBindingTable.hpp"
-#include "rmagine/util/vulkan/Pipeline.hpp"
 #include "rmagine/simulation/vulkan/DescriptorSet.hpp"
 
 
@@ -9,16 +8,18 @@
 namespace rmagine
 {
 
-CommandBuffer::CommandBuffer() : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()), commandPool(get_vulkan_context()->getCommandPool()), pipelineLayout(get_vulkan_context()->getPipelineLayout())
+CommandBuffer::CommandBuffer(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
 {
     createCommandBuffer();
-    fence = std::make_shared<Fence>();
+    fence = std::make_shared<Fence>(vulkan_context);
 }
 
-CommandBuffer::CommandBuffer(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr, CommandPoolPtr commandPool, PipelineLayoutPtr pipelineLayout) : device(device), extensionFunctionsPtr(extensionFunctionsPtr), commandPool(commandPool), pipelineLayout(pipelineLayout)
+CommandBuffer::~CommandBuffer()
 {
-    createCommandBuffer();
-    fence = std::make_shared<Fence>(device);
+    std::cout << "Destroying CommandBuffer" << std::endl;
+    if(fence != nullptr)
+        fence.reset();
+    std::cout << "CommandBuffer destroyed" << std::endl;
 }
 
 
@@ -27,12 +28,12 @@ void CommandBuffer::createCommandBuffer()
 {
     VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    commandBufferAllocateInfo.commandPool = commandPool->getCommandPool();
+    commandBufferAllocateInfo.commandPool = vulkan_context->getCommandPool()->getCommandPool();
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     commandBufferAllocateInfo.commandBufferCount = 1;
     
     std::vector<VkCommandBuffer> commandBuffers = std::vector<VkCommandBuffer>(1, VK_NULL_HANDLE);
-    if(vkAllocateCommandBuffers(device->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
+    if(vkAllocateCommandBuffers(vulkan_context->getDevice()->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create command buffer(s)!");
     }
@@ -40,7 +41,7 @@ void CommandBuffer::createCommandBuffer()
 }
 
 
-void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorSet, PipelinePtr pipeline, uint32_t width, uint32_t height, uint32_t depth)
+void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorSet, ShaderBindingTablePtr shaderBindingTable, uint32_t width, uint32_t height, uint32_t depth)
 {
     VkCommandBufferBeginInfo rtxCommandBufferBeginInfo{};
     rtxCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -51,24 +52,24 @@ void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorS
         throw std::runtime_error("failed to begin recording commmands to the command buffer!");
     }
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->getPipeline());
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, shaderBindingTable->getPipeline()->getPipeline());
 
     vkCmdBindDescriptorSets(
         commandBuffer,
         VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
-        pipelineLayout->getPipelineLayout(),
+        vulkan_context->getPipelineLayout()->getPipelineLayout(),
         0,
         1,
         descriptorSet->getDescriptorSetPtr(),
         0,
         nullptr);
         
-    extensionFunctionsPtr->pvkCmdTraceRaysKHR(
+    vulkan_context->extensionFuncs.vkCmdTraceRaysKHR(
         commandBuffer,
-        pipeline->getShaderBindingTable()->getRayGenerationShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getMissShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getClosestHitShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getCallableShaderBindingTablePtr(),
+        shaderBindingTable->getRayGenerationShaderBindingTablePtr(),
+        shaderBindingTable->getMissShaderBindingTablePtr(),
+        shaderBindingTable->getClosestHitShaderBindingTablePtr(),
+        shaderBindingTable->getCallableShaderBindingTablePtr(),
         width,
         height,
         depth);
@@ -91,7 +92,7 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
         throw std::runtime_error("failed to begin recording commmands to the command buffer!");
     }
     
-    extensionFunctionsPtr->pvkCmdBuildAccelerationStructuresKHR(
+    vulkan_context->extensionFuncs.vkCmdBuildAccelerationStructuresKHR(
         commandBuffer,
         1,
         &accelerationStructureBuildGeometryInfo,
@@ -138,23 +139,9 @@ void CommandBuffer::submitRecordedCommandAndWait()
 }
 
 
-
-void CommandBuffer::cleanup()
-{
-    if(fence != nullptr)
-        fence->cleanup();
-}
-
-
-
 VkCommandBuffer CommandBuffer::getCommandbuffer()
 {
     return commandBuffer;
-}
-
-VkCommandBuffer* CommandBuffer::getCommandbufferPtr()
-{
-    return &commandBuffer;
 }
 
 } // namespace rmagine

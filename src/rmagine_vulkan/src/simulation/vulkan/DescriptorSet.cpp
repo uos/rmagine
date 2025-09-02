@@ -7,26 +7,27 @@
 namespace rmagine
 {
 
-DescriptorSet::DescriptorSet() : device(get_vulkan_context()->getDevice()), descriptorSetLayout(get_vulkan_context()->getDescriptorSetLayout())
+DescriptorSet::DescriptorSet(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
 {
     allocateDescriptorSet();
 }
 
-DescriptorSet::DescriptorSet(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
+DescriptorSet::~DescriptorSet()
 {
-    allocateDescriptorSet();
+    
 }
+
 
 void DescriptorSet::allocateDescriptorSet()
 {
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
     descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocateInfo.descriptorPool = descriptorSetLayout->getDescriptorPool();
+    descriptorSetAllocateInfo.descriptorPool = vulkan_context->getDescriptorSetLayout()->getDescriptorPool();
     descriptorSetAllocateInfo.descriptorSetCount = 1;
-    descriptorSetAllocateInfo.pSetLayouts = descriptorSetLayout->getDescriptorSetLayoutPtr();
+    descriptorSetAllocateInfo.pSetLayouts = vulkan_context->getDescriptorSetLayout()->getDescriptorSetLayoutPtr();
 
     std::vector<VkDescriptorSet> descriptorSets = std::vector<VkDescriptorSet>(1, VK_NULL_HANDLE);
-    if(vkAllocateDescriptorSets(device->getLogicalDevice(), &descriptorSetAllocateInfo, descriptorSets.data()) != VK_SUCCESS)
+    if(vkAllocateDescriptorSets(vulkan_context->getDevice()->getLogicalDevice(), &descriptorSetAllocateInfo, descriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets (you may have created more DescriptorSets/Simulators than currently possible)!");
     }
@@ -125,15 +126,8 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .pBufferInfo = &origsDirsAndTransformsDescriptorInfo,
          .pTexelBufferView = nullptr}};
 
-    vkUpdateDescriptorSets(device->getLogicalDevice(), writeDescriptorSetList.size(), writeDescriptorSetList.data(), 0, NULL);
+    vkUpdateDescriptorSets(vulkan_context->getDevice()->getLogicalDevice(), writeDescriptorSetList.size(), writeDescriptorSetList.data(), 0, NULL);
 }
-
-
-void DescriptorSet::cleanup()
-{
-    //nothing?
-}
-
 
 
 VkDescriptorSet *DescriptorSet::getDescriptorSetPtr()

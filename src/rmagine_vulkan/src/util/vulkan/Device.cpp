@@ -5,10 +5,34 @@
 namespace rmagine
 {
 
-void Device::createInstance(std::string appName)
+Device::Device()
+{
+    createInstance();
+    choosePhysicalDevice();
+    chooseQueueFamily();
+    createLogicalDevice();
+}
+
+Device::~Device()
+{
+    std::cout << "Destroying Device" << std::endl;
+    if(logicalDevice != VK_NULL_HANDLE)
+    {
+        vkDestroyDevice(logicalDevice, nullptr);
+    }
+    if(instance != VK_NULL_HANDLE)
+    {
+        vkDestroyInstance(instance, nullptr);
+    }
+    std::cout << "Device destroyed" << std::endl;
+}
+
+
+
+void Device::createInstance()
 {
     VkApplicationInfo ApplicationInfo{};
-    ApplicationInfo.pApplicationName = appName.c_str();
+    ApplicationInfo.pApplicationName = "rmagine-vulkan";
     ApplicationInfo.apiVersion = VK_API_VERSION_1_3;
 
     VkInstanceCreateInfo instanceCreateInfo{};
@@ -65,19 +89,19 @@ void Device::choosePhysicalDevice()
         switch(physicalDeviceProperties2.properties.deviceType)
         {
         case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-            std::cout << " - Discrete GPU: ";
+            std::cout << " - Discrete GPU:    ";
             break;
         case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
             std::cout << " - Integranted GPU: ";
             break;
         case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            std::cout << " - Virtual GPU: ";
+            std::cout << " - Virtual GPU:     ";
             break;
         case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU:
-            std::cout << " - CPU: ";
+            std::cout << " - CPU:             ";
             break;
         case VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_OTHER:
-            std::cout << " - Unknown: ";
+            std::cout << " - Unknown:         ";
             break;
         default:
             break;
@@ -250,15 +274,6 @@ void Device::createLogicalDevice()
     physicalDeviceRayTracingPipelineFeatures.pNext = &physicalDeviceAccelerationStructureFeatures;
     physicalDeviceRayTracingPipelineFeatures.rayTracingPipeline = VK_TRUE;
 
-    // (not sure if descriptorIndexing is needed)
-    // VkPhysicalDeviceVulkan12Features physicalDeviceFeatures12{};
-    // physicalDeviceFeatures12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-    // physicalDeviceFeatures12.pNext = &physicalDeviceRayTracingPipelineFeatures;
-    // physicalDeviceFeatures12.shaderInt8 = VK_TRUE;
-    // physicalDeviceFeatures12.storageBuffer8BitAccess = VK_TRUE;
-    // physicalDeviceFeatures12.bufferDeviceAddress = VK_TRUE;
-    // physicalDeviceFeatures12.descriptorIndexing = VK_TRUE;
-
     VkPhysicalDeviceFeatures physicalDeviceFeatures{};
     physicalDeviceFeatures.shaderInt64 = VK_TRUE;
 
@@ -306,16 +321,6 @@ void Device::createLogicalDevice()
 
     vkGetDeviceQueue(logicalDevice, queueFamilyIndex, 0, &queue);
 }
-
-
-void Device::cleanup()
-{
-    if(logicalDevice != VK_NULL_HANDLE)
-        vkDestroyDevice(logicalDevice, nullptr);
-    if(instance != VK_NULL_HANDLE)
-        vkDestroyInstance(instance, nullptr);
-}
-
 
 
 VkDevice Device::getLogicalDevice()

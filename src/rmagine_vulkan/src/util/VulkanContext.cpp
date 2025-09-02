@@ -6,38 +6,66 @@
 namespace rmagine
 {
 
+VulkanContext::VulkanContext() : device(new Device)
+{
+    std::cout << "Creating VulkanContext" << std::endl;
+
+    // device = std::make_shared<Device>();
+    loadExtensionFunctions();
+
+    std::cout << "VulkanContext created" << std::endl;
+}
+
+VulkanContext::~VulkanContext()
+{
+    std::cout << "Destroying VulkanContext" << std::endl;
+    clearShaderBindingTableCache();
+    std::cout << "Destroying VulkanContext2" << std::endl;
+    clearShaderCache();
+    std::cout << "Destroying VulkanContext3" << std::endl;
+
+    commandPool.reset();
+    std::cout << "Destroying VulkanContext4" << std::endl;
+    pipelineLayout.reset();
+    std::cout << "Destroying VulkanContext5" << std::endl;
+    descriptorSetLayout.reset();
+    std::cout << "Destroying VulkanContext6" << std::endl;
+
+    device.reset();
+    std::cout << "VulkanContext destroyed" << std::endl;
+}
+
+
+
 void VulkanContext::loadExtensionFunctions()
 {
-    extensionFunctionsPtr->pvkGetBufferDeviceAddressKHR =
-        (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetBufferDeviceAddressKHR");
-
-    extensionFunctionsPtr->pvkCreateRayTracingPipelinesKHR =
+    extensionFuncs.vkCreateRayTracingPipelinesKHR =
         (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateRayTracingPipelinesKHR");
 
-    extensionFunctionsPtr->pvkGetAccelerationStructureBuildSizesKHR =
+    extensionFuncs.vkGetAccelerationStructureBuildSizesKHR =
         (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureBuildSizesKHR");
 
-    extensionFunctionsPtr->pvkCreateAccelerationStructureKHR =
+    extensionFuncs.vkCreateAccelerationStructureKHR =
         (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateAccelerationStructureKHR");
 
-    extensionFunctionsPtr->pvkDestroyAccelerationStructureKHR =
+    extensionFuncs.vkDestroyAccelerationStructureKHR =
         (PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkDestroyAccelerationStructureKHR");
 
-    extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR =
+    extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR =
         (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
 
-    extensionFunctionsPtr->pvkCmdBuildAccelerationStructuresKHR =
+    extensionFuncs.vkCmdBuildAccelerationStructuresKHR =
         (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdBuildAccelerationStructuresKHR");
 
-    extensionFunctionsPtr->pvkGetRayTracingShaderGroupHandlesKHR =
+    extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR =
         (PFN_vkGetRayTracingShaderGroupHandlesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetRayTracingShaderGroupHandlesKHR");
 
-    extensionFunctionsPtr->pvkCmdTraceRaysKHR =
+    extensionFuncs.vkCmdTraceRaysKHR =
         (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdTraceRaysKHR");
 }
 
 
-PipelinePtr VulkanContext::getPipeline(ShaderDefineFlags shaderDefines)
+ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags shaderDefines)
 {
     if(!one_sensor_defined(shaderDefines))
     {
@@ -48,13 +76,12 @@ PipelinePtr VulkanContext::getPipeline(ShaderDefineFlags shaderDefines)
         throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
     }
 
-    if(pipelineMap.count(shaderDefines) == 0)
+    if(shaderBindingTableMap.count(shaderDefines) == 0)
     {
-        pipelineMap[shaderDefines] = std::make_shared<Pipeline>(device, pipelineLayout, extensionFunctionsPtr, shaderDefines);
-        pipelineMap.at(shaderDefines)->createShaderBindingTable();
+        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
     }
 
-    return pipelineMap.at(shaderDefines);
+    return shaderBindingTableMap.at(shaderDefines);
 }
 
 
@@ -91,62 +118,26 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
 
     if(shaderMaps[shaderType].count(maskedShaderDefines) == 0)
     {
-        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(device, shaderType, maskedShaderDefines);
+        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(weak_from_this(), shaderType, maskedShaderDefines);
     }
 
     return shaderMaps[shaderType].at(maskedShaderDefines);
 }
 
 
-void VulkanContext::cleanup()
-{
-    std::cout << "cleaning up..." << std::endl;
-
-    clearShaderCache();
-    std::cout << "cleaned up shaders." << std::endl;
-
-    defaultCommandBuffer->cleanup();
-    commandPool->cleanup();
-    std::cout << "reset & cleaned up command pool." << std::endl;
-
-    clearPipelineCache();
-    std::cout << "cleaned up pipelines." << std::endl;
-
-    pipelineLayout->cleanup();
-    std::cout << "cleaned up pipeline layout." << std::endl;
-
-    descriptorSetLayout->cleanup();
-    std::cout << "cleaned up descriptor set layout." << std::endl;
-
-    device->cleanup();
-    std::cout << "cleaned up device & instance." << std::endl;
-
-    std::cout << "done." << std::endl;
-}
-
-
-
 void VulkanContext::clearShaderCache()
 {
     for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
-        for (auto const& shader : shaderMaps[i])
-        {
-            shader.second->cleanup();
-        }
         shaderMaps[i].clear();
     }
 }
 
-void VulkanContext::clearPipelineCache()
-{
-    for (auto const& pipeline : pipelineMap)
-    {
-        pipeline.second->cleanup();
-    }
-    pipelineMap.clear();
-}
 
+void VulkanContext::clearShaderBindingTableCache()
+{
+    shaderBindingTableMap.clear();
+}
 
 
 DevicePtr VulkanContext::getDevice()
@@ -156,41 +147,43 @@ DevicePtr VulkanContext::getDevice()
 
 CommandPoolPtr VulkanContext::getCommandPool()
 {
+    if(commandPool == VK_NULL_HANDLE)
+    {
+        commandPool = std::make_shared<CommandPool>(weak_from_this());
+    }
     return commandPool;
 }
 
 DescriptorSetLayoutPtr VulkanContext::getDescriptorSetLayout()
 {
+    if(descriptorSetLayout == VK_NULL_HANDLE)
+    {
+        descriptorSetLayout = std::make_shared<DescriptorSetLayout>(weak_from_this());
+    }
     return descriptorSetLayout;
 }
 
 PipelineLayoutPtr VulkanContext::getPipelineLayout()
 {
+    if(pipelineLayout == VK_NULL_HANDLE)
+    {
+        pipelineLayout = std::make_shared<PipelineLayout>(weak_from_this());
+    }
     return pipelineLayout;
-}
-
-ExtensionFunctionsPtr VulkanContext::getExtensionFunctionsPtr()
-{
-    return extensionFunctionsPtr;
-}
-
-CommandBufferPtr VulkanContext::getDefaultCommandBuffer()
-{
-    return defaultCommandBuffer;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
 //-------------------------------------------End of VulkanContext functions-------------------------------------------//
 //--------------------------------------------------------------------------------------------------------------------//
 
-VulkanContextPtr vulkan_context(new VulkanContext());
+VulkanContextPtr vulkan_context = std::make_shared<VulkanContext>();
 
 VulkanContextPtr get_vulkan_context()
 {
     return vulkan_context;
 }
 
-VulkanContextWeakPtr get_vulkan_context_weak()
+VulkanContextWPtr get_vulkan_context_weak()
 {
     return vulkan_context;
 }

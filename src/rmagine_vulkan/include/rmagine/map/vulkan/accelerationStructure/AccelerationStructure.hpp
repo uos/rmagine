@@ -11,6 +11,7 @@
 
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
+#include <rmagine/util/vulkan/general/CommandBuffer.hpp>
 #include <rmagine/map/vulkan/vulkan_definitions.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 
@@ -22,10 +23,10 @@ namespace rmagine
 class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
 private:
-    VkAccelerationStructureTypeKHR accelerationStructureType = VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
+    VulkanContextPtr vulkan_context = nullptr;
+    CommandBufferPtr commandBuffer = nullptr;
 
-    DevicePtr device = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
+    VkAccelerationStructureTypeKHR accelerationStructureType = VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
 
     VkAccelerationStructureKHR accelerationStructure = VK_NULL_HANDLE;
     VkDeviceAddress accelerationStructureDeviceAddress = 0;
@@ -38,8 +39,6 @@ private:
     
 public:
     AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
-    
-    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
 
     virtual ~AccelerationStructure();
 
