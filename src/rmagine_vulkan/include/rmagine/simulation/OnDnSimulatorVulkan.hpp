@@ -31,6 +31,7 @@ public:
 
 
     void setModel(const Memory<OnDnModel, RAM>& sensorMem_ram);
+    void setModel(const OnDnModel& sensor);
 
     void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
 };

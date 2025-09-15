@@ -27,6 +27,7 @@ public:
 
 
     void setModel(const Memory<PinholeModel, RAM>& sensorMem_ram);
+    void setModel(const PinholeModel& sensor);
 };
 
 using PinholeSimulatorVulkanPtr = std::shared_ptr<PinholeSimulatorVulkan>;

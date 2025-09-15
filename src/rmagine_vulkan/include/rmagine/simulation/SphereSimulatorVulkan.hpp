@@ -27,6 +27,7 @@ public:
 
 
     void setModel(const Memory<SphericalModel, RAM>& sensorMem_ram);
+    void setModel(const SphericalModel& sensor);
 };
 
 using SphereSimulatorVulkanPtr = std::shared_ptr<SphereSimulatorVulkan>;

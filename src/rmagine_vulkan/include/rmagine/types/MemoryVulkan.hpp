@@ -119,18 +119,6 @@ public:
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    // DataT& at(size_t idx);
-
-    // const DataT& at(size_t idx) const;
-
-    // DataT& operator[](size_t idx);
-
-    // const DataT& operator[](size_t idx) const;
-
-    // DataT& operator*();
-
-    // const DataT& operator*() const;
-
     // MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end);
 
     // const MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end) const;
@@ -140,9 +128,7 @@ public:
     // const MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end) const;
 
     // TODO:
-    // raw() & operator->() cannot be implementet.
-    // i am not sure about at(size_t idx), operator[](size_t idx) & operator*().
-    // but slice(size_t idx_start, size_t idx_end) & operator()(size_t idx_start, size_t idx_end) should probably work (i will just need to save an offset and a stride)
+    // slice(size_t idx_start, size_t idx_end) & operator()(size_t idx_start, size_t idx_end) should probably work
 
     size_t size() const;
 
@@ -243,19 +229,6 @@ public:
     // template<typename MemT2>
     // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
-
-    // DataT& at(size_t idx);
-
-    // const DataT& at(size_t idx) const;
-
-    // DataT& operator[](size_t idx);
-
-    // const DataT& operator[](size_t idx) const;
-
-    // DataT& operator*();
-
-    // const DataT& operator*() const;
-
     // MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end);
 
     // const MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end) const;
@@ -265,9 +238,7 @@ public:
     // const MemoryView<DataT, MemT> operator()(size_t idx_start, size_t idx_end) const;
 
     // TODO:
-    // raw() & operator->() cannot be implementet.
-    // i am not sure about at(size_t idx), operator[](size_t idx) & operator*().
-    // but slice(size_t idx_start, size_t idx_end) & operator()(size_t idx_start, size_t idx_end) should probably work (i will just need to save an offset and a stride)
+    // slice(size_t idx_start, size_t idx_end) & operator()(size_t idx_start, size_t idx_end) should probably work
 
     size_t size() const;
 

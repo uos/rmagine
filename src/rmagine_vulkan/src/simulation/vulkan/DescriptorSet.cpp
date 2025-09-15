@@ -126,7 +126,7 @@ void DescriptorSet::updateDescriptorSet(AccelerationStructurePtr accelerationStr
          .pBufferInfo = &origsDirsAndTransformsDescriptorInfo,
          .pTexelBufferView = nullptr}};
 
-    vkUpdateDescriptorSets(vulkan_context->getDevice()->getLogicalDevice(), writeDescriptorSetList.size(), writeDescriptorSetList.data(), 0, NULL);
+    vkUpdateDescriptorSets(vulkan_context->getDevice()->getLogicalDevice(), writeDescriptorSetList.size(), writeDescriptorSetList.data(), 0, nullptr);
 }
 
 

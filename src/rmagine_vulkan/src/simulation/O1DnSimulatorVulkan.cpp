@@ -17,6 +17,12 @@ void O1DnSimulatorVulkan::setModel(const Memory<O1DnModel, RAM>& sensorMem_ram)
 }
 
 
+void O1DnSimulatorVulkan::setModel(const O1DnModel& sensor)
+{
+    Memory<O1DnModel, RAM> sensorMem_ram(1);
+    sensorMem_ram[0] = sensor;
+    setModel(sensorMem_ram);
+}
 
 
 void O1DnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
@@ -32,7 +38,7 @@ void O1DnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, 
 
         previousAddresses.tbmAndSensorSpecificAddresses = origsDirsAndTransformsMem_ram[0];
 
-        origsDirsAndTransformsMem = origsDirsAndTransformsMem_ram;
+        tbmAndSensorSpecificMem = origsDirsAndTransformsMem_ram;
     }
 }
 

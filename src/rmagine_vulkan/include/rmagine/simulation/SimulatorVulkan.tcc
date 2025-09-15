@@ -6,15 +6,69 @@ namespace rmagine
 {
 
 template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) : 
+    vulkan_context(get_vulkan_context()), map(map), sensorMem(1), 
+    tsbMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), 
+    resultsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), 
+    tbmAndSensorSpecificMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+}
+
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::~SimulatorVulkan()
+{
+    std::cout << "Destroying SimulatorVulkan" << std::endl;
+    resetShaderBindingTable();
+    descriptorSet.reset();
+    commandBuffer.reset();
+    std::cout << "SimulatorVulkan destroyed" << std::endl;
+}
+
+
+
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::setMap(VulkanMapPtr map)
+{
+    this->map = map;
+}
+
+
+template<typename SensorModelRamT>
 void SimulatorVulkan<SensorModelRamT>::setTsb(const Memory<Transform, RAM>& tsbMem)
 {
     this->tsbMem = tsbMem;
 }
 
 
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::setTsb(const Transform& Tsb)
+{
+    Memory<Transform, RAM> tmp(1);
+    tmp[0] = Tsb;
+    setTsb(tmp);
+}
+
+
+template <typename SensorModelRamT>
+template<typename BundleT>
+void SimulatorVulkan<SensorModelRamT>::simulate(const Transform& tbm, BundleT& ret)
+{
+    Memory<Transform, RAM> tbmMem_ram(1);
+    tbmMem_ram[0] = tbm;
+    Memory<Transform, VULKAN_DEVICE_LOCAL> tbmMem(1);
+    tbmMem = tbmMem_ram;
+    simulate(tbmMem, ret);
+}
+
+
 template <typename SensorModelRamT>
 template <typename BundleT>
-inline BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
+BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
 {
     BundleT res;
     resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res, newDimensions.width, newDimensions.height, tbmMem.size());
@@ -25,7 +79,7 @@ inline BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULK
 
 template <typename SensorModelRamT>
 template <typename BundleT>
-inline void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
 {
     VulkanResultsAddresses results{};
     set_vulkan_results_data(ret, results);
@@ -77,7 +131,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
-                                           sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), origsDirsAndTransformsMem.getBuffer());
+                                           sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
         std::cout << "updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
@@ -134,7 +188,7 @@ void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memor
 
         previousAddresses.tbmAndSensorSpecificAddresses = origsDirsAndTransformsMem_ram[0];
 
-        origsDirsAndTransformsMem = origsDirsAndTransformsMem_ram;
+        tbmAndSensorSpecificMem = origsDirsAndTransformsMem_ram;
     }
 }
 

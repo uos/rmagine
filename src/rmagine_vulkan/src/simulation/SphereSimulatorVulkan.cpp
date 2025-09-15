@@ -12,4 +12,12 @@ void SphereSimulatorVulkan::setModel(const Memory<SphericalModel, RAM>& sensorMe
     newDimensions.height = sensorMem_ram[0].phi.size;
 }
 
+
+void SphereSimulatorVulkan::setModel(const SphericalModel& sensor)
+{
+    Memory<SphericalModel, RAM> sensorMem_ram(1);
+    sensorMem_ram[0] = sensor;
+    setModel(sensorMem_ram);
+}
+
 } // namespace rmagine

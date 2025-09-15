@@ -19,6 +19,15 @@ void OnDnSimulatorVulkan::setModel(const Memory<OnDnModel, RAM>& sensorMem_ram)
     newDimensions.height = sensorMem_ram[0].height;
 }
 
+
+void OnDnSimulatorVulkan::setModel(const OnDnModel& sensor)
+{
+    Memory<OnDnModel, RAM> sensorMem_ram(1);
+    sensorMem_ram[0] = sensor;
+    setModel(sensorMem_ram);
+}
+
+
 void OnDnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
 {
     if(previousAddresses.tbmAndSensorSpecificAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
@@ -32,7 +41,7 @@ void OnDnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, 
 
         previousAddresses.tbmAndSensorSpecificAddresses = origsDirsAndTransformsMem_ram[0];
 
-        origsDirsAndTransformsMem = origsDirsAndTransformsMem_ram;
+        tbmAndSensorSpecificMem = origsDirsAndTransformsMem_ram;
     }
 }
 
