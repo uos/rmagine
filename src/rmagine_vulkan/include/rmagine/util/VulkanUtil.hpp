@@ -40,9 +40,26 @@ struct ExtensionFunctions
 
 
 
-//forward declaration
+//forward declarations
+
 class VulkanContext;
 using VulkanContextPtr = std::shared_ptr<VulkanContext>;
 using VulkanContextWPtr = std::weak_ptr<VulkanContext>;
+
+class Device;
+using DevicePtr = std::shared_ptr<Device>;
+using DeviceWPtr = std::weak_ptr<Device>;
+
+class CommandPool;
+using CommandPoolPtr = std::shared_ptr<CommandPool>;
+using CommandPoolWPtr = std::weak_ptr<CommandPool>;
+
+class DescriptorSetLayout;
+using DescriptorSetLayoutPtr = std::shared_ptr<DescriptorSetLayout>;
+using DescriptorSetLayoutWPtr = std::weak_ptr<DescriptorSetLayout>;
+
+class PipelineLayout;
+using PipelineLayoutPtr = std::shared_ptr<PipelineLayout>;
+using PipelineLayoutWPtr = std::weak_ptr<PipelineLayout>;
 
 } // namespace rmagine

@@ -20,13 +20,13 @@ namespace rmagine
 class PipelineLayout
 {
 private:
-    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
+    DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 public:
-    PipelineLayout(VulkanContextWPtr vulkan_context);
+    PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
 
     ~PipelineLayout();
 

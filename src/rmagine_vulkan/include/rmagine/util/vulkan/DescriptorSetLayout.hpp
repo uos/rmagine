@@ -20,14 +20,13 @@ namespace rmagine
 class DescriptorSetLayout
 {
 private:
-    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
 
 public:
-    DescriptorSetLayout(VulkanContextWPtr vulkan_context);
+    DescriptorSetLayout(DevicePtr device);
 
     ~DescriptorSetLayout();
 

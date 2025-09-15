@@ -6,7 +6,7 @@
 namespace rmagine
 {
 
-PipelineLayout::PipelineLayout(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+PipelineLayout::PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
 {
     createPipelineLayout();
 }
@@ -29,9 +29,9 @@ void PipelineLayout::createPipelineLayout()
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCreateInfo.setLayoutCount = 1;
-    pipelineLayoutCreateInfo.pSetLayouts = vulkan_context.lock()->getDescriptorSetLayout()->getDescriptorSetLayoutPtr();
+    pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayout->getDescriptorSetLayoutPtr();
 
-    if(vkCreatePipelineLayout(vulkan_context.lock()->getDevice()->getLogicalDevice(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+    if(vkCreatePipelineLayout(device->getLogicalDevice(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline layout!");
     }

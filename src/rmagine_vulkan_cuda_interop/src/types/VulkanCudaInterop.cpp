@@ -1,0 +1,1 @@
+#include "rmagine/types/VulkanCudaInterop.hpp"

@@ -6,11 +6,12 @@
 namespace rmagine
 {
 
-VulkanContext::VulkanContext() : device(new Device)
+VulkanContext::VulkanContext() : 
+    device(new Device), commandPool(new CommandPool(device)), 
+    descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new PipelineLayout(device, descriptorSetLayout))
 {
     std::cout << "Creating VulkanContext" << std::endl;
 
-    // device = std::make_shared<Device>();
     loadExtensionFunctions();
 
     std::cout << "VulkanContext created" << std::endl;
@@ -96,6 +97,7 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
         break;
     }
 
+    std::lock_guard<std::mutex> guard(shaderMutex);
     if(shaderMaps[shaderType].count(maskedShaderDefines) == 0)
     {
         shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(weak_from_this(), shaderType, maskedShaderDefines);
@@ -107,6 +109,7 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
 
 void VulkanContext::removeShader(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
+    std::lock_guard<std::mutex> guard(shaderMutex);
     if(shaderMaps[shaderType].count(shaderDefines) == 1)
     {
         auto it = shaderMaps[shaderType].find(shaderDefines);
@@ -117,6 +120,7 @@ void VulkanContext::removeShader(ShaderType shaderType, ShaderDefineFlags shader
 
 size_t VulkanContext::getShaderCacheSize()
 {
+    std::lock_guard<std::mutex> guard(shaderMutex);
     size_t size = 0;
     for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
@@ -128,6 +132,7 @@ size_t VulkanContext::getShaderCacheSize()
 
 void VulkanContext::clearShaderCache()
 {
+    std::lock_guard<std::mutex> guard(shaderMutex);
     for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
         shaderMaps[i].clear();
@@ -146,6 +151,7 @@ ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags sha
         throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
     }
 
+    std::lock_guard<std::mutex> guard(sbtMutex);
     if(shaderBindingTableMap.count(shaderDefines) == 0)
     {
         shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
@@ -157,6 +163,7 @@ ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags sha
 
 void VulkanContext::removeShaderBindingTable(ShaderDefineFlags shaderDefines)
 {
+    std::lock_guard<std::mutex> guard(sbtMutex);
     if(shaderBindingTableMap.count(shaderDefines) == 1)
     {
         auto it = shaderBindingTableMap.find(shaderDefines);
@@ -167,12 +174,14 @@ void VulkanContext::removeShaderBindingTable(ShaderDefineFlags shaderDefines)
 
 size_t VulkanContext::getShaderBindingTableCacheSize()
 {
+    std::lock_guard<std::mutex> guard(sbtMutex);
     return shaderBindingTableMap.size();
 }
 
 
 void VulkanContext::clearShaderBindingTableCache()
 {
+    std::lock_guard<std::mutex> guard(sbtMutex);
     shaderBindingTableMap.clear();
 }
 
@@ -184,28 +193,16 @@ DevicePtr VulkanContext::getDevice()
 
 CommandPoolPtr VulkanContext::getCommandPool()
 {
-    if(commandPool == VK_NULL_HANDLE)
-    {
-        commandPool = std::make_shared<CommandPool>(weak_from_this());
-    }
     return commandPool;
 }
 
 DescriptorSetLayoutPtr VulkanContext::getDescriptorSetLayout()
 {
-    if(descriptorSetLayout == VK_NULL_HANDLE)
-    {
-        descriptorSetLayout = std::make_shared<DescriptorSetLayout>(weak_from_this());
-    }
     return descriptorSetLayout;
 }
 
 PipelineLayoutPtr VulkanContext::getPipelineLayout()
 {
-    if(pipelineLayout == VK_NULL_HANDLE)
-    {
-        pipelineLayout = std::make_shared<PipelineLayout>(weak_from_this());
-    }
     return pipelineLayout;
 }
 

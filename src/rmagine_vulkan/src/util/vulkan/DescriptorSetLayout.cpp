@@ -6,7 +6,7 @@
 namespace rmagine
 {
 
-DescriptorSetLayout::DescriptorSetLayout(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+DescriptorSetLayout::DescriptorSetLayout(DevicePtr device) : device(device)
 {
     createDescriptorPool();
     createDescriptorSetLayout();
@@ -43,7 +43,7 @@ void DescriptorSetLayout::createDescriptorPool()
     descriptorPoolCreateInfo.poolSizeCount = (uint32_t)descriptorPoolSizeList.size();
     descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizeList.data();
 
-    if(vkCreateDescriptorPool(vulkan_context.lock()->getDevice()->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    if(vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -90,7 +90,7 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     descriptorSetLayoutCreateInfo.bindingCount = (uint32_t)descriptorSetLayoutBindingList.size();
     descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindingList.data();
     
-    if(vkCreateDescriptorSetLayout(vulkan_context.lock()->getDevice()->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    if(vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }

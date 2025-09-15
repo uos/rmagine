@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <memory>
+#include <mutex>
 
 #include <vulkan/vulkan.h>
 
@@ -44,8 +45,9 @@ private:
 
     std::map<ShaderDefineFlags, ShaderBindingTablePtr> shaderBindingTableMap = std::map<ShaderDefineFlags, ShaderBindingTablePtr>();
 
-    //TODO: thread safety
-    // might need a lock each for sbts & shaders
+    // two different threads trying to access the shader-maps/sbt-map at the same time might cause issues without these mutexes
+    std::mutex shaderMutex;
+    std::mutex sbtMutex;
 
 public:
     ExtensionFunctions extensionFuncs;

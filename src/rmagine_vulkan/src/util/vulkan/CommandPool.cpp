@@ -5,7 +5,7 @@
 
 namespace rmagine
 {
-CommandPool::CommandPool(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+CommandPool::CommandPool(DevicePtr device) : device(device)
 {
     createCommandPool();
 }
@@ -29,9 +29,9 @@ void CommandPool::createCommandPool()
     VkCommandPoolCreateInfo commandPoolCreateInfo{};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    commandPoolCreateInfo.queueFamilyIndex = vulkan_context.lock()->getDevice()->getQueueFamilyIndex();
+    commandPoolCreateInfo.queueFamilyIndex = device->getQueueFamilyIndex();
 
-    if(vkCreateCommandPool(vulkan_context.lock()->getDevice()->getLogicalDevice(), &commandPoolCreateInfo, NULL,  &commandPool) != VK_SUCCESS)
+    if(vkCreateCommandPool(device->getLogicalDevice(), &commandPoolCreateInfo, NULL,  &commandPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create command pool!");
     }
