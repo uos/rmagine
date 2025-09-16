@@ -50,6 +50,7 @@ public:
     void recordBuildingASToCommandBuffer(VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, const VkAccelerationStructureBuildRangeInfoKHR* accelerationStructureBuildRangeInfos);
 
     void recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer);
+    void recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset = 0, VkDeviceSize dstOffset = 0);
 
     void submitRecordedCommandAndWait();
 

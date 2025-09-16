@@ -107,6 +107,24 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
 
 void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer)
 {
+    recordCopyBufferToCommandBuffer(scrBuffer, dstBuffer, std::min(scrBuffer->getBufferSize(), dstBuffer->getBufferSize()), 0, 0);
+}
+
+
+void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+{
+    if(size == 0)
+        return;
+
+    if(srcOffset + size > scrBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - srcOffset and/or size too large");
+    }
+    if(dstOffset + size > dstBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - dstOffset and/or size too large");
+    }
+    
     VkCommandBufferBeginInfo commandBufferBeginInfo{};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -117,7 +135,9 @@ void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferP
     }
     
     VkBufferCopy copyRegion{};
-    copyRegion.size = std::min(scrBuffer->getBufferSize(), dstBuffer->getBufferSize());
+    copyRegion.size = size;
+    copyRegion.srcOffset = srcOffset;
+    copyRegion.dstOffset = dstOffset;
     vkCmdCopyBuffer(commandBuffer, scrBuffer->getBuffer(), dstBuffer->getBuffer(), 1, &copyRegion);
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
