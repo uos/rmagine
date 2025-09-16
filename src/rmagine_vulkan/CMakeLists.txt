@@ -26,6 +26,7 @@ set(RMAGINE_VULKAN_SRCS
 
     #Types
     src/types/MemoryVulkan.cpp
+    src/types/MemoryVulkanUtil.cpp
 
     # Maps
     src/map/VulkanMap.cpp

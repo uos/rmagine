@@ -15,10 +15,19 @@ MemoryView<DataT, VULKAN_HOST_VISIBLE>::MemoryView(
 
 }
 
+
+
 template<typename DataT>
 size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::size() const
 {
     return m_size;
+}
+
+
+template<typename DataT>
+size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::offset() const
+{
+    return m_offset;
 }
 
 
@@ -63,7 +72,7 @@ Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VkBufferUsageFlags bufferUs
         m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
         m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_buffer);
 
-        m_memID = MemoryHelper::GetNewMemID();
+        m_memID = get_new_mem_id();
         #ifdef VDEBUG
             std::cout << "VULKAN_HOST_VISIBLE: new m_memID = " << m_memID << std::endl;
         #endif
@@ -104,8 +113,8 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
     if(m_size != 0)
     {
         //TODO: use copy here when its done for non equal sizes
-        MemoryHelper::GetMemCommandBuffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
-        MemoryHelper::GetMemCommandBuffer()->submitRecordedCommandAndWait();
+        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_mem_command_buffer()->submitRecordedCommandAndWait();
     }
 
     m_buffer.reset();
@@ -119,7 +128,7 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
         if(m_memID != 0)
             std::cout << "VULKAN_HOST_VISIBLE: retired m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
-    m_memID = MemoryHelper::GetNewMemID();
+    m_memID = get_new_mem_id();
     #ifdef VDEBUG
         std::cout << "VULKAN_HOST_VISIBLE: new m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
