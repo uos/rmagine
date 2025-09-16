@@ -59,14 +59,12 @@ protected:
     size_t m_size = 0;
     size_t m_offset = 0;
     VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
-    BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
 
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
-               BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory);
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory);
 
     
     static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty()
@@ -159,7 +157,6 @@ protected:
     using Base::m_size;
     using Base::m_offset;
     using Base::m_memoryUsage;
-    using Base::m_buffer;
     using Base::m_deviceMemory;
 };
 
@@ -174,17 +171,13 @@ protected:
     size_t m_size = 0;
     size_t m_offset = 0;
     VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
-    BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
-    BufferPtr m_stagingBuffer = nullptr;
     DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
 
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
-               BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
-               BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory);
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory);
 
     
     static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty()
@@ -281,9 +274,7 @@ protected:
     using Base::m_size;
     using Base::m_offset;
     using Base::m_memoryUsage;
-    using Base::m_buffer;
     using Base::m_deviceMemory;
-    using Base::m_stagingBuffer;
     using Base::m_stagingDeviceMemory;
 };
 

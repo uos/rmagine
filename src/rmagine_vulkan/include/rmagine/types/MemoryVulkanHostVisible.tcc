@@ -7,10 +7,8 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, VULKAN_HOST_VISIBLE>::MemoryView(
-    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
-    BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage),
-    m_buffer(p_buffer), m_deviceMemory(p_deviceMemory)
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory) :
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory)
 {
 
 }
@@ -61,7 +59,7 @@ size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::offset() const
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_HOST_VISIBLE>::getBuffer() const
 {
-    return m_buffer;
+    return m_deviceMemory->getBuffer();
 }
 
 
@@ -96,8 +94,8 @@ Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VulkanMemoryUsage memoryUsa
 {
     if(N > 0)
     {
-        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
-        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_buffer);
+        BufferPtr buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
+        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer);
 
         m_memID = get_new_mem_id();
         #ifdef VDEBUG
@@ -126,7 +124,6 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
     else if(N == 0)
     {
         m_size = 0;
-        m_buffer = nullptr;
         m_deviceMemory = nullptr;
         return;
     }
@@ -140,12 +137,11 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
     if(m_size != 0)
     {
         //TODO: use copy here when its done for non equal sizes
-        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_deviceMemory->getBuffer(), newBuffer);
         get_mem_command_buffer()->submitRecordedCommandAndWait();
     }
 
     m_size = newSize;
-    m_buffer = newBuffer;
     m_deviceMemory = newDeviceMemory;
 
     #ifdef VDEBUG

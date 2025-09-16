@@ -7,12 +7,8 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, VULKAN_DEVICE_LOCAL>::MemoryView(
-    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
-    BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
-    BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage),
-    m_buffer(p_buffer), m_deviceMemory(p_deviceMemory),
-    m_stagingBuffer(p_stagingBuffer), m_stagingDeviceMemory(p_stagingDeviceMemory)
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory) :
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory), m_stagingDeviceMemory(p_stagingDeviceMemory)
 {
 
 }
@@ -63,14 +59,16 @@ size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::offset() const
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getBuffer() const
 {
-    return m_buffer;
+    return m_deviceMemory->getBuffer();
 }
 
 
 template<typename DataT>
 BufferPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingBuffer() const
 {
-    return m_stagingBuffer;
+    if(m_memoryUsage == VulkanMemoryUsage::Usage_AccelerationStructure || m_memoryUsage == VulkanMemoryUsage::Usage_AccelerationStructureScratch)
+        return nullptr;
+    return m_stagingDeviceMemory->getBuffer();
 }
 
 
@@ -84,6 +82,8 @@ DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getDeviceMemory() const
 template<typename DataT>
 DeviceMemoryPtr MemoryView<DataT, VULKAN_DEVICE_LOCAL>::getStagingDeviceMemory() const
 {
+    if(m_memoryUsage == VulkanMemoryUsage::Usage_AccelerationStructure || m_memoryUsage == VulkanMemoryUsage::Usage_AccelerationStructureScratch)
+        return nullptr;
     return m_stagingDeviceMemory;
 }
 
@@ -108,19 +108,19 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N) : Memory(N, VulkanMemoryUsa
 
 template<typename DataT>
 Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VulkanMemoryUsage memoryUsage) :
-    Base(N, 0, memoryUsage, nullptr, nullptr, nullptr, nullptr)
+    Base(N, 0, memoryUsage, nullptr, nullptr)
 {
     if(N > 0)
     {
         //acceleration structure and its scratch buffer dont need staging - they get written to by a command
         if(m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructure && m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructureScratch)
         {
-            m_stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-            m_stagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_stagingBuffer);
+            BufferPtr stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+            m_stagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer);
         }
 
-        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
-        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_buffer);
+        BufferPtr buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
+        m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer);
 
         m_memID = get_new_mem_id();
         #ifdef VDEBUG
@@ -149,9 +149,7 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
     else if(N == 0)
     {
         m_size = 0;
-        m_buffer = nullptr;
         m_deviceMemory = nullptr;
-        m_stagingBuffer = nullptr;
         m_stagingDeviceMemory = nullptr;
         return;
     }
@@ -174,14 +172,12 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
     if(m_size != 0)
     {
         //TODO: use copy here when its done for non equal sizes
-        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
+        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_deviceMemory->getBuffer(), newBuffer);
         get_mem_command_buffer()->submitRecordedCommandAndWait();
     }
 
     m_size = newSize;
-    m_buffer = newBuffer;
     m_deviceMemory = newDeviceMemory;
-    m_stagingBuffer = newStagingBuffer;
     m_stagingDeviceMemory = newStagingDeviceMemory;
 
     #ifdef VDEBUG
