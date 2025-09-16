@@ -20,6 +20,33 @@ MemoryView<DataT, VULKAN_DEVICE_LOCAL>::MemoryView(
 
 
 template<typename DataT>
+MemoryView<DataT, VULKAN_DEVICE_LOCAL>& MemoryView<DataT, VULKAN_DEVICE_LOCAL>::operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o)
+{
+    if(this->size() != o.size())
+    {
+        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) VULKAN_DEVICE_LOCAL assignment of different sizes");
+    }
+
+    copy(o, *this);
+    return *this;
+}
+
+
+template<typename DataT>
+template<typename MemT2>
+MemoryView<DataT, VULKAN_DEVICE_LOCAL>& MemoryView<DataT, VULKAN_DEVICE_LOCAL>::operator=(const MemoryView<DataT, MemT2>& o)
+{
+    if(this->size() != o.size())
+    {
+        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
+    }
+
+    copy(o, *this);
+    return *this;
+}
+
+
+template<typename DataT>
 size_t MemoryView<DataT, VULKAN_DEVICE_LOCAL>::size() const
 {
     return m_size;
@@ -169,20 +196,33 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
 
 
 template<typename DataT>
-template<typename MemT2>
-Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator=(const Memory<DataT, MemT2>& o)
+Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o)
 {
     if(this->size() != o.size())
     {
-        // throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
         this->resize(o.size());
     }
-    copy(o, *this);
+
+    Base::operator=(o);
     return *this;
 }
 
 
-template <typename DataT>
+template<typename DataT>
+template<typename MemT2>
+Memory<DataT, VULKAN_DEVICE_LOCAL>& Memory<DataT, VULKAN_DEVICE_LOCAL>::operator=(const MemoryView<DataT, MemT2>& o)
+{
+    if(this->size() != o.size())
+    {
+        this->resize(o.size());
+    }
+
+    Base::operator=(o);
+    return *this;
+}
+
+
+template<typename DataT>
 size_t Memory<DataT, VULKAN_DEVICE_LOCAL>::getID() const
 {
     return m_memID;

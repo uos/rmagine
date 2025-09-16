@@ -79,10 +79,10 @@ public:
         return (m_size == 0);
     }
 
-    // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+    MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
 
-    // template<typename MemT2>
-    // MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+    template<typename MemT2>
+    MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
 
     // MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end);
 
@@ -135,15 +135,23 @@ public:
 
     void resize(size_t N);
 
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, VULKAN_HOST_VISIBLE>& o) = default;//TODO: make it work like the other operator= function
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
 
-    // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, VULKAN_HOST_VISIBLE>& o)
+    {
+        const MemoryView<DataT, VULKAN_HOST_VISIBLE>& c = o;
+        return operator=(c);
+    }
 
     template<typename MemT2>
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, MemT2>& o);
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    // template<typename MemT2>
-    // Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+    template<typename MemT2>
+    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, MemT2>& o)
+    {
+        const MemoryView<DataT, MemT2>& c = o;
+        return operator=(c);
+    }
 
     size_t getID() const;
 
@@ -189,10 +197,10 @@ public:
         return (m_size == 0);
     }
 
-    // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
+    MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
 
-    // template<typename MemT2>
-    // MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
+    template<typename MemT2>
+    MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
     // MemoryView<DataT, MemT> slice(size_t idx_start, size_t idx_end);
 
@@ -249,15 +257,23 @@ public:
 
     void resize(size_t N);
 
-    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, VULKAN_DEVICE_LOCAL>& o) = default;//TODO: make it work like the other operator= function
+    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
 
-    // Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
+    inline Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, VULKAN_DEVICE_LOCAL>& o)
+    {
+        const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& c = o;
+        return operator=(c);
+    }
 
     template<typename MemT2>
-    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, MemT2>& o);
+    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    // template<typename MemT2>
-    // Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
+    template<typename MemT2>
+    inline Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, MemT2>& o)
+    {
+        const MemoryView<DataT, MemT2>& c = o;
+        return operator=(c);
+    }
 
     size_t getID() const;
 

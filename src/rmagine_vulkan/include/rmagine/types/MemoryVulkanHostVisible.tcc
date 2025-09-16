@@ -18,6 +18,33 @@ MemoryView<DataT, VULKAN_HOST_VISIBLE>::MemoryView(
 
 
 template<typename DataT>
+MemoryView<DataT, VULKAN_HOST_VISIBLE>& MemoryView<DataT, VULKAN_HOST_VISIBLE>::operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o)
+{
+    if(this->size() != o.size())
+    {
+        throw std::runtime_error("Memory (VULKAN_HOST_VISIBLE) VULKAN_HOST_VISIBLE assignment of different sizes");
+    }
+
+    copy(o, *this);
+    return *this;
+}
+
+
+template<typename DataT>
+template<typename MemT2>
+MemoryView<DataT, VULKAN_HOST_VISIBLE>& MemoryView<DataT, VULKAN_HOST_VISIBLE>::operator=(const MemoryView<DataT, MemT2>& o)
+{
+    if(this->size() != o.size())
+    {
+        throw std::runtime_error("Memory (VULKAN_HOST_VISIBLE) MemT2 assignment of different sizes");
+    }
+
+    copy(o, *this);
+    return *this;
+}
+
+
+template<typename DataT>
 size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::size() const
 {
     return m_size;
@@ -133,20 +160,33 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
 
 
 template<typename DataT>
-template<typename MemT2>
-Memory<DataT, VULKAN_HOST_VISIBLE>& Memory<DataT, VULKAN_HOST_VISIBLE>::operator=(const Memory<DataT, MemT2>& o)
+Memory<DataT, VULKAN_HOST_VISIBLE>& Memory<DataT, VULKAN_HOST_VISIBLE>::operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o)
 {
     if(this->size() != o.size())
     {
-        // throw std::runtime_error("Memory (VULKAN_HOST_VISIBLE) MemT2 assignment of different sizes");
         this->resize(o.size());
     }
-    copy(o, *this);
+
+    Base::operator=(o);
     return *this;
 }
 
 
-template <typename DataT>
+template<typename DataT>
+template<typename MemT2>
+Memory<DataT, VULKAN_HOST_VISIBLE>& Memory<DataT, VULKAN_HOST_VISIBLE>::operator=(const MemoryView<DataT, MemT2>& o)
+{
+    if(this->size() != o.size())
+    {
+        this->resize(o.size());
+    }
+
+    Base::operator=(o);
+    return *this;
+}
+
+
+template<typename DataT>
 size_t Memory<DataT, VULKAN_HOST_VISIBLE>::getID() const
 {
     return m_memID;
