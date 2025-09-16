@@ -61,7 +61,7 @@ void Device::choosePhysicalDevice()
     // get list physical devices
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
-    std::cout << "Number of compatible pysical devices found: "<< physicalDeviceCount << std::endl;
+    std::cout << "Number of pysical devices found: "<< physicalDeviceCount << std::endl;
     if(physicalDeviceCount == 0)
     {
         throw std::runtime_error("Failed to find any compatible pysical devices!");

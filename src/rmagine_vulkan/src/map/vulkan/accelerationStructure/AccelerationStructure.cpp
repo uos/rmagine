@@ -9,7 +9,9 @@ namespace rmagine
 AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType) : 
     accelerationStructureType(accelerationStructureType),
     vulkan_context(get_vulkan_context_weak()),
-    commandBuffer(new CommandBuffer(vulkan_context))
+    commandBuffer(new CommandBuffer(vulkan_context)),
+    accelerationStructureMem(0, VulkanMemoryUsage::Usage_AccelerationStructure),
+    accelerationStructureScratchMem(0, VulkanMemoryUsage::Usage_AccelerationStructureScratch)
 {
     
 }
@@ -20,11 +22,6 @@ AccelerationStructure::~AccelerationStructure()
     if(accelerationStructure != VK_NULL_HANDLE)
     {
         commandBuffer.reset();
-
-        accelerationStructureDeviceMemory.reset();
-        accelerationStructureBuffer.reset();
-        accelerationStructureScratchDeviceMemory.reset();
-        accelerationStructureScratchBuffer.reset();
 
         vulkan_context->extensionFuncs.vkDestroyAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), accelerationStructure, nullptr);
         accelerationStructure = VK_NULL_HANDLE;
@@ -64,16 +61,11 @@ void AccelerationStructure::createAccelerationStructure(
         maxPrimitiveCountList.data(), 
         &accelerationStructureBuildSizesInfo);
 
-    //TODO: Memory Objects
-    accelerationStructureBuffer = std::make_shared<Buffer>(
-        accelerationStructureBuildSizesInfo.accelerationStructureSize,
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
-        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    accelerationStructureDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, accelerationStructureBuffer);
+    accelerationStructureMem.resize(accelerationStructureBuildSizesInfo.accelerationStructureSize);
 
     VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo{};
     accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    accelerationStructureCreateInfo.buffer = accelerationStructureBuffer->getBuffer();
+    accelerationStructureCreateInfo.buffer = accelerationStructureMem.getBuffer()->getBuffer();
     accelerationStructureCreateInfo.size = accelerationStructureBuildSizesInfo.accelerationStructureSize;
     accelerationStructureCreateInfo.type = accelerationStructureType;
     accelerationStructureCreateInfo.deviceAddress = 0;
@@ -91,14 +83,10 @@ void AccelerationStructure::createAccelerationStructure(
         vulkan_context->getDevice()->getLogicalDevice(), 
         &accelerationStructureDeviceAddressInfo);
     
-    //TODO: Memory Objects
-    accelerationStructureScratchBuffer = std::make_shared<Buffer>(
-        accelerationStructureBuildSizesInfo.buildScratchSize,
-        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    accelerationStructureScratchDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, accelerationStructureScratchBuffer);
+    accelerationStructureScratchMem.resize(accelerationStructureBuildSizesInfo.buildScratchSize);
 
     accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
-    accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchBuffer->getBufferDeviceAddress();
+    accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchMem.getBuffer()->getBufferDeviceAddress();
 
     commandBuffer->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());
     commandBuffer->submitRecordedCommandAndWait();

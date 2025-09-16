@@ -12,7 +12,7 @@ namespace rmagine
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries) : 
     AccelerationStructure(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR),
     m_asInstances_ram(geometries.size()),
-    m_asInstances(geometries.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR),
+    m_asInstances(geometries.size(), VulkanMemoryUsage::Usage_AccelerationStructureInstanceData),
     m_asInstancesDescriptions_ram(geometries.size()),
     m_asInstancesDescriptions(geometries.size())
 {

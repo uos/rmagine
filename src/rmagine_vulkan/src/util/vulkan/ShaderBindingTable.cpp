@@ -9,7 +9,7 @@ namespace rmagine
 ShaderBindingTable::ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : 
     vulkan_context(vulkan_context),
     pipeline(new Pipeline(vulkan_context, shaderDefines)),
-    shaderBindingTableMemory(0, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR)
+    shaderBindingTableMemory(0, VulkanMemoryUsage::Usage_ShaderBindingTable)
 {
     createShaderBindingTable();
 }

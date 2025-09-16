@@ -58,20 +58,20 @@ class MemoryView<DataT, VULKAN_HOST_VISIBLE>
 protected:
     size_t m_size = 0;
     size_t m_offset = 0;
-    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
 
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
                BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory);
 
     
     static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty()
     {
-        MemoryView(0, 0, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, nullptr, nullptr);
+        MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr);
     }
 
     bool empty() const
@@ -128,7 +128,7 @@ public:
      * being a uniform buffer (for better performance)
      * in these cases special bufferUsageFlags besides the default storage buffer are needed
      */
-    Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
+    Memory(size_t size, VulkanMemoryUsage memoryUsage);
 
     ~Memory();
 
@@ -150,7 +150,7 @@ public:
 protected:
     using Base::m_size;
     using Base::m_offset;
-    using Base::m_bufferUsageFlags;
+    using Base::m_memoryUsage;
     using Base::m_buffer;
     using Base::m_deviceMemory;
 };
@@ -165,7 +165,7 @@ class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
 protected:
     size_t m_size = 0;
     size_t m_offset = 0;
-    VkBufferUsageFlags m_bufferUsageFlags = 0;
+    VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     BufferPtr m_buffer = nullptr;
     DeviceMemoryPtr m_deviceMemory = nullptr;
     BufferPtr m_stagingBuffer = nullptr;
@@ -174,14 +174,14 @@ protected:
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
                BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
                BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory);
 
     
     static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty()
     {
-        MemoryView(0, 0, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, nullptr, nullptr, nullptr, nullptr);
+        MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr, nullptr, nullptr);
     }
 
     bool empty() const
@@ -242,7 +242,7 @@ public:
      * being a uniform buffer (for better performance)
      * in these cases special bufferUsageFlags besides the default storage buffer are needed
      */
-    Memory(size_t size, VkBufferUsageFlags bufferUsageFlags);
+    Memory(size_t size, VulkanMemoryUsage memoryUsage);
 
     ~Memory();
 
@@ -264,7 +264,7 @@ public:
 protected:
     using Base::m_size;
     using Base::m_offset;
-    using Base::m_bufferUsageFlags;
+    using Base::m_memoryUsage;
     using Base::m_buffer;
     using Base::m_deviceMemory;
     using Base::m_stagingBuffer;

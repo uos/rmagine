@@ -7,9 +7,9 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, VULKAN_HOST_VISIBLE>::MemoryView(
-    size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
     BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_bufferUsageFlags(p_bufferUsageFlags),
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage),
     m_buffer(p_buffer), m_deviceMemory(p_deviceMemory)
 {
 
@@ -58,18 +58,18 @@ Memory<DataT, VULKAN_HOST_VISIBLE>::Memory() : Memory(0)
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N) : Memory(N, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N) : Memory(N, VulkanMemoryUsage::Usage_Default)
 {
     
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VkBufferUsageFlags bufferUsageFlags)
-    : Base(N, 0, bufferUsageFlags, nullptr, nullptr)
+Memory<DataT, VULKAN_HOST_VISIBLE>::Memory(size_t N, VulkanMemoryUsage memoryUsage)
+    : Base(N, 0, memoryUsage, nullptr, nullptr)
 {
     if(N > 0)
     {
-        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
         m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_buffer);
 
         m_memID = get_new_mem_id();
@@ -106,7 +106,7 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
 
     size_t newSize = N;
 
-    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), m_bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
     DeviceMemoryPtr newDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newBuffer);
 
     //copy from old buffer to new buffer, if old buffer wasnt empty
@@ -116,9 +116,6 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
         get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
         get_mem_command_buffer()->submitRecordedCommandAndWait();
     }
-
-    m_buffer.reset();
-    m_deviceMemory.reset();
 
     m_size = newSize;
     m_buffer = newBuffer;

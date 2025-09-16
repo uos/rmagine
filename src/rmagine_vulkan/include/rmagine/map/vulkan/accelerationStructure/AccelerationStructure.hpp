@@ -30,12 +30,11 @@ private:
 
     VkAccelerationStructureKHR accelerationStructure = VK_NULL_HANDLE;
     VkDeviceAddress accelerationStructureDeviceAddress = 0;
-    // for acceleration structure
-    BufferPtr accelerationStructureBuffer = nullptr;
-    DeviceMemoryPtr accelerationStructureDeviceMemory = nullptr;
+
+    // for holding acceleration structure
+    Memory<char, VULKAN_DEVICE_LOCAL> accelerationStructureMem;
     // for building acceleration structure
-    BufferPtr accelerationStructureScratchBuffer = nullptr;
-    DeviceMemoryPtr accelerationStructureScratchDeviceMemory = nullptr;
+    Memory<char, VULKAN_DEVICE_LOCAL> accelerationStructureScratchMem;
     
 public:
     AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);

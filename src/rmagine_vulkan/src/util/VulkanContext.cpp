@@ -20,19 +20,15 @@ VulkanContext::VulkanContext() :
 VulkanContext::~VulkanContext()
 {
     std::cout << "Destroying VulkanContext" << std::endl;
+
     clearShaderBindingTableCache();
-    std::cout << "Destroying VulkanContext2" << std::endl;
     clearShaderCache();
-    std::cout << "Destroying VulkanContext3" << std::endl;
 
     commandPool.reset();
-    std::cout << "Destroying VulkanContext4" << std::endl;
     pipelineLayout.reset();
-    std::cout << "Destroying VulkanContext5" << std::endl;
     descriptorSetLayout.reset();
-    std::cout << "Destroying VulkanContext6" << std::endl;
-
     device.reset();
+
     std::cout << "VulkanContext destroyed" << std::endl;
 }
 

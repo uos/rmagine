@@ -8,9 +8,9 @@ namespace rmagine
 template<typename SensorModelRamT>
 SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) : 
     vulkan_context(get_vulkan_context()), map(map), sensorMem(1), 
-    tsbMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), 
-    resultsMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT), 
-    tbmAndSensorSpecificMem(1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
     // uniform buffers might slightly increase performance for small readonly buffers
 {
     checkTemplateArgs();

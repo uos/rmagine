@@ -7,10 +7,10 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, VULKAN_DEVICE_LOCAL>::MemoryView(
-    size_t p_size, size_t p_offset, VkBufferUsageFlags p_bufferUsageFlags, 
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, 
     BufferPtr p_buffer, DeviceMemoryPtr p_deviceMemory,
     BufferPtr p_stagingBuffer, DeviceMemoryPtr p_stagingDeviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_bufferUsageFlags(p_bufferUsageFlags),
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage),
     m_buffer(p_buffer), m_deviceMemory(p_deviceMemory),
     m_stagingBuffer(p_stagingBuffer), m_stagingDeviceMemory(p_stagingDeviceMemory)
 {
@@ -74,21 +74,25 @@ Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory() : Memory(0)
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N) : Memory(N, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N) : Memory(N, VulkanMemoryUsage::Usage_Default)
 {
     
 }
 
 template<typename DataT>
-Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VkBufferUsageFlags bufferUsageFlags) :
-    Base(N, 0, bufferUsageFlags, nullptr, nullptr, nullptr, nullptr)
+Memory<DataT, VULKAN_DEVICE_LOCAL>::Memory(size_t N, VulkanMemoryUsage memoryUsage) :
+    Base(N, 0, memoryUsage, nullptr, nullptr, nullptr, nullptr)
 {
     if(N > 0)
     {
-        m_stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-        m_stagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_stagingBuffer);
-        
-        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        //acceleration structure and its scratch buffer dont need staging - they get written to by a command
+        if(m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructure && m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructureScratch)
+        {
+            m_stagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+            m_stagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_stagingBuffer);
+        }
+
+        m_buffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
         m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_buffer);
 
         m_memID = get_new_mem_id();
@@ -127,10 +131,16 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
 
     size_t newSize = N;
 
-    BufferPtr newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    DeviceMemoryPtr newStagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
-    
-    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), m_bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    //acceleration structure and its scratch buffer dont need staging - they get written to by a command
+    BufferPtr newStagingBuffer = nullptr;
+    DeviceMemoryPtr newStagingDeviceMemory = nullptr;
+    if(m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructure && m_memoryUsage != VulkanMemoryUsage::Usage_AccelerationStructureScratch)
+    {
+        newStagingBuffer = std::make_shared<Buffer>(N*sizeof(DataT), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+        newStagingDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, newStagingBuffer);
+    }
+
+    BufferPtr newBuffer = std::make_shared<Buffer>(N*sizeof(DataT), get_buffer_usage_flags(m_memoryUsage));
     DeviceMemoryPtr newDeviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newBuffer);
 
     //copy from old buffer to new buffer, if old buffer wasnt empty
@@ -140,11 +150,6 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
         get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_buffer, newBuffer);
         get_mem_command_buffer()->submitRecordedCommandAndWait();
     }
-
-    m_buffer.reset();
-    m_deviceMemory.reset();
-    m_stagingBuffer.reset();
-    m_stagingDeviceMemory.reset();
 
     m_size = newSize;
     m_buffer = newBuffer;

@@ -5,9 +5,9 @@ namespace rmagine
 
 VulkanMesh::VulkanMesh() : Base(),
     transformMatrix_ram(1),
-    transformMatrix(1, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR),
-    vertices(0, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),
-    faces(0, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),
+    transformMatrix(1, VulkanMemoryUsage::Usage_AccelerationStructureInstanceData),
+    vertices(0, VulkanMemoryUsage::Usage_AccelerationStructureMeshData),
+    faces(0, VulkanMemoryUsage::Usage_AccelerationStructureMeshData), 
     face_normals(0),
     vertex_normals(0)
 {
