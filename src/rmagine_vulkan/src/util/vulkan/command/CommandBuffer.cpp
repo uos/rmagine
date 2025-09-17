@@ -35,7 +35,7 @@ void CommandBuffer::createCommandBuffer()
     std::vector<VkCommandBuffer> commandBuffers = std::vector<VkCommandBuffer>(1, VK_NULL_HANDLE);
     if(vkAllocateCommandBuffers(vulkan_context->getDevice()->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command buffer(s)!");
+        throw std::runtime_error("[CommandBuffer::createCommandBuffer()] ERROR - failed to create command buffer(s)!");
     }
     commandBuffer = commandBuffers.front();
 }
@@ -49,7 +49,7 @@ void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorS
 
     if(vkBeginCommandBuffer(commandBuffer, &rtxCommandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, shaderBindingTable->getPipeline()->getPipeline());
@@ -76,7 +76,7 @@ void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorS
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
 }
 
@@ -89,7 +89,7 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
 
     if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
     
     vulkan_context->extensionFuncs.vkCmdBuildAccelerationStructuresKHR(
@@ -100,22 +100,13 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
-}
-
-
-void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer)
-{
-    recordCopyBufferToCommandBuffer(scrBuffer, dstBuffer, std::min(scrBuffer->getBufferSize(), dstBuffer->getBufferSize()), 0, 0);
 }
 
 
 void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
-    if(size == 0)
-        return;
-
     if(srcOffset + size > scrBuffer->getBufferSize())
     {
         throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - srcOffset and/or size too large");
@@ -124,6 +115,9 @@ void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferP
     {
         throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - dstOffset and/or size too large");
     }
+
+    if(size == 0)
+        return;
     
     VkCommandBufferBeginInfo commandBufferBeginInfo{};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -131,7 +125,7 @@ void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferP
 
     if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
     
     VkBufferCopy copyRegion{};
@@ -142,7 +136,7 @@ void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferP
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
 }
 

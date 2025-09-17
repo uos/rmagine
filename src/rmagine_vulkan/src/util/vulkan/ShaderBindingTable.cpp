@@ -38,7 +38,7 @@ void ShaderBindingTable::createShaderBindingTable()
     Memory<char, RAM> shaderBindingTableMemory_ram(shaderBindingTableSize);
     if(vulkan_context.lock()->extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), pipeline->getPipeline(), 0, 3, shaderBindingTableSize, shaderBindingTableMemory_ram.raw()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to get raytracing shadergroup handles!");
+        throw std::runtime_error("[ShaderBindingTable::createShaderBindingTable()] ERROR - Failed to get raytracing shadergroup handles!");
     }
 
     //only a part of the data is needed

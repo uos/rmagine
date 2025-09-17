@@ -284,33 +284,32 @@ protected:
 template<typename DataT>
 void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
 {
-    if(to.size() == 0)
+    if(to.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    to.getDeviceMemory()->copyToDeviceMemory(from.raw());
+    vulkan_memcpy_host_to_device(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
-    if(to.size() == 0)
+    if(to.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    to.getStagingDeviceMemory()->copyToDeviceMemory(from.raw());
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(to.getStagingBuffer(), to.getBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
+    vulkan_memcpy_host_to_device(from.raw(), to.getStagingDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
+    vulkan_memcpy_device_to_device(to.getStagingBuffer(), to.getBuffer(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset(), sizeof(DataT) * to.offset());
 }
 
 
@@ -321,33 +320,32 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LO
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, RAM>& to)
 {
-    if(from.size() == 0)
+    if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
     
-    from.getDeviceMemory()->copyFromDeviceMemory(to.raw());
+    vulkan_memcpy_device_to_host(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, RAM>& to)
 {
-    if(from.size() == 0)
+    if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), from.getStagingBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
-    from.getStagingDeviceMemory()->copyFromDeviceMemory(to.raw());
+    vulkan_memcpy_device_to_device(from.getBuffer(), from.getStagingBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * from.offset());
+    vulkan_memcpy_device_to_host(from.getStagingDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 
@@ -360,15 +358,14 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 {
     if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
+    vulkan_memcpy_device_to_device(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -376,15 +373,14 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 {
     if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
+    vulkan_memcpy_device_to_device(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -392,15 +388,14 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 {
     if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
+    vulkan_memcpy_device_to_device(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -408,15 +403,14 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 {
     if(from.size() == 0 || to.size() == 0)
     {
-        throw std::runtime_error("cant be called when size() is 0!");
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
     }
     if(to.size() != from.size())
     {
-        throw std::runtime_error("given memory objects have to have the same size!");
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    get_mem_command_buffer()->recordCopyBufferToCommandBuffer(from.getBuffer(), to.getBuffer());
-    get_mem_command_buffer()->submitRecordedCommandAndWait();
+    vulkan_memcpy_device_to_device(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
 }
 
 } // namespace rmagine

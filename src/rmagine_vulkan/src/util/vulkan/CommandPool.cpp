@@ -33,7 +33,7 @@ void CommandPool::createCommandPool()
 
     if(vkCreateCommandPool(device->getLogicalDevice(), &commandPoolCreateInfo, nullptr,  &commandPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command pool!");
+        throw std::runtime_error("[CommandPool::createCommandPool()] ERROR - failed to create command pool!");
     }
 }
 

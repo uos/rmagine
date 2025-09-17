@@ -27,11 +27,6 @@ Buffer::~Buffer()
 
 void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
 {
-    if(buffer != VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("tried to create a buffer that already exists!");
-    }
-
     VkBufferCreateInfo bufferCreateInfo{};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.size = bufferSize;
@@ -42,25 +37,21 @@ void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
 
     if(vkCreateBuffer(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create buffer!");
+        throw std::runtime_error("[Buffer::createBuffer()] ERROR - failed to create buffer!");
     }
 }
 
 
 VkDeviceAddress Buffer::getBufferDeviceAddress()
 {
-    if(buffer == VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("tried to get the buffer device address without having created a buffer first!");
-    }
-
+    std::lock_guard<std::mutex> guard(bufferMtx);
     if(deviceAddress != 0)
         return deviceAddress;
 
     VkBufferDeviceAddressInfo bufferDeviceAddressInfo{};
     bufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     bufferDeviceAddressInfo.buffer = buffer;
-    
+
     deviceAddress = vkGetBufferDeviceAddress(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferDeviceAddressInfo);
     return deviceAddress;
 }

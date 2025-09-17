@@ -51,7 +51,7 @@ void Device::createInstance()
 
     if (vkCreateInstance(&instanceCreateInfo, nullptr, &instance) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create instance!");
+        throw std::runtime_error("[Device::createInstance()] ERROR - Failed to create instance!");
     }
 }
 
@@ -64,7 +64,7 @@ void Device::choosePhysicalDevice()
     std::cout << "Number of pysical devices found: "<< physicalDeviceCount << std::endl;
     if(physicalDeviceCount == 0)
     {
-        throw std::runtime_error("Failed to find any compatible pysical devices!");
+        throw std::runtime_error("[Device::choosePhysicalDevice()] ERROR - Failed to find any compatible pysical devices!");
     }
     std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, physicalDevices.data());
@@ -116,7 +116,7 @@ void Device::choosePhysicalDevice()
     }
     if(physicalDevice == VK_NULL_HANDLE)
     {
-        throw std::runtime_error("Unable to find compatible physical device!");
+        throw std::runtime_error("[Device::choosePhysicalDevice()] ERROR - Unable to find compatible physical device!");
     }
 
 
@@ -239,7 +239,7 @@ void Device::chooseQueueFamily()
     }
     if(queueFamilyIndex == uint32_t(~0))
     {
-        throw std::runtime_error("Could not find compatible queue family!");
+        throw std::runtime_error("[Device::chooseQueueFamily()] ERROR - Could not find compatible queue family!");
     }
     std::cout << "Queue family index: " << queueFamilyIndex << "    (Out of " << queueFamilyProperties.size() << " queue families)"<< std::endl;
 }
@@ -267,7 +267,6 @@ void Device::createLogicalDevice()
     physicalDeviceAccelerationStructureFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
     physicalDeviceAccelerationStructureFeatures.pNext = &physicalDevice8BitStorageFeatures;
     physicalDeviceAccelerationStructureFeatures.accelerationStructure = VK_TRUE;
-    // physicalDeviceAccelerationStructureFeatures.descriptorBindingAccelerationStructureUpdateAfterBind = VK_TRUE; // TODO: might need this
 
     VkPhysicalDeviceRayTracingPipelineFeaturesKHR physicalDeviceRayTracingPipelineFeatures{};
     physicalDeviceRayTracingPipelineFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
@@ -316,7 +315,7 @@ void Device::createLogicalDevice()
 
     if(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &logicalDevice) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create logical device!");
+        throw std::runtime_error("[Device::createLogicalDevice()] ERROR - Failed to create logical device!");
     }
 
     vkGetDeviceQueue(logicalDevice, queueFamilyIndex, 0, &queue);

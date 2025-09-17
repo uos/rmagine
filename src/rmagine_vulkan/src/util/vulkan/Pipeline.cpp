@@ -37,7 +37,7 @@ void Pipeline::createPipelineCache()
 
     if(vkCreatePipelineCache(vulkan_context.lock()->getDevice()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create pipeline cache!");
+        throw std::runtime_error("[Pipeline::createPipelineCache()] ERROR - Failed to create pipeline cache!");
     }
 }
 
@@ -106,7 +106,7 @@ void Pipeline::createPipeline(ShaderDefineFlags shaderDefines)
 
     if(vulkan_context.lock()->extensionFuncs.vkCreateRayTracingPipelinesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create pipeline!");
+        throw std::runtime_error("[Pipeline::createPipeline()] ERROR - Failed to create pipeline!");
     }
 }
 

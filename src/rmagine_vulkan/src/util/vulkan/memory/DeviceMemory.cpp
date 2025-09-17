@@ -57,13 +57,13 @@ void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlag
 
     if(vkAllocateMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), &memoryAllocateInfo, nullptr, &deviceMemory) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate device memory!");
+        throw std::runtime_error("[DeviceMemory::allocateDeviceMemory()] ERROR - failed to allocate device memory!");
     }
 
     //bind memory to buffer
     if(vkBindBufferMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), buffer->getBuffer(), deviceMemory, 0) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to bind buffer!");
+        throw std::runtime_error("[DeviceMemory::allocateDeviceMemory()] ERROR - failed to bind buffer!");
     }
 }
 
@@ -76,15 +76,16 @@ void DeviceMemory::copyToDeviceMemory(const void* src)
 
 void DeviceMemory::copyToDeviceMemory(const void *src, size_t offset, size_t stride)
 {
+    std::lock_guard<std::mutex> guard(deviceMemoryMtx);
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
-        throw std::runtime_error("offset and/or stride too large for this buffer!");
+        throw std::runtime_error("[DeviceMemory::copyToDeviceMemory()] ERROR - offset and/or stride too large for this device memory!");
     }
 
     void *hostMemoryBuffer;
     if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets written to
     {
-        throw std::runtime_error("failed to map memory!");
+        throw std::runtime_error("[DeviceMemory::copyToDeviceMemory()] ERROR - failed to map memory!");
     }
     memcpy(hostMemoryBuffer, src, stride);
     vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);
@@ -99,15 +100,16 @@ void DeviceMemory::copyFromDeviceMemory(void *dst)
 
 void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
 {
+    std::lock_guard<std::mutex> guard(deviceMemoryMtx);
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
-        throw std::runtime_error("offset and/or stride too large for this buffer!");
+        throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - offset and/or stride too large for this device memory!");
     }
 
     void *hostMemoryBuffer;
     if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets read from
     {
-        throw std::runtime_error("failed to map memory!");
+        throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - failed to map memory!");
     }
     memcpy(dst, hostMemoryBuffer, stride);
     vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);

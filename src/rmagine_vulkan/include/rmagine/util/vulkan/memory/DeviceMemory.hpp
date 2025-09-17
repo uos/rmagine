@@ -26,6 +26,8 @@ private:
 
     VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 
+    std::mutex deviceMemoryMtx;
+
 public:
     DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer);
 

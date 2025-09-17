@@ -33,7 +33,7 @@ void PipelineLayout::createPipelineLayout()
 
     if(vkCreatePipelineLayout(device->getLogicalDevice(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create pipeline layout!");
+        throw std::runtime_error("[PipelineLayout::createPipelineLayout()] ERROR - Failed to create pipeline layout!");
     }
 }
 

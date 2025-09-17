@@ -72,7 +72,7 @@ void AccelerationStructure::createAccelerationStructure(
 
     if(vulkan_context->extensionFuncs.vkCreateAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), &accelerationStructureCreateInfo, nullptr, &accelerationStructure) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to creates acceleration structure!");
+        throw std::runtime_error("[AccelerationStructure::createAccelerationStructure()] ERROR - failed to creates acceleration structure!");
     }
     
     VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo{};

@@ -29,8 +29,6 @@ void VulkanMap::setScene(VulkanScenePtr scene)
     }
     else if(scene->type() == VulkanSceneType::GEOMETRIES)
     {
-        // throw std::runtime_error("[VulkanMap::setScene()] ERROR - Map needs a scene containing instances not one containing meshes.");
-
         // create an instance-scene from the mesh-scene
         // by instanitating the mesh-scene and adding it to a newly created instance-scene
 
@@ -44,7 +42,7 @@ void VulkanMap::setScene(VulkanScenePtr scene)
     }
     else
     {
-        throw std::runtime_error("[VulkanMap::setScene()] ERROR - invalid scene type, this should never happen.");
+        throw std::invalid_argument("[VulkanMap::setScene()] ERROR - invalid scene type, this should never happen.");
     }
 }
 

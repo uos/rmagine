@@ -96,7 +96,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
     newDimensions.depth = tbmMem.size();
     if(newDimensions.width == 0 || newDimensions.height == 0 || newDimensions.depth == 0)
     {
-        throw std::runtime_error("invalid new sensor dimensions!");
+        throw std::invalid_argument("[SimulatorVulkan<SensorModelRamT>::simulate()] ERROR - invalid new sensor dimensions!");
     }
 
 
@@ -232,7 +232,7 @@ inline void SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()
     }
     else
     {
-        throw std::runtime_error("constructed invalid simulator");
+        throw std::runtime_error("[SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()] ERROR - constructed invalid simulator");
     }
 }
 

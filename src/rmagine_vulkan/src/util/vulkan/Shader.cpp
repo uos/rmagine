@@ -28,7 +28,7 @@ void Shader::createShader(std::vector<uint32_t> words)
 {
     if(words.size() == 0)
     {
-        throw std::runtime_error("Shader binary is empty");
+        throw std::runtime_error("[Shader::createShader()] ERROR - Shader binary is empty");
     }
 
     VkShaderModuleCreateInfo shaderModuleCreateInfo{};
@@ -38,7 +38,7 @@ void Shader::createShader(std::vector<uint32_t> words)
     
     if(vkCreateShaderModule(vulkan_context.lock()->getDevice()->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create shader module");
+        throw std::runtime_error("[Shader::createShader()] ERROR - Failed to create shader module");
     }
 }
 
@@ -78,7 +78,7 @@ std::vector<uint32_t> Shader::compileShader(ShaderType shaderType, ShaderDefineF
         printf("%s\n", input.code);
         glslang_shader_delete(shader);
 
-        throw std::runtime_error("Failed compiling shader at: glslang_shader_preprocess!");
+        throw std::runtime_error("[Shader::compileShader()] ERROR - Failed compiling shader at: glslang_shader_preprocess!");
     }
 
     if (!glslang_shader_parse(shader, &input))
@@ -89,7 +89,7 @@ std::vector<uint32_t> Shader::compileShader(ShaderType shaderType, ShaderDefineF
         printf("%s\n", glslang_shader_get_preprocessed_code(shader));
         glslang_shader_delete(shader);
 
-        throw std::runtime_error("Failed compiling shader at: glslang_shader_parse!");
+        throw std::runtime_error("[Shader::compileShader()] ERROR - Failed compiling shader at: glslang_shader_parse!");
     }
 
     glslang_program_t* program = glslang_program_create();
@@ -103,7 +103,7 @@ std::vector<uint32_t> Shader::compileShader(ShaderType shaderType, ShaderDefineF
         glslang_program_delete(program);
         glslang_shader_delete(shader);
 
-        throw std::runtime_error("Failed compiling shader at: glslang_program_link!");
+        throw std::runtime_error("[Shader::compileShader()] ERROR - Failed compiling shader at: glslang_program_link!");
     }
 
     glslang_program_SPIRV_generate(program, stage);

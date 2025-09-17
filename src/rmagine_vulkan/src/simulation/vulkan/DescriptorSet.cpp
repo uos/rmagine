@@ -29,7 +29,7 @@ void DescriptorSet::allocateDescriptorSet()
     std::vector<VkDescriptorSet> descriptorSets = std::vector<VkDescriptorSet>(1, VK_NULL_HANDLE);
     if(vkAllocateDescriptorSets(vulkan_context->getDevice()->getLogicalDevice(), &descriptorSetAllocateInfo, descriptorSets.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate descriptor sets (you may have created more DescriptorSets/Simulators than currently possible)!");
+        throw std::runtime_error("[DescriptorSet::allocateDescriptorSet()] ERROR - failed to allocate descriptor sets (you may have created more DescriptorSets/Simulators than currently possible)!");
     }
     descriptorSet = descriptorSets.front();
 }

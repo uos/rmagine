@@ -66,11 +66,11 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
 {
     if(!one_sensor_defined(shaderDefines))
     {
-        throw std::runtime_error("illegal ShaderDefineFlags: You may only define one sensor type!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - illegal ShaderDefineFlags: You may only define one sensor type!");
     }
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - illegal ShaderDefineFlags: cant be 0 or too large!");
     }
 
     ShaderDefineFlags maskedShaderDefines = 0;
@@ -86,10 +86,10 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
         break;
     
     case ShaderType::Call:
-        throw std::runtime_error("ShaderType::Call currently not supported!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - ShaderType::Call currently not supported!");
         break;
     default:
-        throw std::invalid_argument("invalid shaderType");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - invalid shaderType");
         break;
     }
 
@@ -140,11 +140,11 @@ ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags sha
 {
     if(!one_sensor_defined(shaderDefines))
     {
-        throw std::invalid_argument("illegal ShaderDefineFlags: You may only define one sensor type!");
+        throw std::invalid_argument("[VulkanContext::getShaderBindingTable()] ERROR - illegal ShaderDefineFlags: You may only define one sensor type!");
     }
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
+        throw std::invalid_argument("[VulkanContext::getShaderBindingTable()] ERROR - illegal ShaderDefineFlags: cant be 0 or too large");
     }
 
     std::lock_guard<std::mutex> guard(sbtMutex);

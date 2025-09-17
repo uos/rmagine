@@ -45,7 +45,7 @@ void DescriptorSetLayout::createDescriptorPool()
 
     if(vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create descriptor pool!");
+        throw std::runtime_error("[DescriptorSetLayout::createDescriptorPool()] ERROR - failed to create descriptor pool!");
     }
 }
 
@@ -92,7 +92,7 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     
     if(vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create descriptor set layout!");
+        throw std::runtime_error("[DescriptorSetLayout::createDescriptorSetLayout()] ERROR - failed to create descriptor set layout!");
     }
 }
 

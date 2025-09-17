@@ -148,8 +148,6 @@ void VulkanScene::commit()
 
     if(m_type == VulkanSceneType::INSTANCES)
     {
-        std::cout << "[VulkanScene::commit()] INFO - creating tlas" << std::endl;
-
         // create top level AS
         m_as = std::make_shared<TopLevelAccelerationStructure>(m_geometries);
 
@@ -160,19 +158,13 @@ void VulkanScene::commit()
             depth_ = std::max(depth_, inst->scene()->depth() + 1);
         }
         m_depth = depth_; // should always be 2
-
-        std::cout << "[VulkanScene::commit()] INFO - created tlas" << std::endl;
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
-        std::cout << "[VulkanScene::commit()] INFO - creating blas" << std::endl;
-
         // create bottom level AS
         m_as = std::make_shared<BottomLevelAccelerationStructure>(m_geometries);
 
         m_depth = 1;
-
-        std::cout << "[VulkanScene::commit()] INFO - created blas" << std::endl;
     }
     
     m_geom_added = false;

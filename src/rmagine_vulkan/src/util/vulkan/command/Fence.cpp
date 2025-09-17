@@ -31,7 +31,7 @@ void Fence::createFence()
 
     if(vkCreateFence(vulkan_context.lock()->getDevice()->getLogicalDevice(), &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create fence!");
+        throw std::runtime_error("[Fence::createFence()] ERROR - failed to create fence!");
     }
 }
 
@@ -47,7 +47,7 @@ void Fence::submitWithFence(VkSubmitInfo& submitInfo)
 {
     if(vkQueueSubmit(vulkan_context.lock()->getDevice()->getQueue(), 1,  &submitInfo, fence) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to submit build!");
+        throw std::runtime_error("[Fence::submitWithFence()] ERROR - failed to submit build!");
     }
 }
 
@@ -56,7 +56,7 @@ void Fence::waitForFence()
 {
     if(vkWaitForFences(vulkan_context.lock()->getDevice()->getLogicalDevice(), 1, &fence, true, UINT64_MAX) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to wait for fence!");
+        throw std::runtime_error("[Fence::waitForFence()] ERROR - failed to wait for fence!");
     }
 
     vkResetFences(vulkan_context.lock()->getDevice()->getLogicalDevice(), 1, &fence);

@@ -31,7 +31,7 @@ void VulkanInst::set(VulkanScenePtr scene)
     //TODO: it seems that maybe you can create instances of top level acceleration structures, but this is currently not supported
     if(scene->type() != VulkanSceneType::GEOMETRIES)
     {
-        throw std::runtime_error("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
+        throw std::invalid_argument("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
     }
 
     m_scene = scene;

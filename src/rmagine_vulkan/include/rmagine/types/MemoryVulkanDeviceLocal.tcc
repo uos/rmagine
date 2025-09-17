@@ -20,7 +20,7 @@ MemoryView<DataT, VULKAN_DEVICE_LOCAL>& MemoryView<DataT, VULKAN_DEVICE_LOCAL>::
 {
     if(this->size() != o.size())
     {
-        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) VULKAN_DEVICE_LOCAL assignment of different sizes");
+        throw std::invalid_argument("[MemoryView<DataT, VULKAN_DEVICE_LOCAL>::operator=()] ERROR - VULKAN_DEVICE_LOCAL assignment of different sizes");
     }
 
     copy(o, *this);
@@ -34,7 +34,7 @@ MemoryView<DataT, VULKAN_DEVICE_LOCAL>& MemoryView<DataT, VULKAN_DEVICE_LOCAL>::
 {
     if(this->size() != o.size())
     {
-        throw std::runtime_error("Memory (VULKAN_DEVICE_LOCAL) MemT2 assignment of different sizes");
+        throw std::invalid_argument("[MemoryView<DataT, VULKAN_DEVICE_LOCAL>::operator=()] ERROR - MemT2 assignment of different sizes");
     }
 
     copy(o, *this);
@@ -199,9 +199,7 @@ void Memory<DataT, VULKAN_DEVICE_LOCAL>::resize(size_t N)
     //copy from old buffer to new buffer, if old buffer wasnt empty
     if(m_size != 0)
     {
-        //TODO: use copy here when its done for non equal sizes
-        get_mem_command_buffer()->recordCopyBufferToCommandBuffer(m_deviceMemory->getBuffer(), newBuffer);
-        get_mem_command_buffer()->submitRecordedCommandAndWait();
+        vulkan_memcpy_device_to_device(m_deviceMemory->getBuffer(), newBuffer, sizeof(DataT) * std::min(m_size, newSize), 0, 0);
     }
 
     m_size = newSize;
