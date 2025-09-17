@@ -43,6 +43,34 @@ MemoryView<DataT, VULKAN_HOST_VISIBLE>& MemoryView<DataT, VULKAN_HOST_VISIBLE>::
 
 
 template<typename DataT>
+MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice(size_t idx_start, size_t idx_end)
+{
+    return MemoryView<DataT, VULKAN_HOST_VISIBLE>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
+}
+
+
+template<typename DataT>
+const MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice(size_t idx_start, size_t idx_end) const
+{
+    return MemoryView<DataT, VULKAN_HOST_VISIBLE>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
+}
+
+
+template<typename DataT>
+MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::operator()(size_t idx_start, size_t idx_end)
+{
+    return slice(idx_start, idx_end);
+}
+
+
+template<typename DataT>
+const MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::operator()(size_t idx_start, size_t idx_end) const
+{
+    return slice(idx_start, idx_end);
+}
+
+
+template<typename DataT>
 size_t MemoryView<DataT, VULKAN_HOST_VISIBLE>::size() const
 {
     return m_size;
