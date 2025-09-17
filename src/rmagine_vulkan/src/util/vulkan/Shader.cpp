@@ -14,13 +14,11 @@ Shader::Shader(VulkanContextWPtr vulkan_context, ShaderType shaderType, ShaderDe
 
 Shader::~Shader()
 {
-    std::cout << "Destroying Shader" << std::endl;
     if(shaderModule != VK_NULL_HANDLE)
     {
         vkDestroyShaderModule(device->getLogicalDevice(), shaderModule, nullptr);
     }
     device.reset();
-    std::cout << "Shader destroyed" << std::endl;
 }
 
 

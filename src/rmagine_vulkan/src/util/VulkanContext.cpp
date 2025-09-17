@@ -10,17 +10,11 @@ VulkanContext::VulkanContext() :
     device(new Device), commandPool(new CommandPool(device)), 
     descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new PipelineLayout(device, descriptorSetLayout))
 {
-    std::cout << "Creating VulkanContext" << std::endl;
-
     loadExtensionFunctions();
-
-    std::cout << "VulkanContext created" << std::endl;
 }
 
 VulkanContext::~VulkanContext()
 {
-    std::cout << "Destroying VulkanContext" << std::endl;
-
     clearShaderBindingTableCache();
     clearShaderCache();
 
@@ -28,8 +22,6 @@ VulkanContext::~VulkanContext()
     pipelineLayout.reset();
     descriptorSetLayout.reset();
     device.reset();
-
-    std::cout << "VulkanContext destroyed" << std::endl;
 }
 
 

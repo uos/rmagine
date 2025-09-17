@@ -17,10 +17,8 @@ ShaderBindingTable::ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderD
 
 ShaderBindingTable::~ShaderBindingTable()
 {
-    std::cout << "Destroying ShaderBindingTable" << std::endl;
     if(pipeline != nullptr)
         pipeline.reset();
-    std::cout << "ShaderBindingTable destroyed" << std::endl;
 }
 
 

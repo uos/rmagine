@@ -18,7 +18,6 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR acce
 
 AccelerationStructure::~AccelerationStructure()
 {
-    std::cout << "Destroying AccelerationStructure" << std::endl;
     if(accelerationStructure != VK_NULL_HANDLE)
     {
         commandBuffer.reset();
@@ -26,7 +25,6 @@ AccelerationStructure::~AccelerationStructure()
         vulkan_context->extensionFuncs.vkDestroyAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), accelerationStructure, nullptr);
         accelerationStructure = VK_NULL_HANDLE;
     }
-    std::cout << "AccelerationStructure destroyed" << std::endl;
 }
 
 void AccelerationStructure::createAccelerationStructure(

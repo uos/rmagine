@@ -15,7 +15,6 @@ Device::Device()
 
 Device::~Device()
 {
-    std::cout << "Destroying Device" << std::endl;
     if(logicalDevice != VK_NULL_HANDLE)
     {
         vkDestroyDevice(logicalDevice, nullptr);
@@ -24,7 +23,6 @@ Device::~Device()
     {
         vkDestroyInstance(instance, nullptr);
     }
-    std::cout << "Device destroyed" << std::endl;
 }
 
 

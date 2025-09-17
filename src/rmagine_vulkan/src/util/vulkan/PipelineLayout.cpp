@@ -13,13 +13,11 @@ PipelineLayout::PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descript
 
 PipelineLayout::~PipelineLayout()
 {
-    std::cout << "Destroying PipelineLayout" << std::endl;
     if(pipelineLayout != VK_NULL_HANDLE)
     {
         vkDestroyPipelineLayout(device->getLogicalDevice(), pipelineLayout, nullptr);
     }
     device.reset();
-    std::cout << "PipelineLayout destroyed" << std::endl;
 }
 
 

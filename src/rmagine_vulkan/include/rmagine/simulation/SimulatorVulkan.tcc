@@ -22,11 +22,9 @@ SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) :
 template<typename SensorModelRamT>
 SimulatorVulkan<SensorModelRamT>::~SimulatorVulkan()
 {
-    std::cout << "Destroying SimulatorVulkan" << std::endl;
     resetShaderBindingTable();
     descriptorSet.reset();
     commandBuffer.reset();
-    std::cout << "SimulatorVulkan destroyed" << std::endl;
 }
 
 

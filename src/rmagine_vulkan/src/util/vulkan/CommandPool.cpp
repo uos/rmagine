@@ -12,14 +12,12 @@ CommandPool::CommandPool(DevicePtr device) : device(device)
 
 CommandPool::~CommandPool()
 {
-    std::cout << "Destroying CommandPool" << std::endl;
     if(commandPool != VK_NULL_HANDLE)
     {
         vkResetCommandPool(device->getLogicalDevice(), commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
         vkDestroyCommandPool(device->getLogicalDevice(), commandPool, nullptr);
     }
     device.reset();
-    std::cout << "CommandPool destroyed" << std::endl;
 }
 
 

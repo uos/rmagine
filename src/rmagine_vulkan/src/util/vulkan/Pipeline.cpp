@@ -15,7 +15,6 @@ Pipeline::Pipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDef
 
 Pipeline::~Pipeline() 
 {
-    std::cout << "Destroying Pipeline" << std::endl;
     if(pipelineCache != VK_NULL_HANDLE)
     {
         vkDestroyPipelineCache(device->getLogicalDevice(), pipelineCache, nullptr);
@@ -25,7 +24,6 @@ Pipeline::~Pipeline()
         vkDestroyPipeline(device->getLogicalDevice(), pipeline, nullptr);
     }
     device.reset();
-    std::cout << "Pipeline destroyed" << std::endl;
 }
 
 

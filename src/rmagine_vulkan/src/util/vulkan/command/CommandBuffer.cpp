@@ -16,10 +16,8 @@ CommandBuffer::CommandBuffer(VulkanContextPtr vulkan_context) : vulkan_context(v
 
 CommandBuffer::~CommandBuffer()
 {
-    std::cout << "Destroying CommandBuffer" << std::endl;
     if(fence != nullptr)
         fence.reset();
-    std::cout << "CommandBuffer destroyed" << std::endl;
 }
 
 

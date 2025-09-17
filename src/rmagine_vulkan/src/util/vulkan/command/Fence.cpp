@@ -13,13 +13,11 @@ Fence::Fence(VulkanContextWPtr vulkan_context) : vulkan_context(vulkan_context),
 
 Fence::~Fence()
 {
-    std::cout << "Destroying Fence" << std::endl;
     if(fence != VK_NULL_HANDLE)
     {
         vkDestroyFence(device->getLogicalDevice(), fence, nullptr);
     }
     device.reset();
-    std::cout << "Fence destroyed" << std::endl;
 }
 
 

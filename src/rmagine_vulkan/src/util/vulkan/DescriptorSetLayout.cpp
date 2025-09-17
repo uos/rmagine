@@ -14,7 +14,6 @@ DescriptorSetLayout::DescriptorSetLayout(DevicePtr device) : device(device)
 
 DescriptorSetLayout::~DescriptorSetLayout()
 {
-    std::cout << "Destroying DescriptorSetLayout" << std::endl;
     if(descriptorSetLayout != VK_NULL_HANDLE)
     {
         vkDestroyDescriptorSetLayout(device->getLogicalDevice(), descriptorSetLayout, nullptr);
@@ -24,7 +23,6 @@ DescriptorSetLayout::~DescriptorSetLayout()
         vkDestroyDescriptorPool(device->getLogicalDevice(), descriptorPool, nullptr);
     }
     device.reset();
-    std::cout << "DescriptorSetLayout destroyed" << std::endl;
 }
 
 
