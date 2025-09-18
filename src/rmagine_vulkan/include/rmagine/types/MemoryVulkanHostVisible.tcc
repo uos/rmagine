@@ -45,6 +45,11 @@ MemoryView<DataT, VULKAN_HOST_VISIBLE>& MemoryView<DataT, VULKAN_HOST_VISIBLE>::
 template<typename DataT>
 MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice(size_t idx_start, size_t idx_end)
 {
+    if(idx_start >= m_size || idx_end >= m_size || idx_start >= idx_end)
+    {
+        throw std::invalid_argument("[MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice()] ERROR - invlaid indicies");
+    }
+
     return MemoryView<DataT, VULKAN_HOST_VISIBLE>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
 }
 
@@ -52,6 +57,11 @@ MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::s
 template<typename DataT>
 const MemoryView<DataT, VULKAN_HOST_VISIBLE> MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice(size_t idx_start, size_t idx_end) const
 {
+    if(idx_start >= m_size || idx_end >= m_size || idx_start >= idx_end)
+    {
+        throw std::invalid_argument("[MemoryView<DataT, VULKAN_HOST_VISIBLE>::slice()] ERROR - invlaid indicies");
+    }
+
     return MemoryView<DataT, VULKAN_HOST_VISIBLE>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
 }
 
