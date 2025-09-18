@@ -51,6 +51,10 @@ void VulkanContext::loadExtensionFunctions()
 
     extensionFuncs.vkCmdTraceRaysKHR =
         (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdTraceRaysKHR");
+
+    extensionFuncs.vkGetMemoryFdKHR = 
+        (PFN_vkGetMemoryFdKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetMemoryFdKHR");
+
 }
 
 

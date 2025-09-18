@@ -38,11 +38,17 @@ VkBufferUsageFlags get_buffer_usage_flags(VulkanMemoryUsage memUsage);
 
 size_t get_new_mem_id();
 
-void vulkan_memcpy_device_to_device(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
 
-void vulkan_memcpy_host_to_device(const void* scr, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
 
-void vulkan_memcpy_device_to_host(DeviceMemoryPtr scrDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
+namespace vulkan
+{
 
+void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
+
+void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
+
+void memcpyDeviceToHost(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
+
+} // namespace vulkan
 
 } // namespace rmagine

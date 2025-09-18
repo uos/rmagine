@@ -164,7 +164,7 @@ void Memory<DataT, VULKAN_HOST_VISIBLE>::resize(size_t N)
     //copy from old buffer to new buffer, if old buffer wasnt empty
     if(m_size != 0)
     {
-        vulkan_memcpy_device_to_device(m_deviceMemory->getBuffer(), newBuffer, sizeof(DataT) * std::min(m_size, newSize), 0, 0);
+        vulkan::memcpyDeviceToDevice(m_deviceMemory->getBuffer(), newBuffer, sizeof(DataT) * std::min(m_size, newSize), 0, 0);
     }
 
     m_size = newSize;

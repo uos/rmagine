@@ -116,6 +116,27 @@ void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
 }
 
 
+int DeviceMemory::getMemoryHandle()
+{
+    int fd = -1;
+
+    VkMemoryGetFdInfoKHR vkMemoryGetFdInfoKHR{};
+    vkMemoryGetFdInfoKHR.sType      = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR;
+    vkMemoryGetFdInfoKHR.pNext      = nullptr;
+    vkMemoryGetFdInfoKHR.memory     = deviceMemory;
+    vkMemoryGetFdInfoKHR.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+    // vkMemoryGetFdInfoKHR.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT; // windows 8.10 or greater
+    // vkMemoryGetFdInfoKHR.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT; // not windows 8.10 or greater
+
+    if(vulkan_context.lock()->extensionFuncs.vkGetMemoryFdKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), &vkMemoryGetFdInfoKHR, &fd) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - failed to retrieve handle for device memory!");
+    }
+
+    return fd;
+}
+
+
 BufferPtr DeviceMemory::getBuffer()
 {
     return buffer;

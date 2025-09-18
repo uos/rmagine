@@ -36,6 +36,7 @@ struct ExtensionFunctions
     PFN_vkCmdBuildAccelerationStructuresKHR vkCmdBuildAccelerationStructuresKHR;
     PFN_vkGetRayTracingShaderGroupHandlesKHR vkGetRayTracingShaderGroupHandlesKHR;
     PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR;
+    PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR;
 };
 
 

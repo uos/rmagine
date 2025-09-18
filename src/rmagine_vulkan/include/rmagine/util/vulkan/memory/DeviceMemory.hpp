@@ -44,6 +44,7 @@ public:
 
     void copyFromDeviceMemory(void* dst, size_t offset, size_t stride);
 
+    int getMemoryHandle();
 
     BufferPtr getBuffer();
     

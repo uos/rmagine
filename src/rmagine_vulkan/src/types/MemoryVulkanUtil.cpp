@@ -38,11 +38,14 @@ size_t get_new_mem_id()
 
 
 
+namespace vulkan
+{
+
 std::mutex vulkan_memcpy_mutex;
 
 CommandBufferPtr mem_command_buffer = nullptr;
 
-void vulkan_memcpy_device_to_device(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
     std::lock_guard<std::mutex> guard(vulkan_memcpy_mutex);
     if(mem_command_buffer == nullptr)
@@ -54,14 +57,16 @@ void vulkan_memcpy_device_to_device(BufferPtr srcBuffer, BufferPtr dstBuffer, Vk
     mem_command_buffer->submitRecordedCommandAndWait();
 }
 
-void vulkan_memcpy_host_to_device(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset)
+void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset)
 {
     dstDeviceMemory->copyToDeviceMemory(src, dstOffset, size);
 }
 
-void vulkan_memcpy_device_to_host(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset)
+void memcpyDeviceToHost(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset)
 {
     srcDeviceMemory->copyFromDeviceMemory(dst, srcOffset, size);
 }
+
+} // namespace vulkan
 
 } // namespace rmagine
