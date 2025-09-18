@@ -29,10 +29,16 @@ DescriptorSetLayout::~DescriptorSetLayout()
 
 void DescriptorSetLayout::createDescriptorPool()
 {
-    std::vector<VkDescriptorPoolSize> descriptorPoolSizeList = {
-        {.type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, .descriptorCount = 1},//accelaration structure
-        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 2},//MapData, Sensor
-        {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = 3}};//Result, tsb & origsDirsAndTransforms
+    std::vector<VkDescriptorPoolSize> descriptorPoolSizeList(3);
+    descriptorPoolSizeList[0] = {};//accelaration structure
+    descriptorPoolSizeList[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    descriptorPoolSizeList[0].descriptorCount = 1;
+    descriptorPoolSizeList[1] = {};//mapData, sensor
+    descriptorPoolSizeList[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorPoolSizeList[1].descriptorCount = 2;
+    descriptorPoolSizeList[2] = {};//result, tsb & tbmAndSensorSpecific
+    descriptorPoolSizeList[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    descriptorPoolSizeList[2].descriptorCount = 3;
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -50,39 +56,45 @@ void DescriptorSetLayout::createDescriptorPool()
 
 void DescriptorSetLayout::createDescriptorSetLayout()
 {
-    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindingList = {
-        {.binding = 0,
-         .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-         .pImmutableSamplers = nullptr},//accelaration structure
-        {.binding = 1,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
-         .pImmutableSamplers = nullptr},//mapData
-        {.binding = 2,
-         .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-         .pImmutableSamplers = nullptr},//sensor
-        {.binding = 3,
-         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
-         .pImmutableSamplers = nullptr},//results
-        {.binding = 4,
-         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-         .pImmutableSamplers = nullptr},//tsb
-        {.binding = 5,
-         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-         .descriptorCount = 1,
-         .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-         .pImmutableSamplers = nullptr}};//tbm
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindingList(6);
+    descriptorSetLayoutBindingList[0] = {};//accelaration structure
+    descriptorSetLayoutBindingList[0].binding = 0;
+    descriptorSetLayoutBindingList[0].descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    descriptorSetLayoutBindingList[0].descriptorCount = 1;
+    descriptorSetLayoutBindingList[0].stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    descriptorSetLayoutBindingList[0].pImmutableSamplers = nullptr;
+    descriptorSetLayoutBindingList[1] = {};//mapData
+    descriptorSetLayoutBindingList[1].binding = 1;
+    descriptorSetLayoutBindingList[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindingList[1].descriptorCount = 1;
+    descriptorSetLayoutBindingList[1].stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    descriptorSetLayoutBindingList[1].pImmutableSamplers = nullptr;
+    descriptorSetLayoutBindingList[2] = {};//sensor
+    descriptorSetLayoutBindingList[2].binding = 2;
+    descriptorSetLayoutBindingList[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindingList[2].descriptorCount = 1;
+    descriptorSetLayoutBindingList[2].stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    descriptorSetLayoutBindingList[2].pImmutableSamplers = nullptr;
+    descriptorSetLayoutBindingList[3] = {};//results
+    descriptorSetLayoutBindingList[3].binding = 3;
+    descriptorSetLayoutBindingList[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBindingList[3].descriptorCount = 1;
+    descriptorSetLayoutBindingList[3].stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR;
+    descriptorSetLayoutBindingList[3].pImmutableSamplers = nullptr;
+    descriptorSetLayoutBindingList[4] = {};//tsb
+    descriptorSetLayoutBindingList[4].binding = 4;
+    descriptorSetLayoutBindingList[4].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBindingList[4].descriptorCount = 1;
+    descriptorSetLayoutBindingList[4].stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    descriptorSetLayoutBindingList[4].pImmutableSamplers = nullptr;
+    descriptorSetLayoutBindingList[5] = {};//tbmAndSensorSpecific
+    descriptorSetLayoutBindingList[5].binding = 5;
+    descriptorSetLayoutBindingList[5].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBindingList[5].descriptorCount = 1;
+    descriptorSetLayoutBindingList[5].stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    descriptorSetLayoutBindingList[5].pImmutableSamplers = nullptr;
 
-    
+
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.bindingCount = (uint32_t)descriptorSetLayoutBindingList.size();

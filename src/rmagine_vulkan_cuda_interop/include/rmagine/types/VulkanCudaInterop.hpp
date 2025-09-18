@@ -29,24 +29,60 @@ namespace vulkanCudaInterop
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
@@ -59,24 +95,60 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 template<typename DataT>
 void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
 void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
 {
+    if(from.size() == 0 || to.size() == 0)
+    {
+        throw std::invalid_argument("[copy()] ERROR - cant be called when size() is 0!");
+    }
+    if(to.size() != from.size())
+    {
+        throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
+    }
+
     memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
