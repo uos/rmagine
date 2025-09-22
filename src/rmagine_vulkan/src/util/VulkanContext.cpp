@@ -8,7 +8,7 @@ namespace rmagine
 
 VulkanContext::VulkanContext() : 
     device(new Device), commandPool(new CommandPool(device)), 
-    descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new PipelineLayout(device, descriptorSetLayout))
+    descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new RayTracingPipelineLayout(device, descriptorSetLayout))
 {
     loadExtensionFunctions();
 }

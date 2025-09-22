@@ -17,7 +17,7 @@
 namespace rmagine
 {
 
-class PipelineLayout
+class RayTracingPipelineLayout
 {
 private:
     DevicePtr device = nullptr;
@@ -26,11 +26,11 @@ private:
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 public:
-    PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
+    RayTracingPipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
 
-    ~PipelineLayout();
+    ~RayTracingPipelineLayout();
 
-    PipelineLayout(const PipelineLayout&) = delete;
+    RayTracingPipelineLayout(const RayTracingPipelineLayout&) = delete;
 
 
     VkPipelineLayout getPipelineLayout();
@@ -39,6 +39,6 @@ private:
     void createPipelineLayout();
 };
 
-using PipelineLayoutPtr = std::shared_ptr<PipelineLayout>;
+using PipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
 
 } // namespace rmagine

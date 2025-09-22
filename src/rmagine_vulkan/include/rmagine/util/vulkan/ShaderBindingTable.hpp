@@ -13,7 +13,7 @@
 #include <rmagine/types/MemoryVulkan.hpp>
 #include "ShaderUtil.hpp"
 #include "Shader.hpp"
-#include "Pipeline.hpp"
+#include "RayTracingPipeline.hpp"
 
 
 

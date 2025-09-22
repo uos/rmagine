@@ -1,4 +1,4 @@
-#include "rmagine/util/vulkan/Pipeline.hpp"
+#include "rmagine/util/vulkan/RayTracingPipeline.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 
 
@@ -6,14 +6,14 @@
 namespace rmagine
 {
 
-Pipeline::Pipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+RayTracingPipeline::RayTracingPipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
 {
     createPipelineCache();
     createPipeline(shaderDefines);
 }
 
 
-Pipeline::~Pipeline() 
+RayTracingPipeline::~RayTracingPipeline() 
 {
     if(pipelineCache != VK_NULL_HANDLE)
     {
@@ -28,19 +28,19 @@ Pipeline::~Pipeline()
 
 
 
-void Pipeline::createPipelineCache()
+void RayTracingPipeline::createPipelineCache()
 {
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
     pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
     if(vkCreatePipelineCache(vulkan_context.lock()->getDevice()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
     {
-        throw std::runtime_error("[Pipeline::createPipelineCache()] ERROR - Failed to create pipeline cache!");
+        throw std::runtime_error("[RayTracingPipeline::createPipelineCache()] ERROR - Failed to create pipeline cache!");
     }
 }
 
 
-void Pipeline::createPipeline(ShaderDefineFlags shaderDefines)
+void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
 {
     std::vector<VkPipelineShaderStageCreateInfo> pipelineShaderStageCreateInfoList(3);
     pipelineShaderStageCreateInfoList[0] = {};//closest hit
@@ -110,12 +110,12 @@ void Pipeline::createPipeline(ShaderDefineFlags shaderDefines)
 
     if(vulkan_context.lock()->extensionFuncs.vkCreateRayTracingPipelinesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
     {
-        throw std::runtime_error("[Pipeline::createPipeline()] ERROR - Failed to create pipeline!");
+        throw std::runtime_error("[RayTracingPipeline::createPipeline()] ERROR - Failed to create pipeline!");
     }
 }
 
 
-VkPipeline Pipeline::getPipeline()
+VkPipeline RayTracingPipeline::getPipeline()
 {
     return pipeline;
 }

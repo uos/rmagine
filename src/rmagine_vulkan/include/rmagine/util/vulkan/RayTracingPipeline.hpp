@@ -18,7 +18,7 @@
 namespace rmagine
 {
 
-class Pipeline
+class RayTracingPipeline
 {
 private:
     VulkanContextWPtr vulkan_context;
@@ -28,11 +28,11 @@ private:
     VkPipeline pipeline = VK_NULL_HANDLE;
 
 public:
-    Pipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
+    RayTracingPipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
 
-    ~Pipeline();
+    ~RayTracingPipeline();
 
-    Pipeline(const Pipeline&) = delete;
+    RayTracingPipeline(const RayTracingPipeline&) = delete;
 
 
     VkPipeline getPipeline();
@@ -43,6 +43,6 @@ private:
     void createPipeline(ShaderDefineFlags shaderDefines);
 };
 
-using PipelinePtr = std::shared_ptr<Pipeline>;
+using PipelinePtr = std::shared_ptr<RayTracingPipeline>;
 
 } // namespace rmagine

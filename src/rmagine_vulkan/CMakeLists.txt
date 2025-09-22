@@ -12,8 +12,8 @@ set(RMAGINE_VULKAN_SRCS
     src/util/vulkan/Device.cpp
     src/util/vulkan/CommandPool.cpp
     src/util/vulkan/DescriptorSetLayout.cpp
-    src/util/vulkan/PipelineLayout.cpp
-    src/util/vulkan/Pipeline.cpp
+    src/util/vulkan/RayTracingPipelineLayout.cpp
+    src/util/vulkan/RayTracingPipeline.cpp
     src/util/vulkan/ShaderBindingTable.cpp
     src/util/vulkan/Shader.cpp
     src/util/vulkan/ShaderUtil.cpp

@@ -14,7 +14,7 @@
 #include "vulkan/Device.hpp"
 #include "vulkan/CommandPool.hpp"
 #include "vulkan/DescriptorSetLayout.hpp"
-#include "vulkan/PipelineLayout.hpp"
+#include "vulkan/RayTracingPipelineLayout.hpp"
 #include "vulkan/Shader.hpp"
 
 

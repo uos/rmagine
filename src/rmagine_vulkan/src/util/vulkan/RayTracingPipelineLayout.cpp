@@ -1,4 +1,4 @@
-#include "rmagine/util/vulkan/PipelineLayout.hpp"
+#include "rmagine/util/vulkan/RayTracingPipelineLayout.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 
 
@@ -6,12 +6,12 @@
 namespace rmagine
 {
 
-PipelineLayout::PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
+RayTracingPipelineLayout::RayTracingPipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
 {
     createPipelineLayout();
 }
 
-PipelineLayout::~PipelineLayout()
+RayTracingPipelineLayout::~RayTracingPipelineLayout()
 {
     if(pipelineLayout != VK_NULL_HANDLE)
     {
@@ -22,7 +22,7 @@ PipelineLayout::~PipelineLayout()
 
 
 
-void PipelineLayout::createPipelineLayout()
+void RayTracingPipelineLayout::createPipelineLayout()
 {
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -31,12 +31,12 @@ void PipelineLayout::createPipelineLayout()
 
     if(vkCreatePipelineLayout(device->getLogicalDevice(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("[PipelineLayout::createPipelineLayout()] ERROR - Failed to create pipeline layout!");
+        throw std::runtime_error("[RayTracingPipelineLayout::createPipelineLayout()] ERROR - Failed to create pipeline layout!");
     }
 }
 
 
-VkPipelineLayout PipelineLayout::getPipelineLayout()
+VkPipelineLayout RayTracingPipelineLayout::getPipelineLayout()
 {
     return pipelineLayout;
 }
