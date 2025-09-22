@@ -22,8 +22,6 @@ using InstanceIds = ObjectIds<MemT>;
 
 struct VulkanResultsAddresses
 {
-    //TODO: maybe add mapData address here as well
-
     VkDeviceAddress hitsAddress = 0;
     VkDeviceAddress rangesAddress = 0;
     VkDeviceAddress pointsAddress = 0;
@@ -55,39 +53,39 @@ struct VulkanDimensions
 template<typename BundleT>
 static void set_vulkan_results_data(BundleT& res, VulkanResultsAddresses& mem)
 {
-    if constexpr(BundleT::template has<Hits<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Hits<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.hitsAddress = res.Hits<VULKAN_DEVICE_LOCAL>::hits.getBuffer()->getBufferDeviceAddress();
+        mem.hitsAddress = res.Hits<DEVICE_LOCAL_VULKAN>::hits.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<Ranges<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Ranges<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.rangesAddress = res.Ranges<VULKAN_DEVICE_LOCAL>::ranges.getBuffer()->getBufferDeviceAddress();
+        mem.rangesAddress = res.Ranges<DEVICE_LOCAL_VULKAN>::ranges.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<Points<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Points<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.pointsAddress = res.Points<VULKAN_DEVICE_LOCAL>::points.getBuffer()->getBufferDeviceAddress();
+        mem.pointsAddress = res.Points<DEVICE_LOCAL_VULKAN>::points.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<Normals<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Normals<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.normalsAddress = res.Normals<VULKAN_DEVICE_LOCAL>::normals.getBuffer()->getBufferDeviceAddress();
+        mem.normalsAddress = res.Normals<DEVICE_LOCAL_VULKAN>::normals.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<FaceIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<FaceIds<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.primitiveIdAddress = res.FaceIds<VULKAN_DEVICE_LOCAL>::face_ids.getBuffer()->getBufferDeviceAddress();
+        mem.primitiveIdAddress = res.FaceIds<DEVICE_LOCAL_VULKAN>::face_ids.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<GeomIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<GeomIds<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.geometryIdAddress = res.GeomIds<VULKAN_DEVICE_LOCAL>::geom_ids.getBuffer()->getBufferDeviceAddress();
+        mem.geometryIdAddress = res.GeomIds<DEVICE_LOCAL_VULKAN>::geom_ids.getBuffer()->getBufferDeviceAddress();
     }
 
-    if constexpr(BundleT::template has<ObjectIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<ObjectIds<DEVICE_LOCAL_VULKAN> >())
     {
-        mem.instanceIdAddress = res.ObjectIds<VULKAN_DEVICE_LOCAL>::object_ids.getBuffer()->getBufferDeviceAddress();
+        mem.instanceIdAddress = res.ObjectIds<DEVICE_LOCAL_VULKAN>::object_ids.getBuffer()->getBufferDeviceAddress();
     }
 }
 
@@ -95,7 +93,7 @@ static void set_vulkan_results_data(BundleT& res, VulkanResultsAddresses& mem)
 template<typename BundleT>
 static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 {
-    if constexpr(BundleT::template has<Hits<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Hits<DEVICE_LOCAL_VULKAN> >())
     {
         if(res.hits.size() != 0 && res.hits.size() < size)
         {
@@ -103,7 +101,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<Ranges<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Ranges<DEVICE_LOCAL_VULKAN> >())
     {
         if(res.ranges.size() != 0 && res.ranges.size() < size)
         {
@@ -111,7 +109,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<Points<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Points<DEVICE_LOCAL_VULKAN> >())
     {
         if(res.points.size() != 0 && res.points.size() < size)
         {
@@ -119,7 +117,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<Normals<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<Normals<DEVICE_LOCAL_VULKAN> >())
     {
         if(res.normals.size() != 0 && res.normals.size() < size)
         {
@@ -127,7 +125,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<FaceIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<FaceIds<DEVICE_LOCAL_VULKAN> >())
     {
         //primitiveID
         if(res.face_ids.size() != 0 && res.face_ids.size() < size)
@@ -136,7 +134,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<GeomIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<GeomIds<DEVICE_LOCAL_VULKAN> >())
     {
         //geometryID
         if(res.geom_ids.size() != 0 && res.geom_ids.size() < size)
@@ -145,7 +143,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
         }
     }
 
-    if constexpr(BundleT::template has<ObjectIds<VULKAN_DEVICE_LOCAL> >())
+    if constexpr(BundleT::template has<ObjectIds<DEVICE_LOCAL_VULKAN> >())
     {
         //instanceID
         if(res.object_ids.size() != 0 && res.object_ids.size() < size)
@@ -163,7 +161,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 // {
 //     ShaderDefineFlags resultFlags = 0;
 
-//     if constexpr(BundleT::template has<Hits<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<Hits<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         if(res.hits.size() != 0)
 //         {
@@ -171,7 +169,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<Ranges<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<Ranges<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         if(res.ranges.size() != 0)
 //         {
@@ -179,7 +177,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<Points<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<Points<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         if(res.points.size() != 0)
 //         {
@@ -187,7 +185,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<Normals<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<Normals<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         if(res.normals.size() != 0)
 //         {
@@ -195,7 +193,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<FaceIds<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<FaceIds<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         //primitiveID
 //         if(res.face_ids.size() != 0)
@@ -204,7 +202,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<GeomIds<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<GeomIds<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         //geometryID
 //         if(res.geom_ids.size() != 0)
@@ -213,7 +211,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 //         }
 //     }
 
-//     if constexpr(BundleT::template has<ObjectIds<VULKAN_DEVICE_LOCAL> >())
+//     if constexpr(BundleT::template has<ObjectIds<DEVICE_LOCAL_VULKAN> >())
 //     {
 //         //instanceID
 //         if(res.object_ids.size() != 0)

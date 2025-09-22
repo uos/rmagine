@@ -79,10 +79,6 @@ void Device::choosePhysicalDevice()
         physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
         vkGetPhysicalDeviceProperties2(dev, &physicalDeviceProperties2);
 
-        // VkPhysicalDeviceMemoryProperties2 physicalDeviceMemoryProperties2{};
-        // physicalDeviceMemoryProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-        // vkGetPhysicalDeviceMemoryProperties2(dev, &physicalDeviceMemoryProperties2);
-
         // list all the physical devices found 
         switch(physicalDeviceProperties2.properties.deviceType)
         {
@@ -104,7 +100,13 @@ void Device::choosePhysicalDevice()
         default:
             break;
         }
-        std::cout << physicalDeviceProperties2.properties.deviceName << std::endl;
+        std::cout << physicalDeviceProperties2.properties.deviceName << " ";
+
+        VkPhysicalDeviceMemoryProperties2 physicalDeviceMemoryProperties2{};
+        physicalDeviceMemoryProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+        vkGetPhysicalDeviceMemoryProperties2(dev, &physicalDeviceMemoryProperties2);
+        printMemoryInfo(physicalDeviceMemoryProperties2);
+        std::cout << std::endl;
 
         if(evaluatePhysicalDeviceType(pysicalDeviceType, physicalDeviceProperties2.properties.deviceType) && evaluatePhysicalDeviceFeatures(dev))
         {
@@ -143,6 +145,32 @@ void Device::choosePhysicalDevice()
     std::cout << "Chosen physical device: " << physicalDeviceProperties2.properties.deviceName << std::endl;
     const uint32_t apiVesion = physicalDeviceProperties2.properties.apiVersion;
     std::cout << "Vulkan version: " << VK_VERSION_MAJOR(apiVesion) << "." << VK_VERSION_MINOR(apiVesion) << "." << VK_VERSION_PATCH(apiVesion) << std::endl;
+}
+
+
+void Device::printMemoryInfo(VkPhysicalDeviceMemoryProperties2 physicalDeviceMemoryProperties2)
+{
+    // not sure you can trust vkGetPhysicalDeviceMemoryProperties2/VkPhysicalDeviceMemoryProperties2
+    // according to them the NVIDIA GeForce RTX 2080 SUPER I tested this on has this memory:
+    // [Device Local: 25 GB], [Other: 8 GB], [Device Local: 8 GB]
+    // it is only supposed to have 8 GB of memory, where do the additional 25 GB come from?
+
+    for(uint32_t i = 0; i < physicalDeviceMemoryProperties2.memoryProperties.memoryHeapCount; i ++)
+    {
+        if(physicalDeviceMemoryProperties2.memoryProperties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT == VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
+        {
+            std::cout << "[Device Local: " << physicalDeviceMemoryProperties2.memoryProperties.memoryHeaps[physicalDeviceMemoryProperties2.memoryProperties.memoryTypes[i].heapIndex].size/1000/1000/1000 << " GB]";
+        }
+        else
+        {
+            std::cout << "[Other: " << physicalDeviceMemoryProperties2.memoryProperties.memoryHeaps[physicalDeviceMemoryProperties2.memoryProperties.memoryTypes[i].heapIndex].size/1000/1000/1000 << " GB]";
+        }
+
+        if(i < physicalDeviceMemoryProperties2.memoryProperties.memoryHeapCount -1)
+        {
+            std::cout << ", ";
+        }
+    }
 }
 
 

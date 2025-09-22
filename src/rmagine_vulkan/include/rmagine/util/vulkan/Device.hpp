@@ -66,6 +66,7 @@ private:
     void createInstance();
 
     void choosePhysicalDevice();
+    void printMemoryInfo(VkPhysicalDeviceMemoryProperties2 physicalDeviceMemoryProperties2);
     bool evaluatePhysicalDeviceType(VkPhysicalDeviceType currentPysicalDeviceType, VkPhysicalDeviceType newPysicalDeviceType);
     bool evaluatePhysicalDeviceFeatures(const VkPhysicalDevice &physicalDevice);
 

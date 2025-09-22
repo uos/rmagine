@@ -27,7 +27,7 @@ namespace vulkanCudaInterop
 ////////////////////////////////////////
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
+void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -42,7 +42,7 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VRAM_CUDA>& to)
+void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -57,7 +57,7 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
+void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, UNIFIED_CUDA>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -72,7 +72,7 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VRAM_CUDA>& to)
+void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, VRAM_CUDA>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -93,7 +93,7 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 ////////////////////////////////////////
 
 template<typename DataT>
-void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, HOST_VISIBLE_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -108,7 +108,7 @@ void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, HOST_VISIBLE_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -123,7 +123,7 @@ void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VULKAN_HOS
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, DEVICE_LOCAL_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -138,7 +138,7 @@ void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, VULKAN_
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, DEVICE_LOCAL_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {

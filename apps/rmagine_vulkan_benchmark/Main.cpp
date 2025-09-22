@@ -80,19 +80,19 @@ int main()
     {
         tbm_ram[i] = tsb;
     }
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tbm_device(tbm_ram.size());
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_device(tbm_ram.size());
     tbm_device = tbm_ram;
 
 
     //bundle
     using ResultT = Bundle<
-        Ranges<VULKAN_DEVICE_LOCAL> 
-        // ,Hits<VULKAN_DEVICE_LOCAL>
-        // ,Points<VULKAN_DEVICE_LOCAL>
-        // ,Normals<VULKAN_DEVICE_LOCAL>
-        // ,FaceIds<VULKAN_DEVICE_LOCAL>   //primitive ids
-        // ,GeomIds<VULKAN_DEVICE_LOCAL>   //geometry ids
-        // ,ObjectIds<VULKAN_DEVICE_LOCAL> //instance ids
+        Ranges<DEVICE_LOCAL_VULKAN> 
+        // ,Hits<DEVICE_LOCAL_VULKAN>
+        // ,Points<DEVICE_LOCAL_VULKAN>
+        // ,Normals<DEVICE_LOCAL_VULKAN>
+        // ,FaceIds<DEVICE_LOCAL_VULKAN>   //primitive ids
+        // ,GeomIds<DEVICE_LOCAL_VULKAN>   //geometry ids
+        // ,ObjectIds<DEVICE_LOCAL_VULKAN> //instance ids
     >;
 
     //allocate sphere resultsbuffer

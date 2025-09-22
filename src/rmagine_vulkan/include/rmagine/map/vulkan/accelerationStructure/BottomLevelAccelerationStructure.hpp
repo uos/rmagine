@@ -20,7 +20,7 @@ class BottomLevelAccelerationStructure : public AccelerationStructure
 {
 public:
     Memory<MeshDescription, RAM> m_meshDescriptions_ram;
-    Memory<MeshDescription, VULKAN_DEVICE_LOCAL> m_meshDescriptions;
+    Memory<MeshDescription, DEVICE_LOCAL_VULKAN> m_meshDescriptions;
 
     BottomLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries);
     ~BottomLevelAccelerationStructure();

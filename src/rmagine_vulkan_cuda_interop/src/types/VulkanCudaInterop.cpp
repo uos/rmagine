@@ -12,6 +12,7 @@ void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDe
                            void** cudaPtr, cudaExternalMemory_t& cuExternalMemory)
 {
     // source: https://github.com/NVIDIA/cuda-samples/tree/master/Samples/5_Domain_Specific/simpleVulkan
+    //         https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXTRES__INTEROP.html
 
     if(size + srcOffset > deviceMemory->getBuffer()->getBufferSize())
     {
@@ -22,7 +23,7 @@ void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDe
     cudaExternalMemoryHandleDesc cuExternalMemoryHandleDesc{};
     cuExternalMemoryHandleDesc.type      = cudaExternalMemoryHandleTypeOpaqueFd;       // linux
     // cuExternalMemoryHandleDesc.type   = cudaExternalMemoryHandleTypeOpaqueWin32;    // windows 8.10 or greater
-    // cuExternalMemoryHandleDesc.type   = cudaExternalMemoryHandleTypeOpaqueWin32Kmt; // not windows 8.10 or greater
+    // cuExternalMemoryHandleDesc.type   = cudaExternalMemoryHandleTypeOpaqueWin32Kmt; // less than windows 8.10 
     cuExternalMemoryHandleDesc.size      = size;
     cuExternalMemoryHandleDesc.handle.fd = deviceMemory->getMemoryHandle();
     cuExternalMemoryHandleDesc.flags     = 0;

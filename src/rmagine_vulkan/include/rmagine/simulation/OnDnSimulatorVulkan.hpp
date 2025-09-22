@@ -19,21 +19,28 @@ namespace rmagine
 class OnDnSimulatorVulkan : public SimulatorVulkan<OnDnModel>
 {
 private:
-    Memory<Vector, VULKAN_DEVICE_LOCAL> origs;
-    Memory<Vector, VULKAN_DEVICE_LOCAL> dirs;
+    Memory<Vector, DEVICE_LOCAL_VULKAN> origs;
+    Memory<Vector, DEVICE_LOCAL_VULKAN> dirs;
 
 public:
     OnDnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<OnDnModel>(map) {}
 
     ~OnDnSimulatorVulkan() {}
 
-    OnDnSimulatorVulkan(const OnDnSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    OnDnSimulatorVulkan(const OnDnSimulatorVulkan& other) : SimulatorVulkan<OnDnModel>(other)
+    {
+        origs.resize(other.origs.size());
+        origs = other.origs;
+
+        dirs.resize(other.dirs.size());
+        dirs = other.dirs;
+    }
 
 
     void setModel(const Memory<OnDnModel, RAM>& sensorMem_ram);
     void setModel(const OnDnModel& sensor);
 
-    void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
+    void updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 };
 
 using OnDnSimulatorVulkanPtr = std::shared_ptr<OnDnSimulatorVulkan>;

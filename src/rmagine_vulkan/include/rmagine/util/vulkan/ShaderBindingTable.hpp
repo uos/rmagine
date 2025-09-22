@@ -27,7 +27,7 @@ private:
 
     PipelinePtr pipeline = nullptr;
 
-    Memory<char, VULKAN_DEVICE_LOCAL> shaderBindingTableMemory;
+    Memory<char, DEVICE_LOCAL_VULKAN> shaderBindingTableMemory;
 
     //shader data
     VkStridedDeviceAddressRegionKHR rchitShaderBindingTable{};

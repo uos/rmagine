@@ -32,9 +32,9 @@ private:
     VkDeviceAddress accelerationStructureDeviceAddress = 0;
 
     // for holding acceleration structure
-    Memory<char, VULKAN_DEVICE_LOCAL> accelerationStructureMem;
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureMem;
     // for building acceleration structure
-    Memory<char, VULKAN_DEVICE_LOCAL> accelerationStructureScratchMem;
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem;
     
 public:
     AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);

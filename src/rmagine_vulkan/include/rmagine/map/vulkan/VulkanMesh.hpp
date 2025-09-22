@@ -32,12 +32,12 @@ protected:
 public:
     using Base = VulkanGeometry;
 
-    Memory<VkTransformMatrixKHR, VULKAN_DEVICE_LOCAL>   transformMatrix;
+    Memory<VkTransformMatrixKHR, DEVICE_LOCAL_VULKAN>   transformMatrix;
 
-    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices;
-    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;
-    Memory<Vector, VULKAN_DEVICE_LOCAL>   face_normals;
-    Memory<Vector, VULKAN_DEVICE_LOCAL>   vertex_normals;
+    Memory<Point, DEVICE_LOCAL_VULKAN>    vertices;
+    Memory<Face, DEVICE_LOCAL_VULKAN>     faces;
+    Memory<Vector, DEVICE_LOCAL_VULKAN>   face_normals;
+    Memory<Vector, DEVICE_LOCAL_VULKAN>   vertex_normals;
 
     VulkanMesh();
 

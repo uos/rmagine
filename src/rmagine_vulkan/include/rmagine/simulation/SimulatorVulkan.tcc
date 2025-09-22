@@ -28,6 +28,29 @@ SimulatorVulkan<SensorModelRamT>::~SimulatorVulkan()
 }
 
 
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(const SimulatorVulkan& other) : 
+    vulkan_context(get_vulkan_context()), map(other.map), sensorMem(1), 
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+
+    sensorMem = other.sensorMem;
+    tsbMem = other.tsbMem;
+    resultsMem = other.resultsMem;
+    tbmAndSensorSpecificMem = other.tbmAndSensorSpecificMem;
+
+    newDimensions.width = other.newDimensions.width;
+    newDimensions.height = other.newDimensions.height;
+    // newDimensions.depth only gets set once simulate() gets called
+}
+
 
 template<typename SensorModelRamT>
 void SimulatorVulkan<SensorModelRamT>::setMap(VulkanMapPtr map)
@@ -58,7 +81,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(const Transform& tbm, BundleT& r
 {
     Memory<Transform, RAM> tbmMem_ram(1);
     tbmMem_ram[0] = tbm;
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tbmMem(1);
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbmMem(1);
     tbmMem = tbmMem_ram;
     simulate(tbmMem, ret);
 }
@@ -66,10 +89,10 @@ void SimulatorVulkan<SensorModelRamT>::simulate(const Transform& tbm, BundleT& r
 
 template <typename SensorModelRamT>
 template <typename BundleT>
-BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
+BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN> &tbmMem)
 {
     BundleT res;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res, newDimensions.width, newDimensions.height, tbmMem.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res, newDimensions.width, newDimensions.height, tbmMem.size());
     simulate(tbmMem, res);
     return res;
 }
@@ -77,7 +100,7 @@ BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVI
 
 template <typename SensorModelRamT>
 template <typename BundleT>
-void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN> &tbmMem, BundleT &ret)
 {
     VulkanResultsAddresses results{};
     set_vulkan_results_data(ret, results);
@@ -89,7 +112,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
     newDimensions.depth = tbmMem.size();
     if(newDimensions.width == 0 || newDimensions.height == 0 || newDimensions.depth == 0)
@@ -120,12 +143,12 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, VULKAN_DEVICE_
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if(previousAddresses.asAddress      != map->scene()->as()->getDeviceAddress() ||
-       previousAddresses.mapDataAddress != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress())
+    if(previousAddresses.asID      != map->scene()->as()->getID() ||
+       previousAddresses.mapDataID != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getID())
     {
         //update used buffers
-        previousAddresses.asAddress      = map->scene()->as()->getDeviceAddress();
-        previousAddresses.mapDataAddress = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer()->getBufferDeviceAddress();
+        previousAddresses.asID      = map->scene()->as()->getID();
+        previousAddresses.mapDataID = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getID();
 
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
@@ -173,7 +196,7 @@ void SimulatorVulkan<SensorModelRamT>::updateResultsAddresses(Memory<VulkanResul
 
 
 template<typename SensorModelRamT>
-void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
+void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem)
 {
     if(previousAddresses.tbmAndSensorSpecificAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
        previousAddresses.tbmAndSensorSpecificAddresses.origsAddress != 0 ||
@@ -194,8 +217,8 @@ void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memor
 template<typename SensorModelRamT>
 void SimulatorVulkan<SensorModelRamT>::resetAddressHistory()
 {
-    previousAddresses.asAddress = 0;
-    previousAddresses.mapDataAddress = 0;
+    previousAddresses.asID = 0;
+    previousAddresses.mapDataID = 0;
 
     previousAddresses.resultsAddresses = {};
     previousAddresses.tbmAndSensorSpecificAddresses = {};

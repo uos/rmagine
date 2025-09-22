@@ -22,7 +22,7 @@
 namespace rmagine
 {
 
-struct VULKAN_HOST_VISIBLE
+struct HOST_VISIBLE_VULKAN
 {
     template<typename DataT>
     static DataT* alloc(size_t N);
@@ -36,7 +36,7 @@ struct VULKAN_HOST_VISIBLE
 
 
 
-struct VULKAN_DEVICE_LOCAL
+struct DEVICE_LOCAL_VULKAN
 {
     template<typename DataT>
     static DataT* alloc(size_t N);
@@ -50,10 +50,10 @@ struct VULKAN_DEVICE_LOCAL
 
 
 
-//// MemoryView - VULKAN_HOST_VISIBLE
+//// MemoryView - HOST_VISIBLE_VULKAN
 
 template<typename DataT>
-class MemoryView<DataT, VULKAN_HOST_VISIBLE>
+class MemoryView<DataT, HOST_VISIBLE_VULKAN>
 {
 protected:
     size_t m_size = 0;
@@ -67,7 +67,7 @@ public:
     MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory);
 
     
-    static MemoryView<DataT, VULKAN_HOST_VISIBLE> Empty()
+    static MemoryView<DataT, HOST_VISIBLE_VULKAN> Empty()
     {
         MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr);
     }
@@ -77,18 +77,18 @@ public:
         return (m_size == 0);
     }
 
-    MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+    MemoryView<DataT, HOST_VISIBLE_VULKAN>& operator=(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& o);
 
     template<typename MemT2>
-    MemoryView<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+    MemoryView<DataT, HOST_VISIBLE_VULKAN>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    MemoryView<DataT, VULKAN_HOST_VISIBLE> slice(size_t idx_start, size_t idx_end);
+    MemoryView<DataT, HOST_VISIBLE_VULKAN> slice(size_t idx_start, size_t idx_end);
 
-    const MemoryView<DataT, VULKAN_HOST_VISIBLE> slice(size_t idx_start, size_t idx_end) const;
+    const MemoryView<DataT, HOST_VISIBLE_VULKAN> slice(size_t idx_start, size_t idx_end) const;
 
-    MemoryView<DataT, VULKAN_HOST_VISIBLE> operator()(size_t idx_start, size_t idx_end);
+    MemoryView<DataT, HOST_VISIBLE_VULKAN> operator()(size_t idx_start, size_t idx_end);
 
-    const MemoryView<DataT, VULKAN_HOST_VISIBLE> operator()(size_t idx_start, size_t idx_end) const;
+    const MemoryView<DataT, HOST_VISIBLE_VULKAN> operator()(size_t idx_start, size_t idx_end) const;
 
     size_t size() const;
 
@@ -101,16 +101,16 @@ public:
 
 
 
-//// Memory - VULKAN_HOST_VISIBLE
+//// Memory - HOST_VISIBLE_VULKAN
 
 template<typename DataT>
-class Memory<DataT, VULKAN_HOST_VISIBLE> : public MemoryView<DataT, VULKAN_HOST_VISIBLE>
+class Memory<DataT, HOST_VISIBLE_VULKAN> : public MemoryView<DataT, HOST_VISIBLE_VULKAN>
 {
 private:
     size_t m_memID = 0;
 
 public:
-    using Base = MemoryView<DataT, VULKAN_HOST_VISIBLE>;
+    using Base = MemoryView<DataT, HOST_VISIBLE_VULKAN>;
 
     Memory();
     
@@ -130,19 +130,19 @@ public:
 
     void resize(size_t N);
 
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& o);
+    Memory<DataT, HOST_VISIBLE_VULKAN>& operator=(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& o);
 
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, VULKAN_HOST_VISIBLE>& o)
+    Memory<DataT, HOST_VISIBLE_VULKAN>& operator=(const Memory<DataT, HOST_VISIBLE_VULKAN>& o)
     {
-        const MemoryView<DataT, VULKAN_HOST_VISIBLE>& c = o;
+        const MemoryView<DataT, HOST_VISIBLE_VULKAN>& c = o;
         return operator=(c);
     }
 
     template<typename MemT2>
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const MemoryView<DataT, MemT2>& o);
+    Memory<DataT, HOST_VISIBLE_VULKAN>& operator=(const MemoryView<DataT, MemT2>& o);
 
     template<typename MemT2>
-    Memory<DataT, VULKAN_HOST_VISIBLE>& operator=(const Memory<DataT, MemT2>& o)
+    Memory<DataT, HOST_VISIBLE_VULKAN>& operator=(const Memory<DataT, MemT2>& o)
     {
         const MemoryView<DataT, MemT2>& c = o;
         return operator=(c);
@@ -159,10 +159,10 @@ protected:
 
 
 
-//// MemoryView - VULKAN_DEVICE_LOCAL
+//// MemoryView - DEVICE_LOCAL_VULKAN
 
 template<typename DataT>
-class MemoryView<DataT, VULKAN_DEVICE_LOCAL>
+class MemoryView<DataT, DEVICE_LOCAL_VULKAN>
 {
 protected:
     size_t m_size = 0;
@@ -177,7 +177,7 @@ public:
     MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory);
 
     
-    static MemoryView<DataT, VULKAN_DEVICE_LOCAL> Empty()
+    static MemoryView<DataT, DEVICE_LOCAL_VULKAN> Empty()
     {
         MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr, nullptr, nullptr);
     }
@@ -187,18 +187,18 @@ public:
         return (m_size == 0);
     }
 
-    MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
+    MemoryView<DataT, DEVICE_LOCAL_VULKAN>& operator=(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& o);
 
     template<typename MemT2>
-    MemoryView<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
+    MemoryView<DataT, DEVICE_LOCAL_VULKAN>& operator=(const MemoryView<DataT, MemT2>& o);
 
-    MemoryView<DataT, VULKAN_DEVICE_LOCAL> slice(size_t idx_start, size_t idx_end);
+    MemoryView<DataT, DEVICE_LOCAL_VULKAN> slice(size_t idx_start, size_t idx_end);
 
-    const MemoryView<DataT, VULKAN_DEVICE_LOCAL> slice(size_t idx_start, size_t idx_end) const;
+    const MemoryView<DataT, DEVICE_LOCAL_VULKAN> slice(size_t idx_start, size_t idx_end) const;
 
-    MemoryView<DataT, VULKAN_DEVICE_LOCAL> operator()(size_t idx_start, size_t idx_end);
+    MemoryView<DataT, DEVICE_LOCAL_VULKAN> operator()(size_t idx_start, size_t idx_end);
 
-    const MemoryView<DataT, VULKAN_DEVICE_LOCAL> operator()(size_t idx_start, size_t idx_end) const;
+    const MemoryView<DataT, DEVICE_LOCAL_VULKAN> operator()(size_t idx_start, size_t idx_end) const;
 
     size_t size() const;
 
@@ -215,16 +215,16 @@ public:
 
 
 
-//// Memory - VULKAN_DEVICE_LOCAL
+//// Memory - DEVICE_LOCAL_VULKAN
 
 template<typename DataT>
-class Memory<DataT, VULKAN_DEVICE_LOCAL> : public MemoryView<DataT, VULKAN_DEVICE_LOCAL>
+class Memory<DataT, DEVICE_LOCAL_VULKAN> : public MemoryView<DataT, DEVICE_LOCAL_VULKAN>
 {
 private:
     size_t m_memID = 0;
 
 public:
-    using Base = MemoryView<DataT, VULKAN_DEVICE_LOCAL>;
+    using Base = MemoryView<DataT, DEVICE_LOCAL_VULKAN>;
 
     Memory();
     
@@ -244,19 +244,19 @@ public:
 
     void resize(size_t N);
 
-    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& o);
+    Memory<DataT, DEVICE_LOCAL_VULKAN>& operator=(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& o);
 
-    inline Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, VULKAN_DEVICE_LOCAL>& o)
+    inline Memory<DataT, DEVICE_LOCAL_VULKAN>& operator=(const Memory<DataT, DEVICE_LOCAL_VULKAN>& o)
     {
-        const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& c = o;
+        const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& c = o;
         return operator=(c);
     }
 
     template<typename MemT2>
-    Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const MemoryView<DataT, MemT2>& o);
+    Memory<DataT, DEVICE_LOCAL_VULKAN>& operator=(const MemoryView<DataT, MemT2>& o);
 
     template<typename MemT2>
-    inline Memory<DataT, VULKAN_DEVICE_LOCAL>& operator=(const Memory<DataT, MemT2>& o)
+    inline Memory<DataT, DEVICE_LOCAL_VULKAN>& operator=(const Memory<DataT, MemT2>& o)
     {
         const MemoryView<DataT, MemT2>& c = o;
         return operator=(c);
@@ -282,7 +282,7 @@ protected:
 //////////////////////////
 
 template<typename DataT>
-void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, HOST_VISIBLE_VULKAN>& to)
 {
     if(to.size() == 0 || to.size() == 0)
     {
@@ -297,7 +297,7 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_HOST_VISI
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, DEVICE_LOCAL_VULKAN>& to)
 {
     if(to.size() == 0 || to.size() == 0)
     {
@@ -318,7 +318,7 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, VULKAN_DEVICE_LO
 //////////////////////////
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, RAM>& to)
+void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, RAM>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -333,7 +333,7 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, RAM>& to)
+void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, RAM>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -354,7 +354,7 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 ////////////////////////////
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, HOST_VISIBLE_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -369,7 +369,7 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, DEVICE_LOCAL_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -384,7 +384,7 @@ void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, VULKAN_DEVICE_LOCAL>& to)
+void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, DEVICE_LOCAL_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {
@@ -399,7 +399,7 @@ void copy(const MemoryView<DataT, VULKAN_HOST_VISIBLE>& from, MemoryView<DataT, 
 }
 
 template<typename DataT>
-void copy(const MemoryView<DataT, VULKAN_DEVICE_LOCAL>& from, MemoryView<DataT, VULKAN_HOST_VISIBLE>& to)
+void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, HOST_VISIBLE_VULKAN>& to)
 {
     if(from.size() == 0 || to.size() == 0)
     {

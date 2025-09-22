@@ -198,31 +198,31 @@ int main()
     {
         tbm_ram[i] = tsb;
     }
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tbm_device(2);
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_device(2);
     tbm_device = tbm_ram;
 
     //bundle
     using ResultT = Bundle<
-        Hits<VULKAN_DEVICE_LOCAL>,
-        Ranges<VULKAN_DEVICE_LOCAL>,
-        Points<VULKAN_DEVICE_LOCAL>,
-        Normals<VULKAN_DEVICE_LOCAL>,
-        FaceIds<VULKAN_DEVICE_LOCAL>,   //primitive ids
-        GeomIds<VULKAN_DEVICE_LOCAL>,   //geometry ids
-        ObjectIds<VULKAN_DEVICE_LOCAL>  //instance ids
+        Hits<DEVICE_LOCAL_VULKAN>,
+        Ranges<DEVICE_LOCAL_VULKAN>,
+        Points<DEVICE_LOCAL_VULKAN>,
+        Normals<DEVICE_LOCAL_VULKAN>,
+        FaceIds<DEVICE_LOCAL_VULKAN>,   //primitive ids
+        GeomIds<DEVICE_LOCAL_VULKAN>,   //geometry ids
+        ObjectIds<DEVICE_LOCAL_VULKAN>  //instance ids
     >;
 
     //allocate sphere resultsbuffer
     std::cout << "Creating sphere results." << std::endl;
     Memory<uint8_t, RAM> sphereHits_ram(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
     ResultT res_sphere;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_sphere, sphereSensor.phi.size, sphereSensor.theta.size, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_sphere, sphereSensor.phi.size, sphereSensor.theta.size, tbm_ram.size());
 
     //allocate pinhole resultsbuffer
     std::cout << "Creating pinhole results." << std::endl;
     Memory<uint8_t, RAM> pinholeHits_ram(tbm_ram.size()*pinholeSensor.width*pinholeSensor.height);
     ResultT res_pinhole;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_pinhole, pinholeSensor.width, pinholeSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_pinhole, pinholeSensor.width, pinholeSensor.height, tbm_ram.size());
 
     //allocate o1dn resultsbuffer
     std::cout << "Creating o1dn results." << std::endl;
@@ -234,7 +234,7 @@ int main()
     Memory<unsigned int, RAM> o1dnGeometryIds_ram(tbm_ram.size()*o1dnSensor.width*o1dnSensor.height);
     Memory<unsigned int, RAM> o1dnInstanceIds_ram(tbm_ram.size()*o1dnSensor.width*o1dnSensor.height);
     ResultT res_o1dn;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_o1dn, o1dnSensor.width, o1dnSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_o1dn, o1dnSensor.width, o1dnSensor.height, tbm_ram.size());
 
     //allocate ondn resultsbuffer
     std::cout << "Creating ondn results." << std::endl;
@@ -246,7 +246,7 @@ int main()
     Memory<unsigned int, RAM> ondnGeometryIds_ram(tbm_ram.size()*ondnSensor.width*ondnSensor.height);
     Memory<unsigned int, RAM> ondnInstanceIds_ram(tbm_ram.size()*ondnSensor.width*ondnSensor.height);
     ResultT res_ondn;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_ondn, ondnSensor.width, ondnSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_ondn, ondnSensor.width, ondnSensor.height, tbm_ram.size());
 
 
     //simulate sphere

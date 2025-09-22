@@ -38,19 +38,23 @@ protected:
     ShaderBindingTablePtr shaderBindingTable = nullptr;
 
     //Simulator internal Memory
-    Memory<SensorModelRamT, VULKAN_DEVICE_LOCAL> sensorMem;
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tsbMem;
+    Memory<SensorModelRamT, DEVICE_LOCAL_VULKAN> sensorMem;
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tsbMem;
 
     //Simulator internal Memory: Memory for the deviceAddresses of external Buffers
     //moving these buffers to the gpu via their deviceAddresses means that the Descriptorset does not have to get updated so often
     //(that would take more time and would mean and the command would have to get rerecorded as well)
-    Memory<VulkanResultsAddresses, VULKAN_DEVICE_LOCAL> resultsMem;
-    Memory<VulkanTbmAndSensorSpecificAddresses, VULKAN_DEVICE_LOCAL> tbmAndSensorSpecificMem;
+    Memory<VulkanResultsAddresses, DEVICE_LOCAL_VULKAN> resultsMem;
+    Memory<VulkanTbmAndSensorSpecificAddresses, DEVICE_LOCAL_VULKAN> tbmAndSensorSpecificMem;
 
     //for checking whether buffers have changed
     struct PreviousAddresses{
-        VkDeviceAddress asAddress = 0;
-        VkDeviceAddress mapDataAddress = 0;
+        //cant use deviceaddress for this
+        //as the new buffer/as could thoretically coincidentally have the same deviceaddress as the old buffer/as
+        //thus another unique identifyer is needed 
+        //maybe there is a better option, as there are only finitely many (SIZE_MAX) ids?
+        size_t asID = 0;
+        size_t mapDataID = 0;
 
         VulkanResultsAddresses resultsAddresses{};
         VulkanTbmAndSensorSpecificAddresses tbmAndSensorSpecificAddresses{};
@@ -67,7 +71,7 @@ public:
 
     ~SimulatorVulkan();
 
-    SimulatorVulkan(const SimulatorVulkan&) = delete;//TODO: maybe create custom copy constructor (needs to ceate its own descriporSet, CommandBuffer, sensorMem, tsbMem, resultsMem & tbmAndSensorSpecificMem)
+    SimulatorVulkan(const SimulatorVulkan& other);
 
 
     void setMap(VulkanMapPtr map);
@@ -82,16 +86,16 @@ public:
     void simulate(const Transform& tbm, BundleT& ret);
 
     template<typename BundleT>
-    BundleT simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
+    BundleT simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 
     template<typename BundleT>
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, BundleT& ret);
+    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, BundleT& ret);
     
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
+    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
 
 protected:
     void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
-    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
+    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 
     void resetAddressHistory();
 

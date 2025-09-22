@@ -23,7 +23,7 @@ public:
 
     ~SphereSimulatorVulkan() {}
 
-    SphereSimulatorVulkan(const SphereSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    SphereSimulatorVulkan(const SphereSimulatorVulkan& other) : SimulatorVulkan<SphericalModel>(other) {}
 
 
     void setModel(const Memory<SphericalModel, RAM>& sensorMem_ram);

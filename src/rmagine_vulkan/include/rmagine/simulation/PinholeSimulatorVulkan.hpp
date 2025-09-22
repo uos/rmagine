@@ -23,7 +23,7 @@ public:
 
     ~PinholeSimulatorVulkan() {}
 
-    PinholeSimulatorVulkan(const PinholeSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    PinholeSimulatorVulkan(const PinholeSimulatorVulkan& other) : SimulatorVulkan<PinholeModel>(other) {}
 
 
     void setModel(const Memory<PinholeModel, RAM>& sensorMem_ram);

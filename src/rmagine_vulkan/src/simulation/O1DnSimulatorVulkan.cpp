@@ -25,7 +25,7 @@ void O1DnSimulatorVulkan::setModel(const O1DnModel& sensor)
 }
 
 
-void O1DnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem)
+void O1DnSimulatorVulkan::updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem)
 {
     if(previousAddresses.tbmAndSensorSpecificAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
        previousAddresses.tbmAndSensorSpecificAddresses.origsAddress != 0 ||
