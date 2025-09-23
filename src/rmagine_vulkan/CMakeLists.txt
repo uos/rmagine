@@ -74,7 +74,7 @@ add_dependencies(rmagine-vulkan
     rmagine-core
 )
 
-target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG) #TODO: remove later
+# target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG)
 
 # target_compile_features(rmagine-vulkan PUBLIC cxx_std_17)
 

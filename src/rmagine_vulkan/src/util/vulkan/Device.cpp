@@ -38,7 +38,7 @@ void Device::createInstance()
     instanceCreateInfo.pApplicationInfo = &ApplicationInfo;
 
     // enalbe validation layers
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         std::cout << "Mode: Debug" << std::endl;
         instanceCreateInfo.enabledLayerCount = (uint32_t)validationLayers.size();
         instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
@@ -331,7 +331,7 @@ void Device::createLogicalDevice()
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionList.data();
 
     // enalbe validation layers
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         deviceCreateInfo.enabledLayerCount = (uint32_t)validationLayers.size();
         deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
     #else

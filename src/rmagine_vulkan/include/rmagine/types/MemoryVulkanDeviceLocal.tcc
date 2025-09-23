@@ -161,7 +161,7 @@ Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
         m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer);
 
         m_memID = get_new_mem_id();
-        #ifdef VDEBUG
+        #if defined(VDEBUG)
             std::cout << "DEVICE_LOCAL_VULKAN: new m_memID = " << m_memID << std::endl;
         #endif
     }
@@ -170,7 +170,7 @@ Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
 template<typename DataT>
 Memory<DataT, DEVICE_LOCAL_VULKAN>::~Memory()
 {
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         if(m_memID != 0)
             std::cout << "DEVICE_LOCAL_VULKAN: retired m_memID = " << m_memID << std::endl;
     #endif
@@ -216,12 +216,12 @@ void Memory<DataT, DEVICE_LOCAL_VULKAN>::resize(size_t N)
     m_deviceMemory = newDeviceMemory;
     m_stagingDeviceMemory = newStagingDeviceMemory;
 
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         if(m_memID != 0)
             std::cout << "DEVICE_LOCAL_VULKAN: retired m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
     m_memID = get_new_mem_id();
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         std::cout << "DEVICE_LOCAL_VULKAN: new m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
 }

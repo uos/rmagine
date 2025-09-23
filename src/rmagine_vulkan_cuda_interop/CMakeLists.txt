@@ -34,7 +34,7 @@ add_dependencies(rmagine-vulkan-cuda-interop
     rmagine-cuda
 )
 
-target_compile_definitions(rmagine-vulkan-cuda-interop PUBLIC VDEBUG) #TODO: remove later
+# target_compile_definitions(rmagine-vulkan-cuda-interop PUBLIC VDEBUG)
 
 # target_compile_features(rmagine-vulkan-cuda-interop PUBLIC cxx_std_17)
 
@@ -45,6 +45,11 @@ set_target_properties(rmagine-vulkan-cuda-interop
         VERSION ${rmagine_VERSION}
         # CXX_STANDARD 17
 )
+
+# set CUDA_ARCHITECTURES with CMake >= 3.23 when CMAKE_* is not set
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set_target_properties(rmagine-optix PROPERTIES CUDA_ARCHITECTURES all)
+endif()
 
 add_library(rmagine::vulkanCudaInterop ALIAS rmagine-vulkan-cuda-interop)
 

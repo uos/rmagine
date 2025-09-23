@@ -136,7 +136,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
         m_deviceMemory = std::make_shared<DeviceMemory>(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer);
 
         m_memID = get_new_mem_id();
-        #ifdef VDEBUG
+        #if defined(VDEBUG)
             std::cout << "HOST_VISIBLE_VULKAN: new m_memID = " << m_memID << std::endl;
         #endif
     }
@@ -145,7 +145,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
 template<typename DataT>
 Memory<DataT, HOST_VISIBLE_VULKAN>::~Memory()
 {
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         if(m_memID != 0)
             std::cout << "HOST_VISIBLE_VULKAN: retired m_memID = " << m_memID << std::endl;
     #endif
@@ -180,12 +180,12 @@ void Memory<DataT, HOST_VISIBLE_VULKAN>::resize(size_t N)
     m_size = newSize;
     m_deviceMemory = newDeviceMemory;
 
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         if(m_memID != 0)
             std::cout << "HOST_VISIBLE_VULKAN: retired m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
     m_memID = get_new_mem_id();
-    #ifdef VDEBUG
+    #if defined(VDEBUG)
         std::cout << "HOST_VISIBLE_VULKAN: new m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
 }
