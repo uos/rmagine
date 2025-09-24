@@ -31,6 +31,7 @@ set(RMAGINE_VULKAN_SRCS
     # Maps
     src/map/VulkanMap.cpp
     #   Map Components
+    src/map/vulkan/vulkan_shapes.cpp
     src/map/vulkan/VulkanScene.cpp
     src/map/vulkan/VulkanMesh.cpp
     src/map/vulkan/VulkanInst.cpp

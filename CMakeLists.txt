@@ -239,7 +239,7 @@ endif(Vulkan_FOUND)
 ### RMAGINE VULKAN LIB
 if(Vulkan_FOUND AND CUDA_FOUND)
   add_subdirectory(src/rmagine_vulkan_cuda_interop)
-endif(Vulkan_FOUND)
+endif(Vulkan_FOUND AND CUDA_FOUND)
 
 ### ALL LIBS
 message(STATUS "${BoldCyan}Components being built:${ColourReset}")

@@ -6,6 +6,20 @@ namespace rmagine
 {
 
 template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan() : 
+    vulkan_context(get_vulkan_context()), map(nullptr), sensorMem(1), 
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+}
+
+template<typename SensorModelRamT>
 SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) : 
     vulkan_context(get_vulkan_context()), map(map), sensorMem(1), 
     tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 

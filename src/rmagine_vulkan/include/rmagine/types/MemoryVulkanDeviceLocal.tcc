@@ -45,7 +45,7 @@ MemoryView<DataT, DEVICE_LOCAL_VULKAN>& MemoryView<DataT, DEVICE_LOCAL_VULKAN>::
 template<typename DataT>
 MemoryView<DataT, DEVICE_LOCAL_VULKAN> MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice(size_t idx_start, size_t idx_end)
 {
-    if(idx_start >= m_size || idx_end >= m_size || idx_start >= idx_end)
+    if(idx_start >= m_size || idx_end > m_size || idx_start >= idx_end)
     {
         throw std::invalid_argument("[MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice()] ERROR - invlaid indicies");
     }
@@ -57,7 +57,7 @@ MemoryView<DataT, DEVICE_LOCAL_VULKAN> MemoryView<DataT, DEVICE_LOCAL_VULKAN>::s
 template<typename DataT>
 const MemoryView<DataT, DEVICE_LOCAL_VULKAN> MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice(size_t idx_start, size_t idx_end) const
 {
-    if(idx_start >= m_size || idx_end >= m_size || idx_start >= idx_end)
+    if(idx_start >= m_size || idx_end > m_size || idx_start >= idx_end)
     {
         throw std::invalid_argument("[MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice()] ERROR - invlaid indicies");
     }
@@ -91,6 +91,13 @@ template<typename DataT>
 size_t MemoryView<DataT, DEVICE_LOCAL_VULKAN>::offset() const
 {
     return m_offset;
+}
+
+
+template<typename DataT>
+VulkanMemoryUsage MemoryView<DataT, DEVICE_LOCAL_VULKAN>::getMemoryUsage() const
+{
+    return m_memoryUsage;
 }
 
 
@@ -165,6 +172,36 @@ Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
             std::cout << "DEVICE_LOCAL_VULKAN: new m_memID = " << m_memID << std::endl;
         #endif
     }
+}
+
+template<typename DataT>
+Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& o) : Memory(o.size(), o.getMemoryUsage())
+{
+    copy(o, *this);
+}
+
+template<typename DataT>
+Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(const Memory<DataT, DEVICE_LOCAL_VULKAN>& o) : Memory(o.size(), o.getMemoryUsage())
+{
+    copy(o, *this);
+}
+
+template<typename DataT>
+template<typename MemT2>
+Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(const MemoryView<DataT, MemT2>& o) : 
+    Memory(o.size(), VulkanMemoryUsage::Usage_Default)//has to be default i guess...
+{
+    copy(o, *this);
+}
+
+template<typename DataT>
+Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(Memory<DataT, DEVICE_LOCAL_VULKAN>&& o) noexcept :
+    Base(o.size(), o.offset()/*should always be 0*/, o.getMemoryUsage(), o.m_deviceMemory, o.m_stagingDeviceMemory)
+{
+    o.m_deviceMemory = nullptr;
+    o.m_stagingDeviceMemory = nullptr;
+    o.m_size = 0;
+    o.m_offset = 0;/*should already be 0*/
 }
 
 template<typename DataT>

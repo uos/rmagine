@@ -67,6 +67,8 @@ protected:
     VulkanDimensions newDimensions;
 
 public:
+    SimulatorVulkan();
+
     SimulatorVulkan(VulkanMapPtr map);
 
     ~SimulatorVulkan();

@@ -42,12 +42,29 @@ unsigned int VulkanMesh::depth() const
 
 void VulkanMesh::computeFaceNormals()
 {
-    throw std::runtime_error("[VulkanMesh::computeFaceNormals()] ERROR - currently does not work, as data is already on the gpu and there is currently no function rmagine::computeFaceNormals() for DEVICE_LOCAL_VULKAN memory. please fill face_normals manually.");
-    // if(face_normals.size() != faces.size())
-    // {
-    //     face_normals.resize(faces.size());
-    // }
-    // rmagine::computeFaceNormals(vertices, faces, face_normals);
+    #if defined(VDEBUG)
+        std::cout << "[VulkanMesh::computeFaceNormals()] WARNING - this function is very inefficient, because the calculations cannot currently be done on the GPU, but the vertex/index data is only available on the GPU and thus has to be transferd to the CPU to compute the faceNormals." << std::endl;
+    #endif
+
+    Memory<Point, RAM> vertices_ram(vertices.size());
+    Memory<Face, RAM> faces_ram(faces.size());
+
+    vertices_ram = vertices;
+    faces_ram = faces;
+
+    Memory<Vector, RAM> face_normals_ram(faces.size());
+    for(size_t i=0; i<faces.size(); i++)
+    {
+        const Vector v0 = vertices_ram[faces_ram[i].v0];
+        const Vector v1 = vertices_ram[faces_ram[i].v1];
+        const Vector v2 = vertices_ram[faces_ram[i].v2];
+        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize()).normalize();
+    }
+    if(face_normals.size() != faces.size())
+    {
+        face_normals.resize(faces.size());
+    }
+    face_normals = face_normals_ram;
 }
 
 
@@ -72,7 +89,7 @@ VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RA
         const Vector v0 = vertices_ram[faces_ram[i].v0];
         const Vector v1 = vertices_ram[faces_ram[i].v1];
         const Vector v2 = vertices_ram[faces_ram[i].v2];
-        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize() ).normalize();
+        face_normals_ram[i] = (v1 - v0).normalize().cross((v2 - v0).normalize()).normalize();
     }
     ret->face_normals.resize(num_faces);
     ret->face_normals = face_normals_ram;

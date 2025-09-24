@@ -19,6 +19,8 @@ namespace rmagine
 class SphereSimulatorVulkan : public SimulatorVulkan<SphericalModel>
 {
 public:
+    SphereSimulatorVulkan() : SimulatorVulkan<SphericalModel>() {}
+
     SphereSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<SphericalModel>(map) {}
 
     ~SphereSimulatorVulkan() {}

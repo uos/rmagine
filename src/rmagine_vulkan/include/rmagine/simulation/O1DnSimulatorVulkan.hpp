@@ -23,6 +23,8 @@ private:
 
 
 public:
+    O1DnSimulatorVulkan() : SimulatorVulkan<O1DnModel>() {}
+
     O1DnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<O1DnModel>(map) {}
 
     ~O1DnSimulatorVulkan() {}

@@ -23,6 +23,8 @@ private:
     Memory<Vector, DEVICE_LOCAL_VULKAN> dirs;
 
 public:
+    OnDnSimulatorVulkan() : SimulatorVulkan<OnDnModel>() {}
+
     OnDnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<OnDnModel>(map) {}
 
     ~OnDnSimulatorVulkan() {}

@@ -94,6 +94,8 @@ public:
 
     size_t offset() const;
 
+    VulkanMemoryUsage getMemoryUsage() const;
+
     BufferPtr getBuffer() const;
 
     DeviceMemoryPtr getDeviceMemory() const;
@@ -124,6 +126,17 @@ public:
      * in these cases special bufferUsageFlags besides the default storage buffer are needed
      */
     Memory(size_t size, VulkanMemoryUsage memoryUsage);
+
+    // Copy Constructors:
+
+    Memory(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& o);
+
+    Memory(const Memory<DataT, HOST_VISIBLE_VULKAN>& o);
+
+    template<typename MemT2>
+    Memory(const MemoryView<DataT, MemT2>& o);
+
+    Memory(Memory<DataT, HOST_VISIBLE_VULKAN>&& o) noexcept;
 
     ~Memory();
 
@@ -204,6 +217,8 @@ public:
 
     size_t offset() const;
 
+    VulkanMemoryUsage getMemoryUsage() const;
+
     BufferPtr getBuffer() const;
 
     BufferPtr getStagingBuffer() const;
@@ -227,7 +242,7 @@ public:
     using Base = MemoryView<DataT, DEVICE_LOCAL_VULKAN>;
 
     Memory();
-    
+
     Memory(size_t size);
 
     /**
@@ -238,6 +253,17 @@ public:
      * in these cases special bufferUsageFlags besides the default storage buffer are needed
      */
     Memory(size_t size, VulkanMemoryUsage memoryUsage);
+
+    // Copy Constructors:
+
+    Memory(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& o);
+
+    Memory(const Memory<DataT, DEVICE_LOCAL_VULKAN>& o);
+
+    template<typename MemT2>
+    Memory(const MemoryView<DataT, MemT2>& o);
+
+    Memory(Memory<DataT, DEVICE_LOCAL_VULKAN>&& o) noexcept;
 
     ~Memory();
 
