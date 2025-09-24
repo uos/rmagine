@@ -54,9 +54,6 @@ public:
     inline std::shared_ptr<T> this_shared()
     {
         return std::dynamic_pointer_cast<T>(shared_from_this());
-
-        // TODO: dynamic cast was sometimes returning a nullptr even though everything should have been fine (i think)
-        // return std::static_pointer_cast<T>(shared_from_this());
     }
 
 protected:

@@ -45,8 +45,6 @@ int main(int argc, char** argv)
     }
 
     Memory<Transform, DEVICE_LOCAL_VULKAN> T_ = T;
-    // Memory<Transform, DEVICE_LOCAL_VULKAN> T_(T.size());
-    // T_ = T;
 
     std::cout << "Simulate!" << std::endl;
 

@@ -10,9 +10,9 @@ VulkanMap::VulkanMap() : VulkanEntity()
 
 }
 
-VulkanMap::VulkanMap(VulkanScenePtr scene) : VulkanEntity(), m_scene(scene)
+VulkanMap::VulkanMap(VulkanScenePtr scene) : VulkanEntity()
 {
-
+    setScene(scene);
 }
 
 VulkanMap::~VulkanMap()
