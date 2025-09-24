@@ -267,7 +267,10 @@ void Device::chooseQueueFamily()
     {
         throw std::runtime_error("[Device::chooseQueueFamily()] ERROR - Could not find compatible queue family!");
     }
-    std::cout << "[RMagine - (Vulkan) Device] Queue family index: " << queueFamilyIndex << "    (Out of " << queueFamilyProperties.size() << " queue families)"<< std::endl;
+
+    #if defined(VDEBUG)
+        std::cout << "[RMagine - (Vulkan) Device] Queue family index: " << queueFamilyIndex << "    (Out of " << queueFamilyProperties.size() << " queue families)"<< std::endl;
+    #endif
 }
 
 
