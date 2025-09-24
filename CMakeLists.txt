@@ -262,6 +262,7 @@ if(BUILD_TOOLS)
     add_subdirectory(apps/rmagine_info)
     add_subdirectory(apps/rmagine_vulkan_benchmark)
     add_subdirectory(apps/rmagine_vulkan_general_test)
+    add_subdirectory(apps/rmagine_simulation_diff_calc)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)

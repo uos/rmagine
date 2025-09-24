@@ -135,7 +135,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N) : Memory(N, VulkanMemoryUsa
 
 template<typename DataT>
 Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsage)
-    : Base(N, 0, memoryUsage, nullptr, nullptr)
+    : Base(N, 0, memoryUsage, nullptr)
 {
     if(N > 0)
     {

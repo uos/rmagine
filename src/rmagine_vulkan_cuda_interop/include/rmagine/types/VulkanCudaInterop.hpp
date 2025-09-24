@@ -38,7 +38,7 @@ void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
+    vulkanCudaInterop::memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
@@ -53,7 +53,7 @@ void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
+    vulkanCudaInterop::memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
@@ -68,7 +68,7 @@ void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
+    vulkanCudaInterop::memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 template<typename DataT>
@@ -83,7 +83,7 @@ void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
+    vulkanCudaInterop::memcpyVulkanDeviceToCudaDevice(from.getDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
 
@@ -104,7 +104,7 @@ void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, HOST_VI
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
+    vulkanCudaInterop::memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -119,7 +119,7 @@ void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, HOST_VISIB
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
+    vulkanCudaInterop::memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -134,7 +134,7 @@ void copy(const MemoryView<DataT, UNIFIED_CUDA>& from, MemoryView<DataT, DEVICE_
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
+    vulkanCudaInterop::memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 template<typename DataT>
@@ -149,7 +149,7 @@ void copy(const MemoryView<DataT, VRAM_CUDA>& from, MemoryView<DataT, DEVICE_LOC
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
+    vulkanCudaInterop::memcpyCudaDeviceToVulkanDevice(from.raw(), to.getDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
 }
 
 } // namespace rmagine

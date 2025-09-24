@@ -318,7 +318,8 @@ void Device::createLogicalDevice()
         "VK_EXT_descriptor_indexing",
         "VK_KHR_maintenance3",
         "VK_KHR_buffer_device_address",
-        "VK_KHR_deferred_host_operations"};
+        "VK_KHR_deferred_host_operations",
+        "VK_KHR_external_memory_fd"};
 
 
     VkDeviceCreateInfo deviceCreateInfo{};
