@@ -25,7 +25,7 @@ class ShaderBindingTable
 private:
     VulkanContextWPtr vulkan_context;
 
-    PipelinePtr pipeline = nullptr;
+    RayTracingPipelinePtr pipeline = nullptr;
 
     Memory<char, DEVICE_LOCAL_VULKAN> shaderBindingTableMemory;
 
@@ -43,7 +43,7 @@ public:
     ShaderBindingTable(const ShaderBindingTable&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    PipelinePtr getPipeline();
+    RayTracingPipelinePtr getPipeline();
 
     VkStridedDeviceAddressRegionKHR* getRayGenerationShaderBindingTablePtr();
 

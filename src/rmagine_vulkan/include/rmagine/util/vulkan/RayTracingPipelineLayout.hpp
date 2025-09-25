@@ -39,6 +39,6 @@ private:
     void createPipelineLayout();
 };
 
-using PipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
+using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
 
 } // namespace rmagine

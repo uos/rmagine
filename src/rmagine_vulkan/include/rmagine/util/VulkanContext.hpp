@@ -35,7 +35,7 @@ private:
 
     CommandPoolPtr commandPool = nullptr;
     DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
-    PipelineLayoutPtr pipelineLayout = nullptr;
+    RayTracingPipelineLayoutPtr pipelineLayout = nullptr;
 
     std::map<ShaderDefineFlags, ShaderPtr> shaderMaps[ShaderType::SHADER_TYPE_SIZE] = {
         std::map<ShaderDefineFlags, ShaderPtr>(),     // ShaderType::RGen
@@ -73,7 +73,7 @@ public:
     DevicePtr getDevice();
     CommandPoolPtr getCommandPool();
     DescriptorSetLayoutPtr getDescriptorSetLayout();
-    PipelineLayoutPtr getPipelineLayout();
+    RayTracingPipelineLayoutPtr getPipelineLayout();
 
 private:
     /**

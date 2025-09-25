@@ -24,7 +24,7 @@ using DescriptorSetPtr = std::shared_ptr<DescriptorSet>;
 class ShaderBindingTable;
 using ShaderBindingTablePtr = std::shared_ptr<ShaderBindingTable>;
 class RayTracingPipeline;
-using PipelinePtr = std::shared_ptr<RayTracingPipeline>;
+using RayTracingPipelinePtr = std::shared_ptr<RayTracingPipeline>;
 
 
 

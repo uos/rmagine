@@ -255,7 +255,7 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
             VulkanMeshPtr mesh = make_vulkan_mesh(amesh);
             mesh->commit();
             meshes[i] = mesh;
-            std::cout << "Mesh " << i << "(" << mesh->name << ") added." << std::endl;
+            std::cout << "Mesh " << i << " (" << mesh->name << ") added." << std::endl;
         }
         else
         {

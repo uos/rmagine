@@ -72,7 +72,7 @@ void ShaderBindingTable::createShaderBindingTable()
 }
 
 
-PipelinePtr ShaderBindingTable::getPipeline()
+RayTracingPipelinePtr ShaderBindingTable::getPipeline()
 {
     return pipeline;
 }

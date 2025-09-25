@@ -193,7 +193,7 @@ DescriptorSetLayoutPtr VulkanContext::getDescriptorSetLayout()
     return descriptorSetLayout;
 }
 
-PipelineLayoutPtr VulkanContext::getPipelineLayout()
+RayTracingPipelineLayoutPtr VulkanContext::getPipelineLayout()
 {
     return pipelineLayout;
 }

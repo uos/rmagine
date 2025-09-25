@@ -43,6 +43,6 @@ private:
     void createPipeline(ShaderDefineFlags shaderDefines);
 };
 
-using PipelinePtr = std::shared_ptr<RayTracingPipeline>;
+using RayTracingPipelinePtr = std::shared_ptr<RayTracingPipeline>;
 
 } // namespace rmagine
