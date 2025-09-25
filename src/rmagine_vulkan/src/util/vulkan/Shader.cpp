@@ -8,7 +8,7 @@ namespace rmagine
 
 Shader::Shader(VulkanContextWPtr vulkan_context, ShaderType shaderType, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
 {
-    std::cout << "compiling & creating " << get_shader_info(shaderType, shaderDefines) << std::endl;
+    std::cout << "[RMagine - Shader] compiling & creating shader: " << get_shader_info(shaderType, shaderDefines) << std::endl;
     createShader(compileShader(shaderType, shaderDefines));
 }
 

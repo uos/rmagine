@@ -29,7 +29,7 @@ size_t get_new_mem_id()
     if(mem_id_counter == SIZE_MAX)
     {
         #if defined(VDEBUG)
-            std::cout << "[get_new_mem_id()] DEBUG WARNING - created too many MemIDs, restarting at 1!" << std::endl;
+            std::cout << "[get_new_mem_id()] WARNING - created too many MemIDs, restarting at 1!" << std::endl;
         #endif
         ++mem_id_counter;//skip 0 - it is supposed to be an invalid value
     }

@@ -11,6 +11,7 @@ ShaderBindingTable::ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderD
     pipeline(new RayTracingPipeline(vulkan_context, shaderDefines)),
     shaderBindingTableMemory(0, VulkanMemoryUsage::Usage_ShaderBindingTable)
 {
+    std::cout << "[RMagine - ShaderBindingTable] creating sbt & pipeline: " << get_shader_defines_info(shaderDefines) << std::endl;
     createShaderBindingTable();
 }
 

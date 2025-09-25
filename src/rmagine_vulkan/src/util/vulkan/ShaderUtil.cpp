@@ -96,7 +96,21 @@ std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefin
         throw std::invalid_argument("[get_shader_info()] ERROR - invalid shader type!");
     }
 
-    std::string info = get_shader_names[shaderType] + ": ";
+    std::string info = get_shader_names[shaderType] + " (";
+    info += get_shader_defines_info(shaderDefines);
+    info += ")";
+
+    return info;
+}
+
+std::string get_shader_defines_info(ShaderDefineFlags shaderDefines)
+{
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("[get_shader_defines_info()] ERROR - invalid shader defines!");
+    }
+
+    std::string info = "";
 
     std::vector<std::string> defines = get_shader_defines(shaderDefines);
     for(size_t i = 0; i < defines.size(); i++)

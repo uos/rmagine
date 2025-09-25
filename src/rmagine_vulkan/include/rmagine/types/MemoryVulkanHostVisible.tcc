@@ -144,7 +144,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsa
 
         m_memID = get_new_mem_id();
         #if defined(VDEBUG)
-            std::cout << "HOST_VISIBLE_VULKAN: new m_memID = " << m_memID << std::endl;
+            std::cout << "[HOST_VISIBLE_VULKAN] new m_memID = " << m_memID << std::endl;
         #endif
     }
 }
@@ -183,7 +183,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::~Memory()
 {
     #if defined(VDEBUG)
         if(m_memID != 0)
-            std::cout << "HOST_VISIBLE_VULKAN: retired m_memID = " << m_memID << std::endl;
+            std::cout << "[HOST_VISIBLE_VULKAN] retired m_memID = " << m_memID << std::endl;
     #endif
 }
 
@@ -218,11 +218,11 @@ void Memory<DataT, HOST_VISIBLE_VULKAN>::resize(size_t N)
 
     #if defined(VDEBUG)
         if(m_memID != 0)
-            std::cout << "HOST_VISIBLE_VULKAN: retired m_memID = " << m_memID << " (resize)" << std::endl;
+            std::cout << "[HOST_VISIBLE_VULKAN] retired m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
     m_memID = get_new_mem_id();
     #if defined(VDEBUG)
-        std::cout << "HOST_VISIBLE_VULKAN: new m_memID = " << m_memID << " (resize)" << std::endl;
+        std::cout << "[HOST_VISIBLE_VULKAN] new m_memID = " << m_memID << " (resize)" << std::endl;
     #endif
 }
 

@@ -143,6 +143,17 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
     bool rerecordCommandBuffer = false;
     //check whether other shaders are needed
     //if they are, a new shaderBindingTable (+ pipeline & shader) need to get fetched
+    ShaderDefines sensorType;
+    if constexpr(std::is_same<SensorModelRamT, SphericalModel>::value)
+        sensorType = ShaderDefines::Def_Sphere;
+    else if constexpr(std::is_same<SensorModelRamT, PinholeModel>::value)
+        sensorType = ShaderDefines::Def_Pinhole;
+    else if constexpr(std::is_same<SensorModelRamT, O1DnModel>::value)
+        sensorType = ShaderDefines::Def_O1Dn;
+    else if constexpr(std::is_same<SensorModelRamT, OnDnModel>::value)
+        sensorType = ShaderDefines::Def_OnDn;
+    else
+        throw std::runtime_error("[SimulatorVulkan<SensorModelRamT>::simulate()] ERROR - this should never happen");
     ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
     if(previousShaderDefines != newShaderDefines)
     {
@@ -150,7 +161,6 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         previousShaderDefines = newShaderDefines;
 
         shaderBindingTable = vulkan_context->getShaderBindingTable(newShaderDefines);
-        std::cout << "recieved shader binding table with pipeline & shaders" << std::endl;
 
         rerecordCommandBuffer = true;
     }
@@ -167,7 +177,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
                                            sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
-        std::cout << "updated descriptor set" << std::endl;
+        std::cout << "[RMagine - SimulatorVulkan] updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
     }
@@ -184,7 +194,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         previousDimensions.depth  = newDimensions.depth;
 
         commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, shaderBindingTable, newDimensions.width, newDimensions.height, newDimensions.depth);
-        std::cout << "(re)recorded instructions to command buffer" << std::endl;
+        std::cout << "[RMagine - SimulatorVulkan] (re)recorded instructions to command buffer" << std::endl;
     }
 
     commandBuffer->submitRecordedCommandAndWait();
@@ -249,26 +259,11 @@ void SimulatorVulkan<SensorModelRamT>::resetShaderBindingTable()
 template <typename SensorModelRamT>
 inline void SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()
 {
-    if constexpr(std::is_same<SensorModelRamT, SphericalModel>::value)
-    {
-        sensorType = ShaderDefines::Def_Sphere;
-    }
-    else if constexpr(std::is_same<SensorModelRamT, PinholeModel>::value)
-    {
-        sensorType = ShaderDefines::Def_Pinhole;
-    }
-    else if constexpr(std::is_same<SensorModelRamT, O1DnModel>::value)
-    {
-        sensorType = ShaderDefines::Def_O1Dn;
-    }
-    else if constexpr(std::is_same<SensorModelRamT, OnDnModel>::value)
-    {
-        sensorType = ShaderDefines::Def_OnDn;
-    }
-    else
-    {
-        throw std::runtime_error("[SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()] ERROR - constructed invalid simulator");
-    }
+    static_assert(std::is_same<SensorModelRamT, SphericalModel>::value ||
+                  std::is_same<SensorModelRamT, PinholeModel>::value ||
+                  std::is_same<SensorModelRamT, O1DnModel>::value ||
+                  std::is_same<SensorModelRamT, OnDnModel>::value, 
+                  "ERROR - constructed invalid simulator");
 }
 
 } // namespace rmagine

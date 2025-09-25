@@ -26,9 +26,6 @@ namespace rmagine
 template<typename SensorModelRamT>
 class SimulatorVulkan
 {
-private:
-    ShaderDefines sensorType;
-
 protected:
     VulkanContextPtr vulkan_context = nullptr;
     VulkanMapPtr map = nullptr;
@@ -93,9 +90,8 @@ public:
     template<typename BundleT>
     void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, BundleT& ret);
     
-    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
-
 protected:
+    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
     void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
     virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 

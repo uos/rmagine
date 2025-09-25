@@ -86,6 +86,15 @@ std::string get_shader_define_statements(ShaderDefineFlags shaderDefines);
 std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
 /**
+ * get a string giving some information about the shader defines described by the shaderDefines for debugging/loging
+ * 
+ * @param shaderDefines shader define flags
+ * 
+ * @return string containing shader defines information
+ */
+std::string get_shader_defines_info(ShaderDefineFlags shaderDefines);
+
+/**
  * get a string containing the entire code for the shader described by the shaderType & shaderDefines
  * 
  * @param shaderType shader type
