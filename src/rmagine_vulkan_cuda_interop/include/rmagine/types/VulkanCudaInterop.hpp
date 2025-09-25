@@ -11,25 +11,49 @@ namespace rmagine
 
 namespace vulkanCudaInterop
 {
-    /**
-     * import a piece of vulkan memory to cuda
-     * allows you to access a piece of vulkan memory of size size bytes with an offset of offset bytes
-     * 
-     * @param deviceMemory 
-     * 
-     * @param size 
-     * 
-     * @param offset 
-     * 
-     * @param cudaPtrPtr 
-     * 
-     * @param cuExternalMemory 
-     */
-    void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDeviceSize srcOffset,
-                               void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory);
 
-    void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
-    void memcpyCudaDeviceToVulkanDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
+/**
+ * import a piece of vulkan memory to cuda, 
+ * allows you to access a piece of vulkan memory through a cuda pointer
+ * 
+ * @param deviceMemory vulkan device memory that get imported to cuda
+ * 
+ * @param size number of bytes that get imported
+ * 
+ * @param offset offset into the vulkan device memory
+ * 
+ * @param cudaPtrPtr ptr to the cuda ptr that accesses the vulkan memory
+ * 
+ * @param cuExternalMemory reference to a cuda struct that manages the external memory
+ */
+void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDeviceSize srcOffset,
+                            void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory);
+
+/**
+ * copy data from vulkan memory to a cuda memory
+ * 
+ * @param srcDeviceMemory (soucre) vulkan device memory
+ * 
+ * @param dst (destination) cuda pointer
+ * 
+ * @param size number of bytes that get copied
+ * 
+ * @param offset offset into the vulkan device memory
+ */
+void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
+
+/**
+ * copy data from a cuda memory to a vulkan memory
+ * 
+ * @param src (soucre) cuda pointer
+ * 
+ * @param dstDeviceMemory (destination) vulkan device memory
+ * 
+ * @param size number of bytes that get copied
+ * 
+ * @param offset offset into the vulkan device memory
+ */
+void memcpyCudaDeviceToVulkanDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
 
 } // namespace vulkanCudaInterop
 
