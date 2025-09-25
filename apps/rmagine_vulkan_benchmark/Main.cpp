@@ -14,31 +14,24 @@ using namespace rmagine;
 
 
 
-int main()
+int main(int argc, char** argv)
 {
     std::cout << "Main start." << std::endl;
 
-    //mapdata
-    Memory<Point, RAM> vertexMem_ram(3);
-    Memory<Face, RAM> indexMem_ram(1);
-    //Vertecies
-    // vertexMem_ram[0] = {20.0f, -10.0f, -10.0f};
-    // vertexMem_ram[1] = {20.0f,  10.0f, -10.0f};
-    // vertexMem_ram[2] = {20.0f,   0.0f,  10.0f};
-    vertexMem_ram[0] = {0.0f, 0.0f, 0.0f};
-    vertexMem_ram[1] = {1.0f, 0.0f, 0.0f};
-    vertexMem_ram[2] = {0.0f, 1.0f, 0.0f};
-    //Indicies
-    indexMem_ram[0] = {0, 1, 2};
-    //logging
-    uint32_t numVerticies = vertexMem_ram.size();
-    uint32_t numTriangles = indexMem_ram.size();
-    std::cout << "Using Mesh with " << numVerticies << " Verticies & " << numTriangles << " Triangles." << std::endl;
+    // minimum 2 arguments
+    if(argc < 2)
+    {
+        std::cout << "Usage: " << argv[0] << " mesh_file" << std::endl;
+        return EXIT_SUCCESS;
+    }
+    std::string path_to_mesh = argv[1];
+    std::cout << "Inputs: " << std::endl;
+    std::cout << "- mesh: " << path_to_mesh << std::endl;
 
 
     //create map
     std::cout << "Creating map main." << std::endl;
-    VulkanMapPtr map = import_vulkan_map(vertexMem_ram, indexMem_ram);
+    VulkanMapPtr map = import_vulkan_map(path_to_mesh);
 
 
     //allocate sphere sensorbuffer
