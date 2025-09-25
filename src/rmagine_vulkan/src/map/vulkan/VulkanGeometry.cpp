@@ -59,24 +59,22 @@ void VulkanGeometry::addParent(VulkanScenePtr parent)
     m_parents.insert(parent);
 }
 
+VulkanScenePtr VulkanGeometry::makeScene()
+{
+    VulkanScenePtr geom_scene = std::make_shared<VulkanScene>();
+    geom_scene->add(this_shared<VulkanGeometry>());
+    return geom_scene;
+}
 
+VulkanInstPtr VulkanGeometry::instantiate()
+{
+    VulkanScenePtr geom_scene = makeScene();
+    geom_scene->commit();
 
-// VulkanScenePtr VulkanGeometry::makeScene()
-// {
-//     VulkanScenePtr geom_scene = std::make_shared<VulkanScene>();
-//     geom_scene->add(this_shared<VulkanGeometry>());
-//     return geom_scene;
-// }
+    VulkanInstPtr geom_inst = std::make_shared<VulkanInst>();
+    geom_inst->set(geom_scene);
 
-// VulkanInstPtr VulkanGeometry::instantiate()
-// {
-//     VulkanScenePtr geom_scene = makeScene();
-//     geom_scene->commit();
-
-//     VulkanInstPtr geom_inst = std::make_shared<VulkanInst>();
-//     geom_inst->set(geom_scene);
-
-//     return geom_inst;
-// }
+    return geom_inst;
+}
 
 } // namespace rmagine

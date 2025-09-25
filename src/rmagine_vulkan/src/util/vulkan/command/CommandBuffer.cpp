@@ -1,7 +1,6 @@
-#include "rmagine/util/vulkan/general/CommandBuffer.hpp"
+#include "rmagine/util/vulkan/command/CommandBuffer.hpp"
 #include "rmagine/util/VulkanContext.hpp"
 #include "rmagine/util/vulkan/ShaderBindingTable.hpp"
-#include "rmagine/util/vulkan/Pipeline.hpp"
 #include "rmagine/simulation/vulkan/DescriptorSet.hpp"
 
 
@@ -9,16 +8,16 @@
 namespace rmagine
 {
 
-CommandBuffer::CommandBuffer() : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()), commandPool(get_vulkan_context()->getCommandPool()), pipelineLayout(get_vulkan_context()->getPipelineLayout())
+CommandBuffer::CommandBuffer(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
 {
     createCommandBuffer();
-    fence = std::make_shared<Fence>();
+    fence = std::make_shared<Fence>(vulkan_context);
 }
 
-CommandBuffer::CommandBuffer(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr, CommandPoolPtr commandPool, PipelineLayoutPtr pipelineLayout) : device(device), extensionFunctionsPtr(extensionFunctionsPtr), commandPool(commandPool), pipelineLayout(pipelineLayout)
+CommandBuffer::~CommandBuffer()
 {
-    createCommandBuffer();
-    fence = std::make_shared<Fence>(device);
+    if(fence != nullptr)
+        fence.reset();
 }
 
 
@@ -27,20 +26,20 @@ void CommandBuffer::createCommandBuffer()
 {
     VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    commandBufferAllocateInfo.commandPool = commandPool->getCommandPool();
+    commandBufferAllocateInfo.commandPool = vulkan_context->getCommandPool()->getCommandPool();
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     commandBufferAllocateInfo.commandBufferCount = 1;
     
     std::vector<VkCommandBuffer> commandBuffers = std::vector<VkCommandBuffer>(1, VK_NULL_HANDLE);
-    if(vkAllocateCommandBuffers(device->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
+    if(vkAllocateCommandBuffers(vulkan_context->getDevice()->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command buffer(s)!");
+        throw std::runtime_error("[CommandBuffer::createCommandBuffer()] ERROR - failed to create command buffer(s)!");
     }
     commandBuffer = commandBuffers.front();
 }
 
 
-void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorSet, PipelinePtr pipeline, uint32_t width, uint32_t height, uint32_t depth)
+void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorSet, ShaderBindingTablePtr shaderBindingTable, uint32_t width, uint32_t height, uint32_t depth)
 {
     VkCommandBufferBeginInfo rtxCommandBufferBeginInfo{};
     rtxCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -48,34 +47,34 @@ void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorS
 
     if(vkBeginCommandBuffer(commandBuffer, &rtxCommandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->getPipeline());
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, shaderBindingTable->getPipeline()->getPipeline());
 
     vkCmdBindDescriptorSets(
         commandBuffer,
         VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
-        pipelineLayout->getPipelineLayout(),
+        vulkan_context->getPipelineLayout()->getPipelineLayout(),
         0,
         1,
         descriptorSet->getDescriptorSetPtr(),
         0,
         nullptr);
         
-    extensionFunctionsPtr->pvkCmdTraceRaysKHR(
+    vulkan_context->extensionFuncs.vkCmdTraceRaysKHR(
         commandBuffer,
-        pipeline->getShaderBindingTable()->getRayGenerationShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getMissShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getClosestHitShaderBindingTablePtr(),
-        pipeline->getShaderBindingTable()->getCallableShaderBindingTablePtr(),
+        shaderBindingTable->getRayGenerationShaderBindingTablePtr(),
+        shaderBindingTable->getMissShaderBindingTablePtr(),
+        shaderBindingTable->getClosestHitShaderBindingTablePtr(),
+        shaderBindingTable->getCallableShaderBindingTablePtr(),
         width,
         height,
         depth);
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
 }
 
@@ -88,10 +87,10 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
 
     if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
     
-    extensionFunctionsPtr->pvkCmdBuildAccelerationStructuresKHR(
+    vulkan_context->extensionFuncs.vkCmdBuildAccelerationStructuresKHR(
         commandBuffer,
         1,
         &accelerationStructureBuildGeometryInfo,
@@ -99,29 +98,43 @@ void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuild
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
 }
 
 
-void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer)
+void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
 {
+    if(srcOffset + size > scrBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - srcOffset and/or size too large");
+    }
+    if(dstOffset + size > dstBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - dstOffset and/or size too large");
+    }
+
+    if(size == 0)
+        return;
+    
     VkCommandBufferBeginInfo commandBufferBeginInfo{};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to begin recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
     }
     
     VkBufferCopy copyRegion{};
-    copyRegion.size = std::min(scrBuffer->getBufferSize(), dstBuffer->getBufferSize());
+    copyRegion.size = size;
+    copyRegion.srcOffset = srcOffset;
+    copyRegion.dstOffset = dstOffset;
     vkCmdCopyBuffer(commandBuffer, scrBuffer->getBuffer(), dstBuffer->getBuffer(), 1, &copyRegion);
 
     if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to stop recording commmands to the command buffer!");
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
     }
 }
 
@@ -138,23 +151,9 @@ void CommandBuffer::submitRecordedCommandAndWait()
 }
 
 
-
-void CommandBuffer::cleanup()
-{
-    if(fence != nullptr)
-        fence->cleanup();
-}
-
-
-
 VkCommandBuffer CommandBuffer::getCommandbuffer()
 {
     return commandBuffer;
-}
-
-VkCommandBuffer* CommandBuffer::getCommandbufferPtr()
-{
-    return &commandBuffer;
 }
 
 } // namespace rmagine

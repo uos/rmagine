@@ -19,34 +19,29 @@ namespace rmagine
 {
 
 //forward declaration
-class TopLevelAccelerationStructure;
-using TopLevelAccelerationStructurePtr = std::shared_ptr<TopLevelAccelerationStructure>;
+class AccelerationStructure;
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
 
 
 class DescriptorSet
 {
 private:
-    DevicePtr device = nullptr;
-    DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
+    VulkanContextPtr vulkan_context = nullptr;
 
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
 public:
-    DescriptorSet();
+    DescriptorSet(VulkanContextPtr vulkan_context);
 
-    DescriptorSet(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
-
-    ~DescriptorSet() {}
+    ~DescriptorSet();
 
     DescriptorSet(const DescriptorSet&) = delete;
 
-    void cleanup();
 
-    void updateDescriptorSet(BufferPtr vertexBuffer, BufferPtr indexBuffer, 
+    void updateDescriptorSet(AccelerationStructurePtr accelerationStructure, BufferPtr mapDataBuffer, 
                              BufferPtr sensorBuffer, BufferPtr resultsBuffer, 
-                             BufferPtr tsbBuffer, BufferPtr tbmBuffer, 
-                             TopLevelAccelerationStructurePtr topLevelAccelerationStructure);
+                             BufferPtr tsbBuffer, BufferPtr origsDirsAndTransformsBuffer);
 
     VkDescriptorSet* getDescriptorSetPtr();
 

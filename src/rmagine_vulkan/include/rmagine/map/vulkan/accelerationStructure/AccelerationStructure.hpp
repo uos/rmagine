@@ -11,51 +11,57 @@
 
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include <rmagine/util/vulkan/memory/DeviceMemory.hpp>
+#include <rmagine/util/vulkan/command/CommandBuffer.hpp>
+#include <rmagine/map/vulkan/vulkan_definitions.hpp>
+#include <rmagine/types/MemoryVulkan.hpp>
 
 
 
 namespace rmagine
 {
 
-class AccelerationStructure
+class AccelerationStructure : public std::enable_shared_from_this<AccelerationStructure>
 {
-protected:
-    DevicePtr device = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
+private:
+    VulkanContextPtr vulkan_context = nullptr;
+    CommandBufferPtr commandBuffer = nullptr;
+
+    VkAccelerationStructureTypeKHR accelerationStructureType = VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
 
     VkAccelerationStructureKHR accelerationStructure = VK_NULL_HANDLE;
-    VkDeviceAddress accelerationStructureDeviceAddress = uint64_t(~0);
-    // for acceleration structure
-    BufferPtr accelerationStructureBuffer = nullptr;
-    DeviceMemoryPtr accelerationStructureDeviceMemory = nullptr;
+    VkDeviceAddress accelerationStructureDeviceAddress = 0;
+
+    // for holding acceleration structure
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureMem;
     // for building acceleration structure
-    BufferPtr accelerationStructureScratchBuffer = nullptr;
-    DeviceMemoryPtr accelerationStructureScratchDeviceMemory = nullptr;
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem;
     
 public:
-    AccelerationStructure();
-    
-    AccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
+    AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
 
-    ~AccelerationStructure() {}
+    virtual ~AccelerationStructure();
 
     AccelerationStructure(const AccelerationStructure&) = delete;
-    
+
 
     VkDeviceAddress getDeviceAddress();
 
     VkAccelerationStructureKHR* getAcceleratiionStructurePtr();
 
-    void cleanup();
+    size_t getID();
+
+    template<typename T>
+    inline std::shared_ptr<T> this_shared()
+    {
+        return std::dynamic_pointer_cast<T>(shared_from_this());
+    }
 
 protected:
-    void createAccelerationStructureBufferAndDeviceMemory(std::vector<uint32_t> maxPrimitiveCountList, 
-        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo, VkAccelerationStructureTypeKHR accelerationStructureType);
-
-    void buildAccelerationStructure(uint32_t primitiveCount, 
-        VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, 
-        VkAccelerationStructureBuildSizesInfoKHR& accelerationStructureBuildSizesInfo);
+    void createAccelerationStructure(
+        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
 };
+
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
 } // namespace rmagine

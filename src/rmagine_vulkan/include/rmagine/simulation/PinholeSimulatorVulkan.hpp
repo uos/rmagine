@@ -16,17 +16,20 @@
 namespace rmagine
 {
 
-class PinholeSimulatorVulkan : public SimulatorVulkan<PinholeModel, PinholeModel>
+class PinholeSimulatorVulkan : public SimulatorVulkan<PinholeModel>
 {
 public:
-    PinholeSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<PinholeModel, PinholeModel>(map) {}
+    PinholeSimulatorVulkan() : SimulatorVulkan<PinholeModel>() {}
+
+    PinholeSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<PinholeModel>(map) {}
 
     ~PinholeSimulatorVulkan() {}
 
-    PinholeSimulatorVulkan(const PinholeSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    PinholeSimulatorVulkan(const PinholeSimulatorVulkan& other) : SimulatorVulkan<PinholeModel>(other) {}
 
 
-    void setModel(Memory<PinholeModel, RAM>& sensorMem_ram);
+    void setModel(const Memory<PinholeModel, RAM>& sensorMem_ram);
+    void setModel(const PinholeModel& sensor);
 };
 
 using PinholeSimulatorVulkanPtr = std::shared_ptr<PinholeSimulatorVulkan>;

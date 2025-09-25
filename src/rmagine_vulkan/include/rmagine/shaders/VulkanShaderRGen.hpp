@@ -14,23 +14,26 @@
 static const std::string rgen_code = R""""(
 
 
+
 layout(location = 0) rayPayloadEXT Payload
 {
     //needed for transforming to sensor coordinates
     Transform sensorTf;
 } payload;
 
+
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 
+
 #if defined(SPHERE)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         DiscreteInterval phi;
         DiscreteInterval theta;
         Interval range;
     } sensor;
 #elif defined(PINHOLE)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -39,7 +42,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
         vec2 center;
     } sensor;
 #elif defined(O1DN)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -48,7 +51,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
         Memory dirsMem;
     } sensor;
 #elif defined(ONDN)
-    layout(binding = 1, set = 0) buffer Sensor
+    layout(binding = 2, set = 0) buffer Sensor
     {
         int width;
         int height;
@@ -60,8 +63,24 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
     #error One of the the sensor types has to be defined // compile time error
 #endif
 
-layout(binding = 5, set = 0) buffer TransformBuffer{ Transform tsb; } tsb;
-layout(binding = 6, set = 0) buffer TransformsBuffer{ Transform tbm[]; } tbm;
+
+layout(binding = 4, set = 0) uniform TransformBuffer{ Transform tsb; } tsb;
+
+
+struct OrigsDirsAndTransforms
+{
+    uint64_t tbmAddress;
+    
+    uint64_t origsAddress;
+    uint64_t dirsAddress;
+};
+
+layout(binding = 5, set = 0) uniform OrigsDirsAndTransformsBuffer{ OrigsDirsAndTransforms data; } origsDirsAndTransforms;
+
+layout(buffer_reference, std430, buffer_reference_align = 32) buffer transform_array 
+{
+    Transform t;
+};
 
 
 
@@ -77,11 +96,11 @@ vec3 getRayDir()
         vec3 dirOptical = normalize(vec3(pX, pY, 1.0));
         return vec3(dirOptical.z, -dirOptical.x, -dirOptical.y);
     #elif defined(O1DN)
-        float_array dirs_buffer = float_array(sensor.dirsMem.bufferDeviceAddress);
+        float_array dirs_buffer = float_array(origsDirsAndTransforms.data.dirsAddress);
         uint index = 3*(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x);
         return vec3(dirs_buffer[index].f, dirs_buffer[index+1].f, dirs_buffer[index+2].f);
     #elif defined(ONDN)
-        float_array dirs_buffer = float_array(sensor.dirsMem.bufferDeviceAddress);
+        float_array dirs_buffer = float_array(origsDirsAndTransforms.data.dirsAddress);
         uint index = 3*(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x);
         return vec3(dirs_buffer[index].f, dirs_buffer[index+1].f, dirs_buffer[index+2].f);
     #else
@@ -91,7 +110,9 @@ vec3 getRayDir()
 
 Transform getRayStartTf()
 {
-    Transform sensorTf = multTransforms(tbm.tbm[gl_LaunchIDEXT.z], tsb.tsb);
+    transform_array tbm = transform_array(origsDirsAndTransforms.data.tbmAddress);
+
+    Transform sensorTf = multTransforms(tbm[gl_LaunchIDEXT.z].t, tsb.tsb);
     payload.sensorTf = sensorTf;
     Transform rayStartTf;
     rayStartTf.rot = sensorTf.rot;
@@ -103,7 +124,7 @@ Transform getRayStartTf()
     #elif defined(O1DN)
         rayStartTf.pos = sensorTf.pos + sensor.origin;
     #elif defined(ONDN)
-        float_array origs_buffer = float_array(sensor.origsMem.bufferDeviceAddress);
+        float_array origs_buffer = float_array(origsDirsAndTransforms.data.origsAddress);
         uint index = 3*(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x);
         rayStartTf.pos = sensorTf.pos + vec3(origs_buffer[index].f, origs_buffer[index+1].f, origs_buffer[index+2].f);
     #else

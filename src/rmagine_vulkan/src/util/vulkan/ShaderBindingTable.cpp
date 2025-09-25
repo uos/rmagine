@@ -6,33 +6,37 @@
 namespace rmagine
 {
 
-ShaderBindingTable::ShaderBindingTable(PipelinePtr pipeline) : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr())
+ShaderBindingTable::ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : 
+    vulkan_context(vulkan_context),
+    pipeline(new RayTracingPipeline(vulkan_context, shaderDefines)),
+    shaderBindingTableMemory(0, VulkanMemoryUsage::Usage_ShaderBindingTable)
 {
-    createShaderBindingTable(pipeline);
+    createShaderBindingTable();
 }
 
 
-ShaderBindingTable::ShaderBindingTable(DevicePtr device, PipelinePtr pipeline, ExtensionFunctionsPtr extensionFunctionsPtr) : device(device), extensionFunctionsPtr(extensionFunctionsPtr)
+ShaderBindingTable::~ShaderBindingTable()
 {
-    createShaderBindingTable(pipeline);
+    if(pipeline != nullptr)
+        pipeline.reset();
 }
 
 
 
-void ShaderBindingTable::createShaderBindingTable(PipelinePtr pipeline)
+void ShaderBindingTable::createShaderBindingTable()
 {
-    VkDeviceSize progSize = device->getShaderGroupBaseAlignment();
-    VkDeviceSize handleSize = device->getShaderGroupHandleSize();
+    VkDeviceSize progSize = vulkan_context.lock()->getDevice()->getShaderGroupBaseAlignment();
+    VkDeviceSize handleSize = vulkan_context.lock()->getDevice()->getShaderGroupHandleSize();
 
     VkDeviceSize shaderBindingTableSize = progSize * 3;
 
-    shaderBindingTableMemory.resize(shaderBindingTableSize, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR);
+    shaderBindingTableMemory.resize(shaderBindingTableSize);
 
     //get the group handels
     Memory<char, RAM> shaderBindingTableMemory_ram(shaderBindingTableSize);
-    if(extensionFunctionsPtr->pvkGetRayTracingShaderGroupHandlesKHR(device->getLogicalDevice(), pipeline->getPipeline(), 0, 3, shaderBindingTableSize, shaderBindingTableMemory_ram.raw()) != VK_SUCCESS)
+    if(vulkan_context.lock()->extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), pipeline->getPipeline(), 0, 3, shaderBindingTableSize, shaderBindingTableMemory_ram.raw()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to get raytracing shadergroup handles!");
+        throw std::runtime_error("[ShaderBindingTable::createShaderBindingTable()] ERROR - Failed to get raytracing shadergroup handles!");
     }
 
     //only a part of the data is needed
@@ -68,11 +72,10 @@ void ShaderBindingTable::createShaderBindingTable(PipelinePtr pipeline)
 }
 
 
-void ShaderBindingTable::cleanup()
+RayTracingPipelinePtr ShaderBindingTable::getPipeline()
 {
-    //...
+    return pipeline;
 }
-
 
 
 VkStridedDeviceAddressRegionKHR* ShaderBindingTable::getRayGenerationShaderBindingTablePtr()

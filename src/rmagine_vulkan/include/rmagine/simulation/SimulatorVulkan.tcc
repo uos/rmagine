@@ -5,94 +5,173 @@
 namespace rmagine
 {
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::setTsb(Memory<Transform, RAM>& tsbMem)
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan() : 
+    vulkan_context(get_vulkan_context()), map(nullptr), sensorMem(1), 
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+}
+
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) : 
+    vulkan_context(get_vulkan_context()), map(map), sensorMem(1), 
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+}
+
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::~SimulatorVulkan()
+{
+    resetShaderBindingTable();
+    descriptorSet.reset();
+    commandBuffer.reset();
+}
+
+
+template<typename SensorModelRamT>
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(const SimulatorVulkan& other) : 
+    vulkan_context(get_vulkan_context()), map(other.map), sensorMem(1), 
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+    tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
+    // uniform buffers might slightly increase performance for small readonly buffers
+{
+    checkTemplateArgs();
+
+    commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
+    descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+
+    sensorMem = other.sensorMem;
+    tsbMem = other.tsbMem;
+    resultsMem = other.resultsMem;
+    tbmAndSensorSpecificMem = other.tbmAndSensorSpecificMem;
+
+    newDimensions.width = other.newDimensions.width;
+    newDimensions.height = other.newDimensions.height;
+    // newDimensions.depth only gets set once simulate() gets called
+}
+
+
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::setMap(VulkanMapPtr map)
+{
+    this->map = map;
+}
+
+
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::setTsb(const Memory<Transform, RAM>& tsbMem)
 {
     this->tsbMem = tsbMem;
 }
 
 
-template <typename SensorModelRamT, typename SensorModelDeviceT>
-template <typename BundleT>
-inline void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem, BundleT &ret)
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::setTsb(const Transform& Tsb)
 {
-    VulkanResultsData resultsData{};
-    set_vulkan_results_data(ret, resultsData);
-
-    Memory<VulkanResultsData, RAM> resultsMem_ram(1);
-    resultsMem_ram[0] = resultsData;
-    simulate(tbmMem, resultsMem_ram);
+    Memory<Transform, RAM> tmp(1);
+    tmp[0] = Tsb;
+    setTsb(tmp);
 }
 
 
-template <typename SensorModelRamT, typename SensorModelDeviceT>
+template <typename SensorModelRamT>
+template<typename BundleT>
+void SimulatorVulkan<SensorModelRamT>::simulate(const Transform& tbm, BundleT& ret)
+{
+    Memory<Transform, RAM> tbmMem_ram(1);
+    tbmMem_ram[0] = tbm;
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbmMem(1);
+    tbmMem = tbmMem_ram;
+    simulate(tbmMem, ret);
+}
+
+
+template <typename SensorModelRamT>
 template <typename BundleT>
-inline BundleT SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL> &tbmMem)
+BundleT SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN> &tbmMem)
 {
     BundleT res;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res, newDimensions.width, newDimensions.height, tbmMem.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res, newDimensions.width, newDimensions.height, tbmMem.size());
     simulate(tbmMem, res);
     return res;
 }
 
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram)
+template <typename SensorModelRamT>
+template <typename BundleT>
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN> &tbmMem, BundleT &ret)
+{
+    VulkanResultsAddresses results{};
+    set_vulkan_results_data(ret, results);
+
+    Memory<VulkanResultsAddresses, RAM> resultsMem_ram(1);
+    resultsMem_ram[0] = results;
+    simulate(tbmMem, resultsMem_ram);
+}
+
+
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
     newDimensions.depth = tbmMem.size();
-    if(newDimensions.width == uint64_t(~0) || newDimensions.height == uint64_t(~0) || newDimensions.depth == uint64_t(~0))
+    if(newDimensions.width == 0 || newDimensions.height == 0 || newDimensions.depth == 0)
     {
-        throw std::runtime_error("incalid new sensor dimensions!");
-    }
-    if(!check_results_data_size(resultsMem_ram, newDimensions.width*newDimensions.height*newDimensions.depth))
-    {
-        throw std::runtime_error("resultsMem must have at least enough space for every ray!");
+        throw std::invalid_argument("[SimulatorVulkan<SensorModelRamT>::simulate()] ERROR - invalid new sensor dimensions!");
     }
 
 
-    ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
-    resultsMem = resultsMem_ram;
-
+    //upload addresses if neccessary
+    updateResultsAddresses(resultsMem_ram);
+    updateTbmAndSensorSpecificAddresses(tbmMem);
+    
 
     bool rerecordCommandBuffer = false;
     //check whether other shaders are needed
-    //if they are, a new pipeline need to get fetched
+    //if they are, a new shaderBindingTable (+ pipeline & shader) need to get fetched
+    ShaderDefineFlags newShaderDefines = sensorType | get_result_flags(resultsMem_ram);
     if(previousShaderDefines != newShaderDefines)
     {
-        //update current pipeline/shader configuration
+        //update current shaderBindingTable configuration
         previousShaderDefines = newShaderDefines;
 
-        pipeline = vulkan_context->getPipeline(newShaderDefines);
-        std::cout << "recieved pipeline & shader binding table" << std::endl;
+        shaderBindingTable = vulkan_context->getShaderBindingTable(newShaderDefines);
+        std::cout << "recieved shader binding table with pipeline & shaders" << std::endl;
 
         rerecordCommandBuffer = true;
     }
     //check whether buffers have changed
     //if the previous buffers are not the same, the folloing functions need to be called
     //sensorMem, resultsMem & tsbMem dont have to get checked as they are always the same anyways
-    if(previousBuffers.vertexID  != map->scene()->getVertexMem().getID() ||
-       previousBuffers.indexID   != map->scene()->getIndexMem().getID()  ||/*
-       previousBuffers.sensorID  != sensorMem.getID()  ||
-       previousBuffers.resultsID != resultsMem.getID() ||
-       previousBuffers.tsbID     != tsbMem.getID()     ||*/
-       previousBuffers.tbmID     != tbmMem.getID()     ||
-       previousBuffers.tlasID    != map->scene()->getTopLevelAccelerationStructure()->getID())
+    if(previousAddresses.asID      != map->scene()->as()->getID() ||
+       previousAddresses.mapDataID != map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getID())
     {
         //update used buffers
-        previousBuffers.vertexID  = map->scene()->getVertexMem().getID();
-        previousBuffers.indexID   = map->scene()->getIndexMem().getID();
-        previousBuffers.sensorID  = sensorMem.getID();
-        previousBuffers.resultsID = resultsMem.getID();
-        previousBuffers.tsbID     = tsbMem.getID();
-        previousBuffers.tbmID     = tbmMem.getID();
-        previousBuffers.tlasID    = map->scene()->getTopLevelAccelerationStructure()->getID();
+        previousAddresses.asID      = map->scene()->as()->getID();
+        previousAddresses.mapDataID = map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getID();
 
-        descriptorSet->updateDescriptorSet(map->scene()->getVertexMem().getBuffer(), map->scene()->getIndexMem().getBuffer(), sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmMem.getBuffer(), map->scene()->getTopLevelAccelerationStructure());
+        descriptorSet->updateDescriptorSet(map->scene()->as(), 
+                                           map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
+                                           sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
         std::cout << "updated descriptor set" << std::endl;
 
         rerecordCommandBuffer = true;
     }
-    //check whether dimensions have changed
+    //check whether dimensions, descriptorset or shaderBindingTable have changed
     //if they have changed the raytracing command needs to be rerecorded
     if(rerecordCommandBuffer ||
        previousDimensions.width  != newDimensions.width  || 
@@ -100,83 +179,95 @@ void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::simulate(Memory<Trans
        previousDimensions.depth  != newDimensions.depth)
     {
         //update dimensions
-        previousDimensions.width = newDimensions.width;
+        previousDimensions.width  = newDimensions.width;
         previousDimensions.height = newDimensions.height;
-        previousDimensions.depth = newDimensions.depth;
+        previousDimensions.depth  = newDimensions.depth;
 
-        commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, pipeline, newDimensions.width, newDimensions.height, newDimensions.depth);
-        std::cout << "rerecorded instructions to command buffer" << std::endl;
+        commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, shaderBindingTable, newDimensions.width, newDimensions.height, newDimensions.depth);
+        std::cout << "(re)recorded instructions to command buffer" << std::endl;
     }
 
     commandBuffer->submitRecordedCommandAndWait();
 }
 
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::resetBufferHistory()
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
-    previousBuffers.indexID = 0;
-    previousBuffers.vertexID = 0;
-    previousBuffers.sensorID = 0;
-    previousBuffers.resultsID = 0;
-    previousBuffers.tsbID = 0;
-    previousBuffers.tbmID = 0;
-    previousBuffers.tlasID = 0;
+    if(previousAddresses.resultsAddresses.hitsAddress        != resultsMem_ram[0].hitsAddress        ||
+       previousAddresses.resultsAddresses.rangesAddress      != resultsMem_ram[0].rangesAddress      ||
+       previousAddresses.resultsAddresses.pointsAddress      != resultsMem_ram[0].pointsAddress      ||
+       previousAddresses.resultsAddresses.normalsAddress     != resultsMem_ram[0].normalsAddress     ||
+       previousAddresses.resultsAddresses.primitiveIdAddress != resultsMem_ram[0].primitiveIdAddress ||
+       previousAddresses.resultsAddresses.instanceIdAddress  != resultsMem_ram[0].instanceIdAddress  ||
+       previousAddresses.resultsAddresses.geometryIdAddress  != resultsMem_ram[0].geometryIdAddress)
+    {
+        previousAddresses.resultsAddresses = resultsMem_ram[0];
+
+        resultsMem = resultsMem_ram;
+    }
 }
 
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::resetPipeline()
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem)
 {
-    pipeline.reset();
+    if(previousAddresses.tbmAndSensorSpecificAddresses.tbmAddress   != tbmMem.getBuffer()->getBufferDeviceAddress() ||
+       previousAddresses.tbmAndSensorSpecificAddresses.origsAddress != 0 ||
+       previousAddresses.tbmAndSensorSpecificAddresses.dirsAddress  != 0)
+    {
+        Memory<VulkanTbmAndSensorSpecificAddresses, RAM> origsDirsAndTransformsMem_ram(1);
+        origsDirsAndTransformsMem_ram[0].tbmAddress   = tbmMem.getBuffer()->getBufferDeviceAddress();
+        origsDirsAndTransformsMem_ram[0].origsAddress = 0;
+        origsDirsAndTransformsMem_ram[0].dirsAddress  = 0;
+
+        previousAddresses.tbmAndSensorSpecificAddresses = origsDirsAndTransformsMem_ram[0];
+
+        tbmAndSensorSpecificMem = origsDirsAndTransformsMem_ram;
+    }
 }
 
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
-void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::cleanup()
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::resetAddressHistory()
 {
-    std::cout << "cleaning up..." << std::endl;;
+    previousAddresses.asID = 0;
+    previousAddresses.mapDataID = 0;
 
-    descriptorSet->cleanup();
-    std::cout << "cleaned up descriptor set." << std::endl;
-
-    commandBuffer->cleanup();
-    std::cout << "cleaned up command buffer." << std::endl;
-
-    std::cout << "done." << std::endl;
+    previousAddresses.resultsAddresses = {};
+    previousAddresses.tbmAndSensorSpecificAddresses = {};
 }
 
 
-template <typename SensorModelRamT, typename SensorModelDeviceT>
-inline void SimulatorVulkan<SensorModelRamT, SensorModelDeviceT>::checkTemplateArgs()
+template<typename SensorModelRamT>
+void SimulatorVulkan<SensorModelRamT>::resetShaderBindingTable()
+{
+    shaderBindingTable.reset();
+}
+
+
+template <typename SensorModelRamT>
+inline void SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()
 {
     if constexpr(std::is_same<SensorModelRamT, SphericalModel>::value)
     {
         sensorType = ShaderDefines::Def_Sphere;
-        if constexpr(!std::is_same<SensorModelDeviceT, SphericalModel>::value)
-            throw std::runtime_error("constructed illegal simulator (Sphere)");
     }
     else if constexpr(std::is_same<SensorModelRamT, PinholeModel>::value)
     {
         sensorType = ShaderDefines::Def_Pinhole;
-        if constexpr(!std::is_same<SensorModelDeviceT, PinholeModel>::value)
-            throw std::runtime_error("constructed illegal simulator (Pinhole)");
     }
     else if constexpr(std::is_same<SensorModelRamT, O1DnModel>::value)
     {
         sensorType = ShaderDefines::Def_O1Dn;
-        if constexpr(!std::is_same<SensorModelDeviceT, O1DnModel_<VULKAN_DEVICE_LOCAL>>::value)
-            throw std::runtime_error("constructed illegal simulator (O1Dn)");
     }
     else if constexpr(std::is_same<SensorModelRamT, OnDnModel>::value)
     {
         sensorType = ShaderDefines::Def_OnDn;
-        if constexpr(!std::is_same<SensorModelDeviceT, OnDnModel_<VULKAN_DEVICE_LOCAL>>::value)
-            throw std::runtime_error("constructed illegal simulator (OnDn)");
     }
     else
     {
-        throw std::runtime_error("constructed illegal simulator");
+        throw std::runtime_error("[SimulatorVulkan<SensorModelRamT>::checkTemplateArgs()] ERROR - constructed invalid simulator");
     }
 }
 

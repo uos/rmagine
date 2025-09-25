@@ -20,38 +20,30 @@
 namespace rmagine
 {
 
-class VulkanMap : public Map
+class VulkanMap : public Map, public VulkanEntity
 {
 private:
-    VulkanContextPtr vulkan_context = nullptr;
-    
     VulkanScenePtr m_scene;
 
 public:
-    VulkanMap(VulkanScenePtr scene) : vulkan_context(get_vulkan_context()), m_scene(scene)
-    {}
+    VulkanMap();
 
-    ~VulkanMap()
-    {
-        std::cout << "destroying VulkanMap" << std::endl;
-        cleanup();
-    }
+    VulkanMap(VulkanScenePtr scene);
 
-    VulkanMap(const VulkanMap&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    virtual ~VulkanMap();
 
+
+    void setScene(VulkanScenePtr scene);
 
     VulkanScenePtr scene() const;
-
-private:
-    void cleanup();
 };
 
 using VulkanMapPtr = std::shared_ptr<VulkanMap>;
 
 
 
-VulkanMapPtr import_vulkan_map(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+VulkanMapPtr import_vulkan_map(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
-// VulkanMapPtr import_vulkan_map(const std::string& meshfile);
+VulkanMapPtr import_vulkan_map(const std::string& meshfile);
 
 } // namespace rmagine

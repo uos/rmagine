@@ -19,33 +19,22 @@ namespace rmagine
 class DeviceMemory
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
+
     BufferPtr buffer = nullptr;
 
     VkDeviceMemory deviceMemory = VK_NULL_HANDLE;
 
-    bool persistentlyMapped = false;
+    std::mutex deviceMemoryMtx;
 
 public:
-    /**
-     * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
-     */
     DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer);
 
-    DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, DevicePtr device, BufferPtr buffer);
-
-    ~DeviceMemory() {}
+    ~DeviceMemory();
 
     DeviceMemory(const DeviceMemory&) = delete;
 
-
-    void map(void** ptr);
-
-    void map(void** ptr, size_t offset, size_t stride);
-
-    void unMap();
-
-    bool isPersistentlyMapped();
 
     void copyToDeviceMemory(const void* src);
 
@@ -55,10 +44,9 @@ public:
 
     void copyFromDeviceMemory(void* dst, size_t offset, size_t stride);
 
-    /**
-     * free the DeviceMemory
-     */
-    void cleanup();
+    int getMemoryHandle();
+
+    BufferPtr getBuffer();
     
 private:
     /**

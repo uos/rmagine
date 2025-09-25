@@ -12,24 +12,26 @@ set(RMAGINE_VULKAN_SRCS
     src/util/vulkan/Device.cpp
     src/util/vulkan/CommandPool.cpp
     src/util/vulkan/DescriptorSetLayout.cpp
-    src/util/vulkan/PipelineLayout.cpp
-    src/util/vulkan/Pipeline.cpp
+    src/util/vulkan/RayTracingPipelineLayout.cpp
+    src/util/vulkan/RayTracingPipeline.cpp
     src/util/vulkan/ShaderBindingTable.cpp
     src/util/vulkan/Shader.cpp
     src/util/vulkan/ShaderUtil.cpp
-    #   General components
-    src/util/vulkan/general/Fence.cpp
-    src/util/vulkan/general/CommandBuffer.cpp
+    #   Command components
+    src/util/vulkan/command/Fence.cpp
+    src/util/vulkan/command/CommandBuffer.cpp
     #   Memory components
     src/util/vulkan/memory/Buffer.cpp
     src/util/vulkan/memory/DeviceMemory.cpp
 
     #Types
     src/types/MemoryVulkan.cpp
+    src/types/MemoryVulkanUtil.cpp
 
     # Maps
     src/map/VulkanMap.cpp
     #   Map Components
+    src/map/vulkan/vulkan_shapes.cpp
     src/map/vulkan/VulkanScene.cpp
     src/map/vulkan/VulkanMesh.cpp
     src/map/vulkan/VulkanInst.cpp
@@ -37,9 +39,8 @@ set(RMAGINE_VULKAN_SRCS
     src/map/vulkan/VulkanTransformable.cpp
     #   Acceleration structure
     src/map/vulkan/accelerationStructure/AccelerationStructure.cpp
-    src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
     src/map/vulkan/accelerationStructure/TopLevelAccelerationStructure.cpp
-    src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructureInstance.cpp
+    src/map/vulkan/accelerationStructure/BottomLevelAccelerationStructure.cpp
 
     # Simulators
     src/simulation/SphereSimulatorVulkan.cpp
@@ -74,7 +75,7 @@ add_dependencies(rmagine-vulkan
     rmagine-core
 )
 
-target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG) #TODO: remove later
+# target_compile_definitions(rmagine-vulkan PUBLIC VDEBUG)
 
 # target_compile_features(rmagine-vulkan PUBLIC cxx_std_17)
 

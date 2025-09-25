@@ -6,67 +6,53 @@
 namespace rmagine
 {
 
-Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags) : device(get_vulkan_context()->getDevice()), extensionFunctionsPtr(get_vulkan_context()->getExtensionFunctionsPtr()), bufferSize(bufferSize)
+Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags) :
+    vulkan_context(get_vulkan_context_weak()),
+    device(vulkan_context.lock()->getDevice()),
+    bufferSize(bufferSize)
 {
     createBuffer(bufferUsageFlags);
 }
 
-Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) : device(device), extensionFunctionsPtr(extensionFunctionsPtr), bufferSize(bufferSize)
+Buffer::~Buffer()
 {
-    createBuffer(bufferUsageFlags);
+    if(buffer != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
+    }
+    device.reset();
 }
 
 
 
 void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
 {
-    if(buffer != VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("tried to create a buffer that already exists!");
-    }
-
     VkBufferCreateInfo bufferCreateInfo{};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.size = bufferSize;
     bufferCreateInfo.usage = bufferUsageFlags;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferCreateInfo.queueFamilyIndexCount = 1;
-    bufferCreateInfo.pQueueFamilyIndices = device->getQueueFamilyIndexPtr();
+    bufferCreateInfo.pQueueFamilyIndices = vulkan_context.lock()->getDevice()->getQueueFamilyIndexPtr();
 
-    if(vkCreateBuffer(device->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
+    if(vkCreateBuffer(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create buffer!");
+        throw std::runtime_error("[Buffer::createBuffer()] ERROR - failed to create buffer!");
     }
 }
-
-
-
-void Buffer::cleanup()
-{
-    if(buffer != VK_NULL_HANDLE)
-    {
-        vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
-        buffer = VK_NULL_HANDLE;
-    }
-}
-
 
 
 VkDeviceAddress Buffer::getBufferDeviceAddress()
 {
-    if(buffer == VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("tried to get the buffer device address without having created a buffer first!");
-    }
-
+    std::lock_guard<std::mutex> guard(bufferMtx);
     if(deviceAddress != 0)
         return deviceAddress;
 
     VkBufferDeviceAddressInfo bufferDeviceAddressInfo{};
     bufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     bufferDeviceAddressInfo.buffer = buffer;
-    
-    deviceAddress = extensionFunctionsPtr->pvkGetBufferDeviceAddressKHR(device->getLogicalDevice(), &bufferDeviceAddressInfo);
+
+    deviceAddress = vkGetBufferDeviceAddress(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferDeviceAddressInfo);
     return deviceAddress;
 }
 

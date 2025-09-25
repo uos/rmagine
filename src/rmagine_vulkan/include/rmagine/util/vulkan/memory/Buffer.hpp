@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <memory>
+#include <mutex>
 
 #include <vulkan/vulkan.h>
 
@@ -20,42 +21,34 @@ namespace rmagine
 class Buffer
 {
 private:
+    VulkanContextWPtr vulkan_context;
     DevicePtr device = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
 
     VkDeviceSize bufferSize = 0;
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceAddress deviceAddress = 0;
+
+    std::mutex bufferMtx;
+
 public:
-    /**
-     * THIS CONSTRUCTOR MUST NOT BE CALLED FROM THE CONSTRUCTOR OF THE VULKAN-CONTEXT
-     */
     Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags);
 
-    Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr);
-
-    ~Buffer() {}
+    ~Buffer();
 
     Buffer(const Buffer&) = delete;
-
-
-    /**
-     * free the Buffer
-     */
-    void cleanup();
     
-private:
-    /**
-     * create the Buffer
-     */
-    void createBuffer(VkBufferUsageFlags bufferUsageFlags);
-
-public:
+    
     VkDeviceAddress getBufferDeviceAddress();
 
     VkDeviceSize getBufferSize();
 
     VkBuffer getBuffer();
+
+private:
+    /**
+     * create the Buffer
+     */
+    void createBuffer(VkBufferUsageFlags bufferUsageFlags);
 };
 
 using BufferPtr = std::shared_ptr<Buffer>;

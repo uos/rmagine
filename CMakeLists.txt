@@ -236,6 +236,12 @@ if(Vulkan_FOUND)
   add_subdirectory(src/rmagine_vulkan)
 endif(Vulkan_FOUND)
 
+### RMAGINE VULKAN LIB
+if(Vulkan_FOUND AND CUDA_FOUND)
+  add_subdirectory(src/rmagine_vulkan_cuda_interop)
+endif(Vulkan_FOUND AND CUDA_FOUND)
+
+### ALL LIBS
 message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
     message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
@@ -256,6 +262,7 @@ if(BUILD_TOOLS)
     add_subdirectory(apps/rmagine_info)
     add_subdirectory(apps/rmagine_vulkan_benchmark)
     add_subdirectory(apps/rmagine_vulkan_general_test)
+    add_subdirectory(apps/rmagine_simulation_diff_calc)
 endif(BUILD_TOOLS)
 
 if(BUILD_EXAMPLES)

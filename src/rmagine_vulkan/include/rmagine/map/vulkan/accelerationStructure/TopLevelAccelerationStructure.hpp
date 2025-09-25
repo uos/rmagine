@@ -9,48 +9,25 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
 #include "AccelerationStructure.hpp"
-#include "BottomLevelAccelerationStructureInstance.hpp"
 
 
 
 namespace rmagine
 {
 
-class TopLevelAccelerationStructure final : public AccelerationStructure
+class TopLevelAccelerationStructure : public AccelerationStructure
 {
 private:
-    size_t tlasID = 0;
+    Memory<VkAccelerationStructureInstanceKHR, RAM> m_asInstances_ram;
+    Memory<VkAccelerationStructureInstanceKHR, DEVICE_LOCAL_VULKAN> m_asInstances;
 
 public:
-    TopLevelAccelerationStructure() : AccelerationStructure()
-    {
-        tlasID = getNewTlasID();
-        std::cout << "New top level acceleration structure with tlasID: " << tlasID << std::endl;
-    }
-
-    TopLevelAccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
-        AccelerationStructure(device, extensionFunctionsPtr)
-    {
-        tlasID = getNewTlasID();
-        std::cout << "New top level acceleration structure with tlasID: " << tlasID << std::endl;
-    }
+    Memory<VkDeviceAddress, RAM> m_asInstancesDescriptions_ram;
+    Memory<VkDeviceAddress, DEVICE_LOCAL_VULKAN> m_asInstancesDescriptions;
     
-    ~TopLevelAccelerationStructure(){}
-
-    TopLevelAccelerationStructure(const TopLevelAccelerationStructure&) = delete;
-
-    void createAccelerationStructure(BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance);
-
-    size_t getID();
-
-private:
-    static size_t tlasIDcounter;
-
-    static size_t getNewTlasID();
+    TopLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries);
+    ~TopLevelAccelerationStructure();
 };
-
-using TopLevelAccelerationStructurePtr = std::shared_ptr<TopLevelAccelerationStructure>;
 
 } // namespace rmagine

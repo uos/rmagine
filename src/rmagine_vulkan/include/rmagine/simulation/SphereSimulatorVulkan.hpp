@@ -16,17 +16,20 @@
 namespace rmagine
 {
 
-class SphereSimulatorVulkan : public SimulatorVulkan<SphericalModel, SphericalModel>
+class SphereSimulatorVulkan : public SimulatorVulkan<SphericalModel>
 {
 public:
-    SphereSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<SphericalModel, SphericalModel>(map) {}
+    SphereSimulatorVulkan() : SimulatorVulkan<SphericalModel>() {}
+
+    SphereSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<SphericalModel>(map) {}
 
     ~SphereSimulatorVulkan() {}
 
-    SphereSimulatorVulkan(const SphereSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    SphereSimulatorVulkan(const SphereSimulatorVulkan& other) : SimulatorVulkan<SphericalModel>(other) {}
 
 
-    void setModel(Memory<SphericalModel, RAM>& sensorMem_ram);
+    void setModel(const Memory<SphericalModel, RAM>& sensorMem_ram);
+    void setModel(const SphericalModel& sensor);
 };
 
 using SphereSimulatorVulkanPtr = std::shared_ptr<SphereSimulatorVulkan>;

@@ -17,7 +17,6 @@
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 #include "vulkan_definitions.hpp"
-#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
 #include "VulkanGeometry.hpp"
 
 
@@ -27,17 +26,22 @@ namespace rmagine
 
 class VulkanMesh : public VulkanGeometry
 {
+protected:
+    Memory<VkTransformMatrixKHR, RAM>   transformMatrix_ram;
+
 public:
-    Memory<Point, VULKAN_DEVICE_LOCAL>    vertices;
-    Memory<Face, VULKAN_DEVICE_LOCAL>     faces;
-    Memory<Vector, VULKAN_DEVICE_LOCAL>   face_normals;
-    Memory<Vector, VULKAN_DEVICE_LOCAL>   vertex_normals;
+    using Base = VulkanGeometry;
+
+    Memory<VkTransformMatrixKHR, DEVICE_LOCAL_VULKAN>   transformMatrix;
+
+    Memory<Point, DEVICE_LOCAL_VULKAN>    vertices;
+    Memory<Face, DEVICE_LOCAL_VULKAN>     faces;
+    Memory<Vector, DEVICE_LOCAL_VULKAN>   face_normals;
+    Memory<Vector, DEVICE_LOCAL_VULKAN>   vertex_normals;
 
     VulkanMesh();
 
     virtual ~VulkanMesh();
-
-    VulkanMesh(const VulkanMesh&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
     virtual void apply();
@@ -51,15 +55,15 @@ public:
         return VulkanGeometryType::MESH;
     }
 
-    // void computeFaceNormals();
+    void computeFaceNormals();
 };
 
 using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
 
 
 
-VulkanMeshPtr make_vulkan_mesh(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
-// VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh);
+VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh);
 
 } // namespace rmagine

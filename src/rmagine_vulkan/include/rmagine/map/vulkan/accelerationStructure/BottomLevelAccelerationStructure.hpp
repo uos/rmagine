@@ -9,8 +9,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
-#include <rmagine/types/MemoryVulkan.hpp>
 #include "AccelerationStructure.hpp"
 
 
@@ -18,22 +16,14 @@
 namespace rmagine
 {
 
-class BottomLevelAccelerationStructure final : public AccelerationStructure
+class BottomLevelAccelerationStructure : public AccelerationStructure
 {
-private:
-    /* data */
-
 public:
-    BottomLevelAccelerationStructure() : AccelerationStructure() {}
-    BottomLevelAccelerationStructure(DevicePtr device, ExtensionFunctionsPtr extensionFunctionsPtr) :
-        AccelerationStructure(device, extensionFunctionsPtr) {}
-    ~BottomLevelAccelerationStructure(){}
+    Memory<MeshDescription, RAM> m_meshDescriptions_ram;
+    Memory<MeshDescription, DEVICE_LOCAL_VULKAN> m_meshDescriptions;
 
-    BottomLevelAccelerationStructure(const BottomLevelAccelerationStructure&) = delete;
-
-    void createAccelerationStructure(uint32_t numVerticies, Memory<float, VULKAN_DEVICE_LOCAL>& vertexMem, uint32_t numTriangles, Memory<uint32_t, VULKAN_DEVICE_LOCAL>& indexMem);
+    BottomLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries);
+    ~BottomLevelAccelerationStructure();
 };
-
-using BottomLevelAccelerationStructurePtr = std::shared_ptr<BottomLevelAccelerationStructure>;
 
 } // namespace rmagine

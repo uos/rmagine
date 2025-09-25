@@ -87,4 +87,40 @@ OptixException::~OptixException()
 
 }
 
+
+VulkanException::VulkanException(const std::string& msg)
+:Exception(msg)
+{
+
+}
+
+VulkanException::VulkanException(const std::string& msg, const char* file, const char* func, int line)
+:Exception(msg, file, func, line)
+{
+
+}
+
+VulkanException::~VulkanException()
+{
+
+}
+
+
+VulkanCudaInteropException::VulkanCudaInteropException(const std::string& msg)
+:Exception(msg)
+{
+
+}
+
+VulkanCudaInteropException::VulkanCudaInteropException(const std::string& msg, const char* file, const char* func, int line)
+:Exception(msg, file, func, line)
+{
+
+}
+
+VulkanCudaInteropException::~VulkanCudaInteropException()
+{
+
+}
+
 } // namespace rmagine

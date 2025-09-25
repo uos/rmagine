@@ -5,19 +5,25 @@
 
 
 
-//mostly taken from "optix_definitions.h"
-
-
-
 namespace rmagine 
 {
+
+struct MeshDescription
+{
+    VkDeviceAddress vertexAddress;
+    VkDeviceAddress faceAddress;
+    VkDeviceAddress faceNormalAddress;
+    VkDeviceAddress vertexNormalAddress;
+};
+
+
 
 enum class VulkanGeometryType
 {
     NONE,
     INSTANCE,
     MESH,
-    POINTS //TODO: what is this for, do i need this, can i do this?
+    POINTS
 };
 
 enum class VulkanSceneType
@@ -35,9 +41,7 @@ class VulkanGeometry;
 class VulkanInst;
 class VulkanMesh;
 class VulkanScene;
-class BottomLevelAccelerationStructure;
-class BottomLevelAccelerationStructureInstance;
-class TopLevelAccelerationStructure;
+class AccelerationStructure;
 
 
 
@@ -45,19 +49,17 @@ using VulkanEntityPtr = std::shared_ptr<VulkanEntity>;
 using VulkanTransformablePtr = std::shared_ptr<VulkanTransformable>;
 using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;
 using VulkanInstPtr = std::shared_ptr<VulkanInst>;
+using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
 using VulkanScenePtr = std::shared_ptr<VulkanScene>;
-using BottomLevelAccelerationStructurePtr = std::shared_ptr<BottomLevelAccelerationStructure>;
-using BottomLevelAccelerationStructureInstancePtr = std::shared_ptr<BottomLevelAccelerationStructureInstance>;
-using TopLevelAccelerationStructurePtr = std::shared_ptr<TopLevelAccelerationStructure>;
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
 
 using VulkanEntityWPtr = std::weak_ptr<VulkanEntity>;
 using VulkanTransformableWPtr = std::weak_ptr<VulkanTransformable>;
 using VulkanGeometryWPtr = std::weak_ptr<VulkanGeometry>;
 using VulkanInstWPtr = std::weak_ptr<VulkanInst>;
+using VulkanMeshWPtr = std::weak_ptr<VulkanMesh>;
 using VulkanSceneWPtr = std::weak_ptr<VulkanScene>;
-using BottomLevelAccelerationStructureWPtr = std::weak_ptr<BottomLevelAccelerationStructure>;
-using BottomLevelAccelerationStructureInstanceWPtr = std::weak_ptr<BottomLevelAccelerationStructureInstance>;
-using TopLevelAccelerationStructureWPtr = std::weak_ptr<TopLevelAccelerationStructure>;
+using AccelerationStructureWPtr = std::weak_ptr<AccelerationStructure>;
 
 } // namespace rmagine
 
@@ -65,6 +67,24 @@ using TopLevelAccelerationStructureWPtr = std::weak_ptr<TopLevelAccelerationStru
 
 namespace std
 {
+
+// MESH
+template<>
+struct hash<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_hash<rmagine::VulkanMesh>
+{};
+
+template<>
+struct equal_to<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_equal_to<rmagine::VulkanMesh>
+{};
+
+template<>
+struct less<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_less<rmagine::VulkanMesh>
+{};
+
+
 
 // INSTANCE
 template<>

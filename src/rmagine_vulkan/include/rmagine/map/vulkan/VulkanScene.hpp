@@ -7,20 +7,24 @@
 #include <cstring>
 #include <memory>
 #include <unordered_set>
+#include <optional>
 
 #include <vulkan/vulkan.h>
 
 #include <rmagine/map/AssimpIO.hpp>
 #include <rmagine/util/VulkanContext.hpp>
 #include <rmagine/util/VulkanUtil.hpp>
-#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
+#include <rmagine/util/IDGen.hpp>
+#include <rmagine/util/assimp/helper.h>
+#include "vulkan_definitions.hpp"
+#include "accelerationStructure/AccelerationStructure.hpp"
 #include "accelerationStructure/TopLevelAccelerationStructure.hpp"
-#include "accelerationStructure/BottomLevelAccelerationStructureInstance.hpp"
+#include "accelerationStructure/BottomLevelAccelerationStructure.hpp"
 #include "VulkanMesh.hpp"
 #include "VulkanEntity.hpp"
-// #include "VulkanGeometry.hpp"
-// #include "VulkanTransformable.hpp"
-// #include "VulkanInst.hpp"
+#include "VulkanGeometry.hpp"
+#include "VulkanTransformable.hpp"
+#include "VulkanInst.hpp"
 
 
 
@@ -30,62 +34,90 @@ namespace rmagine
 class VulkanScene : public VulkanEntity
 {
 private:
-    //memory
-    uint32_t numVerticies = 0;
-    uint32_t numTriangles = 0;
-    Memory<float, VULKAN_DEVICE_LOCAL> vertexMem;
-    Memory<uint32_t, VULKAN_DEVICE_LOCAL> indexMem;
+    AccelerationStructurePtr m_as = nullptr;
 
-    //acceleration structure
-    BottomLevelAccelerationStructurePtr bottomLevelAccelerationStructure = nullptr;//TODO: multiple of these
-    BottomLevelAccelerationStructureInstancePtr bottomLevelAccelerationStructureInstance = nullptr;//TODO: multiple of these
-    TopLevelAccelerationStructurePtr topLevelAccelerationStructure = nullptr;
+    VulkanSceneType m_type = VulkanSceneType::NONE;
+    VulkanGeometryType m_geom_type = VulkanGeometryType::MESH;
+
+    IDGen gen;
+
+    std::map<unsigned int, VulkanGeometryPtr> m_geometries;
+    std::unordered_map<VulkanGeometryPtr, unsigned int> m_ids;
+
+    std::unordered_set<VulkanInstWPtr> m_parents;
+
+    bool m_geom_added = false;
+    bool m_geom_removed = false;
+
+    // filled after commit
+    unsigned int m_depth = 0;
 
 public:
-    VulkanScene()
-    {
+    VulkanScene();
 
+    virtual ~VulkanScene();
+
+
+    unsigned int add(VulkanGeometryPtr geom);
+    unsigned int get(VulkanGeometryPtr geom) const;
+    std::optional<unsigned int> getOpt(VulkanGeometryPtr geom) const;
+    bool has(VulkanGeometryPtr geom) const;
+    bool has(unsigned int geom_id) const;
+    bool remove(VulkanGeometryPtr geom);
+    VulkanGeometryPtr remove(unsigned int geom_id);
+
+    std::map<unsigned int, VulkanGeometryPtr> geometries() const;
+    std::unordered_map<VulkanGeometryPtr, unsigned int> ids() const;
+    
+    VulkanInstPtr instantiate();
+
+    
+    inline VulkanSceneType type() const 
+    {
+        return m_type;
     }
 
-    VulkanScene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram) : 
-        vertexMem(Memory<float, VULKAN_DEVICE_LOCAL>(vertexMem_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)),
-        indexMem(Memory<uint32_t, VULKAN_DEVICE_LOCAL>(indexMem_ram.size(), VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)),
-        bottomLevelAccelerationStructure(new BottomLevelAccelerationStructure()), 
-        bottomLevelAccelerationStructureInstance(new BottomLevelAccelerationStructureInstance),
-        topLevelAccelerationStructure(new TopLevelAccelerationStructure()) 
+    inline VulkanGeometryType geom_type() const
     {
-        createScene(vertexMem_ram, indexMem_ram);
+        return m_geom_type;
     }
 
-    ~VulkanScene()
-    {
-        std::cout << "destroying VulkanScene" << std::endl;
-        cleanup();
-    }
+    // geometry can be instanced
+    void cleanupParents();
+    std::unordered_set<VulkanInstPtr> parents() const;
+    void addParent(VulkanInstPtr parent);
 
-    VulkanScene(const VulkanScene&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
-
-
+    /**
+     * @brief Call commit after the scene was filles with
+     * geometries or instances to begin the building/updating process
+     * of the acceleration structure
+     * - only after commit it is possible to raytrace
+     */
     void commit();
 
-    void cleanup();
+    // ACCASSIBLE AFTER COMMIT
+    inline AccelerationStructurePtr as() const
+    {
+        return m_as;
+    }
 
-    Memory<float, VULKAN_DEVICE_LOCAL>& getVertexMem();
+    inline unsigned int depth() const 
+    {
+        return m_depth;
+    }
 
-    Memory<uint32_t, VULKAN_DEVICE_LOCAL>& getIndexMem();
-
-    TopLevelAccelerationStructurePtr getTopLevelAccelerationStructure();
-
-private:
-    void createScene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+    size_t numOfChildNodes() const
+    {
+        return m_geometries.size();
+    }
 };
 
 using VulkanScenePtr = std::shared_ptr<VulkanScene>;
 
 
 
-VulkanScenePtr make_vulkan_scene(Memory<float, RAM>& vertexMem_ram, Memory<uint32_t, RAM>& indexMem_ram);
+VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
-// VulkanScenePtr make_vulkan_scene(const aiScene* ascene);
+VulkanScenePtr make_vulkan_scene(const aiScene* ascene);
 
 } // namespace rmagine

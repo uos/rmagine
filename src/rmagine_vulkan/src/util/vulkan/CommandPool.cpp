@@ -1,9 +1,26 @@
 #include "rmagine/util/vulkan/CommandPool.hpp"
+#include "rmagine/util/VulkanContext.hpp"
 
 
 
 namespace rmagine
 {
+CommandPool::CommandPool(DevicePtr device) : device(device)
+{
+    createCommandPool();
+}
+
+CommandPool::~CommandPool()
+{
+    if(commandPool != VK_NULL_HANDLE)
+    {
+        vkResetCommandPool(device->getLogicalDevice(), commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+        vkDestroyCommandPool(device->getLogicalDevice(), commandPool, nullptr);
+    }
+    device.reset();
+}
+
+
 
 void CommandPool::createCommandPool()
 {
@@ -12,22 +29,11 @@ void CommandPool::createCommandPool()
     commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     commandPoolCreateInfo.queueFamilyIndex = device->getQueueFamilyIndex();
 
-    if(vkCreateCommandPool(device->getLogicalDevice(), &commandPoolCreateInfo, NULL,  &commandPool) != VK_SUCCESS)
+    if(vkCreateCommandPool(device->getLogicalDevice(), &commandPoolCreateInfo, nullptr,  &commandPool) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create command pool!");
+        throw std::runtime_error("[CommandPool::createCommandPool()] ERROR - failed to create command pool!");
     }
 }
-
-
-void CommandPool::cleanup()
-{
-    if(commandPool != VK_NULL_HANDLE)
-    {
-        vkResetCommandPool(device->getLogicalDevice(), commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
-        vkDestroyCommandPool(device->getLogicalDevice(), commandPool, NULL);
-    }
-}
-
 
 
 VkCommandPool CommandPool::getCommandPool()

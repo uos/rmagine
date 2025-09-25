@@ -11,14 +11,13 @@
 
 #include <rmagine/util/VulkanUtil.hpp>
 #include "Device.hpp"
-#include "DescriptorSetLayout.hpp"
 
 
 
 namespace rmagine
 {
 
-class PipelineLayout
+class RayTracingPipelineLayout
 {
 private:
     DevicePtr device = nullptr;
@@ -27,17 +26,12 @@ private:
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 public:
-    PipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout) : device(device), descriptorSetLayout(descriptorSetLayout)
-    {
-        createPipelineLayout();
-    }
+    RayTracingPipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
 
-    ~PipelineLayout() {}
+    ~RayTracingPipelineLayout();
 
-    PipelineLayout(const PipelineLayout&) = delete;
+    RayTracingPipelineLayout(const RayTracingPipelineLayout&) = delete;
 
-
-    void cleanup();
 
     VkPipelineLayout getPipelineLayout();
 
@@ -45,6 +39,6 @@ private:
     void createPipelineLayout();
 };
 
-using PipelineLayoutPtr = std::shared_ptr<PipelineLayout>;
+using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
 
 } // namespace rmagine

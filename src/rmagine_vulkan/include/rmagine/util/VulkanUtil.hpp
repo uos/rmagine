@@ -28,17 +28,39 @@ namespace rmagine
 
 struct ExtensionFunctions
 {
-    PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR;
-    PFN_vkCreateRayTracingPipelinesKHR pvkCreateRayTracingPipelinesKHR;
-    PFN_vkGetAccelerationStructureBuildSizesKHR pvkGetAccelerationStructureBuildSizesKHR;
-    PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR;
-    PFN_vkDestroyAccelerationStructureKHR pvkDestroyAccelerationStructureKHR;
-    PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR;
-    PFN_vkCmdBuildAccelerationStructuresKHR pvkCmdBuildAccelerationStructuresKHR;
-    PFN_vkGetRayTracingShaderGroupHandlesKHR pvkGetRayTracingShaderGroupHandlesKHR;
-    PFN_vkCmdTraceRaysKHR pvkCmdTraceRaysKHR;
+    PFN_vkCreateRayTracingPipelinesKHR vkCreateRayTracingPipelinesKHR;
+    PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR;
+    PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR;
+    PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
+    PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR;
+    PFN_vkCmdBuildAccelerationStructuresKHR vkCmdBuildAccelerationStructuresKHR;
+    PFN_vkGetRayTracingShaderGroupHandlesKHR vkGetRayTracingShaderGroupHandlesKHR;
+    PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR;
+    PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR;
 };
 
-using ExtensionFunctionsPtr = std::shared_ptr<ExtensionFunctions>;
+
+
+//forward declarations
+
+class VulkanContext;
+using VulkanContextPtr = std::shared_ptr<VulkanContext>;
+using VulkanContextWPtr = std::weak_ptr<VulkanContext>;
+
+class Device;
+using DevicePtr = std::shared_ptr<Device>;
+using DeviceWPtr = std::weak_ptr<Device>;
+
+class CommandPool;
+using CommandPoolPtr = std::shared_ptr<CommandPool>;
+using CommandPoolWPtr = std::weak_ptr<CommandPool>;
+
+class DescriptorSetLayout;
+using DescriptorSetLayoutPtr = std::shared_ptr<DescriptorSetLayout>;
+using DescriptorSetLayoutWPtr = std::weak_ptr<DescriptorSetLayout>;
+
+class RayTracingPipelineLayout;
+using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
+using PipelineLayoutWPtr = std::weak_ptr<RayTracingPipelineLayout>;
 
 } // namespace rmagine

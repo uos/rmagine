@@ -26,17 +26,12 @@ private:
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
 
 public:
-    DescriptorSetLayout(DevicePtr device) : device(device)
-    {
-        createDescriptorPool();
-        createDescriptorSetLayout();
-    }
+    DescriptorSetLayout(DevicePtr device);
 
-    ~DescriptorSetLayout() {}
+    ~DescriptorSetLayout();
 
     DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 
-    void cleanup();
 
     VkDescriptorPool getDescriptorPool();
     

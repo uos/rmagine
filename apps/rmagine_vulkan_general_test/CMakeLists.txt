@@ -9,7 +9,7 @@ target_link_libraries(rmagine_vulkan_general_test
     rmagine::vulkan
 )
 
-target_compile_definitions(rmagine_vulkan_general_test PUBLIC VDEBUG)
+# target_compile_definitions(rmagine_vulkan_general_test PUBLIC VDEBUG)
 
 ##### INSTALL
 install(TARGETS rmagine_vulkan_general_test

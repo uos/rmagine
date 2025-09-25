@@ -11,9 +11,9 @@
 
 #include <rmagine/util/VulkanUtil.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
-#include "Device.hpp"
+#include "ShaderUtil.hpp"
 #include "Shader.hpp"
-#include "Pipeline.hpp"
+#include "RayTracingPipeline.hpp"
 
 
 
@@ -23,10 +23,11 @@ namespace rmagine
 class ShaderBindingTable
 {
 private:
-    DevicePtr device = nullptr;
-    ExtensionFunctionsPtr extensionFunctionsPtr = nullptr;
+    VulkanContextWPtr vulkan_context;
 
-    Memory<char, VULKAN_DEVICE_LOCAL> shaderBindingTableMemory;
+    RayTracingPipelinePtr pipeline = nullptr;
+
+    Memory<char, DEVICE_LOCAL_VULKAN> shaderBindingTableMemory;
 
     //shader data
     VkStridedDeviceAddressRegionKHR rchitShaderBindingTable{};
@@ -35,16 +36,14 @@ private:
     VkStridedDeviceAddressRegionKHR callableShaderBindingTable{};
 
 public:
-    ShaderBindingTable(PipelinePtr pipeline);
-    
-    ShaderBindingTable(DevicePtr device, PipelinePtr pipeline, ExtensionFunctionsPtr extensionFunctionsPtr);
+    ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
 
-    ~ShaderBindingTable() {}
+    ~ShaderBindingTable();
 
     ShaderBindingTable(const ShaderBindingTable&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
-    void cleanup();
+    RayTracingPipelinePtr getPipeline();
 
     VkStridedDeviceAddressRegionKHR* getRayGenerationShaderBindingTablePtr();
 
@@ -55,7 +54,7 @@ public:
     VkStridedDeviceAddressRegionKHR* getCallableShaderBindingTablePtr();
 
 private:
-    void createShaderBindingTable(PipelinePtr pipeline);
+    void createShaderBindingTable();
 };
 
 using ShaderBindingTablePtr = std::shared_ptr<ShaderBindingTable>;

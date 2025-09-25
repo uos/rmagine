@@ -16,32 +16,76 @@ using namespace rmagine;
 
 
 
+VulkanMapPtr createCustomMap()
+{
+    //mapdata:
+    Memory<Point, RAM> vertexMem_ram(6);
+    Memory<Face, RAM> indexMem_ram(2);
+    //Vertecies
+    vertexMem_ram[0] = {-20.0f, -10.0f, -10.0f};
+    vertexMem_ram[1] = {-20.0f,  10.0f, -10.0f};
+    vertexMem_ram[2] = {-20.0f,   0.0f,  10.0f};
+    vertexMem_ram[3] = { 20.0f, -10.0f, -10.0f};
+    vertexMem_ram[4] = { 20.0f,  10.0f, -10.0f};
+    vertexMem_ram[5] = { 20.0f,   0.0f,  10.0f};
+    //Indicies
+    indexMem_ram[0] = {0, 1, 2};
+    indexMem_ram[1] = {3, 4, 5};
+
+
+    //mapdata:
+    Memory<Point, RAM> vertexMem_2_ram(3);
+    Memory<Face, RAM> indexMem_2_ram(1);
+    //Vertecies
+    vertexMem_2_ram[0] = { 30.0f,   0.0f, -30.0f};
+    vertexMem_2_ram[1] = {-30.0f,  30.0f, -30.0f};
+    vertexMem_2_ram[2] = {-30.0f, -30.0f, -30.0f};
+    //Indicies
+    indexMem_2_ram[0] = {0, 1, 2};
+
+
+    Transform tf90;
+    tf90.setIdentity();
+    tf90.R = {0, 0, 0.7071068, 0.7071068};
+
+
+    VulkanMeshPtr mesh = make_vulkan_mesh(vertexMem_ram, indexMem_ram);
+    mesh->commit();
+
+    VulkanMeshPtr mesh_2 = make_vulkan_mesh(vertexMem_2_ram, indexMem_2_ram);
+    mesh_2->commit();
+
+    VulkanScenePtr mesh_scene = std::make_shared<VulkanScene>();
+    mesh_scene->add(mesh);
+    mesh_scene->add(mesh_2);
+    mesh_scene->commit();
+
+    VulkanInstPtr geom_inst = mesh_scene->instantiate();
+    geom_inst->apply();
+    geom_inst->commit();
+
+    VulkanInstPtr geom_inst_2 = mesh->instantiate();
+    geom_inst_2->setTransform(tf90);
+    geom_inst_2->apply();
+    geom_inst_2->commit();
+
+    VulkanScenePtr scene = std::make_shared<VulkanScene>();
+    scene->add(geom_inst);
+    scene->add(geom_inst_2);
+    scene->commit();
+
+    return std::make_shared<VulkanMap>(scene);
+}
+
+
+
 int main()
 {
     std::cout << "Main start." << std::endl;
 
-    //mapdata:
-    Memory<float, RAM> vertexMem_ram(18);
-    Memory<uint32_t, RAM> indexMem_ram(6);
-    //Vertecies
-    vertexMem_ram[ 0] = -20.0f; vertexMem_ram[ 1] = -10.0f; vertexMem_ram[ 2] = -10.0f;
-    vertexMem_ram[ 3] = -20.0f; vertexMem_ram[ 4] =  10.0f; vertexMem_ram[ 5] = -10.0f;
-    vertexMem_ram[ 6] = -20.0f; vertexMem_ram[ 7] =   0.0f; vertexMem_ram[ 8] =  10.0f;
-    vertexMem_ram[ 9] =  20.0f; vertexMem_ram[10] = -10.0f; vertexMem_ram[11] = -10.0f;
-    vertexMem_ram[12] =  20.0f; vertexMem_ram[13] =  10.0f; vertexMem_ram[14] = -10.0f;
-    vertexMem_ram[15] =  20.0f; vertexMem_ram[16] =   0.0f; vertexMem_ram[17] =  10.0f;
-    //Indicies
-    indexMem_ram[ 0] = 0; indexMem_ram[ 1] = 1; indexMem_ram[ 2] = 2;
-    indexMem_ram[ 3] = 3; indexMem_ram[ 4] = 4; indexMem_ram[ 5] = 5;
-    //logging
-    uint32_t numVerticies = vertexMem_ram.size()/3;
-    uint32_t numTriangles = indexMem_ram.size()/3;
-    std::cout << "Using Mesh with " << numVerticies << " Verticies & " << numTriangles << " Triangles." << std::endl;
-
-
     //create map
-    std::cout << "Creating map main." << std::endl;
-    VulkanMapPtr map = import_vulkan_map(vertexMem_ram, indexMem_ram);
+    std::cout << "Creating map." << std::endl;
+    VulkanMapPtr map = createCustomMap();
 
 
     //allocate sphere sensorbuffer
@@ -154,31 +198,31 @@ int main()
     {
         tbm_ram[i] = tsb;
     }
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tbm_device(2);
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_device(2);
     tbm_device = tbm_ram;
 
     //bundle
     using ResultT = Bundle<
-        Hits<VULKAN_DEVICE_LOCAL>,
-        Ranges<VULKAN_DEVICE_LOCAL>,
-        Points<VULKAN_DEVICE_LOCAL>,
-        Normals<VULKAN_DEVICE_LOCAL>,
-        FaceIds<VULKAN_DEVICE_LOCAL>,   //primitive ids
-        GeomIds<VULKAN_DEVICE_LOCAL>,   //geometry ids
-        ObjectIds<VULKAN_DEVICE_LOCAL>  //instance ids
+        Hits<DEVICE_LOCAL_VULKAN>,
+        Ranges<DEVICE_LOCAL_VULKAN>,
+        Points<DEVICE_LOCAL_VULKAN>,
+        Normals<DEVICE_LOCAL_VULKAN>,
+        FaceIds<DEVICE_LOCAL_VULKAN>,   //primitive ids
+        GeomIds<DEVICE_LOCAL_VULKAN>,   //geometry ids
+        ObjectIds<DEVICE_LOCAL_VULKAN>  //instance ids
     >;
 
     //allocate sphere resultsbuffer
     std::cout << "Creating sphere results." << std::endl;
     Memory<uint8_t, RAM> sphereHits_ram(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
     ResultT res_sphere;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_sphere, sphereSensor.phi.size, sphereSensor.theta.size, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_sphere, sphereSensor.phi.size, sphereSensor.theta.size, tbm_ram.size());
 
     //allocate pinhole resultsbuffer
     std::cout << "Creating pinhole results." << std::endl;
     Memory<uint8_t, RAM> pinholeHits_ram(tbm_ram.size()*pinholeSensor.width*pinholeSensor.height);
     ResultT res_pinhole;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_pinhole, pinholeSensor.width, pinholeSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_pinhole, pinholeSensor.width, pinholeSensor.height, tbm_ram.size());
 
     //allocate o1dn resultsbuffer
     std::cout << "Creating o1dn results." << std::endl;
@@ -190,7 +234,7 @@ int main()
     Memory<unsigned int, RAM> o1dnGeometryIds_ram(tbm_ram.size()*o1dnSensor.width*o1dnSensor.height);
     Memory<unsigned int, RAM> o1dnInstanceIds_ram(tbm_ram.size()*o1dnSensor.width*o1dnSensor.height);
     ResultT res_o1dn;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_o1dn, o1dnSensor.width, o1dnSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_o1dn, o1dnSensor.width, o1dnSensor.height, tbm_ram.size());
 
     //allocate ondn resultsbuffer
     std::cout << "Creating ondn results." << std::endl;
@@ -202,7 +246,7 @@ int main()
     Memory<unsigned int, RAM> ondnGeometryIds_ram(tbm_ram.size()*ondnSensor.width*ondnSensor.height);
     Memory<unsigned int, RAM> ondnInstanceIds_ram(tbm_ram.size()*ondnSensor.width*ondnSensor.height);
     ResultT res_ondn;
-    resize_memory_bundle<VULKAN_DEVICE_LOCAL>(res_ondn, ondnSensor.width, ondnSensor.height, tbm_ram.size());
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_ondn, ondnSensor.width, ondnSensor.height, tbm_ram.size());
 
 
     //simulate sphere
@@ -220,6 +264,8 @@ int main()
     //simulate ondn
     std::cout << "Simulating ondn..." << std::endl;
     sim_gpu_ondn->simulate(tbm_device, res_ondn);
+
+    std::cout << std::endl;
 
 
     //get sphere results

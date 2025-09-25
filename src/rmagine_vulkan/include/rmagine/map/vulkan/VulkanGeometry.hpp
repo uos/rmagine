@@ -44,8 +44,8 @@ public:
     bool hasParent(VulkanScenePtr parent) const;
     void addParent(VulkanScenePtr parent);
 
-    // VulkanScenePtr makeScene();
-    // VulkanInstPtr instantiate();
+    VulkanScenePtr makeScene();
+    VulkanInstPtr instantiate();
 };
 
 using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;

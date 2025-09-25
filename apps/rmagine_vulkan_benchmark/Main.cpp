@@ -19,20 +19,20 @@ int main()
     std::cout << "Main start." << std::endl;
 
     //mapdata
-    Memory<float, RAM> vertexMem_ram(9);
-    Memory<uint32_t, RAM> indexMem_ram(3);
+    Memory<Point, RAM> vertexMem_ram(3);
+    Memory<Face, RAM> indexMem_ram(1);
     //Vertecies
-    // vertexMem_ram[ 0] =  20.0f; vertexMem_ram[ 1] = -10.0f; vertexMem_ram[ 2] = -10.0f;
-    // vertexMem_ram[ 3] =  20.0f; vertexMem_ram[ 4] =  10.0f; vertexMem_ram[ 5] = -10.0f;
-    // vertexMem_ram[ 6] =  20.0f; vertexMem_ram[ 7] =   0.0f; vertexMem_ram[ 8] =  10.0f;
-    vertexMem_ram[ 0] =  0.0f; vertexMem_ram[ 1] =  0.0f; vertexMem_ram[ 2] =  0.0f;
-    vertexMem_ram[ 3] =  1.0f; vertexMem_ram[ 4] =  0.0f; vertexMem_ram[ 5] =  0.0f;
-    vertexMem_ram[ 6] =  0.0f; vertexMem_ram[ 7] =  1.0f; vertexMem_ram[ 8] =  0.0f;
+    // vertexMem_ram[0] = {20.0f, -10.0f, -10.0f};
+    // vertexMem_ram[1] = {20.0f,  10.0f, -10.0f};
+    // vertexMem_ram[2] = {20.0f,   0.0f,  10.0f};
+    vertexMem_ram[0] = {0.0f, 0.0f, 0.0f};
+    vertexMem_ram[1] = {1.0f, 0.0f, 0.0f};
+    vertexMem_ram[2] = {0.0f, 1.0f, 0.0f};
     //Indicies
-    indexMem_ram[ 0] = 0; indexMem_ram[ 1] = 1; indexMem_ram[ 2] = 2;
+    indexMem_ram[0] = {0, 1, 2};
     //logging
-    uint32_t numVerticies = vertexMem_ram.size()/3;
-    uint32_t numTriangles = indexMem_ram.size()/3;
+    uint32_t numVerticies = vertexMem_ram.size();
+    uint32_t numTriangles = indexMem_ram.size();
     std::cout << "Using Mesh with " << numVerticies << " Verticies & " << numTriangles << " Triangles." << std::endl;
 
 
@@ -80,19 +80,19 @@ int main()
     {
         tbm_ram[i] = tsb;
     }
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tbm_device(tbm_ram.size());
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_device(tbm_ram.size());
     tbm_device = tbm_ram;
 
 
     //bundle
     using ResultT = Bundle<
-        Ranges<VULKAN_DEVICE_LOCAL> 
-        // ,Hits<VULKAN_DEVICE_LOCAL>
-        // ,Points<VULKAN_DEVICE_LOCAL>
-        // ,Normals<VULKAN_DEVICE_LOCAL>
-        // ,FaceIds<VULKAN_DEVICE_LOCAL>   //primitive ids
-        // ,GeomIds<VULKAN_DEVICE_LOCAL>   //geometry ids
-        // ,ObjectIds<VULKAN_DEVICE_LOCAL> //instance ids
+        Ranges<DEVICE_LOCAL_VULKAN> 
+        // ,Hits<DEVICE_LOCAL_VULKAN>
+        // ,Points<DEVICE_LOCAL_VULKAN>
+        // ,Normals<DEVICE_LOCAL_VULKAN>
+        // ,FaceIds<DEVICE_LOCAL_VULKAN>   //primitive ids
+        // ,GeomIds<DEVICE_LOCAL_VULKAN>   //geometry ids
+        // ,ObjectIds<DEVICE_LOCAL_VULKAN> //instance ids
     >;
 
     //allocate sphere resultsbuffer
@@ -150,7 +150,7 @@ int main()
     }
 
     std::cout << std::endl;
-    std::cout << "Result: " << velos_per_second_mean << " velos/s" << std::endl;
+    std::cout << "Result: " << velos_per_second_mean << " velos/s\n" << std::endl;
 
     return EXIT_SUCCESS;
 }

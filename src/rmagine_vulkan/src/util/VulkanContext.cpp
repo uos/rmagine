@@ -6,55 +6,55 @@
 namespace rmagine
 {
 
-void VulkanContext::loadExtensionFunctions()
+VulkanContext::VulkanContext() : 
+    device(new Device), commandPool(new CommandPool(device)), 
+    descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new RayTracingPipelineLayout(device, descriptorSetLayout))
 {
-    extensionFunctionsPtr->pvkGetBufferDeviceAddressKHR =
-        (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetBufferDeviceAddressKHR");
+    loadExtensionFunctions();
+}
 
-    extensionFunctionsPtr->pvkCreateRayTracingPipelinesKHR =
-        (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateRayTracingPipelinesKHR");
+VulkanContext::~VulkanContext()
+{
+    clearShaderBindingTableCache();
+    clearShaderCache();
 
-    extensionFunctionsPtr->pvkGetAccelerationStructureBuildSizesKHR =
-        (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureBuildSizesKHR");
-
-    extensionFunctionsPtr->pvkCreateAccelerationStructureKHR =
-        (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateAccelerationStructureKHR");
-
-    extensionFunctionsPtr->pvkDestroyAccelerationStructureKHR =
-        (PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkDestroyAccelerationStructureKHR");
-
-    extensionFunctionsPtr->pvkGetAccelerationStructureDeviceAddressKHR =
-        (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
-
-    extensionFunctionsPtr->pvkCmdBuildAccelerationStructuresKHR =
-        (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdBuildAccelerationStructuresKHR");
-
-    extensionFunctionsPtr->pvkGetRayTracingShaderGroupHandlesKHR =
-        (PFN_vkGetRayTracingShaderGroupHandlesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetRayTracingShaderGroupHandlesKHR");
-
-    extensionFunctionsPtr->pvkCmdTraceRaysKHR =
-        (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdTraceRaysKHR");
+    commandPool.reset();
+    pipelineLayout.reset();
+    descriptorSetLayout.reset();
+    device.reset();
 }
 
 
-PipelinePtr VulkanContext::getPipeline(ShaderDefineFlags shaderDefines)
+
+void VulkanContext::loadExtensionFunctions()
 {
-    if(!one_sensor_defined(shaderDefines))
-    {
-        throw std::invalid_argument("illegal ShaderDefineFlags: You may only define one sensor type!");
-    }
-    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
-    {
-        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large");
-    }
+    extensionFuncs.vkCreateRayTracingPipelinesKHR =
+        (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateRayTracingPipelinesKHR");
 
-    if(pipelineMap.count(shaderDefines) == 0)
-    {
-        pipelineMap[shaderDefines] = std::make_shared<Pipeline>(device, pipelineLayout, extensionFunctionsPtr, shaderDefines);
-        pipelineMap.at(shaderDefines)->createShaderBindingTable();
-    }
+    extensionFuncs.vkGetAccelerationStructureBuildSizesKHR =
+        (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureBuildSizesKHR");
 
-    return pipelineMap.at(shaderDefines);
+    extensionFuncs.vkCreateAccelerationStructureKHR =
+        (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateAccelerationStructureKHR");
+
+    extensionFuncs.vkDestroyAccelerationStructureKHR =
+        (PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkDestroyAccelerationStructureKHR");
+
+    extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR =
+        (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
+
+    extensionFuncs.vkCmdBuildAccelerationStructuresKHR =
+        (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdBuildAccelerationStructuresKHR");
+
+    extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR =
+        (PFN_vkGetRayTracingShaderGroupHandlesKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetRayTracingShaderGroupHandlesKHR");
+
+    extensionFuncs.vkCmdTraceRaysKHR =
+        (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCmdTraceRaysKHR");
+
+    extensionFuncs.vkGetMemoryFdKHR = 
+        (PFN_vkGetMemoryFdKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetMemoryFdKHR");
+
 }
 
 
@@ -62,11 +62,11 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
 {
     if(!one_sensor_defined(shaderDefines))
     {
-        throw std::runtime_error("illegal ShaderDefineFlags: You may only define one sensor type!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - illegal ShaderDefineFlags: You may only define one sensor type!");
     }
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("illegal ShaderDefineFlags: cant be 0 or too large!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - illegal ShaderDefineFlags: cant be 0 or too large!");
     }
 
     ShaderDefineFlags maskedShaderDefines = 0;
@@ -82,71 +82,100 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
         break;
     
     case ShaderType::Call:
-        throw std::runtime_error("ShaderType::Call currently not supported!");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - ShaderType::Call currently not supported!");
         break;
     default:
-        throw std::invalid_argument("invalid shaderType");
+        throw std::invalid_argument("[VulkanContext::getShader()] ERROR - invalid shaderType");
         break;
     }
 
+    std::lock_guard<std::mutex> guard(shaderMutex);
     if(shaderMaps[shaderType].count(maskedShaderDefines) == 0)
     {
-        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(device, shaderType, maskedShaderDefines);
+        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(weak_from_this(), shaderType, maskedShaderDefines);
     }
 
     return shaderMaps[shaderType].at(maskedShaderDefines);
 }
 
 
-void VulkanContext::cleanup()
+void VulkanContext::removeShader(ShaderType shaderType, ShaderDefineFlags shaderDefines)
 {
-    std::cout << "cleaning up..." << std::endl;
-
-    clearShaderCache();
-    std::cout << "cleaned up shaders." << std::endl;
-
-    defaultCommandBuffer->cleanup();
-    commandPool->cleanup();
-    std::cout << "reset & cleaned up command pool." << std::endl;
-
-    clearPipelineCache();
-    std::cout << "cleaned up pipelines." << std::endl;
-
-    pipelineLayout->cleanup();
-    std::cout << "cleaned up pipeline layout." << std::endl;
-
-    descriptorSetLayout->cleanup();
-    std::cout << "cleaned up descriptor set layout." << std::endl;
-
-    device->cleanup();
-    std::cout << "cleaned up device & instance." << std::endl;
-
-    std::cout << "done." << std::endl;
+    std::lock_guard<std::mutex> guard(shaderMutex);
+    if(shaderMaps[shaderType].count(shaderDefines) == 1)
+    {
+        auto it = shaderMaps[shaderType].find(shaderDefines);
+        shaderMaps[shaderType].erase(it);
+    }
 }
 
+
+size_t VulkanContext::getShaderCacheSize()
+{
+    std::lock_guard<std::mutex> guard(shaderMutex);
+    size_t size = 0;
+    for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
+    {
+        size += shaderMaps[i].size();
+    }
+    return size;
+}
 
 
 void VulkanContext::clearShaderCache()
 {
+    std::lock_guard<std::mutex> guard(shaderMutex);
     for(size_t i = 0; i < ShaderType::SHADER_TYPE_SIZE; i++)
     {
-        for (auto const& shader : shaderMaps[i])
-        {
-            shader.second->cleanup();
-        }
         shaderMaps[i].clear();
     }
 }
 
-void VulkanContext::clearPipelineCache()
+
+ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags shaderDefines)
 {
-    for (auto const& pipeline : pipelineMap)
+    if(!one_sensor_defined(shaderDefines))
     {
-        pipeline.second->cleanup();
+        throw std::invalid_argument("[VulkanContext::getShaderBindingTable()] ERROR - illegal ShaderDefineFlags: You may only define one sensor type!");
     }
-    pipelineMap.clear();
+    if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
+    {
+        throw std::invalid_argument("[VulkanContext::getShaderBindingTable()] ERROR - illegal ShaderDefineFlags: cant be 0 or too large");
+    }
+
+    std::lock_guard<std::mutex> guard(sbtMutex);
+    if(shaderBindingTableMap.count(shaderDefines) == 0)
+    {
+        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
+    }
+
+    return shaderBindingTableMap.at(shaderDefines);
 }
 
+
+void VulkanContext::removeShaderBindingTable(ShaderDefineFlags shaderDefines)
+{
+    std::lock_guard<std::mutex> guard(sbtMutex);
+    if(shaderBindingTableMap.count(shaderDefines) == 1)
+    {
+        auto it = shaderBindingTableMap.find(shaderDefines);
+        shaderBindingTableMap.erase(it);
+    }
+}
+
+
+size_t VulkanContext::getShaderBindingTableCacheSize()
+{
+    std::lock_guard<std::mutex> guard(sbtMutex);
+    return shaderBindingTableMap.size();
+}
+
+
+void VulkanContext::clearShaderBindingTableCache()
+{
+    std::lock_guard<std::mutex> guard(sbtMutex);
+    shaderBindingTableMap.clear();
+}
 
 
 DevicePtr VulkanContext::getDevice()
@@ -164,33 +193,23 @@ DescriptorSetLayoutPtr VulkanContext::getDescriptorSetLayout()
     return descriptorSetLayout;
 }
 
-PipelineLayoutPtr VulkanContext::getPipelineLayout()
+RayTracingPipelineLayoutPtr VulkanContext::getPipelineLayout()
 {
     return pipelineLayout;
-}
-
-ExtensionFunctionsPtr VulkanContext::getExtensionFunctionsPtr()
-{
-    return extensionFunctionsPtr;
-}
-
-CommandBufferPtr VulkanContext::getDefaultCommandBuffer()
-{
-    return defaultCommandBuffer;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
 //-------------------------------------------End of VulkanContext functions-------------------------------------------//
 //--------------------------------------------------------------------------------------------------------------------//
 
-VulkanContextPtr vulkan_context(new VulkanContext());
+VulkanContextPtr vulkan_context = std::make_shared<VulkanContext>();
 
 VulkanContextPtr get_vulkan_context()
 {
     return vulkan_context;
 }
 
-VulkanContextWeakPtr get_vulkan_context_weak()
+VulkanContextWPtr get_vulkan_context_weak()
 {
     return vulkan_context;
 }

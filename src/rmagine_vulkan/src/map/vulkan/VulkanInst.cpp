@@ -8,14 +8,95 @@
 namespace rmagine
 {
 
-VulkanInst::VulkanInst()
+VulkanInst::VulkanInst() : Base(),
+    m_data(new VkAccelerationStructureInstanceKHR)
 {
-
+    m_data->flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    m_data->instanceShaderBindingTableRecordOffset = 0;
+    m_data->accelerationStructureReference = 0;
+    m_data->instanceCustomIndex = 0;
+    m_data->mask = 0xFF;
+    m_data->transform = {{{1.0, 0.0, 0.0, 0.0},
+                          {0.0, 1.0, 0.0, 0.0},
+                          {0.0, 0.0, 1.0, 0.0}}};
 }
 
 VulkanInst::~VulkanInst()
 {
-    
+    delete m_data;
+}
+
+void VulkanInst::set(VulkanScenePtr scene)
+{
+    //TODO: it seems that maybe you can create instances of top level acceleration structures, but this is currently not supported
+    if(scene->type() != VulkanSceneType::GEOMETRIES)
+    {
+        throw std::invalid_argument("[VulkanInst::set()] ERROR - can only instanciate a scene containing meshes, not one containing other instances.");
+    }
+
+    m_scene = scene;
+    scene->addParent(this_shared<VulkanInst>());
+    m_data->accelerationStructureReference = m_scene->as()->getDeviceAddress();
+}
+
+VulkanScenePtr VulkanInst::scene() const
+{
+    return m_scene;
+}
+
+void VulkanInst::apply()
+{
+    Matrix4x4 M = matrix();
+    m_data->transform = {{{M(0,0), M(0,1), M(0,2), M(0,3)},
+                          {M(1,0), M(1,1), M(1,2), M(1,3)},
+                          {M(2,0), M(2,1), M(2,2), M(2,3)}}};
+    m_changed = true;
+}
+
+void VulkanInst::commit()
+{
+    if(m_scene)
+    {
+        // nothing to do here currently
+        // is here just in case
+    }
+}
+
+unsigned int VulkanInst::depth() const 
+{
+    if(m_scene)
+    {
+        return m_scene->depth();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void VulkanInst::setId(unsigned int id)
+{
+    m_data->instanceCustomIndex = id;
+}
+
+unsigned int VulkanInst::id() const
+{
+    return m_data->instanceCustomIndex;
+}
+
+void VulkanInst::disable()
+{
+    m_data->mask = 0x00;
+}
+
+void VulkanInst::enable()
+{
+    m_data->mask = 0xFF;
+}
+
+const VkAccelerationStructureInstanceKHR* VulkanInst::data() const
+{
+    return m_data;
 }
 
 } // namespace rmagine

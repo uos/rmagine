@@ -16,20 +16,33 @@
 namespace rmagine
 {
 
-class OnDnSimulatorVulkan : public SimulatorVulkan<OnDnModel, OnDnModel_<VULKAN_DEVICE_LOCAL>>
+class OnDnSimulatorVulkan : public SimulatorVulkan<OnDnModel>
 {
 private:
-    Memory<OnDnModel_<VULKAN_DEVICE_LOCAL>, RAM> sensorMem_half_ram;
+    Memory<Vector, DEVICE_LOCAL_VULKAN> origs;
+    Memory<Vector, DEVICE_LOCAL_VULKAN> dirs;
 
 public:
-    OnDnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<OnDnModel, OnDnModel_<VULKAN_DEVICE_LOCAL>>(map), sensorMem_half_ram(1) {}
+    OnDnSimulatorVulkan() : SimulatorVulkan<OnDnModel>() {}
+
+    OnDnSimulatorVulkan(VulkanMapPtr map) : SimulatorVulkan<OnDnModel>(map) {}
 
     ~OnDnSimulatorVulkan() {}
 
-    OnDnSimulatorVulkan(const OnDnSimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    OnDnSimulatorVulkan(const OnDnSimulatorVulkan& other) : SimulatorVulkan<OnDnModel>(other)
+    {
+        origs.resize(other.origs.size());
+        origs = other.origs;
+
+        dirs.resize(other.dirs.size());
+        dirs = other.dirs;
+    }
 
 
-    void setModel(Memory<OnDnModel, RAM>& sensorMem_ram);
+    void setModel(const Memory<OnDnModel, RAM>& sensorMem_ram);
+    void setModel(const OnDnModel& sensor);
+
+    void updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 };
 
 using OnDnSimulatorVulkanPtr = std::shared_ptr<OnDnSimulatorVulkan>;

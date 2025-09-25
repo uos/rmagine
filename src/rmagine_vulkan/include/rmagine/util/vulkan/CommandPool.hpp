@@ -25,17 +25,12 @@ private:
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
 public:
-    CommandPool(DevicePtr device) : device(device)
-    {
-        createCommandPool();
-    }
+    CommandPool(DevicePtr device);
 
-    ~CommandPool() {}
+    ~CommandPool();
 
     CommandPool(const CommandPool&) = delete;
 
-
-    void cleanup();
 
     VkCommandPool getCommandPool();
 

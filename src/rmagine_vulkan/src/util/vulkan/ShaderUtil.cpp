@@ -42,7 +42,7 @@ glslang_stage_t get_glslang_stage(ShaderType shaderType)
 {
     if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
     {
-        throw std::invalid_argument("invalid shader type!");
+        throw std::invalid_argument("[get_glslang_stage()] ERROR - invalid shader type!");
     }
 
     return get_glslang_stage_t[shaderType];
@@ -52,7 +52,7 @@ std::vector<std::string> get_shader_defines(ShaderDefineFlags shaderDefines)
 {
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("invalid shader defines!");
+        throw std::invalid_argument("[get_shader_defines()] ERROR - invalid shader defines!");
     }
 
     std::vector<std::string> defines = std::vector<std::string>();
@@ -71,7 +71,7 @@ std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
 {
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("invalid shader defines!");
+        throw std::invalid_argument("[get_shader_define_statements()] ERROR - invalid shader defines!");
     }
 
     std::vector<std::string> defines = get_shader_defines(shaderDefines);
@@ -89,11 +89,11 @@ std::string get_shader_info(ShaderType shaderType, ShaderDefineFlags shaderDefin
 {
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("invalid shader defines!");
+        throw std::invalid_argument("[get_shader_info()] ERROR - invalid shader defines!");
     }
     if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
     {
-        throw std::invalid_argument("invalid shader type!");
+        throw std::invalid_argument("[get_shader_info()] ERROR - invalid shader type!");
     }
 
     std::string info = get_shader_names[shaderType] + ": ";
@@ -111,11 +111,11 @@ std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefin
 {
     if(shaderDefines == 0 || shaderDefines >= ShaderDefines::SHADER_DEFINES_END)
     {
-        throw std::invalid_argument("invalid shader defines!");
+        throw std::invalid_argument("[get_shader_code()] ERROR - invalid shader defines!");
     }
     if(shaderType >= ShaderType::SHADER_TYPE_SIZE)
     {
-        throw std::invalid_argument("invalid shader type!");
+        throw std::invalid_argument("[get_shader_code()] ERROR - invalid shader type!");
     }
     
     std::string shaderCode = util_preamble;
@@ -136,7 +136,7 @@ std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefin
         shaderCode += miss_code;
         break;
     default:
-        throw std::invalid_argument("illegal ShaderType");
+        throw std::invalid_argument("[get_shader_code()] ERROR - invalid shader type!");
         break;
     }
 

@@ -5,11 +5,16 @@
 namespace rmagine
 {
 
-VulkanTransformable::VulkanTransformable(/* args */)
+VulkanTransformable::VulkanTransformable()
 {
     m_T.setIdentity();
     m_S = {1.0, 1.0, 1.0};
     m_changed = true;
+}
+
+VulkanTransformable::~VulkanTransformable()
+{
+
 }
 
 void VulkanTransformable::setTransform(const Transform& T)

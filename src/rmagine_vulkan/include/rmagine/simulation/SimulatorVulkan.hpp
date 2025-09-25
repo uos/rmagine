@@ -12,7 +12,7 @@
 #include <rmagine/math/types.h>
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/VulkanContext.hpp>
-#include <rmagine/util/vulkan/Pipeline.hpp>
+#include <rmagine/util/vulkan/ShaderBindingTable.hpp>
 #include <rmagine/util/VulkanContext.hpp>
 #include <rmagine/map/VulkanMap.hpp>
 #include "vulkan/DescriptorSet.hpp"
@@ -23,7 +23,7 @@
 namespace rmagine
 {
 
-template<typename SensorModelRamT, typename SensorModelDeviceT>
+template<typename SensorModelRamT>
 class SimulatorVulkan
 {
 private:
@@ -35,75 +35,73 @@ protected:
     
     CommandBufferPtr commandBuffer = nullptr;
     DescriptorSetPtr descriptorSet = nullptr;
-    PipelinePtr pipeline = nullptr;
+    ShaderBindingTablePtr shaderBindingTable = nullptr;
 
-    Memory<SensorModelDeviceT, VULKAN_DEVICE_LOCAL> sensorMem;
-    Memory<Transform, VULKAN_DEVICE_LOCAL> tsbMem;
-    Memory<VulkanResultsData, VULKAN_DEVICE_LOCAL> resultsMem;
+    //Simulator internal Memory
+    Memory<SensorModelRamT, DEVICE_LOCAL_VULKAN> sensorMem;
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tsbMem;
+
+    //Simulator internal Memory: Memory for the deviceAddresses of external Buffers
+    //moving these buffers to the gpu via their deviceAddresses means that the Descriptorset does not have to get updated so often
+    //(that would take more time and would mean and the command would have to get rerecorded as well)
+    Memory<VulkanResultsAddresses, DEVICE_LOCAL_VULKAN> resultsMem;
+    Memory<VulkanTbmAndSensorSpecificAddresses, DEVICE_LOCAL_VULKAN> tbmAndSensorSpecificMem;
 
     //for checking whether buffers have changed
-    struct PreviousBuffers{
-        size_t vertexID = 0;
-        size_t indexID = 0;
-        size_t sensorID = 0;
-        size_t resultsID = 0;
-        size_t tsbID = 0;
-        size_t tbmID = 0;
-        size_t tlasID = 0;
-    }previousBuffers;
+    struct PreviousAddresses{
+        //cant use deviceaddress for this
+        //as the new buffer/as could thoretically coincidentally have the same deviceaddress as the old buffer/as
+        //thus another unique identifyer is needed 
+        //maybe there is a better option, as there are only finitely many (SIZE_MAX) ids?
+        size_t asID = 0;
+        size_t mapDataID = 0;
+
+        VulkanResultsAddresses resultsAddresses{};
+        VulkanTbmAndSensorSpecificAddresses tbmAndSensorSpecificAddresses{};
+    }previousAddresses;
 
     ShaderDefineFlags previousShaderDefines = 0;
 
-    struct PreviousDimensions{
-        uint64_t width = uint64_t(~0);
-        uint64_t height = uint64_t(~0);
-        uint64_t depth = uint64_t(~0);
-    }previousDimensions;
+    VulkanDimensions previousDimensions;
 
-    struct NewDimensions{
-        uint64_t width = uint64_t(~0);
-        uint64_t height = uint64_t(~0);
-        uint64_t depth = uint64_t(~0);
-    }newDimensions;
-
+    VulkanDimensions newDimensions;
 
 public:
-    SimulatorVulkan(VulkanMapPtr map) : vulkan_context(get_vulkan_context()), map(map), sensorMem(1), tsbMem(1), resultsMem(1)
-    {
-        checkTemplateArgs();
+    SimulatorVulkan();
 
-        commandBuffer = std::make_shared<CommandBuffer>();
-        descriptorSet = std::make_shared<DescriptorSet>();
-    }
+    SimulatorVulkan(VulkanMapPtr map);
 
-    ~SimulatorVulkan()
-    {
-        std::cout << "destroying SimulatorVulkan" << std::endl;
-        resetBufferHistory();
-        resetPipeline();
-        cleanup();
-    }
+    ~SimulatorVulkan();
 
-    SimulatorVulkan(const SimulatorVulkan&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
+    SimulatorVulkan(const SimulatorVulkan& other);
 
-    void setTsb(Memory<Transform, RAM>& tsbMem);
 
-    void setModel(Memory<SensorModelRamT, RAM>& sensorMem_ram);
+    void setMap(VulkanMapPtr map);
+
+    void setTsb(const Memory<Transform, RAM>& tsbMem);
+    void setTsb(const Transform& Tsb);
+
+    void setModel(const Memory<SensorModelRamT, RAM>& sensorMem_ram);
+    void setModel(const SensorModelRamT& sensor);
 
     template<typename BundleT>
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, BundleT& ret);
+    void simulate(const Transform& tbm, BundleT& ret);
 
     template<typename BundleT>
-    BundleT simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem);
+    BundleT simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
+
+    template<typename BundleT>
+    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, BundleT& ret);
     
-    void simulate(Memory<Transform, VULKAN_DEVICE_LOCAL>& tbmMem, Memory<VulkanResultsData, RAM>& resultsMem_ram);
+    void simulate(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem, Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
 
 protected:
-    void resetBufferHistory();
+    void updateResultsAddresses(Memory<VulkanResultsAddresses, RAM>& resultsMem_ram);
+    virtual void updateTbmAndSensorSpecificAddresses(Memory<Transform, DEVICE_LOCAL_VULKAN>& tbmMem);
 
-    void resetPipeline();
+    void resetAddressHistory();
 
-    void cleanup();
+    void resetShaderBindingTable();
 
 private:
     void checkTemplateArgs();

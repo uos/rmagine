@@ -23,24 +23,20 @@ static const std::string util_code = R""""(
 
 
 
-#if defined(O1DN) || defined(ONDN) || defined(RANGES) || defined(POINTS) || defined(NORMALS)
-    layout(buffer_reference, std430, buffer_reference_align = 4) buffer float_array //cant be a vec3 array as that would introduce 4 bytes of padding 
-    {
-        float f;
-    };
-#endif
-#if defined(PRIMITIVE_ID) || defined(GEOMETRY_ID) || defined(INSTANCE_ID)
-    layout(buffer_reference, std430, buffer_reference_align = 4) buffer uint_array 
-    {
-        uint i;
-    };
-#endif
-#if defined(HITS)
-    layout(buffer_reference, std430, buffer_reference_align = 1) buffer uint8_array  
-    {
-        uint8_t i;
-    };
-#endif
+layout(buffer_reference, std430, buffer_reference_align = 4) buffer float_array //cant be a vec3 array as that would introduce 4 bytes of padding 
+{
+    float f;
+};
+
+layout(buffer_reference, std430, buffer_reference_align = 4) buffer uint_array //cant be a uvec3 array as that would introduce 4 bytes of padding 
+{
+    uint i;
+};
+
+layout(buffer_reference, std430, buffer_reference_align = 1) buffer uint8_array  
+{
+    uint8_t i;
+};
 
 
 
@@ -64,28 +60,29 @@ struct DiscreteInterval
     int size;
 };
 
+// this is just a placeholder-struct, 
+// as nothing in this shader actually reads from this struct
+// but it is part of the o1dn and ondn sensors
 struct Memory
 {
-    uint64_t bufferDeviceAddress;
-    //the memory object contains a shared pointer which consists of 2 pointers (irrelevant1 & irrelevant2)
     #if defined(_64BIT)
-        uint64_t irrelevant1;
-        uint64_t irrelevant2;
+        uint64_t ptr;
+        uint64_t size;
     #elif defined(_32BIT)
-        int irrelevant1;
-        int irrelevant2;
+        int ptr;
+        int size;
     #endif
 };
 
 struct Result
 {
-    Memory hits;
-    Memory ranges;
-    Memory points;
-    Memory normals;
-    Memory primitiveID;
-    Memory instanceID;
-    Memory geometryID;
+    uint64_t hitsAddress;
+    uint64_t rangesAddress;
+    uint64_t pointsAddress;
+    uint64_t normalsAddress;
+    uint64_t primitiveIdAddress;
+    uint64_t instanceIdAddress;
+    uint64_t geometryIdAddress;
 };
 
 
@@ -124,6 +121,11 @@ Transform multTransforms(Transform t1, Transform t2)
     t3.rot = multQuaternions(t1.rot, t2.rot);
     t3.pos = t3.pos + t1.pos;
     return t3;
+}
+
+vec3 displaceVec3(Transform t, vec3 v)
+{
+    return rotateVec3(t.rot, v) + t.pos;
 }
 
 )"""";
