@@ -9,7 +9,7 @@ namespace vulkanCudaInterop
 {
 
 void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDeviceSize srcOffset,
-                           void** cudaPtr, cudaExternalMemory_t& cuExternalMemory)
+                           void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory)
 {
     // source: https://github.com/NVIDIA/cuda-samples/tree/master/Samples/5_Domain_Specific/simpleVulkan
     //         https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXTRES__INTEROP.html
@@ -36,7 +36,7 @@ void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDe
     cuExternalMemBufferDesc.size   = size;
     cuExternalMemBufferDesc.flags  = 0;
 
-    RM_CUDA_CHECK(cudaExternalMemoryGetMappedBuffer(cudaPtr, cuExternalMemory, &cuExternalMemBufferDesc));
+    RM_CUDA_CHECK(cudaExternalMemoryGetMappedBuffer(cudaPtrPtr, cuExternalMemory, &cuExternalMemBufferDesc));
 }
 
 

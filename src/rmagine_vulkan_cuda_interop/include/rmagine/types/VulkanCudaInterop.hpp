@@ -11,9 +11,22 @@ namespace rmagine
 
 namespace vulkanCudaInterop
 {
-
+    /**
+     * import a piece of vulkan memory to cuda
+     * allows you to access a piece of vulkan memory of size size bytes with an offset of offset bytes
+     * 
+     * @param deviceMemory 
+     * 
+     * @param size 
+     * 
+     * @param offset 
+     * 
+     * @param cudaPtrPtr 
+     * 
+     * @param cuExternalMemory 
+     */
     void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDeviceSize srcOffset,
-                               void** cudaPtr, cudaExternalMemory_t& cuExternalMemory);
+                               void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory);
 
     void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
     void memcpyCudaDeviceToVulkanDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
