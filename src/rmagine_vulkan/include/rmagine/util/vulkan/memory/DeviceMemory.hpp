@@ -19,8 +19,7 @@ namespace rmagine
 class DeviceMemory
 {
 private:
-    VulkanContextWPtr vulkan_context;
-    DevicePtr device = nullptr;
+    VulkanContextPtr vulkan_context = nullptr;
 
     BufferPtr buffer = nullptr;
 

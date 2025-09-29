@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "Device.hpp"
 
 
@@ -20,13 +20,13 @@ namespace rmagine
 class DescriptorSetLayout
 {
 private:
-    DevicePtr device = nullptr;
+    DeviceWPtr device;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
 
 public:
-    DescriptorSetLayout(DevicePtr device);
+    DescriptorSetLayout(DeviceWPtr device);
 
     ~DescriptorSetLayout();
 

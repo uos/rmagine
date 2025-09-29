@@ -92,7 +92,7 @@ ShaderPtr VulkanContext::getShader(ShaderType shaderType, ShaderDefineFlags shad
     std::lock_guard<std::mutex> guard(shaderMutex);
     if(shaderMaps[shaderType].count(maskedShaderDefines) == 0)
     {
-        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(weak_from_this(), shaderType, maskedShaderDefines);
+        shaderMaps[shaderType][maskedShaderDefines] = std::make_shared<Shader>(device, shaderType, maskedShaderDefines);
     }
 
     return shaderMaps[shaderType].at(maskedShaderDefines);
@@ -146,7 +146,7 @@ ShaderBindingTablePtr VulkanContext::getShaderBindingTable(ShaderDefineFlags sha
     std::lock_guard<std::mutex> guard(sbtMutex);
     if(shaderBindingTableMap.count(shaderDefines) == 0)
     {
-        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(weak_from_this(), shaderDefines);
+        shaderBindingTableMap[shaderDefines] = std::make_shared<ShaderBindingTable>(device, pipelineLayout, shaderDefines);
     }
 
     return shaderBindingTableMap.at(shaderDefines);

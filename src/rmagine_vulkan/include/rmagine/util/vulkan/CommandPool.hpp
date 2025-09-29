@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "Device.hpp"
 
 
@@ -20,12 +20,12 @@ namespace rmagine
 class CommandPool
 {
 private:
-    DevicePtr device = nullptr;
+    DeviceWPtr device;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
 public:
-    CommandPool(DevicePtr device);
+    CommandPool(DeviceWPtr device);
 
     ~CommandPool();
 

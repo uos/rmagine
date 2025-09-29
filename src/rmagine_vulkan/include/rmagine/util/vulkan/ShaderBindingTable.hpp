@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 #include "ShaderUtil.hpp"
 #include "Shader.hpp"
@@ -23,7 +23,7 @@ namespace rmagine
 class ShaderBindingTable
 {
 private:
-    VulkanContextWPtr vulkan_context;
+    DeviceWPtr device;
 
     RayTracingPipelinePtr pipeline = nullptr;
 
@@ -36,7 +36,7 @@ private:
     VkStridedDeviceAddressRegionKHR callableShaderBindingTable{};
 
 public:
-    ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
+    ShaderBindingTable(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines);
 
     ~ShaderBindingTable();
 

@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/util/vulkan/Device.hpp>
 
 
@@ -20,13 +20,12 @@ namespace rmagine
 class Fence
 {
 private:
-    VulkanContextWPtr vulkan_context;
-    DevicePtr device = nullptr;
+    VulkanContextPtr vulkan_context = nullptr;
 
     VkFence fence = VK_NULL_HANDLE;
 
 public:
-    Fence(VulkanContextWPtr vulkan_context);
+    Fence(VulkanContextPtr vulkan_context);
 
     ~Fence();
 

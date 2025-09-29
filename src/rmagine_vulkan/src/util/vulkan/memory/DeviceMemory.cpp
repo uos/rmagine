@@ -7,9 +7,7 @@ namespace rmagine
 {
 
 DeviceMemory::DeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, BufferPtr buffer) :
-    vulkan_context(get_vulkan_context_weak()),
-    device(vulkan_context.lock()->getDevice()),
-    buffer(buffer)
+    vulkan_context(get_vulkan_context_weak()), buffer(buffer)
 {
     allocateDeviceMemory(memoryPropertyFlags, true);
 }
@@ -18,9 +16,8 @@ DeviceMemory::~DeviceMemory()
 {
     if(deviceMemory != VK_NULL_HANDLE)
     {
-        vkFreeMemory(device->getLogicalDevice(), deviceMemory, nullptr);
+        vkFreeMemory(vulkan_context->getDevice()->getLogicalDevice(), deviceMemory, nullptr);
     }
-    device.reset();
 }
 
 
@@ -28,10 +25,10 @@ DeviceMemory::~DeviceMemory()
 void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlags, bool withAllocateFlags)
 {
     VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(vulkan_context.lock()->getDevice()->getLogicalDevice(), buffer->getBuffer(), &memoryRequirements);
+    vkGetBufferMemoryRequirements(vulkan_context->getDevice()->getLogicalDevice(), buffer->getBuffer(), &memoryRequirements);
 
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(vulkan_context.lock()->getDevice()->getPhysicalDevice(), &physicalDeviceMemoryProperties);
+    vkGetPhysicalDeviceMemoryProperties(vulkan_context->getDevice()->getPhysicalDevice(), &physicalDeviceMemoryProperties);
 
     //find compatible memory type
     uint32_t memoryTypeIndex = uint32_t(~0);
@@ -55,13 +52,13 @@ void DeviceMemory::allocateDeviceMemory(VkMemoryPropertyFlags memoryPropertyFlag
     memoryAllocateInfo.allocationSize = memoryRequirements.size;
     memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
-    if(vkAllocateMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), &memoryAllocateInfo, nullptr, &deviceMemory) != VK_SUCCESS)
+    if(vkAllocateMemory(vulkan_context->getDevice()->getLogicalDevice(), &memoryAllocateInfo, nullptr, &deviceMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("[DeviceMemory::allocateDeviceMemory()] ERROR - failed to allocate device memory!");
     }
 
     //bind memory to buffer
-    if(vkBindBufferMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), buffer->getBuffer(), deviceMemory, 0) != VK_SUCCESS)
+    if(vkBindBufferMemory(vulkan_context->getDevice()->getLogicalDevice(), buffer->getBuffer(), deviceMemory, 0) != VK_SUCCESS)
     {
         throw std::runtime_error("[DeviceMemory::allocateDeviceMemory()] ERROR - failed to bind buffer!");
     }
@@ -83,12 +80,12 @@ void DeviceMemory::copyToDeviceMemory(const void *src, size_t offset, size_t str
     }
 
     void *hostMemoryBuffer;
-    if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets written to
+    if(vkMapMemory(vulkan_context->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets written to
     {
         throw std::runtime_error("[DeviceMemory::copyToDeviceMemory()] ERROR - failed to map memory!");
     }
     memcpy(hostMemoryBuffer, src, stride);
-    vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);
+    vkUnmapMemory(vulkan_context->getDevice()->getLogicalDevice(), deviceMemory);
 }
 
 
@@ -107,12 +104,12 @@ void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
     }
 
     void *hostMemoryBuffer;
-    if(vkMapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets read from
+    if(vkMapMemory(vulkan_context->getDevice()->getLogicalDevice(), deviceMemory, offset, stride, 0, &hostMemoryBuffer) != VK_SUCCESS)//only map the data that gets read from
     {
         throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - failed to map memory!");
     }
     memcpy(dst, hostMemoryBuffer, stride);
-    vkUnmapMemory(vulkan_context.lock()->getDevice()->getLogicalDevice(), deviceMemory);
+    vkUnmapMemory(vulkan_context->getDevice()->getLogicalDevice(), deviceMemory);
 }
 
 
@@ -128,7 +125,7 @@ int DeviceMemory::getMemoryHandle()
     // vkMemoryGetFdInfoKHR.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT; // windows 8.10 or greater
     // vkMemoryGetFdInfoKHR.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT; // not windows 8.10 or greater
 
-    if(vulkan_context.lock()->extensionFuncs.vkGetMemoryFdKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), &vkMemoryGetFdInfoKHR, &fileDescriptor) != VK_SUCCESS)
+    if(vulkan_context->extensionFuncs.vkGetMemoryFdKHR(vulkan_context->getDevice()->getLogicalDevice(), &vkMemoryGetFdInfoKHR, &fileDescriptor) != VK_SUCCESS)
     {
         throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - failed to retrieve handle for device memory!");
     }

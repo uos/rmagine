@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "Device.hpp"
 #include "ShaderUtil.hpp"
 
@@ -21,14 +21,14 @@ namespace rmagine
 class RayTracingPipeline
 {
 private:
-    VulkanContextWPtr vulkan_context;
-    DevicePtr device = nullptr;
+    DeviceWPtr device;
+    RayTracingPipelineLayoutWPtr pipelineLayout;
 
     VkPipelineCache pipelineCache = VK_NULL_HANDLE;
     VkPipeline pipeline = VK_NULL_HANDLE;
 
 public:
-    RayTracingPipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines);
+    RayTracingPipeline(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines);
 
     ~RayTracingPipeline();
 

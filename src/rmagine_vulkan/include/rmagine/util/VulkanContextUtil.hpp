@@ -61,6 +61,6 @@ using DescriptorSetLayoutWPtr = std::weak_ptr<DescriptorSetLayout>;
 
 class RayTracingPipelineLayout;
 using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
-using PipelineLayoutWPtr = std::weak_ptr<RayTracingPipelineLayout>;
+using RayTracingPipelineLayoutWPtr = std::weak_ptr<RayTracingPipelineLayout>;
 
 } // namespace rmagine

@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "Device.hpp"
 
 
@@ -20,13 +20,13 @@ namespace rmagine
 class RayTracingPipelineLayout
 {
 private:
-    DevicePtr device = nullptr;
-    DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
+    DeviceWPtr device;
+    DescriptorSetLayoutWPtr descriptorSetLayout;
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 public:
-    RayTracingPipelineLayout(DevicePtr device, DescriptorSetLayoutPtr descriptorSetLayout);
+    RayTracingPipelineLayout(DeviceWPtr device, DescriptorSetLayoutWPtr descriptorSetLayout);
 
     ~RayTracingPipelineLayout();
 

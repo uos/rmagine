@@ -6,7 +6,8 @@
 namespace rmagine
 {
 
-RayTracingPipeline::RayTracingPipeline(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+RayTracingPipeline::RayTracingPipeline(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines) : 
+    device(device), pipelineLayout(pipelineLayout)
 {
     createPipelineCache();
     createPipeline(shaderDefines);
@@ -17,11 +18,11 @@ RayTracingPipeline::~RayTracingPipeline()
 {
     if(pipelineCache != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineCache(device->getLogicalDevice(), pipelineCache, nullptr);
+        vkDestroyPipelineCache(device.lock()->getLogicalDevice(), pipelineCache, nullptr);
     }
     if(pipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(device->getLogicalDevice(), pipeline, nullptr);
+        vkDestroyPipeline(device.lock()->getLogicalDevice(), pipeline, nullptr);
     }
     device.reset();
 }
@@ -33,7 +34,7 @@ void RayTracingPipeline::createPipelineCache()
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
     pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-    if(vkCreatePipelineCache(vulkan_context.lock()->getDevice()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
+    if(vkCreatePipelineCache(device.lock()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
     {
         throw std::runtime_error("[RayTracingPipeline::createPipelineCache()] ERROR - Failed to create pipeline cache!");
     }
@@ -104,11 +105,11 @@ void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
     pipelineCreateInfo.groupCount = (uint32_t)rayTracingShaderGroupCreateInfoList.size();
     pipelineCreateInfo.pGroups = rayTracingShaderGroupCreateInfoList.data();
     pipelineCreateInfo.maxPipelineRayRecursionDepth = 1;
-    pipelineCreateInfo.layout = vulkan_context.lock()->getPipelineLayout()->getPipelineLayout(),
+    pipelineCreateInfo.layout = pipelineLayout.lock()->getPipelineLayout();
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = 0;
 
-    if(vulkan_context.lock()->extensionFuncs.vkCreateRayTracingPipelinesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
+    if(get_vulkan_context()->extensionFuncs.vkCreateRayTracingPipelinesKHR(device.lock()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("[RayTracingPipeline::createPipeline()] ERROR - Failed to create pipeline!");
     }

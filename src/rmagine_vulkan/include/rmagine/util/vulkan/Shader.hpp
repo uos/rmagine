@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "Device.hpp"
 #include "ShaderUtil.hpp"
 
@@ -21,13 +21,12 @@ namespace rmagine
 class Shader
 {
 private:
-    VulkanContextWPtr vulkan_context;
-    DevicePtr device = nullptr;
+    DeviceWPtr device;
 
     VkShaderModule shaderModule = VK_NULL_HANDLE;
     
 public:
-    Shader(VulkanContextWPtr vulkan_context, ShaderType shaderType, ShaderDefineFlags shaderDefines);
+    Shader(DeviceWPtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
     ~Shader();
 

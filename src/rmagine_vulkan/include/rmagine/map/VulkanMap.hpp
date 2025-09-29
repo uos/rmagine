@@ -12,7 +12,7 @@
 #include <rmagine/map/Map.hpp>
 #include <rmagine/map/AssimpIO.hpp>
 #include <rmagine/util/VulkanContext.hpp>
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include "vulkan/VulkanScene.hpp"
 
 

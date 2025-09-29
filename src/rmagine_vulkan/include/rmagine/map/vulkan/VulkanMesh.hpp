@@ -14,7 +14,7 @@
 #include <rmagine/math/assimp_conversions.h>
 #include <rmagine/types/mesh_types.h>
 #include <rmagine/util/VulkanContext.hpp>
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/types/MemoryVulkan.hpp>
 #include "vulkan_definitions.hpp"
 #include "VulkanGeometry.hpp"

@@ -6,7 +6,7 @@
 namespace rmagine
 {
 
-Shader::Shader(VulkanContextWPtr vulkan_context, ShaderType shaderType, ShaderDefineFlags shaderDefines) : vulkan_context(vulkan_context), device(vulkan_context.lock()->getDevice())
+Shader::Shader(DeviceWPtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines) :  device(device)
 {
     std::cout << "[RMagine - Shader] compiling & creating shader: " << get_shader_info(shaderType, shaderDefines) << std::endl;
     createShader(compileShader(shaderType, shaderDefines));
@@ -16,7 +16,7 @@ Shader::~Shader()
 {
     if(shaderModule != VK_NULL_HANDLE)
     {
-        vkDestroyShaderModule(device->getLogicalDevice(), shaderModule, nullptr);
+        vkDestroyShaderModule(device.lock()->getLogicalDevice(), shaderModule, nullptr);
     }
     device.reset();
 }
@@ -34,7 +34,7 @@ void Shader::createShader(std::vector<uint32_t> words)
     shaderModuleCreateInfo.codeSize = words.size() * sizeof(uint32_t);
     shaderModuleCreateInfo.pCode = words.data();
     
-    if(vkCreateShaderModule(vulkan_context.lock()->getDevice()->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    if(vkCreateShaderModule(device.lock()->getLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("[Shader::createShader()] ERROR - Failed to create shader module");
     }

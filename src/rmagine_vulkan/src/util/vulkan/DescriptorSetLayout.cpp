@@ -6,7 +6,7 @@
 namespace rmagine
 {
 
-DescriptorSetLayout::DescriptorSetLayout(DevicePtr device) : device(device)
+DescriptorSetLayout::DescriptorSetLayout(DeviceWPtr device) : device(device)
 {
     createDescriptorPool();
     createDescriptorSetLayout();
@@ -16,11 +16,11 @@ DescriptorSetLayout::~DescriptorSetLayout()
 {
     if(descriptorSetLayout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(device->getLogicalDevice(), descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(device.lock()->getLogicalDevice(), descriptorSetLayout, nullptr);
     }
     if(descriptorPool != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorPool(device->getLogicalDevice(), descriptorPool, nullptr);
+        vkDestroyDescriptorPool(device.lock()->getLogicalDevice(), descriptorPool, nullptr);
     }
     device.reset();
 }
@@ -47,7 +47,7 @@ void DescriptorSetLayout::createDescriptorPool()
     descriptorPoolCreateInfo.poolSizeCount = (uint32_t)descriptorPoolSizeList.size();
     descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizeList.data();
 
-    if(vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    if(vkCreateDescriptorPool(device.lock()->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("[DescriptorSetLayout::createDescriptorPool()] ERROR - failed to create descriptor pool!");
     }
@@ -100,7 +100,7 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     descriptorSetLayoutCreateInfo.bindingCount = (uint32_t)descriptorSetLayoutBindingList.size();
     descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindingList.data();
     
-    if(vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    if(vkCreateDescriptorSetLayout(device.lock()->getLogicalDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("[DescriptorSetLayout::createDescriptorSetLayout()] ERROR - failed to create descriptor set layout!");
     }

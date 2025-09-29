@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/util/vulkan/memory/Buffer.hpp>
 #include "Fence.hpp"
 

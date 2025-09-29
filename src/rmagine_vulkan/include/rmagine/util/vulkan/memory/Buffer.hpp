@@ -10,7 +10,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/util/vulkan/Device.hpp>
 
 
@@ -21,8 +21,7 @@ namespace rmagine
 class Buffer
 {
 private:
-    VulkanContextWPtr vulkan_context;
-    DevicePtr device = nullptr;
+    VulkanContextPtr vulkan_context = nullptr;
 
     VkDeviceSize bufferSize = 0;
     VkBuffer buffer = VK_NULL_HANDLE;

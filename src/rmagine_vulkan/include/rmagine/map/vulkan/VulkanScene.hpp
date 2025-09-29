@@ -13,7 +13,7 @@
 
 #include <rmagine/map/AssimpIO.hpp>
 #include <rmagine/util/VulkanContext.hpp>
-#include <rmagine/util/VulkanUtil.hpp>
+#include <rmagine/util/VulkanContextUtil.hpp>
 #include <rmagine/util/IDGen.hpp>
 #include <rmagine/util/assimp/helper.h>
 #include "vulkan_definitions.hpp"

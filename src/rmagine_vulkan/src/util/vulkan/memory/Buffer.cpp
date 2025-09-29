@@ -7,9 +7,7 @@ namespace rmagine
 {
 
 Buffer::Buffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags) :
-    vulkan_context(get_vulkan_context_weak()),
-    device(vulkan_context.lock()->getDevice()),
-    bufferSize(bufferSize)
+    vulkan_context(get_vulkan_context()), bufferSize(bufferSize)
 {
     createBuffer(bufferUsageFlags);
 }
@@ -18,9 +16,8 @@ Buffer::~Buffer()
 {
     if(buffer != VK_NULL_HANDLE)
     {
-        vkDestroyBuffer(device->getLogicalDevice(), buffer, nullptr);
+        vkDestroyBuffer(vulkan_context->getDevice()->getLogicalDevice(), buffer, nullptr);
     }
-    device.reset();
 }
 
 
@@ -33,9 +30,9 @@ void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
     bufferCreateInfo.usage = bufferUsageFlags;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferCreateInfo.queueFamilyIndexCount = 1;
-    bufferCreateInfo.pQueueFamilyIndices = vulkan_context.lock()->getDevice()->getQueueFamilyIndexPtr();
+    bufferCreateInfo.pQueueFamilyIndices = vulkan_context->getDevice()->getQueueFamilyIndexPtr();
 
-    if(vkCreateBuffer(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
+    if(vkCreateBuffer(vulkan_context->getDevice()->getLogicalDevice(), &bufferCreateInfo, nullptr, &buffer) != VK_SUCCESS)
     {
         throw std::runtime_error("[Buffer::createBuffer()] ERROR - failed to create buffer!");
     }
@@ -52,7 +49,7 @@ VkDeviceAddress Buffer::getBufferDeviceAddress()
     bufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
     bufferDeviceAddressInfo.buffer = buffer;
 
-    deviceAddress = vkGetBufferDeviceAddress(vulkan_context.lock()->getDevice()->getLogicalDevice(), &bufferDeviceAddressInfo);
+    deviceAddress = vkGetBufferDeviceAddress(vulkan_context->getDevice()->getLogicalDevice(), &bufferDeviceAddressInfo);
     return deviceAddress;
 }
 

@@ -6,9 +6,9 @@
 namespace rmagine
 {
 
-ShaderBindingTable::ShaderBindingTable(VulkanContextWPtr vulkan_context, ShaderDefineFlags shaderDefines) : 
-    vulkan_context(vulkan_context),
-    pipeline(new RayTracingPipeline(vulkan_context, shaderDefines)),
+ShaderBindingTable::ShaderBindingTable(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines) : 
+    device(device),
+    pipeline(new RayTracingPipeline(device, pipelineLayout, shaderDefines)),
     shaderBindingTableMemory(0, VulkanMemoryUsage::Usage_ShaderBindingTable)
 {
     std::cout << "[RMagine - ShaderBindingTable] creating sbt & pipeline: " << get_shader_defines_info(shaderDefines) << std::endl;
@@ -26,8 +26,8 @@ ShaderBindingTable::~ShaderBindingTable()
 
 void ShaderBindingTable::createShaderBindingTable()
 {
-    VkDeviceSize progSize = vulkan_context.lock()->getDevice()->getShaderGroupBaseAlignment();
-    VkDeviceSize handleSize = vulkan_context.lock()->getDevice()->getShaderGroupHandleSize();
+    VkDeviceSize progSize = device.lock()->getShaderGroupBaseAlignment();
+    VkDeviceSize handleSize = device.lock()->getShaderGroupHandleSize();
 
     VkDeviceSize shaderBindingTableSize = progSize * 3;
 
@@ -35,7 +35,7 @@ void ShaderBindingTable::createShaderBindingTable()
 
     //get the group handels
     Memory<char, RAM> shaderBindingTableMemory_ram(shaderBindingTableSize);
-    if(vulkan_context.lock()->extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR(vulkan_context.lock()->getDevice()->getLogicalDevice(), pipeline->getPipeline(), 0, 3, shaderBindingTableSize, shaderBindingTableMemory_ram.raw()) != VK_SUCCESS)
+    if(get_vulkan_context()->extensionFuncs.vkGetRayTracingShaderGroupHandlesKHR(device.lock()->getLogicalDevice(), pipeline->getPipeline(), 0, 3, shaderBindingTableSize, shaderBindingTableMemory_ram.raw()) != VK_SUCCESS)
     {
         throw std::runtime_error("[ShaderBindingTable::createShaderBindingTable()] ERROR - Failed to get raytracing shadergroup handles!");
     }

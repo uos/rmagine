@@ -10,7 +10,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "VulkanUtil.hpp"
+#include "VulkanContextUtil.hpp"
 #include "vulkan/Device.hpp"
 #include "vulkan/CommandPool.hpp"
 #include "vulkan/DescriptorSetLayout.hpp"
