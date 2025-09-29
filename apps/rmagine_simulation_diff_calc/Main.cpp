@@ -198,6 +198,8 @@ int main(int argc, char** argv)
 
 
     // Evaluate results
+    std::cout << "\nNumber of rays: " << model_ram[0].size() * nPoses << "\n" << std::endl;
+
     Memory<uint8_t, RAM> hits_embree = res_ram.hits;
     Memory<uint8_t, RAM> hits_optix = res_vramCuda.hits;
     Memory<uint8_t, RAM> hits_vulkan = res_vulkan.hits;

@@ -132,7 +132,7 @@ VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh)
     ret->faces.resize(faces_cpu.size());
     ret->faces = faces_cpu;
 
-    // ret->computeFaceNormals();
+    // ret->computeFaceNormals(); // not used becaus it is slower (has to get back data from gpu)
     for(size_t i=0; i<num_faces; i++)
     {
         const Vector v0 = vertices_cpu[faces_cpu[i].v0];

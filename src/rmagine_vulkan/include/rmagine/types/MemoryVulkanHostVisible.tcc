@@ -175,7 +175,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(Memory<DataT, HOST_VISIBLE_VULKAN>&& 
 {
     o.m_deviceMemory = nullptr;
     o.m_size = 0;
-    o.m_offset = 0;/*should already be 0*/
+    // o.m_offset = 0;/*should already be 0*/
 }
 
 template<typename DataT>

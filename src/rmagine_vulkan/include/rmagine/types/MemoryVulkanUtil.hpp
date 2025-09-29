@@ -62,13 +62,13 @@ namespace vulkan
  * 
  * @param dstBuffer buffer of the destination memory
  * 
- * @param size number of bytes that get copied
+ * @param count number of bytes that get copied
  * 
- * @param srcOffset offset into the source memory
+ * @param srcByteOffset offset into the source memory
  * 
- * @param dstOffset offset into the destination memory
+ * @param dstByteOffset offset into the destination memory
  */
-void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
+void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize count, VkDeviceSize srcByteOffset, VkDeviceSize dstByteOffset);
 
 /**
  * copy data from host memory to host visible vulkan device memory
@@ -77,11 +77,11 @@ void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize
  * 
  * @param dstDeviceMemory device memory of the destination memory
  * 
- * @param size number of bytes that get copied
+ * @param count number of bytes that get copied
  * 
- * @param dstOffset offset into the destination memory
+ * @param dstByteOffset offset into the destination memory
  */
-void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
+void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize count, VkDeviceSize dstByteOffset);
 
 /**
  * copy data from host visible vulkan device memory to host memory
@@ -90,11 +90,11 @@ void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDevi
  * 
  * @param dst pointer to destination host memory
  * 
- * @param size number of bytes that get copied
+ * @param count number of bytes that get copied
  * 
- * @param srcOffset offset into the source memory
+ * @param srcByteOffset offset into the source memory
  */
-void memcpyDeviceToHost(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
+void memcpyDeviceToHost(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize count, VkDeviceSize srcByteOffset);
 
 } // namespace vulkan
 

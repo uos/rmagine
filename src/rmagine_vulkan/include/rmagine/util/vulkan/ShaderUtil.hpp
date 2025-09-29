@@ -10,10 +10,14 @@
 #include <glslang/Include/glslang_c_interface.h>
 #include <glslang/Public/resource_limits_c.h>
 
-#include "rmagine/shaders/VulkanIncludeShader.hpp"
-#include "rmagine/shaders/VulkanShaderRGen.hpp"
-#include "rmagine/shaders/VulkanShaderCHit.hpp"
-#include "rmagine/shaders/VulkanShaderMiss.hpp"
+#include "rmagine/shaders/VulkanUtilShader.hpp"
+#include "rmagine/shaders/VulkanRGenShader.hpp"
+#if defined(ONLY_FACE_NORMALS)
+    #include "rmagine/shaders/VulkanCHitShaderMini.hpp"
+#else
+    #include "rmagine/shaders/VulkanCHitShader.hpp"
+#endif
+#include "rmagine/shaders/VulkanMissShader.hpp"
 
 
 

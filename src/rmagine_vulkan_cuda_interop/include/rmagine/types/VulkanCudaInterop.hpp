@@ -18,15 +18,15 @@ namespace vulkanCudaInterop
  * 
  * @param deviceMemory vulkan device memory that get imported to cuda
  * 
- * @param size number of bytes that get imported
+ * @param count number of bytes that get imported
  * 
- * @param offset offset into the vulkan device memory
+ * @param byteOffset offset into the vulkan device memory
  * 
  * @param cudaPtrPtr ptr to the cuda ptr that accesses the vulkan memory
  * 
  * @param cuExternalMemory reference to a cuda struct that manages the external memory
  */
-void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDeviceSize srcOffset,
+void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize count, VkDeviceSize byteOffset,
                             void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory);
 
 /**
@@ -36,11 +36,11 @@ void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize size, VkDe
  * 
  * @param dst (destination) cuda pointer
  * 
- * @param size number of bytes that get copied
+ * @param count number of bytes that get copied
  * 
  * @param offset offset into the vulkan device memory
  */
-void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize size, VkDeviceSize srcOffset);
+void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, VkDeviceSize count, VkDeviceSize srcByteOffset);
 
 /**
  * copy data from a cuda memory to a vulkan memory
@@ -49,11 +49,11 @@ void memcpyVulkanDeviceToCudaDevice(DeviceMemoryPtr srcDeviceMemory, void* dst, 
  * 
  * @param dstDeviceMemory (destination) vulkan device memory
  * 
- * @param size number of bytes that get copied
+ * @param count number of bytes that get copied
  * 
  * @param offset offset into the vulkan device memory
  */
-void memcpyCudaDeviceToVulkanDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize size, VkDeviceSize dstOffset);
+void memcpyCudaDeviceToVulkanDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize count, VkDeviceSize dstByteOffset);
 
 } // namespace vulkanCudaInterop
 
