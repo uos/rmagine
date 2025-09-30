@@ -118,6 +118,43 @@ Vector3_<DataT> so3_log(const Matrix3x3_<DataT>& R)
 }
 
 template<typename DataT>
+Vector3_<DataT> so3_log(const Quaternion_<DataT>& q_in)
+{
+  // Extract components (adjust if your Quaternion_ uses different names/order)
+  DataT qw = q_in.w;
+  DataT qx = q_in.x;
+  DataT qy = q_in.y;
+  DataT qz = q_in.z;
+
+  // Normalize (robust to slight drift)
+  const DataT n = std::sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
+  if (n == DataT(0)) {
+    return Vector3_<DataT>{DataT(0), DataT(0), DataT(0)};
+  }
+  const DataT inv_n = DataT(1) / n;
+  qw *= inv_n; qx *= inv_n; qy *= inv_n; qz *= inv_n;
+
+  // Principal branch: q and -q are same rotation; enforce qw >= 0 for shortest angle
+  if (qw < DataT(0)) { qw = -qw; qx = -qx; qy = -qy; qz = -qz; }
+
+  // Vector part magnitude
+  const DataT s = std::sqrt(qx*qx + qy*qy + qz*qz);
+
+  // Threshold for small angle; sqrt(eps) is a good practical choice
+  const DataT eps = std::sqrt(std::numeric_limits<DataT>::epsilon());
+
+  if (s < eps) {
+    // For tiny angles: sin(theta/2) ~ theta/2, so omega ≈ 2*v
+    return Vector3_<DataT>{ DataT(2)*qx, DataT(2)*qy, DataT(2)*qz };
+  } else {
+    // theta = 2*atan2(||v||, w); omega = theta * v/||v||
+    const DataT theta = DataT(2) * std::atan2(s, qw);
+    const DataT coeff = theta / s;
+    return Vector3_<DataT>{ coeff*qx, coeff*qy, coeff*qz };
+  }
+}
+
+template<typename DataT>
 Matrix3x3_<DataT> so3_exp(
   const Vector3_<DataT> omega)
 {
@@ -229,11 +266,8 @@ template<typename DataT>
 std::pair<Vector3_<DataT>, Vector3_<DataT> > se3_log(
   const Transform_<DataT>& T)
 {
-  // extract rotation and translation
-  const Matrix3x3_<DataT> R = T.R;
-
   // so3 log
-  const Vector3_<DataT> w = so3_log(R);
+  const Vector3_<DataT> w = so3_log(T.R);
 
   // translation part via inverse Jacobian
   const Matrix3x3_<DataT> Jinv = so3_left_jacobian_inv(w);

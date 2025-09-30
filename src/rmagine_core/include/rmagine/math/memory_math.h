@@ -462,6 +462,11 @@ Transform markley_mean(
   const MemoryView<Transform, RAM> Ts,
   const MemoryView<float, RAM>& weights = MemoryView<float, RAM>::Empty());
 
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func
+);
+
 /**
  * Karcher mean on SE(3) with right-invariant metric.
  * Ts:       list of poses
@@ -481,6 +486,12 @@ Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
 
 Transform mock_mean(
   const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func);
+
+
+Matrix6x6 covariance(
+  Transform Tmean, 
+  MemoryView<Transform, RAM> Ts, 
   std::function<float(size_t)> weight_func);
 
 } // namespace rmagine

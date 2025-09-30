@@ -993,6 +993,74 @@ Transform markley_mean(
   return T_mean;
 }
 
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func)
+{
+  Transform T_mean;
+
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("mean_markley: empty input");
+  }
+
+  const size_t N = Ts.size();
+
+  // Hemisphere correction (use first quaternion as reference)
+  Transform ref = Ts[0];
+
+  // Build 4x4 M = sum w_i * (q_i q_i^T)
+
+  float M[4][4] = {{0}};
+  Vector3 t_mean = {0.0, 0.0, 0.0};
+
+  for(size_t i=0; i<N; ++i) 
+  {
+    Quaternion qi = hemi_align(Ts[i].R, ref.R);
+    const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+    const float w = weight_func(i);
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        M[r][c] += w * qv[r] * qv[c];
+      }
+    }
+    t_mean += Ts[i].t * weight_func(i);
+  }
+  
+  // Power iteration (sufficient for 4x4 SPD) to get principal eigenvector
+  float v[4] = {1,0,0,0};
+  for(int it=0; it<32; ++it) 
+  {
+    float nv[4] = {0,0,0,0};
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        nv[r] += M[r][c] * v[c];
+      }
+    }
+    // normalize
+    float nrm = std::sqrt(nv[0]*nv[0]+nv[1]*nv[1]+nv[2]*nv[2]+nv[3]*nv[3]);
+    for(int r=0;r<4;++r)
+    {
+      v[r] = nv[r] / (nrm + 1e-20f);
+    }
+  }
+
+  T_mean.R.w = (v[0] >= 0.0f) ? v[0] : -v[0];
+  T_mean.R.x = (v[0] >= 0.0f) ? v[1] : -v[1];
+  T_mean.R.y = (v[0] >= 0.0f) ? v[2] : -v[2];
+  T_mean.R.z = (v[0] >= 0.0f) ? v[3] : -v[3];
+  T_mean.R.normalizeInplace();
+
+  T_mean.t = t_mean;
+
+  return T_mean;
+}
+
 Transform karcher_mean(
   const MemoryView<Transform, RAM> Ts,
   const MemoryView<float, RAM> weights,
@@ -1183,6 +1251,98 @@ Transform mock_mean(
   }
 
   return Ttot;
+}
+
+Matrix6x6 covariance(
+  Transform Tmean, 
+  MemoryView<Transform, RAM> Ts, 
+  std::function<float(size_t)> weight_func)
+{
+  const size_t N = Ts.size();
+
+  if(N == 0)
+  {
+    return Matrix6x6::Zeros();
+  }
+
+  // Matrix6x6 cov = Matrix6x6::Zeros();
+
+
+  // Matrix_<float, 6,1> mu = Matrix_<float, 6,1>::Zeros();
+
+  // const Transform Tmeaninv = ~Tmean;
+
+  // float     W  = 0.0f;        // sum of weights
+  // float     Q  = 0.0f;        // sum of squared weights
+
+  // for(size_t i=0; i<N; i++) 
+  // {
+  //   const float w = weight_func(i);
+  //   const Transform dT = Tmeaninv * Ts[i];
+
+  //   auto rho_phi = se3_log<float>(dT);
+
+  //   Matrix_<float, 6,1> x;
+  //   x(0,0) = rho_phi.first.x;
+  //   x(1,0) = rho_phi.first.y;
+  //   x(2,0) = rho_phi.first.z;
+  //   x(3,0) = rho_phi.second.x;
+  //   x(4,0) = rho_phi.second.y;
+  //   x(5,0) = rho_phi.second.z;
+
+  //   // Online weighted mean & covariance update (Welford-style)
+  //   const float W_new = W + w;
+  //   const Matrix_<float, 6,1> delta  = x - mu;
+  //   const Matrix_<float, 6,1> mu_new = mu + delta * (w / W_new);
+  //   const Matrix_<float, 6,1> delta2 = x - mu_new;
+
+  //   cov += (delta * delta2.transpose()) * w;
+
+  //   mu  = mu_new;
+  //   W   = W_new;
+  //   Q  += w * w;
+  // }
+
+  // // symmetrize
+  // cov = (cov + cov.transpose()) * 0.5;
+
+  const Transform Tmeaninv = ~Tmean;
+
+  Matrix_<float, 6, 1> M1 = Matrix_<float, 6, 1>::Zeros(); // first moment: sum_i wi * xi
+  Matrix_<float, 6, 6> M2 = Matrix_<float, 6, 6>::Zeros(); // second moment: sum_i w_i * xi*xi^T
+  float     w2sum = 0.0f;               // sum_i w_i^2
+
+  for(size_t i = 0; i < N; ++i)
+  {
+    const float wi = weight_func(i);
+    if (wi == 0.0f) continue;
+
+    // Relative pose and SE(3) log: se3_log returns (rho, phi)
+    const Transform dT = Tmeaninv * Ts[i];
+    auto rho_phi = se3_log(dT);
+    const Vector3f& rho = rho_phi.first;   // translational tangent
+    const Vector3f& phi = rho_phi.second;  // rotational tangent
+
+    Matrix_<float, 6, 1> xi;
+    xi(0,0) = rho.x;
+    xi(1,0) = rho.y;
+    xi(2,0) = rho.z;
+    xi(3,0) = phi.x;
+    xi(4,0) = phi.y;
+    xi(5,0) = phi.z;
+
+    M1 += xi * wi;
+    M2 += (xi * xi.transpose()) * wi;
+    w2sum += wi * wi;
+  }
+
+  // Centered covariance (maximum-likelihood / biased)
+  Matrix6x6 Sigma = M2 - (M1 * M1.transpose());
+
+  // Symmetrize
+  Sigma = (Sigma + Sigma.transpose()) * 0.5f;
+
+  return Sigma;
 }
 
 } // namespace rmagine

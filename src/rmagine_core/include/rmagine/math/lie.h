@@ -82,6 +82,10 @@ Vector3_<DataT> so3_log(
   const Matrix3x3_<DataT>& R);
 
 template<typename DataT>
+Vector3_<DataT> so3_log(
+  const Quaternion_<DataT>& q);
+
+template<typename DataT>
 Matrix3x3_<DataT> so3_exp(
   const Vector3_<DataT> omega);
 
