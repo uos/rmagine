@@ -50,6 +50,13 @@ struct VulkanDimensions
 
 
 
+/**
+ * write the bufferDeviceAddresses of the Memory objects in the bundle to the struct used by the device
+ * 
+ * @param res bundle
+ * 
+ * @param mem struct used by the device
+ */
 template<typename BundleT>
 static void set_vulkan_results_data(BundleT& res, VulkanResultsAddresses& mem)
 {
@@ -90,12 +97,21 @@ static void set_vulkan_results_data(BundleT& res, VulkanResultsAddresses& mem)
 }
 
 
+/**
+ * check if all elements of a Bundle have the required minimum size needed for the simulation
+ * 
+ * @param res the bundle that gets checked
+ * 
+ * @param size minimum size needed for the simulation
+ * 
+ * @return true if all memory objects have the minimum size needed
+ */
 template<typename BundleT>
 static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 {
     if constexpr(BundleT::template has<Hits<DEVICE_LOCAL_VULKAN> >())
     {
-        if(res.hits.size() != 0 && res.hits.size() < size)
+        if(res.hits.size() < size)
         {
             return false;
         }
@@ -103,7 +119,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 
     if constexpr(BundleT::template has<Ranges<DEVICE_LOCAL_VULKAN> >())
     {
-        if(res.ranges.size() != 0 && res.ranges.size() < size)
+        if(res.ranges.size() < size)
         {
             return false;
         }
@@ -111,7 +127,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 
     if constexpr(BundleT::template has<Points<DEVICE_LOCAL_VULKAN> >())
     {
-        if(res.points.size() != 0 && res.points.size() < size)
+        if(res.points.size() < size)
         {
             return false;
         }
@@ -119,7 +135,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 
     if constexpr(BundleT::template has<Normals<DEVICE_LOCAL_VULKAN> >())
     {
-        if(res.normals.size() != 0 && res.normals.size() < size)
+        if(res.normals.size() < size)
         {
             return false;
         }
@@ -128,7 +144,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
     if constexpr(BundleT::template has<FaceIds<DEVICE_LOCAL_VULKAN> >())
     {
         //primitiveID
-        if(res.face_ids.size() != 0 && res.face_ids.size() < size)
+        if(res.face_ids.size() < size)
         {
             return false;
         }
@@ -137,7 +153,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
     if constexpr(BundleT::template has<GeomIds<DEVICE_LOCAL_VULKAN> >())
     {
         //geometryID
-        if(res.geom_ids.size() != 0 && res.geom_ids.size() < size)
+        if(res.geom_ids.size() < size)
         {
             return false;
         }
@@ -146,7 +162,7 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
     if constexpr(BundleT::template has<ObjectIds<DEVICE_LOCAL_VULKAN> >())
     {
         //instanceID
-        if(res.object_ids.size() != 0 && res.object_ids.size() < size)
+        if(res.object_ids.size() < size)
         {
             return false;
         }
@@ -224,6 +240,13 @@ static bool check_vulkan_bundle_sizes(BundleT& res, size_t size)
 // }
 
 
+/**
+ * returns the defines required for the shaders/shaderBindingTable for cumputeing these results
+ * 
+ * @param res struct containing addresses of the buffers for the results (if a result is not requested the addess is 0)
+ * 
+ * @return required shader defines
+ */
 static ShaderDefineFlags get_result_flags(const VulkanResultsAddresses& res)
 {
     ShaderDefineFlags resultFlags = 0;
@@ -267,6 +290,13 @@ static ShaderDefineFlags get_result_flags(const VulkanResultsAddresses& res)
 }
 
 
+/**
+ * returns the defines required for the shaders/shaderBindingTable for cumputeing these results
+ * 
+ * @param resultsMem_ram ram memory containing a struct that contains addresses of the buffers for the results (if a result is not requested the addess is 0)
+ * 
+ * @return required shader defines
+ */
 static inline ShaderDefineFlags get_result_flags(const Memory<VulkanResultsAddresses, RAM>& resultsMem_ram)
 {
     VulkanResultsAddresses res = resultsMem_ram[0];

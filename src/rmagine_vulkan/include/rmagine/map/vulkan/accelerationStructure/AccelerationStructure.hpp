@@ -48,6 +48,9 @@ public:
 
     VkAccelerationStructureKHR* getAcceleratiionStructurePtr();
 
+    /**
+     * @return id of the memory object containing the acceleration structure
+     */
     size_t getID();
 
     template<typename T>

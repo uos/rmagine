@@ -42,8 +42,24 @@ using VulkanMapPtr = std::shared_ptr<VulkanMap>;
 
 
 
+/**
+ * creates a simple vulkan map from some verticies and indicies/faces
+ * 
+ * @param vertices_ram verticies
+ * 
+ * @param faces_ram indicies/faces
+ * 
+ * @return vulkan map
+ */
 VulkanMapPtr import_vulkan_map(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
+/**
+ * creates a vulkan map from a meshfile (with assimp)
+ * 
+ * @param meshfile meshfile
+ * 
+ * @return vulkan map
+ */
 VulkanMapPtr import_vulkan_map(const std::string& meshfile);
 
 } // namespace rmagine

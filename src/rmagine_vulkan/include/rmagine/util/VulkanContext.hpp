@@ -60,14 +60,63 @@ public:
     VulkanContext(const VulkanContext&) = delete;//delete copy connstructor, you should never need to copy an instance of this class, and doing so may cause issues
 
 
+    /**
+     * returns a shader of the chosen type, compiled with chosen defines
+     * not applicable defines get ignored
+     * if the requested shader does not exist it gets created and stored in a map (cache)
+     * to avoid having to recreate the shader should it get requested again
+     * 
+     * @param shaderType Type of the shader (Ray generation, Closest hit, Miss)
+     * 
+     * @param shaderDefines defines used for compilation
+     * 
+     * @return the described shader
+     */
     ShaderPtr getShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+    /**
+     * remove the described shader from the shader cache
+     * (shaders still in use only get deleted afterwards)
+     * 
+     * @param shaderType Type of the shader (Ray generation, Closest hit, Miss)
+     * 
+     * @param shaderDefines defines used for compilation
+     */
     void removeShader(ShaderType shaderType, ShaderDefineFlags shaderDefines);
+    /**
+     * get the number of shaders currently in the shader cache
+     */
     size_t getShaderCacheSize();
+    /**
+     * remove all shaders from the shader cache
+     * (shaders still in use only get deleted afterwards)
+     */
     void clearShaderCache();
 
+    /**
+     * get the shader binding table (and ray tracing pipeline) corresponding to the chosen defines
+     * if the requested shader binding table does not exist it gets created and stored in a map (cache)
+     * to avoid having to recreate the shader should it get requested again
+     * 
+     * @param shaderDefines defines used for compilation of the shaders used by the ray tracing pipeline
+     * 
+     * @return the described shader binding table
+     */
     ShaderBindingTablePtr getShaderBindingTable(ShaderDefineFlags shaderDefines);
+    /**
+     * remove the described shader binding table from the shader cache
+     * (shaders still in use only get deleted afterwards)
+     * 
+     * @param shaderDefines defines used for compilation of the shaders used by the ray tracing pipeline
+     */
     void removeShaderBindingTable(ShaderDefineFlags shaderDefines);
+    /**
+     * get the number of shader binding tables currently in the shader binding table cache
+     */
     size_t getShaderBindingTableCacheSize();
+    /**
+     * remove all shader binding tables from the shader binding table cache
+     * (shader binding tables still in use only get deleted afterwards)
+     */
     void clearShaderBindingTableCache();
 
     DevicePtr getDevice();

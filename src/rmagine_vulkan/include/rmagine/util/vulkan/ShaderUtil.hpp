@@ -58,6 +58,13 @@ typedef uint32_t ShaderDefineFlags;
 
 
 
+/**
+ * translate from rmagine-vulkan shader type enum to glslang shader type enum
+ * 
+ * @param shaderType rmagine-vulkan shader type shaderType 
+ * 
+ * @return glslang shader type
+ */
 glslang_stage_t get_glslang_stage(ShaderType shaderType);
 
 /**
@@ -110,12 +117,36 @@ std::string get_shader_defines_info(ShaderDefineFlags shaderDefines);
 std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefines);
 
 
+/**
+ * mask that can be used to only get sensor defines from some ShaderDefineFlags
+ * 
+ * @return ShaderDefineFlags with all sensors set to 1 and everything else set to 0
+ */
 ShaderDefineFlags get_sensor_mask();
 
+/**
+ * get only the defines relevant to sensors from some shader defines
+ * 
+ * @param shaderDefines shader defines
+ * 
+ * @return sensor shader defines
+ */
 ShaderDefineFlags get_sensor_defines_from_flags(ShaderDefineFlags shaderDefines);
 
+/**
+ * mask that can be used to only get result defines from some ShaderDefineFlags
+ * 
+ * @return ShaderDefineFlags with all results set to 1 and everything else set to 0
+ */
 ShaderDefineFlags get_result_mask();
 
+/**
+ * get only the defines relevant to results from some shader defines
+ * 
+ * @param shaderDefines shader defines
+ * 
+ * @return result shader defines
+ */
 ShaderDefineFlags get_result_defines_from_flags(ShaderDefineFlags shaderDefines);
 
 

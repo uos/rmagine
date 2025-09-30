@@ -146,6 +146,8 @@ protected:
 
 
 
+//// Memory - VULKAN_AS_CUDA
+
 template<typename DataT>
 class Memory<DataT, VULKAN_AS_CUDA>
 {

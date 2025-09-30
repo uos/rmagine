@@ -116,8 +116,24 @@ using VulkanScenePtr = std::shared_ptr<VulkanScene>;
 
 
 
+/**
+ * creates a simple vulkan scene from some verticies and indicies/faces
+ * 
+ * @param vertices_ram verticies
+ * 
+ * @param faces_ram indicies/faces
+ * 
+ * @return vulkan scene
+ */
 VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
+/**
+ * creates a vulkan scene from an Assimp scene
+ * 
+ * @param meshfile Assimp scene
+ * 
+ * @return vulkan scene
+ */
 VulkanScenePtr make_vulkan_scene(const aiScene* ascene);
 
 } // namespace rmagine

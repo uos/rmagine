@@ -62,8 +62,24 @@ using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
 
 
 
+/**
+ * creates a vulkan mesh from some verticies and indicies/faces
+ * 
+ * @param vertices_ram verticies
+ * 
+ * @param faces_ram indicies/faces
+ * 
+ * @return vulkan mesh
+ */
 VulkanMeshPtr make_vulkan_mesh(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram);
 
+/**
+ * creates a vulkan mesh from an Assimp mesh
+ * 
+ * @param meshfile Assimp mesh
+ * 
+ * @return vulkan mesh
+ */
 VulkanMeshPtr make_vulkan_mesh(const aiMesh* amesh);
 
 } // namespace rmagine
