@@ -1265,47 +1265,6 @@ Matrix6x6 covariance(
     return Matrix6x6::Zeros();
   }
 
-  // Matrix6x6 cov = Matrix6x6::Zeros();
-
-
-  // Matrix_<float, 6,1> mu = Matrix_<float, 6,1>::Zeros();
-
-  // const Transform Tmeaninv = ~Tmean;
-
-  // float     W  = 0.0f;        // sum of weights
-  // float     Q  = 0.0f;        // sum of squared weights
-
-  // for(size_t i=0; i<N; i++) 
-  // {
-  //   const float w = weight_func(i);
-  //   const Transform dT = Tmeaninv * Ts[i];
-
-  //   auto rho_phi = se3_log<float>(dT);
-
-  //   Matrix_<float, 6,1> x;
-  //   x(0,0) = rho_phi.first.x;
-  //   x(1,0) = rho_phi.first.y;
-  //   x(2,0) = rho_phi.first.z;
-  //   x(3,0) = rho_phi.second.x;
-  //   x(4,0) = rho_phi.second.y;
-  //   x(5,0) = rho_phi.second.z;
-
-  //   // Online weighted mean & covariance update (Welford-style)
-  //   const float W_new = W + w;
-  //   const Matrix_<float, 6,1> delta  = x - mu;
-  //   const Matrix_<float, 6,1> mu_new = mu + delta * (w / W_new);
-  //   const Matrix_<float, 6,1> delta2 = x - mu_new;
-
-  //   cov += (delta * delta2.transpose()) * w;
-
-  //   mu  = mu_new;
-  //   W   = W_new;
-  //   Q  += w * w;
-  // }
-
-  // // symmetrize
-  // cov = (cov + cov.transpose()) * 0.5;
-
   const Transform Tmeaninv = ~Tmean;
 
   Matrix_<float, 6, 1> M1 = Matrix_<float, 6, 1>::Zeros(); // first moment: sum_i wi * xi
