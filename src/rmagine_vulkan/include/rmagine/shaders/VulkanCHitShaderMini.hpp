@@ -62,11 +62,7 @@ void main()
 
         meshDesc_array meshDescs = meshDesc_array(mapDataBuffer.data[gl_InstanceID]);
 
-        // summary:
-        // use (interpolated) vertex normals if possible
-        // else use face normals if possible
-        // else calculate face normals yourself using verticies and indicies
-
+        // use face normals if possible
         if(meshDescs[gl_GeometryIndexEXT].meshDesc.faceNormalAddress != 0)
         {
             //grab face normal from array
@@ -76,18 +72,18 @@ void main()
             normal_object = vec3(faceNormals[3 * gl_PrimitiveID + 0].f,
                                  faceNormals[3 * gl_PrimitiveID + 1].f,
                                  faceNormals[3 * gl_PrimitiveID + 2].f);
-        }
 
-        //transform normal from object to world space
-        vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT)* normal_object);
+            //transform normal from object to world space
+            vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT) * normal_object);
 
-        //transform normal from world to sensor space
-        vec3 normal = rotateVec3(payload.sensorTf.rot, normal_world);
+            //transform normal from world to sensor space
+            vec3 normal = rotateVec3(payload.sensorTf.rot, normal_world);
 
-        //flip?
-        if(dot(ray_dir_s, normal) > 0.0)
-        {
-            normal *= -1.0;
+            //flip?
+            if(dot(ray_dir_s, normal) > 0.0)
+            {
+                normal *= -1.0;
+            }
         }
     #endif
 

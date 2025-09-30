@@ -127,7 +127,7 @@ void main()
         }
 
         //transform normal from object to world space
-        vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT)* normal_object);
+        vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT) * normal_object);
 
         //transform normal from world to sensor space
         vec3 normal = rotateVec3(payload.sensorTf.rot, normal_world);
