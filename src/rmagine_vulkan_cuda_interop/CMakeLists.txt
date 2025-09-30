@@ -8,6 +8,7 @@ message(STATUS "Building Vulkan Cuda Interop. Library: rmagine-vulkan-cuda-inter
 set(RMAGINE_VULKAN_CUDA_INTEROP_SRCS
     #Types
     src/types/VulkanCudaInterop.cpp
+    src/types/MemoryVulkanCudaInterop.cpp
 )
 
 ## SHARED ##

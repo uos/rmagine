@@ -9,8 +9,9 @@
 using namespace rmagine;
 
 
+
 template<typename MemT>
-void cmp_mem(Memory<uint64_t, RAM> originalMem, Memory<uint64_t, MemT> newMem, std::string note = "")
+void cmp_mem(MemoryView<uint64_t, RAM>& originalMem, MemoryView<uint64_t, MemT>& newMem, std::string note = "")
 {
     std::cout << note << std::endl;
 

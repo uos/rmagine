@@ -1,5 +1,8 @@
+#pragma once
+
 #include <driver_types.h>
 
+#include <rmagine/types/Memory.hpp>
 #include "rmagine/types/MemoryVulkan.hpp"
 #include "rmagine/types/MemoryCuda.hpp"
 #include "rmagine/util/cuda/CudaDebug.hpp"
@@ -8,6 +11,22 @@
 
 namespace rmagine
 {
+
+/**
+ * Wrapper struct for cudaExternalMemory_t to ensure its destruction when shared_ptr gets freed
+ */
+struct CudaExternalMemory
+{
+    cudaExternalMemory_t externalMemory;
+
+    ~CudaExternalMemory()
+    {
+        RM_CUDA_CHECK(cudaDestroyExternalMemory(externalMemory));
+    }
+};
+using CudaExternalMemoryPtr = std::shared_ptr<CudaExternalMemory>;
+
+
 
 namespace vulkanCudaInterop
 {
@@ -18,16 +37,15 @@ namespace vulkanCudaInterop
  * 
  * @param deviceMemory vulkan device memory that get imported to cuda
  * 
+ * @param externalMemory wrapper for a cuda struct that manages the external memory
+ * 
  * @param count number of bytes that get imported
  * 
  * @param byteOffset offset into the vulkan device memory
  * 
- * @param cudaPtrPtr ptr to the cuda ptr that accesses the vulkan memory
- * 
- * @param cuExternalMemory reference to a cuda struct that manages the external memory
+ * @return cuda ptr that accesses the vulkan memory
  */
-void importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, VkDeviceSize count, VkDeviceSize byteOffset,
-                            void** cudaPtrPtr, cudaExternalMemory_t& cuExternalMemory);
+void* importVulkanMemToCuda(DeviceMemoryPtr deviceMemory, CudaExternalMemoryPtr externalMemory, VkDeviceSize count, VkDeviceSize byteOffset);
 
 /**
  * copy data from vulkan memory to a cuda memory
