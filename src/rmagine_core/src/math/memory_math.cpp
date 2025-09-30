@@ -5,6 +5,8 @@
 #include <cassert>
 
 #include <rmagine/math/linalg.h>
+#include <rmagine/math/lie.h>
+#include <rmagine/math/optimization.h>
 
 #include <tbb/parallel_for.h>
 
@@ -826,5 +828,480 @@ Memory<Transform, RAM> umeyama_transform(
     return ret;
 }
 
+Quaternion markley_mean(
+  const MemoryView<Quaternion, RAM> Qs, 
+  const MemoryView<float, RAM> weights)
+{
+  if(Qs.empty()) 
+  {
+    throw std::runtime_error("mean_markley: empty input");
+  }
+
+  const size_t N = Qs.size();
+
+  // Hemisphere correction (use first quaternion as reference)
+  Quaternion ref = Qs[0];
+
+  // Build 4x4 M = sum w_i * (q_i q_i^T)
+
+  float M[4][4] = {{0}};
+
+  if(weights.size() == N)
+  {
+    for(size_t i=0; i<N; ++i) 
+    {
+      Quaternion qi = hemi_align(Qs[i], ref);
+      const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      const float w = weights[i];
+      for(int r=0;r<4;++r)
+      {
+        for(int c=0;c<4;++c)
+        {
+          M[r][c] += w * qv[r] * qv[c];
+        }
+      }
+    }
+  } else {
+    const float w = 1.f / static_cast<float>(N);
+    for(size_t i=0; i<N; ++i) 
+    {
+      Quaternion qi = hemi_align(Qs[i], ref);
+      const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      for(int r=0;r<4;++r)
+      {
+        for(int c=0;c<4;++c)
+        {
+          M[r][c] += w * qv[r] * qv[c];
+        }
+      }
+    }
+  }
+  
+  // Power iteration (sufficient for 4x4 SPD) to get principal eigenvector
+  float v[4] = {1,0,0,0};
+  for(int it=0; it<32; ++it) 
+  {
+    float nv[4] = {0,0,0,0};
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        nv[r] += M[r][c] * v[c];
+      }
+    }
+    // normalize
+    float nrm = std::sqrt(nv[0]*nv[0]+nv[1]*nv[1]+nv[2]*nv[2]+nv[3]*nv[3]);
+    for(int r=0;r<4;++r)
+    {
+      v[r] = nv[r] / (nrm + 1e-20f);
+    }
+  }
+
+  Quaternion q_mean;
+  q_mean.w = (v[0] >= 0.0f) ? v[0] : -v[0];
+  q_mean.x = (v[0] >= 0.0f) ? v[1] : -v[1];
+  q_mean.y = (v[0] >= 0.0f) ? v[2] : -v[2];
+  q_mean.z = (v[0] >= 0.0f) ? v[3] : -v[3];
+  q_mean.normalizeInplace();
+
+  return q_mean;
+}
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM>& weights)
+{
+  Transform T_mean;
+
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("mean_markley: empty input");
+  }
+
+  const size_t N = Ts.size();
+
+  // Hemisphere correction (use first quaternion as reference)
+  Transform ref = Ts[0];
+
+  // Build 4x4 M = sum w_i * (q_i q_i^T)
+
+  float M[4][4] = {{0}};
+  Vector3 t_mean = {0.0, 0.0, 0.0};
+
+  if(weights.size() == N)
+  {
+    for(size_t i=0; i<N; ++i) 
+    {
+      Quaternion qi = hemi_align(Ts[i].R, ref.R);
+      const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      const float w = weights[i];
+      for(int r=0;r<4;++r)
+      {
+        for(int c=0;c<4;++c)
+        {
+          M[r][c] += w * qv[r] * qv[c];
+        }
+      }
+      t_mean += Ts[i].t * weights[i];
+    }
+  } else {
+    const float w = 1.f / static_cast<float>(N);
+    for(size_t i=0; i<N; ++i) 
+    {
+      Quaternion qi = hemi_align(Ts[i].R, ref.R);
+      const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+      for(int r=0;r<4;++r)
+      {
+        for(int c=0;c<4;++c)
+        {
+          M[r][c] += w * qv[r] * qv[c];
+        }
+      }
+      t_mean += Ts[i].t;
+    }
+    t_mean /= static_cast<float>(N);
+  }
+  
+  // Power iteration (sufficient for 4x4 SPD) to get principal eigenvector
+  float v[4] = {1,0,0,0};
+  for(int it=0; it<32; ++it) 
+  {
+    float nv[4] = {0,0,0,0};
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        nv[r] += M[r][c] * v[c];
+      }
+    }
+    // normalize
+    float nrm = std::sqrt(nv[0]*nv[0]+nv[1]*nv[1]+nv[2]*nv[2]+nv[3]*nv[3]);
+    for(int r=0;r<4;++r)
+    {
+      v[r] = nv[r] / (nrm + 1e-20f);
+    }
+  }
+
+  T_mean.R.w = (v[0] >= 0.0f) ? v[0] : -v[0];
+  T_mean.R.x = (v[0] >= 0.0f) ? v[1] : -v[1];
+  T_mean.R.y = (v[0] >= 0.0f) ? v[2] : -v[2];
+  T_mean.R.z = (v[0] >= 0.0f) ? v[3] : -v[3];
+  T_mean.R.normalizeInplace();
+
+  T_mean.t = t_mean;
+
+  return T_mean;
+}
+
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func)
+{
+  Transform T_mean;
+
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("mean_markley: empty input");
+  }
+
+  const size_t N = Ts.size();
+
+  // Hemisphere correction (use first quaternion as reference)
+  Transform ref = Ts[0];
+
+  // Build 4x4 M = sum w_i * (q_i q_i^T)
+
+  float M[4][4] = {{0}};
+  Vector3 t_mean = {0.0, 0.0, 0.0};
+
+  for(size_t i=0; i<N; ++i) 
+  {
+    Quaternion qi = hemi_align(Ts[i].R, ref.R);
+    const float qv[4] = {qi.w, qi.x, qi.y, qi.z}; // order (w,x,y,z)
+    const float w = weight_func(i);
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        M[r][c] += w * qv[r] * qv[c];
+      }
+    }
+    t_mean += Ts[i].t * weight_func(i);
+  }
+  
+  // Power iteration (sufficient for 4x4 SPD) to get principal eigenvector
+  float v[4] = {1,0,0,0};
+  for(int it=0; it<32; ++it) 
+  {
+    float nv[4] = {0,0,0,0};
+    for(int r=0;r<4;++r)
+    {
+      for(int c=0;c<4;++c)
+      {
+        nv[r] += M[r][c] * v[c];
+      }
+    }
+    // normalize
+    float nrm = std::sqrt(nv[0]*nv[0]+nv[1]*nv[1]+nv[2]*nv[2]+nv[3]*nv[3]);
+    for(int r=0;r<4;++r)
+    {
+      v[r] = nv[r] / (nrm + 1e-20f);
+    }
+  }
+
+  T_mean.R.w = (v[0] >= 0.0f) ? v[0] : -v[0];
+  T_mean.R.x = (v[0] >= 0.0f) ? v[1] : -v[1];
+  T_mean.R.y = (v[0] >= 0.0f) ? v[2] : -v[2];
+  T_mean.R.z = (v[0] >= 0.0f) ? v[3] : -v[3];
+  T_mean.R.normalizeInplace();
+
+  T_mean.t = t_mean;
+
+  return T_mean;
+}
+
+Transform karcher_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM> weights,
+  float tol,
+  int max_iters)
+{
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("karcher_mean: empty input.");
+  }
+
+  const size_t N = Ts.size();
+
+  // Weights (normalized)
+  std::vector<float> w(N, 1.f);
+  if(weights.size() == N)
+  {
+    for(size_t i=0; i<weights.size(); i++)
+    {
+      w[i] = weights[i];
+    }
+
+    float s = 0.f; 
+    for(float wi : w) 
+    {
+      s += wi;
+    }
+    if(s <= 0.f) 
+    {
+      throw std::runtime_error("karcher_mean: nonpositive weight sum.");
+    }
+    for(float& wi : w)
+    {
+      wi /= s;
+    }
+  }
+  else 
+  {
+    const float invN = 1.f / static_cast<float>(N);
+    for (float& wi : w) 
+    {
+      wi = invN;
+    }
+  }
+
+  // Initialize with the first pose (good enough; iteration refines it)
+  Transform Tm = Ts[0];
+
+  for (int it = 0; it < max_iters; ++it) 
+  {
+    // Accumulate weighted twists of residuals xi_i = log(Tm^{-1} Ti)
+    Vector3 vbar{0.f,0.f,0.f};
+    Vector3 wbar{0.f,0.f,0.f};
+
+    for (size_t i = 0; i < N; ++i) 
+    {
+      const Transform Terr = ~Tm * Ts[i]; // relative transform
+      auto [vi, wi] = se3_log(Terr);
+      vbar.x += w[i] * vi.x; vbar.y += w[i] * vi.y; vbar.z += w[i] * vi.z;
+      wbar.x += w[i] * wi.x; wbar.y += w[i] * wi.y; wbar.z += w[i] * wi.z;
+    }
+
+    // Convergence check on combined twist norm
+    const float n2 = vbar.x*vbar.x + vbar.y*vbar.y + vbar.z*vbar.z
+                    + wbar.x*wbar.x + wbar.y*wbar.y + wbar.z*wbar.z;
+    if (n2 < tol*tol) 
+    {
+      break;
+    }
+
+    // Update: Tm = Tm * exp([vbar, wbar])
+    Transform dT = se3_exp(vbar, wbar);
+    Tm = Tm * dT;
+  }
+
+  return Tm;
+}
+
+
+Transform karcher_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func,
+  float tol,
+  int max_iters)
+{
+  if(Ts.empty()) 
+  {
+    throw std::runtime_error("karcher_mean: empty input.");
+  }
+
+  // Initialize with the first pose (good enough; iteration refines it)
+  Transform Tm = Ts[0];
+
+  for (int it = 0; it < max_iters; ++it) 
+  {
+    // Accumulate weighted twists of residuals xi_i = log(Tm^{-1} Ti)
+    Vector3 vbar{0.f,0.f,0.f};
+    Vector3 wbar{0.f,0.f,0.f};
+
+    for (size_t i = 0; i < Ts.size(); ++i) 
+    {
+      const Transform Terr = ~Tm * Ts[i]; // relative transform
+      auto [vi, wi] = se3_log(Terr);
+      vbar.x += weight_func(i) * vi.x;
+      vbar.y += weight_func(i) * vi.y;
+      vbar.z += weight_func(i) * vi.z;
+      wbar.x += weight_func(i) * wi.x;
+      wbar.y += weight_func(i) * wi.y;
+      wbar.z += weight_func(i) * wi.z;
+    }
+
+    // Convergence check on combined twist norm
+    const float n2 = vbar.x*vbar.x + vbar.y*vbar.y + vbar.z*vbar.z
+                    + wbar.x*wbar.x + wbar.y*wbar.y + wbar.z*wbar.z;
+    if (n2 < tol*tol) 
+    {
+      break;
+    }
+
+    // Update: Tm = Tm * exp([vbar, wbar])
+    Transform dT = se3_exp(vbar, wbar);
+    Tm = Tm * dT;
+  }
+
+  return Tm;
+}
+
+Transform mock_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func)
+{
+  // Ttot = w[0] * Ts[0] + w[1] * Ts[1] + ... + w[n] * Ts[n];
+
+  // sum w = 1
+
+  // Ttot = Identity;
+  // wtot = 0.0;
+  // Ttot = Ttot * wtot + w[0] * Ts[0];
+  // wtot += w[0];
+
+  Transform Ttot = Ts[0];
+  float wtot = weight_func(0);
+
+  for(size_t i=1; i<Ts.size(); i++)
+  {
+    // weight w in [0, 0] (sum of all weights equals 1)
+    const float wnew = weight_func(i);
+    if(wnew < 0.000001)
+    {
+      continue;
+    }
+    const float wtot_new = wtot + wnew;
+    
+    // 1 == wnew/wtot_new + wtot/wtot_new == (wnew + wtot) / wtot_new
+    // A' = A * pA + B * pB 
+    //    = A * (1-pB) + B * pB
+    //    = A - A*pB + B*pB
+    //    = A + (B - A) * pB
+    // B:new, A:old
+
+    const float pnew = wnew / wtot_new;
+
+    Transform Tdiff = Ttot.to(Ts[i]); // (B-A)
+
+    Tdiff.R.normalizeInplace();
+
+    const Transform Tdiff_part = Tdiff.pow(pnew);
+
+    Ttot = Ttot * Tdiff_part;
+
+    if(! (std::isfinite(Ttot.t.x)
+      && std::isfinite(Ttot.t.y)
+      && std::isfinite(Ttot.t.z)
+      && std::isfinite(Ttot.R.x)
+      && std::isfinite(Ttot.R.y)
+      && std::isfinite(Ttot.R.z)
+      && std::isfinite(Ttot.R.w)))
+    {
+      std::cout << " ----- " << i << "- - -- -- " << std::endl;
+      std::cout << " - Diff: " << Tdiff.t << " " << Tdiff.R << std::endl;
+      std::cout << " - Part: " << Tdiff_part.t << " " << Tdiff_part.R << std::endl;
+      std::cout << " - new: " << Ttot << std::endl;
+
+      throw std::runtime_error("NOO");
+    }
+    
+    wtot = wtot_new;
+  }
+
+  return Ttot;
+}
+
+Matrix6x6 covariance(
+  Transform Tmean, 
+  MemoryView<Transform, RAM> Ts, 
+  std::function<float(size_t)> weight_func)
+{
+  const size_t N = Ts.size();
+
+  if(N == 0)
+  {
+    return Matrix6x6::Zeros();
+  }
+
+  const Transform Tmeaninv = ~Tmean;
+
+  Matrix_<float, 6, 1> M1 = Matrix_<float, 6, 1>::Zeros(); // first moment: sum_i wi * xi
+  Matrix_<float, 6, 6> M2 = Matrix_<float, 6, 6>::Zeros(); // second moment: sum_i w_i * xi*xi^T
+  float     w2sum = 0.0f;               // sum_i w_i^2
+
+  for(size_t i = 0; i < N; ++i)
+  {
+    const float wi = weight_func(i);
+    if (wi == 0.0f) continue;
+
+    // Relative pose and SE(3) log: se3_log returns (rho, phi)
+    const Transform dT = Tmeaninv * Ts[i];
+    auto rho_phi = se3_log(dT);
+    const Vector3f& rho = rho_phi.first;   // translational tangent
+    const Vector3f& phi = rho_phi.second;  // rotational tangent
+
+    Matrix_<float, 6, 1> xi;
+    xi(0,0) = rho.x;
+    xi(1,0) = rho.y;
+    xi(2,0) = rho.z;
+    xi(3,0) = phi.x;
+    xi(4,0) = phi.y;
+    xi(5,0) = phi.z;
+
+    M1 += xi * wi;
+    M2 += (xi * xi.transpose()) * wi;
+    w2sum += wi * wi;
+  }
+
+  // Centered covariance (maximum-likelihood / biased)
+  Matrix6x6 Sigma = M2 - (M1 * M1.transpose());
+
+  // Symmetrize
+  Sigma = (Sigma + Sigma.transpose()) * 0.5f;
+
+  return Sigma;
+}
 
 } // namespace rmagine

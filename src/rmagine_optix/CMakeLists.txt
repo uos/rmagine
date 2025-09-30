@@ -58,8 +58,7 @@ if(CMAKE_CUDA_COMPILER)
         set(CUDA_cusolver_LIBRARY CUDA::cusolver)
         set(CUDA_cublas_LIBRARY CUDA::cublas)
         set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
-        set(CUDA_INCLUDE_DIRS "") # is in target instead    
-        get_target_property(NVIDIA_DRIVER_PATH CUDA::cuda_driver LOCATION)    
+        set(CUDA_INCLUDE_DIRS "") # is in target instead  
     else()
         find_package(CUDA)
         if(CUDA_FOUND)
@@ -70,83 +69,63 @@ if(CMAKE_CUDA_COMPILER)
             else()
                 find_library(CUDA_DRIVER_LIBRARY NAMES cuda)
             endif()
-            # 2. CUDA_DRIVER_LIBRARY <- Figure out path to cuda.so
-            if(CUDA_DRIVER_LIBRARY)
-                if(TARGET ${CUDA_DRIVER_LIBRARY})
-                    get_target_property(NVIDIA_DRIVER_PATH ${CUDA_DRIVER_LIBRARY} LOCATION) # ERROR: https://github.com/uos/rmagine/issues/14
-                else() # already a path
-                    set(NVIDIA_DRIVER_PATH ${CUDA_DRIVER_LIBRARY})
-                endif()
-            endif()
         else()
             message(STATUS "Neither CudaToolkit nor CUDA found!")
         endif(CUDA_FOUND)
     endif(CUDAToolkit_FOUND)
 endif(CMAKE_CUDA_COMPILER)
 
-
+#### FIND OPTIX
 if(CUDA_FOUND)
 
-# Resolve symlinks until we get the actual file
-get_filename_component(NVIDIA_DRIVER_REALPATH ${NVIDIA_DRIVER_PATH} REALPATH)
-
-get_filename_component(NVIDIA_DRIVER_NAME ${NVIDIA_DRIVER_REALPATH} NAME)
-
-# Try extracting version number from filename
-string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" NVIDIA_DRIVER_VERSION "${NVIDIA_DRIVER_NAME}")
-
-if(NVIDIA_DRIVER_VERSION) 
-    message(STATUS "Auto-detected NVIDIA driver version: ${NVIDIA_DRIVER_REALPATH} -> ${NVIDIA_DRIVER_VERSION}")
-
-    include(MaxOptixVersion)
-    max_optix_version(NVIDIA_DRIVER_VERSION MAX_OPTIX_VERSION)
-    message(STATUS "Maximum allowed optix version for the current nvidia driver is: ${MAX_OPTIX_VERSION}")
-
-    # TODO: override?
-    if(${RMAGINE_OPTIX_DOWNLOAD_VERSION} VERSION_GREATER ${MAX_OPTIX_VERSION})
-        message(STATUS "Decrease RMAGINE_OPTIX_DOWNLOAD_VERSION from ${RMAGINE_OPTIX_DOWNLOAD_VERSION} to ${MAX_OPTIX_VERSION}. This is the latest supported version for the currently used NVIDIA driver version ${NVIDIA_DRIVER_VERSION}")
-        set(RMAGINE_OPTIX_DOWNLOAD_VERSION ${MAX_OPTIX_VERSION})
+    set(TMP_LIST_AUTO_LOCAL "Auto;Local")
+    if(${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+        find_package(OptiX QUIET)
     endif()
-else()
-    message(WARNING "Could not detect driver version from path: ${NVIDIA_DRIVER_REALPATH}")
-endif()
+
+    set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
+    if(NOT OptiX_FOUND AND OptiX_LIBRARY_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+
+        # Check if desired OptiX header version fits the driver
+
+        if(OptiX_LIBRARY_DRIVER_VERSION)
+            message(STATUS "Auto-detected NVIDIA driver version (from OptiX lib): ${OptiX_LIBRARY_DRIVER_VERSION}")
+            include(MaxOptixVersion)
+            max_optix_version(OptiX_LIBRARY_DRIVER_VERSION MAX_OPTIX_VERSION)
+
+            if(MAX_OPTIX_VERSION)
+                if(${RMAGINE_OPTIX_DOWNLOAD_VERSION} VERSION_GREATER ${MAX_OPTIX_VERSION})
+                    message(STATUS "Decrease RMAGINE_OPTIX_DOWNLOAD_VERSION from ${RMAGINE_OPTIX_DOWNLOAD_VERSION} to ${MAX_OPTIX_VERSION}. This is the latest supported version for the currently used NVIDIA driver version ${NVIDIA_DRIVER_VERSION}")
+                    set(RMAGINE_OPTIX_DOWNLOAD_VERSION ${MAX_OPTIX_VERSION})
+                endif()
+            else(MAX_OPTIX_VERSION)
+                message(WARNING "Could not determine maximum allowed OptiX version for NVIDIA driver ${OptiX_LIBRARY_DRIVER_VERSION}. Trying ${RMAGINE_OPTIX_DOWNLOAD_VERSION}")
+            endif(MAX_OPTIX_VERSION)
+
+        endif(OptiX_LIBRARY_DRIVER_VERSION)
+
+        message(STATUS "Searching for OptiX online")
+
+        FetchContent_Declare(
+            optix_header
+            GIT_REPOSITORY   https://github.com/NVIDIA/optix-dev.git
+            GIT_TAG          v${RMAGINE_OPTIX_DOWNLOAD_VERSION}
+        )
+        FetchContent_Populate(optix_header)
+
+        set(OptiX_ROOT_DIR ${optix_header_SOURCE_DIR})
+        find_package(OptiX QUIET)
+    endif()
+
+    if(OptiX_FOUND)
+        list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
+    endif(OptiX_FOUND)
 
 endif(CUDA_FOUND)
 
 
 #####
 # BUILD COMPONENT
-if(CUDA_FOUND)
-
-
-set(TMP_LIST_AUTO_LOCAL "Auto;Local")
-if(${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
-    find_package(OptiX QUIET)
-endif()
-
-set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
-if(NOT OptiX_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
-
-    message(STATUS "Searching for OptiX online")
-
-    FetchContent_Declare(
-        optix_header
-        GIT_REPOSITORY   https://github.com/NVIDIA/optix-dev.git
-        GIT_TAG          v${RMAGINE_OPTIX_DOWNLOAD_VERSION}
-    )
-    FetchContent_Populate(optix_header)
-
-    set(OptiX_ROOT_DIR ${optix_header_SOURCE_DIR})
-    find_package(OptiX QUIET)
-endif()
-
-if(OptiX_FOUND)
-    list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
-endif(OptiX_FOUND)
-
-endif(CUDA_FOUND)
-
-
 if(OptiX_FOUND AND TARGET rmagine::cuda)
 
 message(STATUS "${Green}rmagine::optix${ColourReset}: Building (OptiX v${OptiX_VERSION})")

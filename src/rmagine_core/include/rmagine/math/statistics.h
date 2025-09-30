@@ -175,7 +175,6 @@ void statistics_p2l_ow(
 //     const PointCloudView_<RAM>& model,
 //     const UmeyamaReductionConstraints params);
 
-
 } // namespace rmagine
 
 #endif // RMAGINE_MATH_STATISTICS_H

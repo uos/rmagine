@@ -13,9 +13,11 @@
 
 #include <rmagine/math/statistics.h>
 #include <rmagine/math/linalg.h>
+#include <rmagine/math/optimization.h>
 
 #include <rmagine/util/prints.h>
 #include <rmagine/util/exceptions.h>
+
 
 
 

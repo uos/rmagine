@@ -43,6 +43,7 @@
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/math/types.h>
+#include <functional>
 
 namespace rmagine
 {
@@ -425,6 +426,73 @@ Memory<Transform, RAM> umeyama_transform(
     const MemoryView<Vector3, RAM>& ms,
     const MemoryView<Matrix3x3, RAM>& Cs
 );
+
+// def mean_rotation_quat(Rs, weights=None):
+//     """
+//     Rs: list/array of 3x3 rotation matrices
+//     weights: optional nonnegative weights
+//     """
+//     n = len(Rs)
+//     if weights is None:
+//         weights = np.ones(n)
+//     weights = np.asarray(weights) / np.sum(weights)
+//     # Convert to quaternions (w,x,y,z)
+//     Q = np.stack([quat_from_R(R) for R in Rs], axis=0)
+
+//     # Hemisphere correction using first quaternion as reference
+//     ref = Q[0]
+//     signs = np.sign(np.sum(Q * ref, axis=1))
+//     signs[signs == 0] = 1.0
+//     Q = Q * signs[:, None]
+
+//     # Weighted outer-product averaging (Markley method)
+//     M = np.zeros((4,4))
+//     for w, q in zip(weights, Q):
+//         M += w * np.outer(q, q)
+//     eigvals, eigvecs = np.linalg.eigh(M)
+//     q_mean = eigvecs[:, np.argmax(eigvals)]
+//     if q_mean[0] < 0:  # ensure w >= 0
+//         q_mean = -q_mean
+
+Quaternion markley_mean(
+  const MemoryView<Quaternion, RAM> Qs, 
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty());
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM>& weights = MemoryView<float, RAM>::Empty());
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func
+);
+
+/**
+ * Karcher mean on SE(3) with right-invariant metric.
+ * Ts:       list of poses
+ * w_opt:    optional weights (nonnegative). If null/empty => uniform.
+ * tol:      stop when ||mean twist|| < tol  (twist norm in R^6)
+ * max_iters:iteration cap
+ */
+Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty(),
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func,
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform mock_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func);
+
+
+Matrix6x6 covariance(
+  Transform Tmean, 
+  MemoryView<Transform, RAM> Ts, 
+  std::function<float(size_t)> weight_func);
 
 } // namespace rmagine
 
