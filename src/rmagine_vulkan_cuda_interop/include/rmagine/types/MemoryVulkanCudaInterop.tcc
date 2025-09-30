@@ -7,7 +7,7 @@ namespace rmagine
 
 template<typename DataT>
 template<typename MemT2>
-MemoryView<DataT, VULKAN_AS_CUDA>::MemoryView(MemoryView<DataT, MemT2>& vulkanMemView) : m_mem(nullptr), m_size(vulkanMemView.size()), m_externalMemory(new CudaExternalMemory)
+MemoryView<DataT, VULKAN_AS_CUDA>::MemoryView(const MemoryView<DataT, MemT2>& vulkanMemView) : m_mem(nullptr), m_size(vulkanMemView.size()), m_externalMemory(new CudaExternalMemory)
 {
     static_assert(std::is_same<MemT2, HOST_VISIBLE_VULKAN>::value ||
                   std::is_same<MemT2, DEVICE_LOCAL_VULKAN>::value, 

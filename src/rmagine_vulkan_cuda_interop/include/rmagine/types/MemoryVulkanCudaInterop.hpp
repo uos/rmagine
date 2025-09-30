@@ -37,7 +37,7 @@ public:
     MemoryView(DataT* mem, size_t N, CudaExternalMemoryPtr externalMemory);
 
     template<typename MemT2>
-    MemoryView(MemoryView<DataT, MemT2>& vulkanMem);
+    MemoryView(const MemoryView<DataT, MemT2>& vulkanMem);
 
     // no virtual: we dont want to destruct memory of a view
     ~MemoryView();
@@ -133,7 +133,7 @@ public:
         return slice(idx_start, idx_end);
     }
 
-    CudaExternalMemoryPtr getExternalMemory()
+    CudaExternalMemoryPtr getExternalMemory() const
     {
         return m_externalMemory;
     }
