@@ -58,7 +58,7 @@ class MemoryView<DataT, HOST_VISIBLE_VULKAN>
 protected:
     size_t m_size = 0;
     const size_t m_offset = 0;
-    VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
+    const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
 
 public:
@@ -180,7 +180,7 @@ class MemoryView<DataT, DEVICE_LOCAL_VULKAN>
 protected:
     size_t m_size = 0;
     const size_t m_offset = 0;
-    VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
+    const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
     DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
 
