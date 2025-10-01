@@ -179,6 +179,10 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
                                            sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
         std::cout << "[RMagine - SimulatorVulkan] updated descriptor set" << std::endl;
 
+        //TODO:
+        //maybe the commandbuffer does not need to be rerecorded
+        //the extension VK_EXT_descriptor_indexing allows changing a descriptor without rerecording 
+        //https://registry.khronos.org/vulkan/specs/latest/man/html/VK_EXT_descriptor_indexing.html
         rerecordCommandBuffer = true;
     }
     //check whether dimensions, descriptorset or shaderBindingTable have changed
