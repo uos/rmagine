@@ -5,11 +5,9 @@
 
 
 /**
- * this code is preceeded by the util_preamble
+ * closest hit shader (short version that only has one of the 3 normal calculations)
+ * this code is preceeded by the util_code, which can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  * then the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set
- * then the util_code gets included
- * 
- * util_preamble & util_code can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  */
 static const std::string chit_code = R""""(
 hitAttributeEXT vec2 hitCoordinate;

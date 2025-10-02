@@ -5,11 +5,9 @@
 
 
 /**
- * this code is preceeded by the util_preamble
+ * ray generation shader
+ * this code is preceeded by the util_code, which can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  * then the define SPHERE, PINHOLE, O1DN or ONDN gets set
- * then the util_code gets included
- * 
- * util_preamble & util_code can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  */
 static const std::string rgen_code = R""""(
 

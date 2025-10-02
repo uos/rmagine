@@ -2,21 +2,24 @@
 
 #include <string>
 
-//TDOD: put strings in external shaderfiles and include them with @INCLUDE_STRING@. example in cmake/FileToString.h.in
+//TODO: put strings in external shaderfiles and include them with @INCLUDE_STRING@. example in cmake/FileToString.h.in
 
-static const std::string util_preamble = R""""(#version 460 core
+
+/**
+ * this shadercode contains structs, functions and layouts that may be usefull in multiple shaders
+ * this code is added to the beginn ing of all other shaders (RGen, CHit, Miss)
+ */
+static const std::string util_code = R""""(#version 460 core
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
 #extension GL_EXT_shader_explicit_arithmetic_types : require
 #extension GL_ARB_shading_language_include : require
 #extension GL_EXT_shader_explicit_arithmetic_types : require
-)"""";
 
 
 
-static const std::string util_code = R""""(
-// the memory struct sent to the fpu contains a pointer, which is depending on CPU 32 or 64 Bit long
+// the memory struct sent to the GPU contains a DataT* and a size_t, which are depending on the CPU 32 or 64 Bit long
 #ifndef _32BIT
     #define _64BIT
 #endif

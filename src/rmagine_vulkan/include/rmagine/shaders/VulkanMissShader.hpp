@@ -5,11 +5,9 @@
 
 
 /**
- * this code is preceeded by the util_preamble
+ * miss shader
+ * this code is preceeded by the util_code, which can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  * then the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set
- * then the util_code gets included
- * 
- * util_preamble & util_code can be found in: "rmagine/shaders/VulkanIncludeShader.hpp"
  */
 static const std::string miss_code = R""""(
 

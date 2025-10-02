@@ -76,6 +76,19 @@ std::string get_shader_define_statements(ShaderDefineFlags shaderDefines)
 
     std::vector<std::string> defines = get_shader_defines(shaderDefines);
 
+    if(sizeof(size_t) == 8)
+    {
+        defines.push_back("_64BIT");
+    }
+    else if(sizeof(size_t) == 4)
+    {
+        defines.push_back("_32BIT");
+    }
+    else
+    {
+        throw std::invalid_argument("[get_shader_define_statements()] ERROR - unknown bit length, neither 32 nor 64 Bit!");
+    }
+
     std::string shaderCodeDefines = "";
     for(size_t i = 0; i < defines.size(); i++)
     {
@@ -132,11 +145,9 @@ std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefin
         throw std::invalid_argument("[get_shader_code()] ERROR - invalid shader type!");
     }
     
-    std::string shaderCode = util_preamble;
+    std::string shaderCode = util_code;
 
     shaderCode += get_shader_define_statements(shaderDefines);
-
-    shaderCode += util_code;
     
     switch (shaderType)
     {
