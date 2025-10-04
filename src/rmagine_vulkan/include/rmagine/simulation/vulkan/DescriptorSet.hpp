@@ -29,6 +29,7 @@ class DescriptorSet
 private:
     VulkanContextPtr vulkan_context = nullptr;
 
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
 public:
@@ -46,6 +47,12 @@ public:
     VkDescriptorSet* getDescriptorSetPtr();
 
 private:
+    /**
+     * each DescriptorSet needs its own DescriptorPool, as they are externally synchronised and multithreading might cause issues otherwise.
+     * see: https://registry.khronos.org/vulkan/specs/latest/man/html/VkDescriptorPool.html
+     */
+    void createDescriptorPool();
+
     void allocateDescriptorSet();
 };
 

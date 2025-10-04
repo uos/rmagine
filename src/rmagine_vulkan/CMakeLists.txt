@@ -10,7 +10,6 @@ set(RMAGINE_VULKAN_SRCS
     src/util/VulkanContext.cpp
     #   Context components
     src/util/vulkan/Device.cpp
-    src/util/vulkan/CommandPool.cpp
     src/util/vulkan/DescriptorSetLayout.cpp
     src/util/vulkan/RayTracingPipelineLayout.cpp
     src/util/vulkan/RayTracingPipeline.cpp

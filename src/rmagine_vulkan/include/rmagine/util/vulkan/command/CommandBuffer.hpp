@@ -35,6 +35,7 @@ private:
 
     FencePtr fence = nullptr;
 
+    VkCommandPool commandPool = VK_NULL_HANDLE;
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 
 public:
@@ -56,6 +57,12 @@ public:
     VkCommandBuffer getCommandbuffer();
 
 private:
+    /**
+     * each CommandBuffer needs its own CommandPool, as they are externally synchronised and multithreading might cause issues otherwise.
+     * see: https://registry.khronos.org/vulkan/specs/latest/man/html/VkCommandPool.html
+     */
+    void createCommandPool();
+
     void createCommandBuffer();
 };
 

@@ -12,7 +12,6 @@
 
 #include "VulkanContextUtil.hpp"
 #include "vulkan/Device.hpp"
-#include "vulkan/CommandPool.hpp"
 #include "vulkan/DescriptorSetLayout.hpp"
 #include "vulkan/RayTracingPipelineLayout.hpp"
 #include "vulkan/Shader.hpp"
@@ -33,7 +32,6 @@ class VulkanContext : public std::enable_shared_from_this<VulkanContext>
 private:
     DevicePtr device = nullptr;
 
-    CommandPoolPtr commandPool = nullptr;
     DescriptorSetLayoutPtr descriptorSetLayout = nullptr;
     RayTracingPipelineLayoutPtr pipelineLayout = nullptr;
 
@@ -120,7 +118,6 @@ public:
     void clearShaderBindingTableCache();
 
     DevicePtr getDevice();
-    CommandPoolPtr getCommandPool();
     DescriptorSetLayoutPtr getDescriptorSetLayout();
     RayTracingPipelineLayoutPtr getPipelineLayout();
 

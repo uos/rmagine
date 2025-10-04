@@ -10,6 +10,7 @@ namespace rmagine
 
 CommandBuffer::CommandBuffer(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
 {
+    createCommandPool();
     createCommandBuffer();
     fence = std::make_shared<Fence>(vulkan_context);
 }
@@ -18,15 +19,35 @@ CommandBuffer::~CommandBuffer()
 {
     if(fence != nullptr)
         fence.reset();
+    
+    if(commandPool != VK_NULL_HANDLE)
+    {
+        vkResetCommandPool(vulkan_context->getDevice()->getLogicalDevice(), commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+        vkDestroyCommandPool(vulkan_context->getDevice()->getLogicalDevice(), commandPool, nullptr);
+    }
 }
 
+
+
+void CommandBuffer::createCommandPool()
+{
+    VkCommandPoolCreateInfo commandPoolCreateInfo{};
+    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    commandPoolCreateInfo.queueFamilyIndex = vulkan_context->getDevice()->getQueueFamilyIndex();
+
+    if(vkCreateCommandPool(vulkan_context->getDevice()->getLogicalDevice(), &commandPoolCreateInfo, nullptr,  &commandPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandPool::createCommandPool()] ERROR - failed to create command pool!");
+    }
+}
 
 
 void CommandBuffer::createCommandBuffer()
 {
     VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    commandBufferAllocateInfo.commandPool = vulkan_context->getCommandPool()->getCommandPool();
+    commandBufferAllocateInfo.commandPool = commandPool;
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     commandBufferAllocateInfo.commandBufferCount = 1;
     

@@ -9,12 +9,43 @@ namespace rmagine
 
 DescriptorSet::DescriptorSet(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
 {
+    createDescriptorPool();
     allocateDescriptorSet();
 }
 
 DescriptorSet::~DescriptorSet()
 {
-    
+    if(descriptorPool != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(vulkan_context->getDevice()->getLogicalDevice(), descriptorPool, nullptr);
+    }
+}
+
+
+void DescriptorSet::createDescriptorPool()
+{
+    std::vector<VkDescriptorPoolSize> descriptorPoolSizeList(3);
+    descriptorPoolSizeList[0] = {};//accelaration structure
+    descriptorPoolSizeList[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    descriptorPoolSizeList[0].descriptorCount = 1;
+    descriptorPoolSizeList[1] = {};//mapData, sensor
+    descriptorPoolSizeList[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorPoolSizeList[1].descriptorCount = 2;
+    descriptorPoolSizeList[2] = {};//result, tsb & tbmAndSensorSpecific
+    descriptorPoolSizeList[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    descriptorPoolSizeList[2].descriptorCount = 3;
+
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    descriptorPoolCreateInfo.maxSets = 1;
+    descriptorPoolCreateInfo.poolSizeCount = (uint32_t)descriptorPoolSizeList.size();
+    descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizeList.data();
+
+    if(vkCreateDescriptorPool(vulkan_context->getDevice()->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[DescriptorSetLayout::createDescriptorPool()] ERROR - failed to create descriptor pool!");
+    }
 }
 
 
@@ -22,7 +53,7 @@ void DescriptorSet::allocateDescriptorSet()
 {
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
     descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocateInfo.descriptorPool = vulkan_context->getDescriptorSetLayout()->getDescriptorPool();
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool;
     descriptorSetAllocateInfo.descriptorSetCount = 1;
     descriptorSetAllocateInfo.pSetLayouts = vulkan_context->getDescriptorSetLayout()->getDescriptorSetLayoutPtr();
 

@@ -8,7 +8,6 @@ namespace rmagine
 
 DescriptorSetLayout::DescriptorSetLayout(DeviceWPtr device) : device(device)
 {
-    createDescriptorPool();
     createDescriptorSetLayout();
 }
 
@@ -18,39 +17,7 @@ DescriptorSetLayout::~DescriptorSetLayout()
     {
         vkDestroyDescriptorSetLayout(device.lock()->getLogicalDevice(), descriptorSetLayout, nullptr);
     }
-    if(descriptorPool != VK_NULL_HANDLE)
-    {
-        vkDestroyDescriptorPool(device.lock()->getLogicalDevice(), descriptorPool, nullptr);
-    }
     device.reset();
-}
-
-
-
-void DescriptorSetLayout::createDescriptorPool()
-{
-    std::vector<VkDescriptorPoolSize> descriptorPoolSizeList(3);
-    descriptorPoolSizeList[0] = {};//accelaration structure
-    descriptorPoolSizeList[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-    descriptorPoolSizeList[0].descriptorCount = 1;
-    descriptorPoolSizeList[1] = {};//mapData, sensor
-    descriptorPoolSizeList[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    descriptorPoolSizeList[1].descriptorCount = 2;
-    descriptorPoolSizeList[2] = {};//result, tsb & tbmAndSensorSpecific
-    descriptorPoolSizeList[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    descriptorPoolSizeList[2].descriptorCount = 3;
-
-    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
-    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    descriptorPoolCreateInfo.maxSets = MAX_NUM_OF_DESCRIPTOR_SETS;
-    descriptorPoolCreateInfo.poolSizeCount = (uint32_t)descriptorPoolSizeList.size();
-    descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizeList.data();
-
-    if(vkCreateDescriptorPool(device.lock()->getLogicalDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool) != VK_SUCCESS)
-    {
-        throw std::runtime_error("[DescriptorSetLayout::createDescriptorPool()] ERROR - failed to create descriptor pool!");
-    }
 }
 
 
@@ -104,12 +71,6 @@ void DescriptorSetLayout::createDescriptorSetLayout()
     {
         throw std::runtime_error("[DescriptorSetLayout::createDescriptorSetLayout()] ERROR - failed to create descriptor set layout!");
     }
-}
-
-
-VkDescriptorPool DescriptorSetLayout::getDescriptorPool()
-{
-    return descriptorPool;
 }
 
 

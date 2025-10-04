@@ -6,8 +6,7 @@
 namespace rmagine
 {
 
-VulkanContext::VulkanContext() : 
-    device(new Device), commandPool(new CommandPool(device)), 
+VulkanContext::VulkanContext() : device(new Device),
     descriptorSetLayout(new DescriptorSetLayout(device)), pipelineLayout(new RayTracingPipelineLayout(device, descriptorSetLayout))
 {
     loadExtensionFunctions();
@@ -18,7 +17,6 @@ VulkanContext::~VulkanContext()
     clearShaderBindingTableCache();
     clearShaderCache();
 
-    commandPool.reset();
     pipelineLayout.reset();
     descriptorSetLayout.reset();
     device.reset();
@@ -181,11 +179,6 @@ void VulkanContext::clearShaderBindingTableCache()
 DevicePtr VulkanContext::getDevice()
 {
     return device;
-}
-
-CommandPoolPtr VulkanContext::getCommandPool()
-{
-    return commandPool;
 }
 
 DescriptorSetLayoutPtr VulkanContext::getDescriptorSetLayout()
