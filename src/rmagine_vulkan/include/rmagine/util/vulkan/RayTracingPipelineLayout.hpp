@@ -24,6 +24,7 @@ private:
     DescriptorSetLayoutWPtr descriptorSetLayout;
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 
 public:
     RayTracingPipelineLayout(DeviceWPtr device, DescriptorSetLayoutWPtr descriptorSetLayout);
@@ -35,8 +36,12 @@ public:
 
     VkPipelineLayout getPipelineLayout();
 
+    VkPipelineCache getPipelineCache();
+
 private:
     void createPipelineLayout();
+
+    void createPipelineCache();
 };
 
 using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;

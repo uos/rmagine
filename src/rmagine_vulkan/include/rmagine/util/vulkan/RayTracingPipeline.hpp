@@ -24,8 +24,12 @@ private:
     DeviceWPtr device;
     RayTracingPipelineLayoutWPtr pipelineLayout;
 
-    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
     VkPipeline pipeline = VK_NULL_HANDLE;
+
+    ShaderPtr rGenShader = nullptr;
+    ShaderPtr cHitShader = nullptr;
+    ShaderPtr missShader = nullptr;
+    ShaderPtr callShader = nullptr;
 
 public:
     RayTracingPipeline(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines);
@@ -38,8 +42,6 @@ public:
     VkPipeline getPipeline();
 
 private:
-    void createPipelineCache();
-
     void createPipeline(ShaderDefineFlags shaderDefines);
 };
 

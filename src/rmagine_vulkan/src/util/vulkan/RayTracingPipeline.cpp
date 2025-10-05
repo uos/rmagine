@@ -9,17 +9,12 @@ namespace rmagine
 RayTracingPipeline::RayTracingPipeline(DeviceWPtr device, RayTracingPipelineLayoutWPtr pipelineLayout, ShaderDefineFlags shaderDefines) : 
     device(device), pipelineLayout(pipelineLayout)
 {
-    createPipelineCache();
     createPipeline(shaderDefines);
 }
 
 
 RayTracingPipeline::~RayTracingPipeline() 
 {
-    if(pipelineCache != VK_NULL_HANDLE)
-    {
-        vkDestroyPipelineCache(device.lock()->getLogicalDevice(), pipelineCache, nullptr);
-    }
     if(pipeline != VK_NULL_HANDLE)
     {
         vkDestroyPipeline(device.lock()->getLogicalDevice(), pipeline, nullptr);
@@ -28,28 +23,20 @@ RayTracingPipeline::~RayTracingPipeline()
 }
 
 
-
-void RayTracingPipeline::createPipelineCache()
-{
-    VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
-    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-
-    if(vkCreatePipelineCache(device.lock()->getLogicalDevice(), &pipelineCacheCreateInfo, nullptr, &pipelineCache) != VK_SUCCESS)
-    {
-        throw std::runtime_error("[RayTracingPipeline::createPipelineCache()] ERROR - Failed to create pipeline cache!");
-    }
-}
-
-
 void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
 {
+    rGenShader = get_vulkan_context()->getShader(ShaderType::RGen, shaderDefines);
+    cHitShader = get_vulkan_context()->getShader(ShaderType::CHit, shaderDefines);
+    missShader = get_vulkan_context()->getShader(ShaderType::Miss, shaderDefines);
+    callShader = nullptr;
+
     std::vector<VkPipelineShaderStageCreateInfo> pipelineShaderStageCreateInfoList(3);
     pipelineShaderStageCreateInfoList[0] = {};//closest hit
     pipelineShaderStageCreateInfoList[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     pipelineShaderStageCreateInfoList[0].pNext = nullptr;
     pipelineShaderStageCreateInfoList[0].flags = 0;
     pipelineShaderStageCreateInfoList[0].stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-    pipelineShaderStageCreateInfoList[0].module = get_vulkan_context()->getShader(ShaderType::CHit, shaderDefines)->getShaderModule();
+    pipelineShaderStageCreateInfoList[0].module = cHitShader->getShaderModule();
     pipelineShaderStageCreateInfoList[0].pName = "main";
     pipelineShaderStageCreateInfoList[0].pSpecializationInfo = nullptr;
     pipelineShaderStageCreateInfoList[1] = {};//ray generation
@@ -57,7 +44,7 @@ void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
     pipelineShaderStageCreateInfoList[1].pNext = nullptr;
     pipelineShaderStageCreateInfoList[1].flags = 0;
     pipelineShaderStageCreateInfoList[1].stage = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
-    pipelineShaderStageCreateInfoList[1].module = get_vulkan_context()->getShader(ShaderType::RGen, shaderDefines)->getShaderModule();
+    pipelineShaderStageCreateInfoList[1].module = rGenShader->getShaderModule();
     pipelineShaderStageCreateInfoList[1].pName = "main";
     pipelineShaderStageCreateInfoList[1].pSpecializationInfo = nullptr;
     pipelineShaderStageCreateInfoList[2] = {};//miss
@@ -65,7 +52,7 @@ void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
     pipelineShaderStageCreateInfoList[2].pNext = nullptr;
     pipelineShaderStageCreateInfoList[2].flags = 0;
     pipelineShaderStageCreateInfoList[2].stage = VK_SHADER_STAGE_MISS_BIT_KHR;
-    pipelineShaderStageCreateInfoList[2].module = get_vulkan_context()->getShader(ShaderType::Miss, shaderDefines)->getShaderModule();
+    pipelineShaderStageCreateInfoList[2].module = missShader->getShaderModule();
     pipelineShaderStageCreateInfoList[2].pName = "main";
     pipelineShaderStageCreateInfoList[2].pSpecializationInfo = nullptr;
     
@@ -109,7 +96,7 @@ void RayTracingPipeline::createPipeline(ShaderDefineFlags shaderDefines)
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = 0;
 
-    if(get_vulkan_context()->extensionFuncs.vkCreateRayTracingPipelinesKHR(device.lock()->getLogicalDevice(), VK_NULL_HANDLE, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
+    if(get_vulkan_context()->extensionFuncs.vkCreateRayTracingPipelinesKHR(device.lock()->getLogicalDevice(), VK_NULL_HANDLE, pipelineLayout.lock()->getPipelineCache(), 1, &pipelineCreateInfo, nullptr, &pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("[RayTracingPipeline::createPipeline()] ERROR - Failed to create pipeline!");
     }
