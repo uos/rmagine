@@ -29,4 +29,16 @@ class RayTracingPipelineLayout;
 using RayTracingPipelineLayoutPtr = std::shared_ptr<RayTracingPipelineLayout>;
 using RayTracingPipelineLayoutWPtr = std::weak_ptr<RayTracingPipelineLayout>;
 
+class Shader;
+using ShaderPtr = std::shared_ptr<Shader>;
+using ShaderWPtr = std::weak_ptr<Shader>;
+
+class RayTracingPipeline;
+using RayTracingPipelinePtr = std::shared_ptr<RayTracingPipeline>;
+using RayTracingPipelineWPtr = std::weak_ptr<RayTracingPipeline>;
+
+class ShaderBindingTable;
+using ShaderBindingTablePtr = std::shared_ptr<ShaderBindingTable>;
+using ShaderBindingTableWPtr = std::weak_ptr<ShaderBindingTable>;
+
 } // namespace rmagine
