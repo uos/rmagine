@@ -15,7 +15,7 @@ find_package(Vulkan QUIET)
 find_package(glslang QUIET)
 
 
-if(Vulkan_FOUND)
+if(Vulkan_FOUND AND glslang_FOUND)
 
 message(STATUS "${Green}rmagine::vulkan${ColourReset}: Building")
 
@@ -154,8 +154,8 @@ set(CPACK_DEBIAN_VULKAN_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
 list(APPEND CPACK_COMPONENTS_ALL vulkan)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
-else(Vulkan_FOUND)
+else(Vulkan_FOUND AND glslang_FOUND)
 
 message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies.")
 
-endif(Vulkan_FOUND)
+endif(Vulkan_FOUND AND glslang_FOUND)
