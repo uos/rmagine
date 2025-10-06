@@ -63,7 +63,7 @@ if(CMAKE_CUDA_COMPILER)
 endif(CMAKE_CUDA_COMPILER)
 
 
-if(Vulkan_FOUND AND CUDA_FOUND)
+if(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
 
 message(STATUS "${Green}rmagine::vulkanCudaInterop${ColourReset}: Building")
 
@@ -171,8 +171,8 @@ set(CPACK_DEBIAN_VULKAN_CUDA_INTEROP_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE
 list(APPEND CPACK_COMPONENTS_ALL vulkanCudaInterop)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
-else(Vulkan_FOUND AND CUDA_FOUND)
+else(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
 
 message(STATUS "${Yellow}rmagine::vulkanCudaInterop${ColourReset}: Skipping. Missing Dependencies.")
 
-endif(Vulkan_FOUND AND CUDA_FOUND)
+endif(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
