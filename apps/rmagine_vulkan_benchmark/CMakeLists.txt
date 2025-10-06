@@ -1,4 +1,4 @@
-if(Vulkan_FOUND)
+if(TARGET rmagine::vulkan)
 
 add_executable(rmagine_vulkan_benchmark
     Main.cpp
@@ -17,4 +17,4 @@ install(TARGETS rmagine_vulkan_benchmark
     COMPONENT vulkan
 )
 
-endif(Vulkan_FOUND)
+endif(TARGET rmagine::vulkan)

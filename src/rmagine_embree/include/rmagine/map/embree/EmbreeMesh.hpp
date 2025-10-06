@@ -51,9 +51,6 @@
 
 #include <memory>
 
-// #include <boost/function.hpp>
-#include <embree4/rtcore.h>
-
 #include "EmbreeDevice.hpp"
 #include "EmbreeGeometry.hpp"
 

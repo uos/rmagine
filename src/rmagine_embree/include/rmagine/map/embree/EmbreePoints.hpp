@@ -51,8 +51,6 @@
 
 #include <memory>
 
-#include <embree4/rtcore.h>
-
 #include "EmbreeDevice.hpp"
 #include "EmbreeGeometry.hpp"
 
@@ -91,7 +89,7 @@ public:
 
     virtual EmbreeGeometryType type() const
     {
-        return EmbreeGeometryType::POINTS;
+      return EmbreeGeometryType::POINTS;
     }
 
 protected:

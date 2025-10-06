@@ -1,4 +1,140 @@
-message(STATUS "Building OptiX (${OptiX_VERSION}) backend. Library: rmagine-optix")
+##########################
+## Package: rmagine     ##
+## Component: optix      ##
+##########################
+
+##################################
+## Required external libraries: ##
+## - CUDA                       ##
+## - OptiX                      ##
+##################################
+
+# This version defines the desired OptiX version that is downloaded when 
+# RMAGINE_DEPENDENCY_MODE is set to "Auto" or "Download"
+# When the driver is too older for this version, this version is automatically 
+# downgraded until it is compatible with the currently used NVIDIA driver.
+# The actual used version is then printed to the command line.
+
+set(RMAGINE_OPTIX_DOWNLOAD_VERSION "9.0.0" CACHE STRING "Desired optix version used for download.")
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# I am aware find_package(CUDA) is deprecated.
+# - TODO: support find_package(CUDAToolkit) as well
+# -- Example: https://github.com/ceres-solver/ceres-solver/blob/master/CMakeLists.txt
+# - TODO: this becomes quite messy. make a seperate file from this
+
+# default flags are not set when including cuda
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+
+  if(NOT CUDA_NVCC_FLAGS_DEBUG)
+    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
+    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELEASE)
+    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
+    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+endif()
+
+# set(CUDA_STANDARD 14)
+
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    find_package(CUDAToolkit QUIET)
+    if(CUDAToolkit_FOUND)
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
+        set(CUDA_INCLUDE_DIRS "") # is in target instead  
+    else()
+        find_package(CUDA)
+        if(CUDA_FOUND)
+            enable_language(CUDA)
+            # 1. CUDA_DRIVER_LIBRARY <- Figure out if there is a cuda driver library available
+            if(CUDA_CUDA_LIBRARY)
+                set(CUDA_DRIVER_LIBRARY ${CUDA_CUDA_LIBRARY})
+            else()
+                find_library(CUDA_DRIVER_LIBRARY NAMES cuda)
+            endif()
+        else()
+            message(STATUS "Neither CudaToolkit nor CUDA found!")
+        endif(CUDA_FOUND)
+    endif(CUDAToolkit_FOUND)
+endif(CMAKE_CUDA_COMPILER)
+
+#### FIND OPTIX
+if(CUDA_FOUND)
+
+    set(TMP_LIST_AUTO_LOCAL "Auto;Local")
+    if(${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_LOCAL)
+        find_package(OptiX QUIET)
+    endif()
+
+    set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
+    if(NOT OptiX_FOUND AND OptiX_LIBRARY_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+
+        # Check if desired OptiX header version fits the driver
+
+        if(OptiX_LIBRARY_DRIVER_VERSION)
+            message(STATUS "Auto-detected NVIDIA driver version (from OptiX lib): ${OptiX_LIBRARY_DRIVER_VERSION}")
+            include(MaxOptixVersion)
+            max_optix_version(OptiX_LIBRARY_DRIVER_VERSION MAX_OPTIX_VERSION)
+
+            if(MAX_OPTIX_VERSION)
+                if(${RMAGINE_OPTIX_DOWNLOAD_VERSION} VERSION_GREATER ${MAX_OPTIX_VERSION})
+                    message(STATUS "Decrease RMAGINE_OPTIX_DOWNLOAD_VERSION from ${RMAGINE_OPTIX_DOWNLOAD_VERSION} to ${MAX_OPTIX_VERSION}. This is the latest supported version for the currently used NVIDIA driver version ${NVIDIA_DRIVER_VERSION}")
+                    set(RMAGINE_OPTIX_DOWNLOAD_VERSION ${MAX_OPTIX_VERSION})
+                endif()
+            else(MAX_OPTIX_VERSION)
+                message(WARNING "Could not determine maximum allowed OptiX version for NVIDIA driver ${OptiX_LIBRARY_DRIVER_VERSION}. Trying ${RMAGINE_OPTIX_DOWNLOAD_VERSION}")
+            endif(MAX_OPTIX_VERSION)
+
+        endif(OptiX_LIBRARY_DRIVER_VERSION)
+
+        message(STATUS "Searching for OptiX online")
+
+        FetchContent_Declare(
+            optix_header
+            GIT_REPOSITORY   https://github.com/NVIDIA/optix-dev.git
+            GIT_TAG          v${RMAGINE_OPTIX_DOWNLOAD_VERSION}
+        )
+        FetchContent_Populate(optix_header)
+
+        set(OptiX_ROOT_DIR ${optix_header_SOURCE_DIR})
+        find_package(OptiX QUIET)
+    endif()
+
+    if(OptiX_FOUND)
+        list(APPEND rmagine_DEFINITIONS "-DRMAGINE_WITH_OPTIX")
+    endif(OptiX_FOUND)
+
+endif(CUDA_FOUND)
+
+
+#####
+# BUILD COMPONENT
+if(OptiX_FOUND AND TARGET rmagine::cuda)
+
+message(STATUS "${Green}rmagine::optix${ColourReset}: Building (OptiX v${OptiX_VERSION})")
+
+message(STATUS "OptiX HEADERS: ${OptiX_INCLUDE_DIRS}")
+
+if(NOT EXISTS "${OptiX_INCLUDE_DIRS}/optix.h")
+    message(FATAL_ERROR "Could not find ${OptiX_INCLUDE_DIRS}/optix.h")
+endif()
 
 # Optix Kernels
 set(RMAGINE_OPTIX_PTX_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rmagine_optix_ptx")
@@ -36,7 +172,7 @@ if(CUDAToolkit_FOUND)
 
     target_include_directories(rmagine_optix_cu_to_ptx PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        ${OptiX_INCLUDE_DIRS}
+        $<BUILD_INTERFACE:${OptiX_INCLUDE_DIRS}>
     )
 
     set_target_properties(rmagine_optix_cu_to_ptx 
@@ -44,7 +180,6 @@ if(CUDAToolkit_FOUND)
             CUDA_PTX_COMPILATION ON
             # CUDA_ARCHITECTURES all
     )
-
     
     # if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
     #     set_target_properties(rmagine_optix_cu_to_ptx PROPERTIES CUDA_ARCHITECTURES all)
@@ -78,7 +213,7 @@ else(CUDAToolkit_FOUND)
         ${RMAGINE_CORE_INCLUDES}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        ${OptiX_INCLUDE_DIRS}
+        $<BUILD_INTERFACE:${OptiX_INCLUDE_DIRS}>
     )
 
     cuda_compile_ptx(RMAGINE_OPTIX_PTX_FILES
@@ -149,7 +284,7 @@ target_include_directories(rmagine-optix PUBLIC
 )
 
 # TODO: make this PRIVATE as soon as RMCL is not compiling OptiX code
-target_include_directories(rmagine-optix PUBLIC
+target_include_directories(rmagine-optix PRIVATE
     ${OptiX_INCLUDE_DIRS}
 )
 
@@ -231,3 +366,9 @@ set(CPACK_DEBIAN_OPTIX_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL optix)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else()
+
+message(STATUS "${Yellow}rmagine::optix${ColourReset}: Skipping. Missing Dependencies.")
+
+endif()

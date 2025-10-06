@@ -48,7 +48,6 @@
 #include <unordered_set>
 #include <memory>
 
-#include <embree4/rtcore.h>
 #include <functional>
 
 #include "EmbreeDevice.hpp"

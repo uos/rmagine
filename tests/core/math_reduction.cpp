@@ -13,12 +13,14 @@
 
 #include <cassert>
 
-#include <rmagine/math/omp.h>
-
 #include <algorithm>
 #include <random>
-#include <numeric> // std reduction
-// #include <execution>
+
+
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
+
 
 namespace rm = rmagine;
 
@@ -33,75 +35,75 @@ bool is_valid(T a)
 template<typename DataT>
 void printStats(rm::CrossStatistics_<DataT> stats)
 {
-    std::cout << "CrossStatistics: " << std::endl;
-    std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
-    std::cout << "- model mean: " << stats.model_mean << std::endl;
-    std::cout << "- cov: " << stats.covariance << std::endl;
-    std::cout << "- n meas: " << stats.n_meas << std::endl; 
+  std::cout << "CrossStatistics: " << std::endl;
+  std::cout << "- dataset mean: " << stats.dataset_mean << std::endl;
+  std::cout << "- model mean: " << stats.model_mean << std::endl;
+  std::cout << "- cov: " << stats.covariance << std::endl;
+  std::cout << "- n meas: " << stats.n_meas << std::endl; 
 }
 
 template<typename DataT>
 void checkStats(rm::CrossStatistics_<DataT> stats)
 {
-    // check for nans
-    if(!is_valid(stats.dataset_mean.x)){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.dataset_mean.y)){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.dataset_mean.z)){throw std::runtime_error("ERROR: NAN");};
-    
-    if(!is_valid(stats.model_mean.x)){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.model_mean.y)){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.model_mean.z)){throw std::runtime_error("ERROR: NAN");};
+  // check for nans
+  if(!is_valid(stats.dataset_mean.x)){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.dataset_mean.y)){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.dataset_mean.z)){throw std::runtime_error("ERROR: NAN");};
+  
+  if(!is_valid(stats.model_mean.x)){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.model_mean.y)){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.model_mean.z)){throw std::runtime_error("ERROR: NAN");};
 
-    if(!is_valid(stats.covariance(0,0))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(0,1))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(0,2))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(0,0))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(0,1))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(0,2))){throw std::runtime_error("ERROR: NAN");};
 
-    if(!is_valid(stats.covariance(1,0))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(1,1))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(1,2))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(1,0))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(1,1))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(1,2))){throw std::runtime_error("ERROR: NAN");};
 
-    if(!is_valid(stats.covariance(2,0))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(2,1))){throw std::runtime_error("ERROR: NAN");};
-    if(!is_valid(stats.covariance(2,2))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(2,0))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(2,1))){throw std::runtime_error("ERROR: NAN");};
+  if(!is_valid(stats.covariance(2,2))){throw std::runtime_error("ERROR: NAN");};
 }
 
 template<typename DataT>
 bool equal(rm::CrossStatistics_<DataT> a, rm::CrossStatistics_<DataT> b)
 {
-    if(a.n_meas != b.n_meas)
-    {
-        return false;
-    }
+  if(a.n_meas != b.n_meas)
+  {
+    return false;
+  }
 
-    if( (a.dataset_mean - b.dataset_mean).l2norm() > 0.0001)
-    {
-        return false;
-    }
+  if((a.dataset_mean - b.dataset_mean).l2norm() > 0.0001)
+  {
+    return false;
+  }
 
-    if( (a.model_mean - b.model_mean).l2norm() > 0.0001)
-    {
-        return false;
-    }
+  if((a.model_mean - b.model_mean).l2norm() > 0.0001)
+  {
+    return false;
+  }
 
-    rm::Matrix_<DataT, 3, 3> cov_diff = a.covariance - b.covariance;
-    double cov_diff_abs_sum = 0.0;
+  rm::Matrix_<DataT, 3, 3> cov_diff = a.covariance - b.covariance;
+  double cov_diff_abs_sum = 0.0;
 
-    for(size_t i=0; i<3; i++)
+  for(size_t i=0; i<3; i++)
+  {
+    for(size_t j=0; j<3; j++)
     {
-        for(size_t j=0; j<3; j++)
-        {
-            cov_diff_abs_sum += fabs(cov_diff(i, j));
-        }
+      cov_diff_abs_sum += fabs(cov_diff(i, j));
     }
-    
-    cov_diff_abs_sum /= 9.0;
+  }
+  
+  cov_diff_abs_sum /= 9.0;
 
-    if(cov_diff_abs_sum > 0.0001)
-    {
-        return false;
-    }
-    
-    return true;
+  if(cov_diff_abs_sum > 0.0001)
+  {
+    return false;
+  }
+  
+  return true;
 }
 
 template<typename DataT>
@@ -142,18 +144,27 @@ void omp_vs_std_reduction()
   rm::Vector3_<DataT> D2 = {0.0, 0.0, 0.0};
 
   sw();
-  #pragma omp parallel for reduction(+: D2)
-  for(size_t i=0; i<n_points; i++)
-  {
-      D2 += points[i];
-  }
+
+  D2 = tbb::parallel_reduce(
+    tbb::blocked_range<size_t>(0, points.size()),
+    rm::Vector3_<DataT>{0.0, 0.0, 0.0},
+    [&](const tbb::blocked_range<size_t>& r, rm::Vector3_<DataT> acc) 
+    {
+      for (size_t i = r.begin(); i != r.end(); ++i) 
+      {
+        acc += points[i];
+      }
+      return acc;
+    },
+    std::plus<rm::Vector3_<DataT> >()
+  );
+
   D2 /= static_cast<DataT>(n_points);
   el = sw();
 
-  std::cout << "OMP Reduction:" << std::endl;
+  std::cout << "TBB Reduction:" << std::endl;
   std::cout << "- res: " << D2 << std::endl;
   std::cout << "- runtime: " << el << " s" << std::endl;
-  
 
   // I still have to figure out:
   // - how I can use only OpenMP as g++ parallelization backend 
@@ -177,7 +188,6 @@ void omp_vs_std_reduction()
   // std::cout << "std::reduce, parallel:" << std::endl;
   // std::cout << "- res: " << D4 << std::endl;
   // std::cout << "- runtime: " << el << std::endl;
-
 }
 
 

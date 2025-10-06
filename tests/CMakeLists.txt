@@ -1,55 +1,28 @@
 
-message(STATUS "Building tests for Rmagine core")
-
-# ADD TESTS FOR CORE HERE
+message(STATUS "Building tests for rmagine::core")
 add_subdirectory(core)
 
-
-
-if(embree_FOUND)
-message(STATUS "Building tests for Embree backend")
-
-# ADD TESTS FOR EMBREE HERE
+if(TARGET rmagine-embree)
+message(STATUS "Building tests for rmagine::embree")
 add_subdirectory(embree)
+endif(TARGET rmagine-embree)
 
-endif(embree_FOUND)
-
-
-
-if(CUDA_FOUND)
-message(STATUS "Building tests for Cuda backend")
-
-# ADD TESTS FOR CUDA HERE
+if(TARGET rmagine-cuda)
+message(STATUS "Building tests for rmagine::cuda")
 add_subdirectory(cuda)
+endif(TARGET rmagine-cuda)
 
-endif(CUDA_FOUND)
-
-
-
-if(OptiX_FOUND)
-message(STATUS "Building tests for OptiX backend")
-
-# ADD TESTS FOR OPTIX HERE
+if(TARGET rmagine-optix)
+message(STATUS "Building tests for rmagine::optix")
 add_subdirectory(optix)
+endif(TARGET rmagine-optix)
 
-endif(OptiX_FOUND)
-
-
-
-if(Vulkan_FOUND)
+if(TARGET rmagine-vulkan)
 message(STATUS "Building tests for Vulkan backend")
-
-# ADD TESTS FOR VULKAN HERE
 add_subdirectory(vulkan)
+endif(TARGET rmagine-vulkan)
 
-endif(Vulkan_FOUND)
-
-
-
-if(Vulkan_FOUND AND CUDA_FOUND)
+if(TARGET rmagine-vulkan-cuda-interop)
 message(STATUS "Building tests for Vulkan Cuda interop")
-
-# ADD TESTS FOR VULKAN HERE
 add_subdirectory(vulkan_cuda_interop)
-
-endif(Vulkan_FOUND AND CUDA_FOUND)
+endif(TARGET rmagine-vulkan-cuda-interop)

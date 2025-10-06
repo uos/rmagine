@@ -3,9 +3,12 @@
 include(${CMAKE_CURRENT_LIST_DIR}/rmagine-embree-config-version.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/rmagine-embree-targets.cmake)
 
-# include(CMakeFindDependencyMacro)
+include(CMakeFindDependencyMacro)
 # find_dependency(Eigen3)
 # find_dependency(assimp)
+
+# message(WARNING "find_dependency(embree 4 CONFIG REQUIRED)")
+find_dependency(embree 4 CONFIG REQUIRED)
 
 check_required_components(embree)
 

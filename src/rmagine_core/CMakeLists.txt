@@ -1,5 +1,6 @@
 
-message(STATUS "Building Core. Library: rmagine")
+
+message(STATUS "${Green}rmagine::core${ColourReset}: Building")
 
 configure_file(src/version.cpp.in
   ${CMAKE_TMP_OUTPUT_DIRECTORY}/core/version.cpp
@@ -45,10 +46,23 @@ target_include_directories(rmagine-core
 )
 
 target_link_libraries(rmagine-core
-    Eigen3::Eigen
-    ${Boost_LIBRARIES}
-    ${OpenMP_CXX_LIBRARIES}
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
 )
+
+if(TARGET TBB::tbb)
+  target_link_libraries(rmagine-core 
+    TBB::tbb
+  )
+else()
+  target_include_directories(rmagine-core  
+    ${TBB_INCLUDE_DIRS}
+  )
+  target_link_libraries(rmagine-core 
+    ${TBB_LIBRARIES}
+  )
+endif()
 
 # link to assimp::assimp when its library and include dir vars are missing
 if (DEFINED ASSIMP_INCLUDE_DIRS AND DEFINED ASSIMP_LIBRARIES)

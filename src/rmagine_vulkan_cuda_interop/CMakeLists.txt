@@ -3,7 +3,69 @@
 ## Component: vulkan_cuda_interop ##
 ####################################
 
-message(STATUS "Building Vulkan Cuda Interop. Library: rmagine-vulkan-cuda-interop")
+##################################
+## Required external libraries: ##
+## - Vulkan                     ##
+## - CUDA                       ##
+##################################
+
+message(STATUS "Checking dependencies of rmagine::vulkanCudaInterop ...")
+
+find_package(Vulkan QUIET)
+find_package(glslang QUIET)
+
+# default flags are not set when including cuda
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+
+  if(NOT CUDA_NVCC_FLAGS_DEBUG)
+    set(CUDA_NVCC_FLAGS_DEBUG "-g" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_MINSIZEREL)
+    set(CUDA_NVCC_FLAGS_MINSIZEREL "-Os -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELEASE)
+    set(CUDA_NVCC_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT CUDA_NVCC_FLAGS_RELWITHDEBINFO)
+    set(CUDA_NVCC_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG" CACHE STRING "" FORCE)
+  endif()
+
+endif()
+
+# set(CUDA_STANDARD 14)
+
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+
+    find_package(CUDAToolkit QUIET)
+    if(CUDAToolkit_FOUND)
+        enable_language(CUDA)
+        set(CUDA_FOUND True)
+        set(CUDA_LIBRARIES CUDA::cudart)
+        set(CUDA_cusolver_LIBRARY CUDA::cusolver)
+        set(CUDA_cublas_LIBRARY CUDA::cublas)
+        set(CUDA_DRIVER_LIBRARY CUDA::cuda_driver)
+        set(CUDA_INCLUDE_DIRS "") # is in target instead
+        set(CUDA_VERSION ${CUDAToolkit_VERSION})
+    else()
+        find_package(CUDA)
+        if(CUDA_FOUND)
+            enable_language(CUDA)
+            set(CUDA_DRIVER_LIBRARY cuda)
+        else()
+            message(STATUS "Neither CudaToolkit nor CUDA found!")
+        endif(CUDA_FOUND)
+    endif(CUDAToolkit_FOUND)
+endif(CMAKE_CUDA_COMPILER)
+
+
+if(Vulkan_FOUND AND CUDA_FOUND)
+
+message(STATUS "${Green}rmagine::vulkanCudaInterop${ColourReset}: Building")
 
 set(RMAGINE_VULKAN_CUDA_INTEROP_SRCS
     #Types
@@ -108,3 +170,9 @@ set(CPACK_DEBIAN_VULKAN_CUDA_INTEROP_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE
 
 list(APPEND CPACK_COMPONENTS_ALL vulkanCudaInterop)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else(Vulkan_FOUND AND CUDA_FOUND)
+
+message(STATUS "${Yellow}rmagine::vulkanCudaInterop${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(Vulkan_FOUND AND CUDA_FOUND)

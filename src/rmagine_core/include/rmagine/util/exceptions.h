@@ -55,12 +55,12 @@ class Exception
 : public std::runtime_error
 {
 public:
-    Exception(const std::string& msg);
-    Exception(const std::string& msg, const char* file, const char* func, int line);
-    const char* what() const throw();
-    ~Exception() throw();
+  Exception(const std::string& msg);
+  Exception(const std::string& msg, const char* file, const char* func, int line);
+  const char* what() const throw();
+  ~Exception() throw();
 private:
-    std::string m_msg;
+  std::string m_msg;
 };
 
 
@@ -68,9 +68,9 @@ class EmbreeException
 : public Exception
 {
 public:
-    EmbreeException(const std::string& msg);
-    EmbreeException(const std::string& msg, const char* file, const char* func, int line);
-    ~EmbreeException() throw();
+  EmbreeException(const std::string& msg);
+  EmbreeException(const std::string& msg, const char* file, const char* func, int line);
+  ~EmbreeException() throw();
 };
 
 
@@ -79,9 +79,9 @@ class CudaException
 : public Exception
 {
 public:
-    CudaException(const std::string& msg);
-    CudaException(const std::string& msg, const char* file, const char* func, int line);
-    ~CudaException() throw();
+  CudaException(const std::string& msg);
+  CudaException(const std::string& msg, const char* file, const char* func, int line);
+  ~CudaException() throw();
 };
 
 
@@ -89,9 +89,9 @@ class OptixException
 : public Exception
 {
 public:
-    OptixException(const std::string& msg);
-    OptixException(const std::string& msg, const char* file, const char* func, int line);
-    ~OptixException() throw();
+  OptixException(const std::string& msg);
+  OptixException(const std::string& msg, const char* file, const char* func, int line);
+  ~OptixException() throw();
 };
 
 

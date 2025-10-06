@@ -1,8 +1,49 @@
+/*
+ * Copyright (c) 2025, University Osnabrück
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the University Osnabrück nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL University Osnabrück BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * @file
+ * 
+ * @brief Contains functions to do math on many elements stored in a rmagine::Memory object
+ *
+ * @date 13.08.2025
+ * @author Alexander Mock
+ * 
+ * @copyright Copyright (c) 2025, University Osnabrück. All rights reserved.
+ * This project is released under the 3-Clause BSD License.
+ * 
+ */
+
 #ifndef RMAGINE_MATH_MEMORY_MATH_H
 #define RMAGINE_MATH_MEMORY_MATH_H
 
 #include <rmagine/types/Memory.hpp>
 #include <rmagine/math/types.h>
+#include <functional>
 
 namespace rmagine
 {
@@ -385,6 +426,73 @@ Memory<Transform, RAM> umeyama_transform(
     const MemoryView<Vector3, RAM>& ms,
     const MemoryView<Matrix3x3, RAM>& Cs
 );
+
+// def mean_rotation_quat(Rs, weights=None):
+//     """
+//     Rs: list/array of 3x3 rotation matrices
+//     weights: optional nonnegative weights
+//     """
+//     n = len(Rs)
+//     if weights is None:
+//         weights = np.ones(n)
+//     weights = np.asarray(weights) / np.sum(weights)
+//     # Convert to quaternions (w,x,y,z)
+//     Q = np.stack([quat_from_R(R) for R in Rs], axis=0)
+
+//     # Hemisphere correction using first quaternion as reference
+//     ref = Q[0]
+//     signs = np.sign(np.sum(Q * ref, axis=1))
+//     signs[signs == 0] = 1.0
+//     Q = Q * signs[:, None]
+
+//     # Weighted outer-product averaging (Markley method)
+//     M = np.zeros((4,4))
+//     for w, q in zip(weights, Q):
+//         M += w * np.outer(q, q)
+//     eigvals, eigvecs = np.linalg.eigh(M)
+//     q_mean = eigvecs[:, np.argmax(eigvals)]
+//     if q_mean[0] < 0:  # ensure w >= 0
+//         q_mean = -q_mean
+
+Quaternion markley_mean(
+  const MemoryView<Quaternion, RAM> Qs, 
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty());
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM>& weights = MemoryView<float, RAM>::Empty());
+
+Transform markley_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func
+);
+
+/**
+ * Karcher mean on SE(3) with right-invariant metric.
+ * Ts:       list of poses
+ * w_opt:    optional weights (nonnegative). If null/empty => uniform.
+ * tol:      stop when ||mean twist|| < tol  (twist norm in R^6)
+ * max_iters:iteration cap
+ */
+Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
+  const MemoryView<float, RAM> weights = MemoryView<float, RAM>::Empty(),
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform karcher_mean(const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func,
+  float tol = 1e-10f,
+  int max_iters = 50);
+
+Transform mock_mean(
+  const MemoryView<Transform, RAM> Ts,
+  std::function<float(size_t)> weight_func);
+
+
+Matrix6x6 covariance(
+  Transform Tmean, 
+  MemoryView<Transform, RAM> Ts, 
+  std::function<float(size_t)> weight_func);
 
 } // namespace rmagine
 

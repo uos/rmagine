@@ -3,7 +3,21 @@
 ## Component: vulkan    ##
 ##########################
 
-message(STATUS "Building Vulkan backend. Library: rmagine-vulkan")
+##################################
+## Required external libraries: ##
+## - Vulkan                     ##
+##################################
+
+message(STATUS "Checking dependencies of rmagine::vulkan ...")
+
+
+find_package(Vulkan QUIET)
+find_package(glslang QUIET)
+
+
+if(Vulkan_FOUND)
+
+message(STATUS "${Green}rmagine::vulkan${ColourReset}: Building")
 
 set(RMAGINE_VULKAN_SRCS
     # Util
@@ -139,3 +153,9 @@ set(CPACK_DEBIAN_VULKAN_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE)
 
 list(APPEND CPACK_COMPONENTS_ALL vulkan)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
+
+else(Vulkan_FOUND)
+
+message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies.")
+
+endif(Vulkan_FOUND)

@@ -56,9 +56,9 @@ namespace rmagine
 
 enum class EmbreeGeometryType 
 {
-    INSTANCE,
-    MESH,
-    POINTS
+  INSTANCE,
+  MESH,
+  POINTS
 };
 
 class EmbreeDevice;
@@ -66,8 +66,8 @@ class EmbreeGeometry;
 class EmbreeMesh;
 class EmbreeInstance;
 class EmbreeScene;
-class EmbreeClosestPointResult;
-class EmbreePointQueryUserData;
+struct EmbreeClosestPointResult;
+struct EmbreePointQueryUserData;
 
 using EmbreeDevicePtr = std::shared_ptr<EmbreeDevice>; 
 using EmbreeGeometryPtr = std::shared_ptr<EmbreeGeometry>;

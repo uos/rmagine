@@ -99,3 +99,13 @@ target_link_libraries(rmagine_tests_core_math_cholesky
 
 add_test(NAME core_math_cholesky COMMAND rmagine_tests_core_math_cholesky)
 
+
+# 10. Lie Algebra
+add_executable(rmagine_tests_core_math_lie math_lie.cpp)
+target_link_libraries(rmagine_tests_core_math_lie
+    rmagine::core
+)
+
+add_test(NAME core_math_lie COMMAND rmagine_tests_core_math_lie)
+
+

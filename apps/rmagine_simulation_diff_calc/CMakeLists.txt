@@ -1,4 +1,4 @@
-if(Vulkan_FOUND AND CUDA_FOUND AND OptiX_FOUND AND embree_FOUND)
+if(TARGET rmagine::vulkan AND TARGET rmagine::cuda AND TARGET rmagine::optix AND TARGET rmagine::embree)
 
 add_executable(rmagine_simulation_diff_calc
     Main.cpp
@@ -20,4 +20,4 @@ install(TARGETS rmagine_simulation_diff_calc
     COMPONENT vulkan
 )
 
-endif(Vulkan_FOUND AND CUDA_FOUND AND OptiX_FOUND AND embree_FOUND)
+endif(TARGET rmagine::vulkan AND TARGET rmagine::cuda AND TARGET rmagine::optix AND TARGET rmagine::embree)
