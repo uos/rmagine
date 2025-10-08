@@ -156,6 +156,50 @@ set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
 else(Vulkan_FOUND AND glslang_FOUND)
 
-message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies.")
+if((NOT Vulkan_FOUND) AND (NOT glslang_FOUND))
+    message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies: Vulkan & glslang.")
+elseif(NOT Vulkan_FOUND)
+    message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies: Vulkan.")
+elseif(NOT glslang_FOUND)
+    message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies: glslang.")
+else()
+    message(STATUS "${Yellow}rmagine::vulkan${ColourReset}: Skipping. Missing Dependencies.")
+endif()
 
 endif(Vulkan_FOUND AND glslang_FOUND)
+
+
+
+########################
+## Installing Vulkan: ##
+########################
+
+#   sudo apt install vulkan-tools
+
+# if this does not work download the official vulkan sdk from LunarG: https://vulkan.lunarg.com/sdk/home
+
+
+
+#########################
+## Installing glslang: ##
+#########################
+
+# this might not work but you can try this:
+
+#   sudo apt install glslang-tools
+
+# and/or:
+
+#   sudo apt install glslang-dev
+
+# this should definitely work:
+
+#   [choose a suitable directory]
+#   git clone https://github.com/KhronosGroup/glslang
+#   cd glslang
+#   ./update_glslang_sources.py
+#   mkdir build
+#   cd build
+#   cmake .. -DCMAKE_BUILD_TYPE=Release
+#   make -j 8
+#   sudo make install
