@@ -242,11 +242,11 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
 
     // 1. meshes
     std::map<unsigned int, VulkanMeshPtr> meshes;
-    std::cout << "[make_vulkan_scene()] Loading Meshes..." << std::endl;
+    // std::cout << "[make_vulkan_scene()] Loading Meshes..." << std::endl;
 
     for(size_t i=0; i<ascene->mNumMeshes; i++)
     {
-        std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
+        // std::cout << "Make Mesh " << i+1 << "/" << ascene->mNumMeshes << std::endl;
         const aiMesh* amesh = ascene->mMeshes[i];
 
         if(amesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
@@ -255,7 +255,7 @@ VulkanScenePtr make_vulkan_scene(const aiScene* ascene)
             VulkanMeshPtr mesh = make_vulkan_mesh(amesh);
             mesh->commit();
             meshes[i] = mesh;
-            std::cout << "Mesh " << i << " (" << mesh->name << ") added." << std::endl;
+            // std::cout << "Mesh " << i << " (" << mesh->name << ") added." << std::endl;
         }
         else
         {
