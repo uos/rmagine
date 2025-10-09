@@ -10,8 +10,7 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR acce
     accelerationStructureType(accelerationStructureType),
     vulkan_context(get_vulkan_context_weak()),
     commandBuffer(new CommandBuffer(vulkan_context)),
-    accelerationStructureMem(0, VulkanMemoryUsage::Usage_AccelerationStructure),
-    accelerationStructureScratchMem(0, VulkanMemoryUsage::Usage_AccelerationStructureScratch)
+    accelerationStructureMem(0, VulkanMemoryUsage::Usage_AccelerationStructure)
 {
     
 }
@@ -80,8 +79,9 @@ void AccelerationStructure::createAccelerationStructure(
     accelerationStructureDeviceAddress = vulkan_context->extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR(
         vulkan_context->getDevice()->getLogicalDevice(), 
         &accelerationStructureDeviceAddressInfo);
-    
-    accelerationStructureScratchMem.resize(accelerationStructureBuildSizesInfo.buildScratchSize);
+
+    // for building acceleration structure
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem(accelerationStructureBuildSizesInfo.buildScratchSize);
 
     accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchMem.getBuffer()->getBufferDeviceAddress();

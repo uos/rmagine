@@ -33,8 +33,6 @@ private:
 
     // for holding acceleration structure
     Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureMem;
-    // for building acceleration structure
-    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem;
     
 public:
     AccelerationStructure(VkAccelerationStructureTypeKHR accelerationStructureType);
