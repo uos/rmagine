@@ -52,9 +52,13 @@ void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize
     {
         mem_command_buffer = std::make_shared<CommandBuffer>(get_vulkan_context());
     }
+    memcpyDeviceToDevice(srcBuffer, dstBuffer, count, srcByteOffset, dstByteOffset, mem_command_buffer);
+}
 
-    mem_command_buffer->recordCopyBufferToCommandBuffer(srcBuffer, dstBuffer, count, srcByteOffset, dstByteOffset);
-    mem_command_buffer->submitRecordedCommandAndWait();
+void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize count, VkDeviceSize srcByteOffset, VkDeviceSize dstByteOffset, CommandBufferPtr cmdBuf)
+{
+    cmdBuf->recordCopyBufferToCommandBuffer(srcBuffer, dstBuffer, count, srcByteOffset, dstByteOffset);
+    cmdBuf->submitRecordedCommandAndWait();
 }
 
 void memcpyHostToDevice(const void* src, DeviceMemoryPtr dstDeviceMemory, VkDeviceSize count, VkDeviceSize dstByteOffset)

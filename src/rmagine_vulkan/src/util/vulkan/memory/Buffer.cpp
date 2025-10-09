@@ -41,7 +41,6 @@ void Buffer::createBuffer(VkBufferUsageFlags bufferUsageFlags)
 
 VkDeviceAddress Buffer::getBufferDeviceAddress()
 {
-    std::lock_guard<std::mutex> guard(bufferMtx);
     if(deviceAddress != 0)
         return deviceAddress;
 

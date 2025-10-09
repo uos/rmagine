@@ -60,6 +60,7 @@ protected:
     const size_t m_offset = 0;
     const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
+    // const CommandBufferPtr m_commandBuffer = nullptr;
 
 public:
     MemoryView() = delete;
@@ -168,6 +169,7 @@ protected:
     using Base::m_offset;
     using Base::m_memoryUsage;
     using Base::m_deviceMemory;
+    // using Base::m_commandBuffer;
 };
 
 
@@ -183,6 +185,7 @@ protected:
     const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
     DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
+    // const CommandBufferPtr m_commandBuffer = nullptr;
 
 public:
     MemoryView() = delete;
@@ -296,6 +299,7 @@ protected:
     using Base::m_memoryUsage;
     using Base::m_deviceMemory;
     using Base::m_stagingDeviceMemory;
+    // using Base::m_commandBuffer;
 };
 
 

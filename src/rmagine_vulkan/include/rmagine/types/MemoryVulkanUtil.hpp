@@ -71,6 +71,23 @@ namespace vulkan
 void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize count, VkDeviceSize srcByteOffset, VkDeviceSize dstByteOffset);
 
 /**
+ * copy data from (host visible & device local) vulkan device memory to (host visible & device local) vulkan device memory
+ * 
+ * @param srcBuffer buffer of the source memory
+ * 
+ * @param dstBuffer buffer of the destination memory
+ * 
+ * @param count number of bytes that get copied
+ * 
+ * @param srcByteOffset offset into the source memory
+ * 
+ * @param dstByteOffset offset into the destination memory
+ * 
+ * @param cmdBuf command buffer used to execute the copy command
+ */
+void memcpyDeviceToDevice(BufferPtr srcBuffer, BufferPtr dstBuffer, VkDeviceSize count, VkDeviceSize srcByteOffset, VkDeviceSize dstByteOffset, CommandBufferPtr cmdBuf);
+
+/**
  * copy data from host memory to host visible vulkan device memory
  * 
  * @param src pointer to source host memory

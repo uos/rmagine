@@ -73,7 +73,6 @@ void DeviceMemory::copyToDeviceMemory(const void* src)
 
 void DeviceMemory::copyToDeviceMemory(const void *src, size_t offset, size_t stride)
 {
-    std::lock_guard<std::mutex> guard(deviceMemoryMtx);
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
         throw std::runtime_error("[DeviceMemory::copyToDeviceMemory()] ERROR - offset and/or stride too large for this device memory!");
@@ -97,7 +96,6 @@ void DeviceMemory::copyFromDeviceMemory(void *dst)
 
 void DeviceMemory::copyFromDeviceMemory(void* dst, size_t offset, size_t stride)
 {
-    std::lock_guard<std::mutex> guard(deviceMemoryMtx);
     if(offset >= buffer->getBufferSize() || offset + stride > buffer->getBufferSize())
     {
         throw std::runtime_error("[DeviceMemory::copyFromDeviceMemory()] ERROR - offset and/or stride too large for this device memory!");
