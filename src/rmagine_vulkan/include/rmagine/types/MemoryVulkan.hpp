@@ -60,12 +60,12 @@ protected:
     const size_t m_offset = 0;
     const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
-    // const CommandBufferPtr m_commandBuffer = nullptr;
+    const CommandBufferPtr m_commandBuffer = nullptr;
 
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory);
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, CommandBufferPtr p_commandBuffer);
 
     
     static MemoryView<DataT, HOST_VISIBLE_VULKAN> Empty()
@@ -100,6 +100,8 @@ public:
     BufferPtr getBuffer() const;
 
     DeviceMemoryPtr getDeviceMemory() const;
+
+    CommandBufferPtr getCommandBuffer() const;
 };
 
 
@@ -169,7 +171,7 @@ protected:
     using Base::m_offset;
     using Base::m_memoryUsage;
     using Base::m_deviceMemory;
-    // using Base::m_commandBuffer;
+    using Base::m_commandBuffer;
 };
 
 
@@ -185,17 +187,17 @@ protected:
     const VulkanMemoryUsage m_memoryUsage = VulkanMemoryUsage::Usage_Default;
     DeviceMemoryPtr m_deviceMemory = nullptr;
     DeviceMemoryPtr m_stagingDeviceMemory = nullptr;
-    // const CommandBufferPtr m_commandBuffer = nullptr;
+    const CommandBufferPtr m_commandBuffer = nullptr;
 
 public:
     MemoryView() = delete;
 
-    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory);
+    MemoryView(size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory, CommandBufferPtr p_commandBuffer);
 
     
     static MemoryView<DataT, DEVICE_LOCAL_VULKAN> Empty()
     {
-        MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr, nullptr, nullptr);
+        MemoryView(0, 0, VulkanMemoryUsage::Usage_Default, nullptr, nullptr, nullptr);
     }
 
     bool empty() const
@@ -229,6 +231,8 @@ public:
     DeviceMemoryPtr getDeviceMemory() const;
 
     DeviceMemoryPtr getStagingDeviceMemory() const;
+
+    CommandBufferPtr getCommandBuffer() const;
 };
 
 
@@ -299,7 +303,7 @@ protected:
     using Base::m_memoryUsage;
     using Base::m_deviceMemory;
     using Base::m_stagingDeviceMemory;
-    // using Base::m_commandBuffer;
+    using Base::m_commandBuffer;
 };
 
 
@@ -339,7 +343,7 @@ void copy(const MemoryView<DataT, RAM>& from, MemoryView<DataT, DEVICE_LOCAL_VUL
     }
 
     vulkan::memcpyHostToDevice(from.raw(), to.getStagingDeviceMemory(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset());
-    vulkan::memcpyDeviceToDevice(to.getStagingBuffer(), to.getBuffer(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset(), sizeof(DataT) * to.offset());
+    vulkan::memcpyDeviceToDevice(to.getStagingBuffer(), to.getBuffer(), sizeof(DataT) * to.size(), sizeof(DataT) * to.offset(), sizeof(DataT) * to.offset(), to.getCommandBuffer());
 }
 
 
@@ -374,7 +378,7 @@ void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    vulkan::memcpyDeviceToDevice(from.getBuffer(), from.getStagingBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * from.offset());
+    vulkan::memcpyDeviceToDevice(from.getBuffer(), from.getStagingBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * from.offset(), from.getCommandBuffer());
     vulkan::memcpyDeviceToHost(from.getStagingDeviceMemory(), to.raw(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset());
 }
 
@@ -395,7 +399,7 @@ void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
+    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset(), from.getCommandBuffer());
 }
 
 template<typename DataT>
@@ -410,7 +414,7 @@ void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
+    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset(), from.getCommandBuffer());
 }
 
 template<typename DataT>
@@ -425,7 +429,7 @@ void copy(const MemoryView<DataT, HOST_VISIBLE_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
+    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset(), from.getCommandBuffer());
 }
 
 template<typename DataT>
@@ -440,7 +444,7 @@ void copy(const MemoryView<DataT, DEVICE_LOCAL_VULKAN>& from, MemoryView<DataT, 
         throw std::invalid_argument("[copy()] ERROR - memoryViews need to have the same size!");
     }
 
-    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset());
+    vulkan::memcpyDeviceToDevice(from.getBuffer(), to.getBuffer(), sizeof(DataT) * from.size(), sizeof(DataT) * from.offset(), sizeof(DataT) * to.offset(), from.getCommandBuffer());
 }
 
 } // namespace rmagine

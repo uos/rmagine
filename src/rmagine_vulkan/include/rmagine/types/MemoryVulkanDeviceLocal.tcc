@@ -7,8 +7,8 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, DEVICE_LOCAL_VULKAN>::MemoryView(
-    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory), m_stagingDeviceMemory(p_stagingDeviceMemory)
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, DeviceMemoryPtr p_stagingDeviceMemory, CommandBufferPtr p_commandBuffer) :
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory), m_stagingDeviceMemory(p_stagingDeviceMemory), m_commandBuffer(p_commandBuffer)
 {
 
 }
@@ -50,7 +50,7 @@ MemoryView<DataT, DEVICE_LOCAL_VULKAN> MemoryView<DataT, DEVICE_LOCAL_VULKAN>::s
         throw std::invalid_argument("[MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice()] ERROR - invlaid indicies");
     }
 
-    return MemoryView<DataT, DEVICE_LOCAL_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_stagingDeviceMemory);
+    return MemoryView<DataT, DEVICE_LOCAL_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_stagingDeviceMemory, m_commandBuffer);
 }
 
 
@@ -62,7 +62,7 @@ const MemoryView<DataT, DEVICE_LOCAL_VULKAN> MemoryView<DataT, DEVICE_LOCAL_VULK
         throw std::invalid_argument("[MemoryView<DataT, DEVICE_LOCAL_VULKAN>::slice()] ERROR - invlaid indicies");
     }
 
-    return MemoryView<DataT, DEVICE_LOCAL_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_stagingDeviceMemory);
+    return MemoryView<DataT, DEVICE_LOCAL_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_stagingDeviceMemory, m_commandBuffer);
 }
 
 
@@ -133,6 +133,13 @@ DeviceMemoryPtr MemoryView<DataT, DEVICE_LOCAL_VULKAN>::getStagingDeviceMemory()
 }
 
 
+template<typename DataT>
+CommandBufferPtr MemoryView<DataT, DEVICE_LOCAL_VULKAN>::getCommandBuffer() const
+{
+    return m_commandBuffer;
+}
+
+
 
 
 
@@ -153,7 +160,7 @@ Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(size_t N) : Memory(N, VulkanMemoryUsa
 
 template<typename DataT>
 Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsage) :
-    Base(N, 0, memoryUsage, nullptr, nullptr)
+    Base(N, 0, memoryUsage, nullptr, nullptr, std::make_shared<CommandBuffer>(get_vulkan_context()))
 {
     if(N > 0)
     {
@@ -196,7 +203,7 @@ Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(const MemoryView<DataT, MemT2>& o) :
 
 template<typename DataT>
 Memory<DataT, DEVICE_LOCAL_VULKAN>::Memory(Memory<DataT, DEVICE_LOCAL_VULKAN>&& o) noexcept :
-    Base(o.size(), o.offset()/*should always be 0*/, o.getMemoryUsage(), o.m_deviceMemory, o.m_stagingDeviceMemory)
+    Base(o.size(), o.offset()/*should always be 0*/, o.getMemoryUsage(), o.m_deviceMemory, o.m_stagingDeviceMemory, o.m_commandBuffer)
 {
     o.m_deviceMemory = nullptr;
     o.m_stagingDeviceMemory = nullptr;

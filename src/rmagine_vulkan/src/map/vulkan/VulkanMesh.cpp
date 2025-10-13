@@ -33,6 +33,8 @@ void VulkanMesh::apply()
 void VulkanMesh::commit()
 {
     transformMatrix = transformMatrix_ram;
+
+    // TODO: track changes to vertices, faces & transformMatrix for updating acceleration structures (dont need to track face_normals, vertex_normals)
 }
 
 unsigned int VulkanMesh::depth() const

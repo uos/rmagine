@@ -7,8 +7,8 @@ namespace rmagine
 
 template<typename DataT>
 MemoryView<DataT, HOST_VISIBLE_VULKAN>::MemoryView(
-    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory) :
-    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory)
+    size_t p_size, size_t p_offset, VulkanMemoryUsage p_memoryUsage, DeviceMemoryPtr p_deviceMemory, CommandBufferPtr p_commandBuffer) :
+    m_size(p_size), m_offset(p_offset), m_memoryUsage(p_memoryUsage), m_deviceMemory(p_deviceMemory), m_commandBuffer(p_commandBuffer)
 {
 
 }
@@ -50,7 +50,7 @@ MemoryView<DataT, HOST_VISIBLE_VULKAN> MemoryView<DataT, HOST_VISIBLE_VULKAN>::s
         throw std::invalid_argument("[MemoryView<DataT, HOST_VISIBLE_VULKAN>::slice()] ERROR - invlaid indicies");
     }
 
-    return MemoryView<DataT, HOST_VISIBLE_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
+    return MemoryView<DataT, HOST_VISIBLE_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_commandBuffer);
 }
 
 
@@ -62,7 +62,7 @@ const MemoryView<DataT, HOST_VISIBLE_VULKAN> MemoryView<DataT, HOST_VISIBLE_VULK
         throw std::invalid_argument("[MemoryView<DataT, HOST_VISIBLE_VULKAN>::slice()] ERROR - invlaid indicies");
     }
 
-    return MemoryView<DataT, HOST_VISIBLE_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory);
+    return MemoryView<DataT, HOST_VISIBLE_VULKAN>(idx_end - idx_start, idx_start, m_memoryUsage, m_deviceMemory, m_commandBuffer);
 }
 
 
@@ -115,6 +115,13 @@ DeviceMemoryPtr MemoryView<DataT, HOST_VISIBLE_VULKAN>::getDeviceMemory() const
 }
 
 
+template<typename DataT>
+CommandBufferPtr MemoryView<DataT, HOST_VISIBLE_VULKAN>::getCommandBuffer() const
+{
+    return m_commandBuffer;
+}
+
+
 
 
 
@@ -135,7 +142,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N) : Memory(N, VulkanMemoryUsa
 
 template<typename DataT>
 Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(size_t N, VulkanMemoryUsage memoryUsage)
-    : Base(N, 0, memoryUsage, nullptr)
+    : Base(N, 0, memoryUsage, nullptr, std::make_shared<CommandBuffer>(get_vulkan_context()))
 {
     if(N > 0)
     {
@@ -171,7 +178,7 @@ Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(const MemoryView<DataT, MemT2>& o) :
 
 template<typename DataT>
 Memory<DataT, HOST_VISIBLE_VULKAN>::Memory(Memory<DataT, HOST_VISIBLE_VULKAN>&& o) noexcept :
-    Base(o.size(), o.offset()/*should always be 0*/, o.getMemoryUsage(), o.m_deviceMemory)
+    Base(o.size(), o.offset()/*should always be 0*/, o.getMemoryUsage(), o.m_deviceMemory, o.m_commandBuffer)
 {
     o.m_deviceMemory = nullptr;
     o.m_size = 0;

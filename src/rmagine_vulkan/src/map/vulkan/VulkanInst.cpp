@@ -59,6 +59,8 @@ void VulkanInst::commit()
     {
         // nothing to do here currently
         // is here just in case
+
+        // TODO: track changes to m_data for updating acceleration structures
     }
 }
 
