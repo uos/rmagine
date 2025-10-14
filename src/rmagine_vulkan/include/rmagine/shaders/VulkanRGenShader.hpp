@@ -10,6 +10,11 @@
  * then the define SPHERE, PINHOLE, O1DN or ONDN gets set
  */
 static const std::string rgen_code = R""""(
+#if (defined(SPHERE) && defined(PINHOLE)) || (defined(SPHERE) && defined(O1DN)) || (defined(SPHERE) && defined(ONDN)) || (defined(PINHOLE) && defined(O1DN)) || (defined(PINHOLE) && defined(ONDN)) || (defined(O1DN) && defined(ONDN))
+    #error Only one of the the sensor types has to be defined // compile time error
+#endif
+
+
 
 
 

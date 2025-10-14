@@ -10,6 +10,11 @@
  * then the defines HITS, RANGES, POINTS, NORMALS, PRIMITIVE_ID, GEOMETRY_ID & INSTANCE_ID get set
  */
 static const std::string chit_code = R""""(
+#if !defined(HITS) && !defined(RANGES) && !defined(POINTS) && !defined(NORMALS) && !defined(PRIMITIVE_ID) && !defined(GEOMETRY_ID) && !defined(INSTANCE_ID)
+    #error At least one of the result types has to be defined // compile time error
+#endif
+
+
 hitAttributeEXT vec2 hitCoordinate;
 
 

@@ -13,11 +13,8 @@
 
 #include "rmagine/shaders/VulkanUtilShader.hpp"
 #include "rmagine/shaders/VulkanRGenShader.hpp"
-#if defined(ONLY_FACE_NORMALS)
-    #include "rmagine/shaders/VulkanCHitShaderMini.hpp"
-#else
-    #include "rmagine/shaders/VulkanCHitShader.hpp"
-#endif
+#include "rmagine/shaders/VulkanCHitShader.hpp"
+#include "rmagine/shaders/VulkanCHitShaderMini.hpp"
 #include "rmagine/shaders/VulkanMissShader.hpp"
 
 
