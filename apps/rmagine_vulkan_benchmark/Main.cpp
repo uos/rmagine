@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
 
     //create map
-    std::cout << "Creating map main." << std::endl;
+    std::cout << "Creating map." << std::endl;
     VulkanMapPtr map = import_vulkan_map(path_to_mesh);
 
 
@@ -73,8 +73,8 @@ int main(int argc, char** argv)
     {
         tbm_ram[i] = tsb;
     }
-    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_device(tbm_ram.size());
-    tbm_device = tbm_ram;
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm(tbm_ram.size());
+    tbm = tbm_ram;
 
 
     //bundle
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 
     //simulate sphere
     std::cout << "Simulating sphere..." << std::endl;
-    sim_gpu_sphere->simulate(tbm_device, res);
+    sim_gpu_sphere->simulate(tbm, res);
 
 
     //get sphere results
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
         double n_dbl = static_cast<double>(run) + 1.0;
         // Simulate
         sw();
-        sim_gpu_sphere->simulate(tbm_device, res);
+        sim_gpu_sphere->simulate(tbm, res);
         elapsed = sw();
         elapsed_total += elapsed;
         double velos_per_second = static_cast<double>(tbm_ram.size()) / elapsed;

@@ -15,7 +15,7 @@ static const std::string chit_code_mini = R""""(
 #endif
 
 
-hitAttributeEXT vec2 hitCoordinate;
+
 
 
 layout(location = 0) rayPayloadInEXT Payload
