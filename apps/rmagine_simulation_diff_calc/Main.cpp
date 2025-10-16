@@ -1,3 +1,5 @@
+#include <cmath>
+
 // Core rmagine includes
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
@@ -64,14 +66,18 @@ void calc_diff(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string
         {
             max_error_diff = error;
         }
-        error_diff_avg += error;
+        if(!std::isnan(error))
+        {
+            error_diff_avg += error;
+            not_nan_count++;
+        }
     }
 
-    error_diff_avg = error_diff_avg / ((float)data1.size());
+    error_diff_avg = error_diff_avg / ((float)not_nan_count);
 
     std::cout << info << " - high_error_count: " << high_error_count << std::endl;
     std::cout << info << " - max_error_diff: " << max_error_diff << std::endl;
-    std::cout << info << " - error_diff_avg: " << error_diff_avg << std::endl;
+    std::cout << info << " - error_diff_avg (where not NaN): " << error_diff_avg << std::endl;
     std::cout << std::endl;
 }
 
