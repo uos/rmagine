@@ -1,3 +1,5 @@
+#include <random>
+
 // Core rmagine includes
 #include <rmagine/types/sensor_models.h>
 #include <rmagine/util/StopWatch.hpp>
