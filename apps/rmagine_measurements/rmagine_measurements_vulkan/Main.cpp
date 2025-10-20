@@ -31,6 +31,25 @@ Transform randomTransform()
     tf.t.normalizeInplace();
 }
 
+void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
+{
+    for(size_t i = 0; i < tbm_ram.size(); i++)
+    {
+        tbm_ram[i] = randomTransform();
+    }
+}
+
+
+
+void printAsPoints(std::vector<double>& results)
+{
+    for(size_t i = 0; i < results.size(); i++)
+    {
+        std::cout << "("<< i+1 << ", " << results[i] << "),";
+    }
+    std::cout << std::endl;
+}
+
 
 
 VulkanMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
@@ -52,9 +71,10 @@ VulkanMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
 size_t reps = 100;
 
 size_t num_maps = 10;
-size_t map_param = 50;
+size_t map_param = 100;
 
 size_t num_tbms = 10;
+size_t tbm_param = 1000;
 
 int main(int argc, char** argv)
 {
@@ -105,12 +125,12 @@ int main(int argc, char** argv)
         sim_gpu_sphere->setMap(map);
 
 
+        std::vector<double> results;
         for(size_t i = 1; i <= num_tbms; i++)
         {
-            Memory<Transform, RAM> tbm_ram(1000*i);
+            Memory<Transform, RAM> tbm_ram(tbm_param*i);
             for(size_t j = 0; j < tbm_ram.size(); j++)
             {
-                //TODO: fill with random poses
                 tbm_ram[j] = tsb;
             }
             Memory<Transform, DEVICE_LOCAL_VULKAN> tbm(tbm_ram.size());
@@ -130,9 +150,10 @@ int main(int argc, char** argv)
             double elapsed = 0.0;
             double elapsed_total = 0.0;
             std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 0; j < reps; j++)
+            for(size_t j = 1; j <= reps; j++)
             {
-                double run = static_cast<double>(j) + 1.0;
+                fillWithRandomTfs(tbm_ram);
+                tbm = tbm_ram;
 
                 sw();
                 sim_gpu_sphere->simulate(tbm, res2);
@@ -143,11 +164,13 @@ int main(int argc, char** argv)
                 << std::fixed
                 << "[Elapsed: " << elapsed << "; "
                 << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(run) << "]" << ((j+1==reps) ? "" : "\r");
+                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
                 std::cout.flush();
             }
+            results.push_back(elapsed_total/(static_cast<double>(reps)));
             std::cout << "\n" << std::endl;
         }
+        printAsPoints(results);
     }
 
 
@@ -156,10 +179,9 @@ int main(int argc, char** argv)
 
     //measure different num of faces
     {
-        Memory<Transform, RAM> tbm_ram(1000*num_tbms);
+        Memory<Transform, RAM> tbm_ram(tbm_param*num_tbms);
         for(size_t i = 0; i < tbm_ram.size(); i++)
         {
-            //TODO: fill with random poses
             tbm_ram[i] = tsb;
         }
         Memory<Transform, DEVICE_LOCAL_VULKAN> tbm(tbm_ram.size());
@@ -170,6 +192,7 @@ int main(int argc, char** argv)
         res.ranges.resize(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
 
 
+        std::vector<double> results;
         for(size_t i = 1; i <= num_maps; i++)
         {
             VulkanMapPtr map = make_sphere_map(map_param*i, map_param*i);
@@ -184,9 +207,10 @@ int main(int argc, char** argv)
             double elapsed = 0.0;
             double elapsed_total = 0.0;
             std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 0; j < reps; j++)
+            for(size_t j = 1; j <= reps; j++)
             {
-                double run = static_cast<double>(j) + 1.0;
+                fillWithRandomTfs(tbm_ram);
+                tbm = tbm_ram;
 
                 sw();
                 sim_gpu_sphere->simulate(tbm, res);
@@ -197,11 +221,14 @@ int main(int argc, char** argv)
                 << std::fixed
                 << "[Elapsed: " << elapsed << "; "
                 << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(run) << "]" << ((j+1==reps) ? "" : "\r");
+                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
                 std::cout.flush();
             }
+            results.push_back(elapsed_total/(static_cast<double>(reps)));
             std::cout << "\n" << std::endl;
         }
+        std::cout << "" << std::endl;
+        printAsPoints(results);
     }
 
     std::cout << "\nFinished." << std::endl;
