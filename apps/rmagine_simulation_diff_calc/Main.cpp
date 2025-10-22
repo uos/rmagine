@@ -52,6 +52,7 @@ void calc_diff(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string
     }
 
     uint64_t high_error_count = 0;
+    size_t not_nan_count = 0;
     float max_error_diff = 0.0;
     float error_diff_avg = 0.0;
     for(size_t i = 0; i < data1.size(); i++)

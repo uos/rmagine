@@ -1,4 +1,5 @@
 #include <random>
+#include <sstream>
 
 // Core rmagine includes
 #include <rmagine/types/sensor_models.h>
@@ -30,6 +31,7 @@ Transform randomTransform()
     tf.R.normalizeInplace();
     tf.t = {dist(e2), dist(e2), dist(e2)};
     tf.t.normalizeInplace();
+    return tf;
 }
 
 void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
@@ -38,17 +40,6 @@ void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
     {
         tbm_ram[i] = randomTransform();
     }
-}
-
-
-
-void printAsPoints(std::vector<double>& results)
-{
-    for(size_t i = 0; i < results.size(); i++)
-    {
-        std::cout << "("<< i+1 << ", " << results[i] << "),";
-    }
-    std::cout << std::endl;
 }
 
 
@@ -62,8 +53,6 @@ EmbreeMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
     scene->add(mesh);
     scene->commit();
 
-    std::cout << "Num Faces: " << mesh->faces.size() << std::endl;
-
     return std::make_shared<EmbreeMap>(scene);
 }
 
@@ -71,11 +60,61 @@ EmbreeMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
 
 size_t reps = 100;
 
-size_t num_maps = 10;
-size_t map_param = 100;
+size_t num_maps = 20;
+size_t map_param = 500;
 
-size_t num_tbms = 10;
-size_t tbm_param = 1000;
+size_t num_tbms = 20;
+size_t tbm_param = 500;
+
+using ResultT = Bundle<
+    Ranges<RAM> 
+    // ,Hits<RAM>
+    // ,Points<RAM>
+    // ,Normals<RAM>
+    // ,FaceIds<RAM>
+    // ,GeomIds<RAM>
+    // ,ObjectIds<RAM>
+>;
+
+rmagine::StopWatch sw;
+
+
+double measure(Memory<Transform, RAM>& tbm_ram, ResultT& res, EmbreeMapPtr map, SphereSimulatorEmbreePtr sim_gpu_sphere)
+{
+    //prebuild
+    sim_gpu_sphere->simulate(tbm_ram, res);
+
+
+    std::cout << "Num Poses: " << tbm_ram.size() << std::endl;
+    std::cout << "Num Faces: " << "---" << std::endl;//TODO
+
+
+    //measure
+    double elapsed = 0.0;
+    double elapsed_total = 0.0;
+    std::cout << "-- Starting Measurement --" << std::endl;
+    for(size_t j = 1; j <= reps; j++)
+    {
+        fillWithRandomTfs(tbm_ram);
+
+        sw();
+        sim_gpu_sphere->simulate(tbm_ram, res);
+        double elapsed = sw();
+        elapsed_total += elapsed;
+        
+        std::cout 
+        << std::fixed
+        << "[Elapsed: " << elapsed << "; "
+        << "Elapsed Total: " << elapsed_total << "; "
+        << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
+        std::cout.flush();
+    }
+    std::stringstream point;
+
+
+    return elapsed_total/(static_cast<double>(reps));
+}
+
 
 int main(int argc, char** argv)
 {
@@ -104,71 +143,41 @@ int main(int argc, char** argv)
     sim_gpu_sphere->setTsb(tsb_ram);
 
 
-    using ResultT = Bundle<
-        Ranges<RAM> 
-        // ,Hits<RAM>
-        // ,Points<RAM>
-        // ,Normals<RAM>
-        // ,FaceIds<RAM>
-        // ,GeomIds<RAM>
-        // ,ObjectIds<RAM>
-    >;
-
-
-    rmagine::StopWatch sw;
     std::cout << "\n" << std::endl;
 
 
 
     //measure different num of sensors
     {
-        EmbreeMapPtr map = make_sphere_map(map_param*num_maps, map_param*num_maps);
+        unsigned int num_lon_and_lat = map_param * sqrt(2.0);
+        EmbreeMapPtr map = make_sphere_map(num_lon_and_lat, num_lon_and_lat);
         sim_gpu_sphere->setMap(map);
+        
 
-
-        std::vector<double> results;
+        std::vector<std::string> results;
         for(size_t i = 1; i <= num_tbms; i++)
         {
             Memory<Transform, RAM> tbm_ram(tbm_param*i);
-            for(size_t i = 0; i < tbm_ram.size(); i++)
+            for(size_t j = 0; j < tbm_ram.size(); j++)
             {
-                tbm_ram[i] = tsb;
+                tbm_ram[j] = tsb;
             }
-            std::cout << "Num Poses: " << tbm_ram.size() << std::endl;
+
+            ResultT res;
+            res.ranges.resize(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
 
 
-            ResultT res2;
-            res2.ranges.resize(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
-
-
-            //prebuild
-            sim_gpu_sphere->simulate(tbm_ram, res2);
-
-
-            //measure
-            double elapsed = 0.0;
-            double elapsed_total = 0.0;
-            std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 1; j <= reps; j++)
-            {
-                fillWithRandomTfs(tbm_ram);
-
-                sw();
-                sim_gpu_sphere->simulate(tbm_ram, res2);
-                double elapsed = sw();
-                elapsed_total += elapsed;
-                
-                std::cout 
-                << std::fixed
-                << "[Elapsed: " << elapsed << "; "
-                << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
-                std::cout.flush();
-            }
-            results.push_back(elapsed_total/(static_cast<double>(reps)));
+            double elapsed_avg = measure(tbm_ram, res, map, sim_gpu_sphere);
+            std::stringstream point;
+            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
-        printAsPoints(results);
+        for(size_t i = 0; i < results.size(); i++)
+        {
+            std::cout << results[i];
+        }
+        std::cout << std::endl;
     }
 
 
@@ -183,50 +192,32 @@ int main(int argc, char** argv)
             tbm_ram[i] = tsb;
         }
 
-
         ResultT res;
         res.ranges.resize(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
 
 
-        std::vector<double> results;
+        std::vector<std::string> results;
         for(size_t i = 1; i <= num_maps; i++)
         {
-            EmbreeMapPtr map = make_sphere_map(map_param*i, map_param*i);
+            unsigned int num_lon_and_lat = static_cast<unsigned int>(static_cast<double>(map_param)*sqrt(static_cast<double>(i)));
+            EmbreeMapPtr map = make_sphere_map(num_lon_and_lat, num_lon_and_lat);
             sim_gpu_sphere->setMap(map);
 
 
-            //prebuild
-            sim_gpu_sphere->simulate(tbm_ram, res);
-
-
-            //measure
-            double elapsed = 0.0;
-            double elapsed_total = 0.0;
-            std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 1; j <= reps; j++)
-            {
-                fillWithRandomTfs(tbm_ram);
-
-                sw();
-                sim_gpu_sphere->simulate(tbm_ram, res);
-                elapsed = sw();
-                elapsed_total += elapsed;
-                
-                std::cout 
-                << std::fixed
-                << "[Elapsed: " << elapsed << "; "
-                << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
-                std::cout.flush();
-            }
-            results.push_back(elapsed_total/(static_cast<double>(reps)));
+            double elapsed_avg = measure(tbm_ram, res, map, sim_gpu_sphere);
+            std::stringstream point;
+            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
-        std::cout << "" << std::endl;
-        printAsPoints(results);
+        for(size_t i = 0; i < results.size(); i++)
+        {
+            std::cout << results[i];
+        }
+        std::cout << std::endl;
     }
 
-    std::cout << "\nFinished." << std::endl;
+    std::cout << "\n\nFinished." << std::endl;
 
     return EXIT_SUCCESS;
 }

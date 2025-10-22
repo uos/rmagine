@@ -29,25 +29,15 @@ Transform randomTransform()
     tf.R.normalizeInplace();
     tf.t = {dist(e2), dist(e2), dist(e2)};
     tf.t.normalizeInplace();
+    return tf;
 }
 
-void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
+void fillWithRandomTfs(Memory<Transform, RAM_CUDA>& tbm_ram)
 {
     for(size_t i = 0; i < tbm_ram.size(); i++)
     {
         tbm_ram[i] = randomTransform();
     }
-}
-
-
-
-void printAsPoints(std::vector<double>& results)
-{
-    for(size_t i = 0; i < results.size(); i++)
-    {
-        std::cout << "("<< i+1 << ", " << results[i] << "),";
-    }
-    std::cout << std::endl;
 }
 
 
@@ -61,8 +51,6 @@ OptixMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
     scene->add(mesh);
     scene->commit();
 
-    std::cout << "Num Faces: " << mesh->faces.size() << std::endl;
-
     return std::make_shared<OptixMap>(scene);
 }
 
@@ -70,11 +58,62 @@ OptixMapPtr make_sphere_map(unsigned int num_long, unsigned int num_lat)
 
 size_t reps = 100;
 
-size_t num_maps = 10;
-size_t map_param = 100;
+size_t num_maps = 20;
+size_t map_param = 500;
 
-size_t num_tbms = 10;
-size_t tbm_param = 1000;
+size_t num_tbms = 20;
+size_t tbm_param = 500;
+
+using ResultT = Bundle<
+    Ranges<VRAM_CUDA> 
+    // ,Hits<VRAM_CUDA>
+    // ,Points<VRAM_CUDA>
+    // ,Normals<VRAM_CUDA>
+    // ,FaceIds<VRAM_CUDA>
+    // ,GeomIds<VRAM_CUDA>
+    // ,ObjectIds<VRAM_CUDA>
+>;
+
+rmagine::StopWatch sw;
+
+
+double measure(Memory<Transform, RAM_CUDA>& tbm_ram, Memory<Transform, VRAM_CUDA>& tbm, ResultT& res, OptixMapPtr map, SphereSimulatorOptixPtr sim_gpu_sphere)
+{
+    //prebuild
+    sim_gpu_sphere->simulate(tbm, res);
+
+
+    std::cout << "Num Poses: " << tbm.size() << std::endl;
+    std::cout << "Num Faces: " << map->scene()->geometries().begin()->second->this_shared<OptixMesh>()->faces.size() << std::endl;
+
+
+    //measure
+    double elapsed = 0.0;
+    double elapsed_total = 0.0;
+    std::cout << "-- Starting Measurement --" << std::endl;
+    for(size_t j = 1; j <= reps; j++)
+    {
+        fillWithRandomTfs(tbm_ram);
+        tbm = tbm_ram;
+
+        sw();
+        sim_gpu_sphere->simulate(tbm, res);
+        double elapsed = sw();
+        elapsed_total += elapsed;
+        
+        std::cout 
+        << std::fixed
+        << "[Elapsed: " << elapsed << "; "
+        << "Elapsed Total: " << elapsed_total << "; "
+        << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
+        std::cout.flush();
+    }
+    std::stringstream point;
+
+
+    return elapsed_total/(static_cast<double>(reps));
+}
+
 
 int main(int argc, char** argv)
 {
@@ -103,74 +142,43 @@ int main(int argc, char** argv)
     sim_gpu_sphere->setTsb(tsb_ram);
 
 
-    using ResultT = Bundle<
-        Ranges<VRAM_CUDA> 
-        // ,Hits<VRAM_CUDA>
-        // ,Points<VRAM_CUDA>
-        // ,Normals<VRAM_CUDA>
-        // ,FaceIds<VRAM_CUDA>
-        // ,GeomIds<VRAM_CUDA>
-        // ,ObjectIds<VRAM_CUDA>
-    >;
-
-
-    rmagine::StopWatch sw;
     std::cout << "\n" << std::endl;
 
 
 
     //measure different num of sensors
     {
-        OptixMapPtr map = make_sphere_map(map_param*num_maps, map_param*num_maps);
+        unsigned int num_lon_and_lat = map_param * sqrt(2.0);
+        OptixMapPtr map = make_sphere_map(num_lon_and_lat, num_lon_and_lat);
         sim_gpu_sphere->setMap(map);
+        
 
-
-        std::vector<double> results;
+        std::vector<std::string> results;
         for(size_t i = 1; i <= num_tbms; i++)
         {
-            Memory<Transform, RAM> tbm_ram(tbm_param*i);
-            for(size_t i = 0; i < tbm_ram.size(); i++)
+            Memory<Transform, RAM_CUDA> tbm_ram(tbm_param*i);
+            for(size_t j = 0; j < tbm_ram.size(); j++)
             {
-                tbm_ram[i] = tsb;
+                tbm_ram[j] = tsb;
             }
             Memory<Transform, VRAM_CUDA> tbm(tbm_ram.size());
             tbm = tbm_ram;
-            std::cout << "Num Poses: " << tbm.size() << std::endl;
+
+            ResultT res;
+            res.ranges.resize(tbm.size()*sphereSensor.phi.size*sphereSensor.theta.size);
 
 
-            ResultT res2;
-            res2.ranges.resize(tbm.size()*sphereSensor.phi.size*sphereSensor.theta.size);
-
-
-            //prebuild
-            sim_gpu_sphere->simulate(tbm, res2);
-
-
-            //measure
-            double elapsed = 0.0;
-            double elapsed_total = 0.0;
-            std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 1; j <= reps; j++)
-            {
-                fillWithRandomTfs(tbm_ram);
-                tbm = tbm_ram;
-
-                sw();
-                sim_gpu_sphere->simulate(tbm, res2);
-                double elapsed = sw();
-                elapsed_total += elapsed;
-                
-                std::cout 
-                << std::fixed
-                << "[Elapsed: " << elapsed << "; "
-                << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
-                std::cout.flush();
-            }
-            results.push_back(elapsed_total/(static_cast<double>(reps)));
+            double elapsed_avg = measure(tbm_ram, tbm, res, map, sim_gpu_sphere);
+            std::stringstream point;
+            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
-        printAsPoints(results);
+        for(size_t i = 0; i < results.size(); i++)
+        {
+            std::cout << results[i];
+        }
+        std::cout << std::endl;
     }
 
 
@@ -179,7 +187,7 @@ int main(int argc, char** argv)
 
     //measure different num of faces
     {
-        Memory<Transform, RAM> tbm_ram(tbm_param*num_tbms);
+        Memory<Transform, RAM_CUDA> tbm_ram(tbm_param*num_tbms);
         for(size_t i = 0; i < tbm_ram.size(); i++)
         {
             tbm_ram[i] = tsb;
@@ -187,50 +195,32 @@ int main(int argc, char** argv)
         Memory<Transform, VRAM_CUDA> tbm(tbm_ram.size());
         tbm = tbm_ram;
 
-
         ResultT res;
-        res.ranges.resize(tbm_ram.size()*sphereSensor.phi.size*sphereSensor.theta.size);
+        res.ranges.resize(tbm.size()*sphereSensor.phi.size*sphereSensor.theta.size);
 
 
-        std::vector<double> results;
+        std::vector<std::string> results;
         for(size_t i = 1; i <= num_maps; i++)
         {
-            OptixMapPtr map = make_sphere_map(map_param*i, map_param*i);
+            unsigned int num_lon_and_lat = static_cast<unsigned int>(static_cast<double>(map_param)*sqrt(static_cast<double>(i)));
+            OptixMapPtr map = make_sphere_map(num_lon_and_lat, num_lon_and_lat);
             sim_gpu_sphere->setMap(map);
 
 
-            //prebuild
-            sim_gpu_sphere->simulate(tbm, res);
-
-
-            //measure
-            double elapsed = 0.0;
-            double elapsed_total = 0.0;
-            std::cout << "-- Starting Measurement --" << std::endl;
-            for(size_t j = 1; j <= reps; j++)
-            {
-                fillWithRandomTfs(tbm_ram);
-                tbm = tbm_ram;
-
-                sw();
-                sim_gpu_sphere->simulate(tbm, res);
-                elapsed = sw();
-                elapsed_total += elapsed;
-                
-                std::cout 
-                << std::fixed
-                << "[Elapsed: " << elapsed << "; "
-                << "Elapsed Total: " << elapsed_total << "; "
-                << "Elapsed Average: " << elapsed_total/(static_cast<double>(j)) << "]" << ((j==reps) ? "" : "\r");
-                std::cout.flush();
-            }
-            results.push_back(elapsed_total/(static_cast<double>(reps)));
+            double elapsed_avg = measure(tbm_ram, tbm, res, map, sim_gpu_sphere);
+            std::stringstream point;
+            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
-        printAsPoints(results);
+        for(size_t i = 0; i < results.size(); i++)
+        {
+            std::cout << results[i];
+        }
+        std::cout << std::endl;
     }
 
-    std::cout << "\nFinished." << std::endl;
+    std::cout << "\n\nFinished." << std::endl;
 
     return EXIT_SUCCESS;
 }
