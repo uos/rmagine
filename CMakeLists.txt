@@ -159,6 +159,7 @@ if(RMAGINE_BUILD_TOOLS)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_embree)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_optix)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_vulkan)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_map_files)
 endif(RMAGINE_BUILD_TOOLS)
 
 if(RMAGINE_BUILD_EXAMPLES)
