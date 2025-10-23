@@ -22,63 +22,109 @@ using namespace rmagine;
 
 
 
-const float error_tolerance = 0.0001;
+const float diff_tolerance = 0.0001;
+const float max_range = 130.0;
 
 
 
-inline float calc_error(uint8_t& data1, uint8_t& data2)
+inline float calc_diff(uint8_t& data1, uint8_t& data2)
 {
     return (float)(data1 != data2);
 }
 
-inline float calc_error(float& data1, float& data2)
+inline float calc_diff(float& data1, float& data2)
 {
     return std::fabs(data1 - data2);
 }
 
-inline float calc_error(Vector3& data1, Vector3& data2)
+inline float calc_diff(Vector3& data1, Vector3& data2)
 {
     return (data1 - data2).l2norm();
 }
 
 
 
+inline bool has_hit(uint8_t& data)
+{
+    return data == 1;
+}
+
+inline bool has_hit(float& data)
+{
+    return data != (max_range + 1.0);
+}
+
+inline bool has_hit(Vector3& data)
+{
+    return !std::isnan(data.x);
+}
+
+
+
 template<typename DataT>
-void calc_diff(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string info)
+void calc_diffs(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string data1_info, std::string data2_info)
 {
     if(data1.size() != data2.size())
     {
-        throw std::invalid_argument(info + ": sizes must be equal!");
+        throw std::invalid_argument(data1_info + " - " + data2_info + " : sizes must be equal!");
     }
 
-    uint64_t high_error_count = 0;
-    size_t not_nan_count = 0;
-    float max_error_diff = 0.0;
-    float error_diff_avg = 0.0;
+    uint64_t both_hits = 0;
+    uint64_t data1_hits = 0;
+    uint64_t data2_hits = 0;
+    uint64_t neither_hits = 0;
+
+    uint64_t both_hit_high_diff = 0;
+
+    float max_diff = 0.0;
+    float diff_avg = 0.0;
     for(size_t i = 0; i < data1.size(); i++)
     {
-        float error = calc_error(data1[i], data2[i]);
+        bool data1_has_hit = has_hit(data1[i]);
+        bool data2_has_hit = has_hit(data2[i]);
 
-        if(error > error_tolerance)
+        if(data1_has_hit && data2_has_hit)
         {
-            high_error_count++;
+            both_hits++;
+
+            float diff = calc_diff(data1[i], data2[i]);
+            if(diff > diff_tolerance)
+            {
+                both_hit_high_diff++;
+            }
+            if(diff > max_diff)
+            {
+                max_diff = diff;
+            }
+
+            diff_avg += diff;
         }
-        if(error > max_error_diff)
+        else if(data1_has_hit && !data2_has_hit)
         {
-            max_error_diff = error;
+            data1_hits++;
         }
-        if(!std::isnan(error))
+        else if(!data1_has_hit && data2_has_hit)
         {
-            error_diff_avg += error;
-            not_nan_count++;
+            data2_hits++;
+        }
+        else 
+        {
+            neither_hits++;
         }
     }
 
-    error_diff_avg = error_diff_avg / ((float)not_nan_count);
+    diff_avg = diff_avg / ((float)both_hits);
 
-    std::cout << info << " - high_error_count: " << high_error_count << std::endl;
-    std::cout << info << " - max_error_diff: " << max_error_diff << std::endl;
-    std::cout << info << " - error_diff_avg (where not NaN): " << error_diff_avg << std::endl;
+    std::cout << data1_info << " - " << data2_info << " :" <<std::endl;
+
+    std::cout << " - both hit: " << both_hits << std::endl;
+    std::cout << " - only " << data1_info << " hits: " << data1_hits << std::endl;
+    std::cout << " - only " << data2_info << " hits: " << data2_hits << std::endl;
+    std::cout << " - neither hit: " << neither_hits << std::endl;
+
+    std::cout << " - both hit with high diff (diff > " << diff_tolerance << "): " << both_hit_high_diff << std::endl;
+    std::cout << " - maximum diff: " << max_diff << std::endl;
+    std::cout << " - average diff (where both hit): " << diff_avg << std::endl;
     std::cout << std::endl;
 }
 
@@ -86,10 +132,6 @@ void calc_diff(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string
 
 int main(int argc, char** argv)
 {
-    std::cout << "Main start." << std::endl;
-
-
-
     size_t nPoses = 1;
 
     // minimum 2 arguments
@@ -150,7 +192,7 @@ int main(int argc, char** argv)
     model_ram->phi.inc = 2.0 * M_PI / 180.0;
     model_ram->phi.size = 16;
     model_ram->range.min = 0.1;
-    model_ram->range.max = 130.0;
+    model_ram->range.max = max_range;
 
 
 
@@ -211,36 +253,36 @@ int main(int argc, char** argv)
     Memory<uint8_t, RAM> hits_optix = res_vramCuda.hits;
     Memory<uint8_t, RAM> hits_vulkan = res_vulkan.hits;
     std::cout << "\nHits:\n" << std::endl;
-    calc_diff(hits_embree, hits_vulkan, "embree-vulkan");
-    calc_diff(hits_optix, hits_vulkan, "optix-vulkan");
-    calc_diff(hits_embree, hits_optix, "optix-embree");
+    calc_diffs(hits_embree, hits_vulkan, "embree", "vulkan");
+    calc_diffs(hits_optix, hits_vulkan, "optix", "vulkan");
+    calc_diffs(hits_embree, hits_optix, "embree", "optix");
 
     Memory<float, RAM> ranges_embree = res_ram.ranges;
     Memory<float, RAM> ranges_optix = res_vramCuda.ranges;
     Memory<float, RAM> ranges_vulkan = res_vulkan.ranges;
     std::cout << "\nRanges:\n" << std::endl;
-    calc_diff(ranges_embree, ranges_vulkan, "embree-vulkan");
-    calc_diff(ranges_optix, ranges_vulkan, "optix-vulkan");
-    calc_diff(ranges_embree, ranges_optix, "optix-embree");
+    calc_diffs(ranges_embree, ranges_vulkan, "embree", "vulkan");
+    calc_diffs(ranges_optix, ranges_vulkan, "optix", "vulkan");
+    calc_diffs(ranges_embree, ranges_optix, "embree", "optix");
 
     Memory<Vector3, RAM> points_embree = res_ram.points;
     Memory<Vector3, RAM> points_optix = res_vramCuda.points;
     Memory<Vector3, RAM> points_vulkan = res_vulkan.points;
     std::cout << "\nPoints:\n" << std::endl;
-    calc_diff(points_embree, points_vulkan, "embree-vulkan");
-    calc_diff(points_optix, points_vulkan, "optix-vulkan");
-    calc_diff(points_embree, points_optix, "optix-embree");
+    calc_diffs(points_embree, points_vulkan, "embree", "vulkan");
+    calc_diffs(points_optix, points_vulkan, "optix", "vulkan");
+    calc_diffs(points_embree, points_optix, "embree", "optix");
 
     Memory<Vector3, RAM> normals_embree = res_ram.normals;
     Memory<Vector3, RAM> normals_optix = res_vramCuda.normals;
     Memory<Vector3, RAM> normals_vulkan = res_vulkan.normals;
     std::cout << "\nNormals:\n" << std::endl;
-    calc_diff(normals_embree, normals_vulkan, "embree-vulkan");
-    calc_diff(normals_optix, normals_vulkan, "optix-vulkan");
-    calc_diff(normals_embree, normals_optix, "optix-embree");
+    calc_diffs(normals_embree, normals_vulkan, "embree", "vulkan");
+    calc_diffs(normals_optix, normals_vulkan, "optix", "vulkan");
+    calc_diffs(normals_embree, normals_optix, "embree", "optix");
 
 
 
-    std::cout << "Main end." << std::endl;
+    std::cout << "\nFinished." << std::endl;
     return EXIT_SUCCESS;
 }
