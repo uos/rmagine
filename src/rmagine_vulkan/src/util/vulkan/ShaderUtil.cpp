@@ -155,10 +155,10 @@ std::string get_shader_code(ShaderType shaderType, ShaderDefineFlags shaderDefin
         shaderCode += rgen_code;
         break;
     case ShaderType::CHit:
-        #if defined(ONLY_FACE_NORMALS)
-            shaderCode += chit_code_mini;
-        #else
+        #if defined(EXPANDED_NORMAL_CLACUALTIONS)
             shaderCode += chit_code;
+        #else
+            shaderCode += chit_code_mini;
         #endif
         break;
     case ShaderType::Miss:
