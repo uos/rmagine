@@ -105,9 +105,7 @@ vec4 multQuaternions(vec4 q1, vec4 q2)
 
 vec3 rotateVec3(vec4 q, vec3 v)
 {
-    //both versions should work, but the second version seems to be slightly faster.
-    // return multQuaternions(multQuaternions(q, vec4(v, 0)), invQuaternion(q)).xyz;
-    return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
+    return multQuaternions(multQuaternions(q, vec4(v, 0)), invQuaternion(q)).xyz;
 }
 
 Transform invTransform(Transform t)

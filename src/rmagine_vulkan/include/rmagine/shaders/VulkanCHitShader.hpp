@@ -48,12 +48,14 @@ layout(buffer_reference, std430, buffer_reference_align = 32) buffer meshDesc_ar
 void main()
 {
     #if defined(POINTS) || defined(NORMALS)
-        vec3 ray_dir_s = rotateVec3(payload.sensorTf.rot, gl_WorldRayDirectionEXT);
+        Transform sensorTf_inv = invTransform(payload.sensorTf);
+
+        vec3 ray_dir_s = rotateVec3(sensorTf_inv.rot, gl_WorldRayDirectionEXT);
     #endif
 
 
     #if defined(POINTS)
-        vec3 ray_pos_s = displaceVec3(payload.sensorTf, gl_WorldRayOriginEXT);
+        vec3 ray_pos_s = displaceVec3(sensorTf_inv, gl_WorldRayOriginEXT);
 
         vec3 position = ray_pos_s + (gl_HitTEXT * ray_dir_s);
     #endif
@@ -130,10 +132,10 @@ void main()
         }
 
         //transform normal from object to world space
-        vec3 normal_world = normalize(mat3(gl_ObjectToWorld3x4EXT) * normal_object);
+        vec3 normal_world = normalize(mat3(gl_ObjectToWorldEXT) * normal_object);
 
         //transform normal from world to sensor space
-        vec3 normal = rotateVec3(payload.sensorTf.rot, normal_world);
+        vec3 normal = rotateVec3(sensorTf_inv.rot, normal_world);
 
         //flip?
         if(dot(ray_dir_s, normal) > 0.0)

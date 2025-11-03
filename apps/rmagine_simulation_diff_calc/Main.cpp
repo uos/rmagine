@@ -61,6 +61,23 @@ inline bool has_hit(Vector3& data)
 
 
 
+inline void print(uint8_t& data)
+{
+    std::cout << data << std::endl;
+}
+
+inline void print(float& data)
+{
+    std::cout << data << std::endl;
+}
+
+inline void print(Vector3& data)
+{
+    std::cout << "(" << data.x << "," << data.y << "," << data.z << ")"<< std::endl;
+}
+
+
+
 template<typename DataT>
 void calc_diffs(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::string data1_info, std::string data2_info)
 {
@@ -225,6 +242,19 @@ int main(int argc, char** argv)
     resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_vulkan, model_ram[0].getWidth(), model_ram[0].getHeight(), nPoses);
 
 
+
+    // random tf 1
+    // tsb_ram[0].t.z = 1;
+
+    // random tf 2
+    // tsb_ram[0].t.x = -4;
+    // tsb_ram[0].t.y = 3;
+    // tsb_ram[0].t.z = 2;
+    // tsb_ram[0].R.x = 0.4011531;
+    // tsb_ram[0].R.y = 0.3523304;
+    // tsb_ram[0].R.z = 0.3215133;
+    // tsb_ram[0].R.w = 0.7820286;
+    // tsb_ram[0].R.normalizeInplace();
 
     // Simulators
     SphereSimulatorEmbreePtr sim_embree = std::make_shared<SphereSimulatorEmbree>(map_embree);
