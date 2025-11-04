@@ -103,9 +103,15 @@ VkAccelerationStructureKHR* AccelerationStructure::getAcceleratiionStructurePtr(
 }
 
 
-size_t AccelerationStructure::getID()
+size_t AccelerationStructure::getID() const
 {
     return accelerationStructureMem.getID();
+}
+
+
+size_t AccelerationStructure::getSize() const
+{
+    return accelerationStructureMem.size();
 }
 
 } // namespace rmagine

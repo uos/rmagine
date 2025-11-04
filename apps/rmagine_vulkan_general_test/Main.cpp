@@ -166,6 +166,9 @@ int main()
     tsb_ram[0] = tsb;
 
 
+    std::cout << "AS size: " << map->scene()->getAsSize() << std::endl;
+
+
     //create sphere simulator
     std::cout << "Creating sphere sim." << std::endl;
     SphereSimulatorVulkanPtr sim_gpu_sphere = std::make_shared<SphereSimulatorVulkan>(map);

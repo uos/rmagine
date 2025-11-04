@@ -477,7 +477,7 @@
         <instance_geometry url="#Cylinder-mesh" name="Cylinder"/>
       </node>
       <node id="Plane" name="Plane" type="NODE">
-        <matrix sid="transform">11 0 0 0 0 11 0 0 0 0 11 0 0 0 0 1</matrix>
+        <matrix sid="transform">11 0 0 0 0 11 0 0 0 0 11 -1 0 0 0 1</matrix>
         <instance_geometry url="#Plane-mesh" name="Plane"/>
       </node>
       <node id="Light_001" name="Light.001" type="NODE">

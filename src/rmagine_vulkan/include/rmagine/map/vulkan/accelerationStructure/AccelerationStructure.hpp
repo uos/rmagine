@@ -49,7 +49,9 @@ public:
     /**
      * @return id of the memory object containing the acceleration structure
      */
-    size_t getID();
+    size_t getID() const;
+
+    size_t getSize() const;
 
     template<typename T>
     inline std::shared_ptr<T> this_shared()
