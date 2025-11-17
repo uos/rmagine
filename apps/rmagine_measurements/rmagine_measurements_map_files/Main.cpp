@@ -42,9 +42,11 @@ int main(int argc, char** argv)
     }
     
     AssimpIO io;
-    for(size_t i = 1; i <= num_maps; i++)
+    for(size_t i = 0; i <= num_maps; i++)
     {
         unsigned int num_lon_and_lat = static_cast<unsigned int>(static_cast<double>(map_param)*sqrt(static_cast<double>(i)));
+        if(i == 0)
+            num_lon_and_lat = 10;
         aiScene scene = genSphere(num_lon_and_lat, num_lon_and_lat);
 
         std::string filename = "sphere_";

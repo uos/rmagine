@@ -154,9 +154,12 @@ int main(int argc, char** argv)
         
 
         std::vector<std::string> results;
-        for(size_t i = 1; i <= num_tbms; i++)
+        for(size_t i = 0; i <= num_tbms; i++)
         {
-            Memory<Transform, RAM_CUDA> tbm_ram(tbm_param*i);
+            unsigned int tbm_size = tbm_param*i;
+            if(i == 0)
+                tbm_size = 1;
+            Memory<Transform, RAM_CUDA> tbm_ram(tbm_size);
             for(size_t j = 0; j < tbm_ram.size(); j++)
             {
                 tbm_ram[j] = tsb;
@@ -170,7 +173,7 @@ int main(int argc, char** argv)
 
             double elapsed_avg = measure(tbm_ram, tbm, res, map, sim_gpu_sphere);
             std::stringstream point;
-            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            point << "(" << static_cast<double>(tbm_size)/1000.0 << ", " << elapsed_avg << ")";
             results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
@@ -200,16 +203,18 @@ int main(int argc, char** argv)
 
 
         std::vector<std::string> results;
-        for(size_t i = 1; i <= num_maps; i++)
+        for(size_t i = 0; i <= num_maps; i++)
         {
             unsigned int num_lon_and_lat = static_cast<unsigned int>(static_cast<double>(map_param)*sqrt(static_cast<double>(i)));
+            if(i == 0)
+                num_lon_and_lat = 10;
             OptixMapPtr map = make_sphere_map(num_lon_and_lat, num_lon_and_lat);
             sim_gpu_sphere->setMap(map);
 
 
             double elapsed_avg = measure(tbm_ram, tbm, res, map, sim_gpu_sphere);
             std::stringstream point;
-            point << "(" << static_cast<double>(i)/2.0 << ", " << elapsed_avg << ")";
+            point << "(" << static_cast<double>(map->scene()->geometries().begin()->second->this_shared<OptixMesh>()->faces.size())/1000000 << ", " << elapsed_avg << ")";
             results.push_back(point.str());
             std::cout << "\n" << std::endl;
         }
