@@ -9,7 +9,7 @@
 ## - CUDA                       ##
 ##################################
 
-message(STATUS "Checking dependencies of rmagine::vulkanCudaInterop ...")
+message(STATUS "Checking dependencies of rmagine::vulkan-cuda-interop ...")
 
 find_package(Vulkan QUIET)
 find_package(glslang QUIET)
@@ -65,7 +65,7 @@ endif(CMAKE_CUDA_COMPILER)
 
 if(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
 
-message(STATUS "${Green}rmagine::vulkanCudaInterop${ColourReset}: Building")
+message(STATUS "${Green}rmagine::vulkan-cuda-interop${ColourReset}: Building")
 
 set(RMAGINE_VULKAN_CUDA_INTEROP_SRCS
     #Types
@@ -103,7 +103,7 @@ add_dependencies(rmagine-vulkan-cuda-interop
 
 set_target_properties(rmagine-vulkan-cuda-interop
     PROPERTIES
-        EXPORT_NAME vulkanCudaInterop
+        EXPORT_NAME vulkan-cuda-interop
         SOVERSION ${rmagine_VERSION_MAJOR}
         VERSION ${rmagine_VERSION}
         # CXX_STANDARD 17
@@ -114,7 +114,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHIT
     set_target_properties(rmagine-optix PROPERTIES CUDA_ARCHITECTURES all)
 endif()
 
-add_library(rmagine::vulkanCudaInterop ALIAS rmagine-vulkan-cuda-interop)
+add_library(rmagine::vulkan-cuda-interop ALIAS rmagine-vulkan-cuda-interop)
 
 list(APPEND RMAGINE_LIBRARIES rmagine-vulkan-cuda-interop)
 set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
@@ -126,12 +126,12 @@ set(RMAGINE_LIBRARIES ${RMAGINE_LIBRARIES} PARENT_SCOPE)
 include(CMakePackageConfigHelpers)
 
 install(TARGETS rmagine-vulkan-cuda-interop EXPORT rmagine-vulkan-cuda-interop-targets
-    COMPONENT vulkanCudaInterop
+    COMPONENT vulkan-cuda-interop
 )
 
 install(EXPORT rmagine-vulkan-cuda-interop-targets
     FILE rmagine-vulkan-cuda-interop-targets.cmake
-    COMPONENT vulkanCudaInterop
+    COMPONENT vulkan-cuda-interop
     NAMESPACE rmagine::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
 )
@@ -153,13 +153,13 @@ install(
         ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-cuda-interop-config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/rmagine-vulkan-cuda-interop-config-version.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
-    COMPONENT vulkanCudaInterop
+    COMPONENT vulkan-cuda-interop
 )
 
 # HEADERS
 install(
     DIRECTORY include/rmagine
-    COMPONENT vulkanCudaInterop
+    COMPONENT vulkan-cuda-interop
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rmagine-${rmagine_VERSION}
 )
 
@@ -168,11 +168,11 @@ set(CPACK_DEBIAN_VULKAN_CUDA_INTEROP_PACKAGE_DEPENDS "rmagine-core" PARENT_SCOPE
 # set(CPACK_DEBIAN_VULKAN_CUDA_INTEROP_PACKAGE_DEPENDS "rmagine-cuda" PARENT_SCOPE)
 # TODO: was davon wäre richtig?
 
-list(APPEND CPACK_COMPONENTS_ALL vulkanCudaInterop)
+list(APPEND CPACK_COMPONENTS_ALL vulkan-cuda-interop)
 set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} PARENT_SCOPE)
 
 else(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
 
-message(STATUS "${Yellow}rmagine::vulkanCudaInterop${ColourReset}: Skipping. Missing Dependencies.")
+message(STATUS "${Yellow}rmagine::vulkan-cuda-interop${ColourReset}: Skipping. Missing Dependencies.")
 
 endif(Vulkan_FOUND AND CUDA_FOUND AND TARGET rmagine::vulkan AND TARGET rmagine::cuda)
