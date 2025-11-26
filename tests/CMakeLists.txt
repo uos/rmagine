@@ -18,11 +18,11 @@ add_subdirectory(optix)
 endif(TARGET rmagine-optix)
 
 if(TARGET rmagine-vulkan)
-message(STATUS "Building tests for Vulkan backend")
+message(STATUS "Building tests for rmagine::vulkan")
 add_subdirectory(vulkan)
 endif(TARGET rmagine-vulkan)
 
 if(TARGET rmagine-vulkan-cuda-interop)
-message(STATUS "Building tests for Vulkan Cuda interop")
+message(STATUS "Building tests for rmagine::vulkan-cuda-interop")
 add_subdirectory(vulkan_cuda_interop)
 endif(TARGET rmagine-vulkan-cuda-interop)

@@ -129,7 +129,7 @@ if(NOT RMAGINE_VULKAN_DISABLE)
 endif(NOT RMAGINE_VULKAN_DISABLE)
 
 ### RMAGINE VULKAN CUDA INTEROP COMPONENT
-option(RMAGINE_VULKAN_CUDA_INTEROP_DISABLE "Disable rmagine::vulkanCudaInterop compilation" OFF)
+option(RMAGINE_VULKAN_CUDA_INTEROP_DISABLE "Disable rmagine::vulkan-cuda-interop compilation" OFF)
 if(NOT RMAGINE_VULKAN_CUDA_INTEROP_DISABLE)
   add_subdirectory(src/rmagine_vulkan_cuda_interop)
 endif(NOT RMAGINE_VULKAN_CUDA_INTEROP_DISABLE)
@@ -160,6 +160,7 @@ if(RMAGINE_BUILD_TOOLS)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_optix)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_vulkan)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_map_files)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_as_size)
 endif(RMAGINE_BUILD_TOOLS)
 
 if(RMAGINE_BUILD_EXAMPLES)

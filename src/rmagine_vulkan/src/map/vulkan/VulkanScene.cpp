@@ -219,6 +219,37 @@ void VulkanScene::addParent(VulkanInstPtr parent)
     m_parents.insert(parent);
 }
 
+size_t VulkanScene::getAsSize() const
+{
+    if(m_type == VulkanSceneType::GEOMETRIES)
+    {
+        return m_as->getSize();//get the size of the bottom level acceleration structure
+    }
+    else if(m_type == VulkanSceneType::INSTANCES)
+    {
+        size_t size = m_as->getSize();//get the size of the top level acceleration structure
+
+        //get the size of all the bottom level acceleration structures
+        std::unordered_set<VulkanScenePtr> meshScenes;
+        for(auto const& geometry : m_geometries)
+        {
+            auto inst = geometry.second->this_shared<VulkanInst>();
+            meshScenes.insert(inst->scene());
+        }
+
+        for(auto const& meshScene : meshScenes)
+        {
+            size += meshScene->getAsSize();
+        }
+
+        return size;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 
 
 VulkanScenePtr make_vulkan_scene(Memory<Point, RAM>& vertices_ram, Memory<Face, RAM>& faces_ram)

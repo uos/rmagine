@@ -634,6 +634,39 @@ void OptixScene::notifyEventReceivers(const OptixSceneCommitResult& info)
     // std::cout << "OptixScene - notifyEventReceivers - done." << std::endl;
 }
 
+size_t OptixScene::getAsSize() const
+{
+    if(m_type == OptixSceneType::GEOMETRIES)
+    {
+        return m_as->buffer_size;//get the size of the bottom level acceleration structure
+    }
+    else if(m_type == OptixSceneType::INSTANCES)
+    {
+        size_t size = m_as->buffer_size;//get the size of the top level acceleration structure
+
+        //get the size of all the bottom level acceleration structures
+        std::unordered_set<OptixScenePtr> meshScenes;
+        for(auto const& geometry : m_geometries)
+        {
+            auto inst = geometry.second->this_shared<OptixInst>();
+            meshScenes.insert(inst->scene());
+        }
+
+        for(auto const& meshScene : meshScenes)
+        {
+            size += meshScene->getAsSize();
+        }
+
+        return size;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+
 OptixScenePtr make_optix_scene(
     const aiScene* ascene, 
     OptixContextPtr context)
