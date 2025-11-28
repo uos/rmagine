@@ -1,4 +1,5 @@
 #include <cmath>
+#include <random>
 
 // Core rmagine includes
 #include <rmagine/types/sensor_models.h>
@@ -147,6 +148,31 @@ void calc_diffs(Memory<DataT, RAM>& data1, Memory<DataT, RAM>& data2, std::strin
 
 
 
+std::random_device rd;
+std::mt19937 e2(rd());
+std::uniform_real_distribution<float> dist(0, 1);
+
+Transform randomTransform()
+{
+    Transform tf = Transform::Identity();
+    tf.R = {dist(e2), dist(e2), dist(e2), dist(e2)};
+    tf.R.normalizeInplace();
+    tf.t = {dist(e2), dist(e2), dist(e2)};
+    tf.t.normalizeInplace();
+    tf.t = tf.t * dist(e2);
+    return tf;
+}
+
+void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
+{
+    for(size_t i = 0; i < tbm_ram.size(); i++)
+    {
+        tbm_ram[i] = randomTransform();
+    }
+}
+
+
+
 int main(int argc, char** argv)
 {
     size_t nPoses = 1;
@@ -179,15 +205,10 @@ int main(int argc, char** argv)
     Memory<Transform, RAM> tbm_ram(nPoses);
     for(size_t i=0; i<tbm_ram.size(); i++)
     {
-        tbm_ram[i] = tsb_ram[0];
-    }
-    Memory<Transform, RAM_CUDA> tbm_ramCuda(nPoses);
-    for(size_t i=0; i<tbm_ramCuda.size(); i++)
-    {
-        tbm_ramCuda[i] = tsb_ram[0];
+        tbm_ram[i] = randomTransform();
     }
     Memory<Transform, VRAM_CUDA> tbm_vramCuda(nPoses);
-    tbm_vramCuda = tbm_ramCuda;
+    tbm_vramCuda = tbm_ram;
     Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_vulkan(nPoses);
     tbm_vulkan = tbm_ram;
 
@@ -242,19 +263,6 @@ int main(int argc, char** argv)
     resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_vulkan, model_ram[0].getWidth(), model_ram[0].getHeight(), nPoses);
 
 
-
-    // random tf 1
-    // tsb_ram[0].t.z = 1;
-
-    // random tf 2
-    // tsb_ram[0].t.x = -4;
-    // tsb_ram[0].t.y = 3;
-    // tsb_ram[0].t.z = 2;
-    // tsb_ram[0].R.x = 0.4011531;
-    // tsb_ram[0].R.y = 0.3523304;
-    // tsb_ram[0].R.z = 0.3215133;
-    // tsb_ram[0].R.w = 0.7820286;
-    // tsb_ram[0].R.normalizeInplace();
 
     // Simulators
     SphereSimulatorEmbreePtr sim_embree = std::make_shared<SphereSimulatorEmbree>(map_embree);
