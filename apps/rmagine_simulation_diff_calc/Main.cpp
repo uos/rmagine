@@ -159,7 +159,7 @@ Transform randomTransform()
     tf.R.normalizeInplace();
     tf.t = {dist(e2), dist(e2), dist(e2)};
     tf.t.normalizeInplace();
-    tf.t = tf.t * dist(e2);
+    tf.t = tf.t * dist(e2) * 0.8;
     return tf;
 }
 
