@@ -173,10 +173,10 @@ void fillWithRandomTfs(Memory<Transform, RAM>& tbm_ram)
 
 
 
+size_t nPoses = 5000;
+
 int main(int argc, char** argv)
 {
-    size_t nPoses = 1;
-
     // minimum 2 arguments
     if(argc < 2)
     {
@@ -207,9 +207,9 @@ int main(int argc, char** argv)
     {
         tbm_ram[i] = randomTransform();
     }
-    Memory<Transform, VRAM_CUDA> tbm_vramCuda(nPoses);
+    Memory<Transform, VRAM_CUDA> tbm_vramCuda(tbm_ram.size());
     tbm_vramCuda = tbm_ram;
-    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_vulkan(nPoses);
+    Memory<Transform, DEVICE_LOCAL_VULKAN> tbm_vulkan(tbm_ram.size());
     tbm_vulkan = tbm_ram;
 
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
         Normals<RAM>
     >;
     ResultEmbreeT res_ram;
-    resize_memory_bundle<RAM>(res_ram, model_ram[0].getWidth(), model_ram[0].getHeight(), nPoses);
+    resize_memory_bundle<RAM>(res_ram, model_ram[0].getWidth(), model_ram[0].getHeight(), tbm_ram.size());
 
     using ResultOptixT = Bundle<
         Hits<VRAM_CUDA>,
@@ -251,7 +251,7 @@ int main(int argc, char** argv)
         Normals<VRAM_CUDA>
     >;
     ResultOptixT res_vramCuda;
-    resize_memory_bundle<VRAM_CUDA>(res_vramCuda, model_ram[0].getWidth(), model_ram[0].getHeight(), nPoses);
+    resize_memory_bundle<VRAM_CUDA>(res_vramCuda, model_ram[0].getWidth(), model_ram[0].getHeight(), tbm_ram.size());
 
     using ResultVulkanT = Bundle<
         Hits<DEVICE_LOCAL_VULKAN>,
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
         Normals<DEVICE_LOCAL_VULKAN>
     >;
     ResultVulkanT res_vulkan;
-    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_vulkan, model_ram[0].getWidth(), model_ram[0].getHeight(), nPoses);
+    resize_memory_bundle<DEVICE_LOCAL_VULKAN>(res_vulkan, model_ram[0].getWidth(), model_ram[0].getHeight(), tbm_ram.size());
 
 
 
