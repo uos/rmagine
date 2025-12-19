@@ -49,6 +49,7 @@ void ShaderBindingTable::createShaderBindingTable()
 
     //load group handels onto gpu
     shaderBindingTableMemory = shaderBindingTableMemory_ram_2;
+    //std::cout << "Size of the ShaderBindingTable: " << shaderBindingTableMemory.size() * sizeof(char) << " Byte" << std::endl;
 
 
     VkDeviceSize hitGroupOffset = 0u * progSize;
