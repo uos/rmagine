@@ -12,7 +12,13 @@
 message(STATUS "Checking dependencies of rmagine::vulkan-cuda-interop ...")
 
 find_package(Vulkan QUIET)
-find_package(glslang QUIET)
+
+find_program(GLSLANG_BIN glslang)
+if(GLSLANG_BIN)
+  find_package(glslang QUIET)
+else()
+  message(WARNING "glslang binary missing; not importing glslang CMake package. Have you installed glslang-tools?")
+endif()
 
 # default flags are not set when including cuda
 if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)

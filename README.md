@@ -95,6 +95,24 @@ colcon build
 
 For more advanced options and detailed instructions, visit the [Wiki](https://uos.github.io/rmagine_docs/installation/).
 
+
+## Backends
+
+Rmagine provides multiple computation backends that enable seamless switching between different hardware devices available on a robot. This makes it possible to either offload ray casting workloads to dedicated devices and free resources for other computations, or to utilize all available compute power for large-scale ray casting.
+
+The supported backends differ in terms of device compatibility, acceleration capabilities, and platform availability.
+
+
+| Backend    | Supported Devices                    | Acceleration         | Notes                                                                                                   |
+| ---------- | ------------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Embree** | CPU                                  | Software (CPU)       | High-performance CPU-based ray tracing                                                                  |
+| **OptiX**  | NVIDIA GPUs with OptiX support       | Hardware or software | Uses hardware ray tracing when available, otherwise software emulation; not available on Jetson devices |
+| **Vulkan** | GPUs with Vulkan ray tracing support | Hardware ray tracing | Cross-vendor solution; supported on desktop GPUs and embedded platforms such as Jetson                  |
+
+
+Each backend is compiled as an optional CMake component and is only enabled if all required dependencies are available on the system. Detailed instructions and further information on building the optional backends can be found in the [Wiki](https://uos.github.io/rmagine_docs).
+
+
 ## Example
 
 This example demonstrates how to simulate ranges for 100 Velodyne VLP-16 sensors using the Embree backend.  
