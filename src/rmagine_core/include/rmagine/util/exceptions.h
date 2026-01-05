@@ -95,6 +95,26 @@ public:
 };
 
 
+class VulkanException 
+: public Exception
+{
+public:
+    VulkanException(const std::string& msg);
+    VulkanException(const std::string& msg, const char* file, const char* func, int line);
+    ~VulkanException() throw();
+};
+
+
+class VulkanCudaInteropException 
+: public Exception
+{
+public:
+    VulkanCudaInteropException(const std::string& msg);
+    VulkanCudaInteropException(const std::string& msg, const char* file, const char* func, int line);
+    ~VulkanCudaInteropException() throw();
+};
+
+
 
 } // namespace rmagine
 

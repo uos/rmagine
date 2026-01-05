@@ -140,6 +140,12 @@ public:
     void addEventReceiver(OptixSceneEventReceiverPtr rec);
     void removeEventReceiver(OptixSceneEventReceiverPtr rec);
 
+    /**
+     * get the size of the complete acceleration structure in bytes
+     * only works correctly for scenes with a deph of at most 2 (deeper scenes are currently not supported anyways)
+     */
+    size_t getAsSize() const;
+
 private:
     OptixSceneCommitResult buildGAS();
 

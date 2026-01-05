@@ -1,0 +1,123 @@
+#pragma once
+
+#include <memory>
+#include <rmagine/util/hashing.h>
+
+
+
+namespace rmagine 
+{
+
+struct MeshDescription
+{
+    VkDeviceAddress vertexAddress;
+    VkDeviceAddress faceAddress;
+    VkDeviceAddress faceNormalAddress;
+    VkDeviceAddress vertexNormalAddress;
+};
+
+
+
+enum class VulkanGeometryType
+{
+    NONE,
+    INSTANCE,
+    MESH,
+    POINTS
+};
+
+enum class VulkanSceneType
+{
+    NONE,
+    INSTANCES,
+    GEOMETRIES
+};
+
+
+
+class VulkanEntity;
+class VulkanTransformable;
+class VulkanGeometry;
+class VulkanInst;
+class VulkanMesh;
+class VulkanScene;
+class AccelerationStructure;
+
+
+
+using VulkanEntityPtr = std::shared_ptr<VulkanEntity>;
+using VulkanTransformablePtr = std::shared_ptr<VulkanTransformable>;
+using VulkanGeometryPtr = std::shared_ptr<VulkanGeometry>;
+using VulkanInstPtr = std::shared_ptr<VulkanInst>;
+using VulkanMeshPtr = std::shared_ptr<VulkanMesh>;
+using VulkanScenePtr = std::shared_ptr<VulkanScene>;
+using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;
+
+using VulkanEntityWPtr = std::weak_ptr<VulkanEntity>;
+using VulkanTransformableWPtr = std::weak_ptr<VulkanTransformable>;
+using VulkanGeometryWPtr = std::weak_ptr<VulkanGeometry>;
+using VulkanInstWPtr = std::weak_ptr<VulkanInst>;
+using VulkanMeshWPtr = std::weak_ptr<VulkanMesh>;
+using VulkanSceneWPtr = std::weak_ptr<VulkanScene>;
+using AccelerationStructureWPtr = std::weak_ptr<AccelerationStructure>;
+
+} // namespace rmagine
+
+
+
+namespace std
+{
+
+// MESH
+template<>
+struct hash<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_hash<rmagine::VulkanMesh>
+{};
+
+template<>
+struct equal_to<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_equal_to<rmagine::VulkanMesh>
+{};
+
+template<>
+struct less<rmagine::VulkanMeshWPtr> 
+    : public rmagine::weak_less<rmagine::VulkanMesh>
+{};
+
+
+
+// INSTANCE
+template<>
+struct hash<rmagine::VulkanInstWPtr> 
+    : public rmagine::weak_hash<rmagine::VulkanInst>
+{};
+
+template<>
+struct equal_to<rmagine::VulkanInstWPtr> 
+    : public rmagine::weak_equal_to<rmagine::VulkanInst>
+{};
+
+template<>
+struct less<rmagine::VulkanInstWPtr> 
+    : public rmagine::weak_less<rmagine::VulkanInst>
+{};
+
+
+
+// SCENE
+template<>
+struct hash<rmagine::VulkanSceneWPtr> 
+    : public rmagine::weak_hash<rmagine::VulkanScene>
+{};
+
+template<>
+struct equal_to<rmagine::VulkanSceneWPtr> 
+    : public rmagine::weak_equal_to<rmagine::VulkanScene>
+{};
+
+template<>
+struct less<rmagine::VulkanSceneWPtr> 
+    : public rmagine::weak_less<rmagine::VulkanScene>
+{};
+
+} // namespace std

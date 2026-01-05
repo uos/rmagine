@@ -1,0 +1,180 @@
+#include "rmagine/util/vulkan/command/CommandBuffer.hpp"
+#include "rmagine/util/VulkanContext.hpp"
+#include "rmagine/util/vulkan/ShaderBindingTable.hpp"
+#include "rmagine/simulation/vulkan/DescriptorSet.hpp"
+
+
+
+namespace rmagine
+{
+
+CommandBuffer::CommandBuffer(VulkanContextPtr vulkan_context) : vulkan_context(vulkan_context)
+{
+    createCommandPool();
+    createCommandBuffer();
+    fence = std::make_shared<Fence>(vulkan_context);
+}
+
+CommandBuffer::~CommandBuffer()
+{
+    if(fence != nullptr)
+        fence.reset();
+    
+    if(commandPool != VK_NULL_HANDLE)
+    {
+        vkResetCommandPool(vulkan_context->getDevice()->getLogicalDevice(), commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+        vkDestroyCommandPool(vulkan_context->getDevice()->getLogicalDevice(), commandPool, nullptr);
+    }
+}
+
+
+
+void CommandBuffer::createCommandPool()
+{
+    VkCommandPoolCreateInfo commandPoolCreateInfo{};
+    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    commandPoolCreateInfo.queueFamilyIndex = vulkan_context->getDevice()->getQueueFamilyIndex();
+
+    if(vkCreateCommandPool(vulkan_context->getDevice()->getLogicalDevice(), &commandPoolCreateInfo, nullptr,  &commandPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandPool::createCommandPool()] ERROR - failed to create command pool!");
+    }
+}
+
+
+void CommandBuffer::createCommandBuffer()
+{
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
+    commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    commandBufferAllocateInfo.commandPool = commandPool;
+    commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    commandBufferAllocateInfo.commandBufferCount = 1;
+    
+    std::vector<VkCommandBuffer> commandBuffers = std::vector<VkCommandBuffer>(1, VK_NULL_HANDLE);
+    if(vkAllocateCommandBuffers(vulkan_context->getDevice()->getLogicalDevice(), &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::createCommandBuffer()] ERROR - failed to create command buffer(s)!");
+    }
+    commandBuffer = commandBuffers.front();
+}
+
+
+void CommandBuffer::recordRayTracingToCommandBuffer(DescriptorSetPtr descriptorSet, ShaderBindingTablePtr shaderBindingTable, uint32_t width, uint32_t height, uint32_t depth)
+{
+    VkCommandBufferBeginInfo rtxCommandBufferBeginInfo{};
+    rtxCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    rtxCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;//so it can be used more than once (before: VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
+
+    if(vkBeginCommandBuffer(commandBuffer, &rtxCommandBufferBeginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
+    }
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, shaderBindingTable->getPipeline()->getPipeline());
+
+    vkCmdBindDescriptorSets(
+        commandBuffer,
+        VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
+        vulkan_context->getPipelineLayout()->getPipelineLayout(),
+        0,
+        1,
+        descriptorSet->getDescriptorSetPtr(),
+        0,
+        nullptr);
+        
+    vulkan_context->extensionFuncs.vkCmdTraceRaysKHR(
+        commandBuffer,
+        shaderBindingTable->getRayGenerationShaderBindingTablePtr(),
+        shaderBindingTable->getMissShaderBindingTablePtr(),
+        shaderBindingTable->getClosestHitShaderBindingTablePtr(),
+        shaderBindingTable->getCallableShaderBindingTablePtr(),
+        width,
+        height,
+        depth);
+
+    if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordRayTracingToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
+    }
+}
+
+
+void CommandBuffer::recordBuildingASToCommandBuffer(VkAccelerationStructureBuildGeometryInfoKHR& accelerationStructureBuildGeometryInfo, const VkAccelerationStructureBuildRangeInfoKHR* accelerationStructureBuildRangeInfos)
+{
+    VkCommandBufferBeginInfo commandBufferBeginInfo{};
+    commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
+    }
+    
+    vulkan_context->extensionFuncs.vkCmdBuildAccelerationStructuresKHR(
+        commandBuffer,
+        1,
+        &accelerationStructureBuildGeometryInfo,
+        &accelerationStructureBuildRangeInfos);
+
+    if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordBuildingASToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
+    }
+}
+
+
+void CommandBuffer::recordCopyBufferToCommandBuffer(BufferPtr scrBuffer, BufferPtr dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
+{
+    if(srcOffset + size > scrBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - srcOffset and/or size too large");
+    }
+    if(dstOffset + size > dstBuffer->getBufferSize())
+    {
+        throw std::invalid_argument("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - dstOffset and/or size too large");
+    }
+
+    if(size == 0)
+        return;
+    
+    VkCommandBufferBeginInfo commandBufferBeginInfo{};
+    commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    if(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to begin recording commmands to the command buffer!");
+    }
+    
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    copyRegion.srcOffset = srcOffset;
+    copyRegion.dstOffset = dstOffset;
+    vkCmdCopyBuffer(commandBuffer, scrBuffer->getBuffer(), dstBuffer->getBuffer(), 1, &copyRegion);
+
+    if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[CommandBuffer::recordCopyBufferToCommandBuffer()] ERROR - failed to stop recording commmands to the command buffer!");
+    }
+}
+
+
+void CommandBuffer::submitRecordedCommandAndWait()
+{
+    VkSubmitInfo accelerationStructureBuildSubmitInfo{};
+    accelerationStructureBuildSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    accelerationStructureBuildSubmitInfo.commandBufferCount = 1;
+    accelerationStructureBuildSubmitInfo.pCommandBuffers = &commandBuffer;
+
+    fence->submitWithFence(accelerationStructureBuildSubmitInfo);
+    fence->waitForFence();
+}
+
+
+VkCommandBuffer CommandBuffer::getCommandbuffer()
+{
+    return commandBuffer;
+}
+
+} // namespace rmagine

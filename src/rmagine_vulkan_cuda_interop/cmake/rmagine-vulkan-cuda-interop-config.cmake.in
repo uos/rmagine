@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(${CMAKE_CURRENT_LIST_DIR}/rmagine-vulkan-cuda-interop-config-version.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/rmagine-vulkan-cuda-interop-targets.cmake)
+
+# include(CMakeFindDependencyMacro)
+# find_dependency(Eigen3)
+# find_dependency(assimp)
+
+check_required_components(vulkan-cuda-interop)
+
+set(rmagine_vulkan_cuda_interop_FOUND 1)

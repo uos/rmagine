@@ -16,3 +16,13 @@ if(TARGET rmagine-optix)
 message(STATUS "Building tests for rmagine::optix")
 add_subdirectory(optix)
 endif(TARGET rmagine-optix)
+
+if(TARGET rmagine-vulkan)
+message(STATUS "Building tests for rmagine::vulkan")
+add_subdirectory(vulkan)
+endif(TARGET rmagine-vulkan)
+
+if(TARGET rmagine-vulkan-cuda-interop)
+message(STATUS "Building tests for rmagine::vulkan-cuda-interop")
+add_subdirectory(vulkan_cuda_interop)
+endif(TARGET rmagine-vulkan-cuda-interop)

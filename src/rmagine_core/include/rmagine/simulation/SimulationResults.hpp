@@ -90,12 +90,18 @@ struct Normals {
 /**
  * @brief FaceIds computed by the simulators
  * 
+ * Vulkan:
+ * - vulkan calls these primitive ids
+ * 
  * @tparam MemT 
  */
 template<typename MemT>
 struct FaceIds {
     Memory<unsigned int, MemT> face_ids;
 };
+
+template<typename MemT>
+using PrimitiveIds = FaceIds<MemT>;
 
 /**
  * @brief GeomIds computed by the simulators
@@ -115,8 +121,14 @@ struct GeomIds {
     Memory<unsigned int, MemT> geom_ids;
 };
 
+template<typename MemT>
+using GeometryIds = GeomIds<MemT>;
+
 /**
  * @brief ObjectIds computed by the simulators
+ * 
+ * Vulkan:
+ * - vulkan calls these instance ids
  * 
  * @tparam MemT 
  */
@@ -124,6 +136,9 @@ template<typename MemT>
 struct ObjectIds {
     Memory<unsigned int, MemT> object_ids;
 };
+
+template<typename MemT>
+using InstanceIds = ObjectIds<MemT>;
 
 
 /**
