@@ -18,6 +18,9 @@ void cuda_initialize()
     cuda_initialized_ = true;
 }
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 CudaContext::CudaContext(int device_id)
 {
     if(!cuda_initialized())
@@ -30,7 +33,13 @@ CudaContext::CudaContext(int device_id)
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
     std::cout << "[RMagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 
+    // We use cuCtxCreate which is part of the driver. 
+    // this is why we can use CUDA_VERSION
+    #if CUDA_VERSION >= 13000
+    cuCtxCreate(&m_context, nullptr, 0, device_id);
+    #else
     cuCtxCreate(&m_context, 0, device_id);
+    #endif
 }
 
 CudaContext::CudaContext(CUcontext ctx)
