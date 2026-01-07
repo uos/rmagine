@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.3.3)# TODO update this version when merging into main-branch
+    VERSION 2.4.0)# TODO update this version when merging into main-branch
 
 option(RMAGINE_BUILD_TOOLS "Build tools" ON)
 option(RMAGINE_BUILD_TESTS "Build tests" ON)
@@ -122,6 +122,19 @@ if(NOT RMAGINE_OPTIX_DISABLE)
     add_subdirectory(src/rmagine_optix)
 endif(NOT RMAGINE_OPTIX_DISABLE)
 
+### RMAGINE VULKAN COMPONENT
+option(RMAGINE_VULKAN_DISABLE "Disable rmagine::vulkan compilation" OFF)
+if(NOT RMAGINE_VULKAN_DISABLE)
+  add_subdirectory(src/rmagine_vulkan)
+endif(NOT RMAGINE_VULKAN_DISABLE)
+
+### RMAGINE VULKAN CUDA INTEROP COMPONENT
+option(RMAGINE_VULKAN_CUDA_INTEROP_DISABLE "Disable rmagine::vulkan-cuda-interop compilation" OFF)
+if(NOT RMAGINE_VULKAN_CUDA_INTEROP_DISABLE)
+  add_subdirectory(src/rmagine_vulkan_cuda_interop)
+endif(NOT RMAGINE_VULKAN_CUDA_INTEROP_DISABLE)
+
+### ALL LIBS
 message(STATUS "${BoldCyan}Components being built:${ColourReset}")
 foreach(LIBRARY ${RMAGINE_LIBRARIES})
     message(STATUS "- ${BoldGreen}${LIBRARY}${ColourReset}")
@@ -140,6 +153,13 @@ if(RMAGINE_BUILD_TOOLS)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
     add_subdirectory(apps/rmagine_info)
+    add_subdirectory(apps/rmagine_vulkan_benchmark)
+    add_subdirectory(apps/rmagine_simulation_diff_calc)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_embree)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_optix)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_vulkan)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_map_files)
+    add_subdirectory(apps/rmagine_measurements/rmagine_measurements_as_size)
 endif(RMAGINE_BUILD_TOOLS)
 
 if(RMAGINE_BUILD_EXAMPLES)
@@ -150,6 +170,10 @@ endif(TARGET rmagine-embree)
 if(TARGET rmagine-optix)
     add_subdirectory(apps/rmagine_examples/rmagine_optix_scene)
 endif(TARGET rmagine-optix)
+
+if(TARGET rmagine-vulkan)
+    add_subdirectory(apps/rmagine_examples/rmagine_vulkan_scene)
+endif(TARGET rmagine-vulkan)
 endif(RMAGINE_BUILD_EXAMPLES)
 
 
