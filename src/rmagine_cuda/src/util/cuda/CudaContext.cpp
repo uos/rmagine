@@ -36,8 +36,11 @@ CudaContext::CudaContext(int device_id)
     // We use cuCtxCreate which is part of the driver. 
     // this is why we can use CUDA_VERSION
     #if CUDA_VERSION >= 13000
+    // New API since CUDA 13: CUctxCreateParams* ctxCreateParams (nullptr)
+    // TODO: check if we should do something with it instead of setting it to nullptr
     cuCtxCreate(&m_context, nullptr, 0, device_id);
     #else
+    // CUDA < 13
     cuCtxCreate(&m_context, 0, device_id);
     #endif
 }
