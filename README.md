@@ -206,9 +206,9 @@ The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/101
 @phdthesis{amock2025inverse,
   title  = {Inverse Sensor Modeling for 6D Mobile Robot Localization in Scene Graphs via Hardware-Accelerated Ray Tracing},
   author = {Mock, Alexander},
+  school = {Universität Osnabrück},
   year   = {2025},
-  doi    = {10.48693/802},
-  school = {Universität Osnabrück}
+  doi    = {10.48693/802}
 }
 ```
 
