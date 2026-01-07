@@ -192,11 +192,11 @@ Please reference the following paper when using the Rmagine library in your scie
 
 ```bib
 @inproceedings{mock2023rmagine,
-  title={Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}, 
-  author={Mock, Alexander and Wiemann, Thomas and Hertzberg, Joachim},
-  booktitle={IEEE International Conference on Robotics and Automation (ICRA)}, 
-  year={2023},
-  doi={10.1109/ICRA48891.2023.10161388}
+  title     = {Rmagine: 3D Range Sensor Simulation in Polygonal Maps via Ray Tracing for Embedded Hardware on Mobile Robots}, 
+  author    = {Mock, Alexander and Wiemann, Thomas and Hertzberg, Joachim},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)}, 
+  year      = {2023},
+  doi       = {10.1109/ICRA48891.2023.10161388}
 }
 ```
 
@@ -204,11 +204,12 @@ The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/101
 
 ```bib
 @phdthesis{amock2025inverse,
-  author = {Alexander Mock},
-  title = {Inverse Sensor Modeling for 6D Mobile Robot Localization in Scene Graphs via Hardware-Accelerated Ray Tracing}
-  year = {2025},
-  doi = {10.48693/802}
-  school = "Universität Osnabrück"}
+  title  = {Inverse Sensor Modeling for 6D Mobile Robot Localization in Scene Graphs via Hardware-Accelerated Ray Tracing},
+  author = {Mock, Alexander},
+  year   = {2025},
+  doi    = {10.48693/802},
+  school = {Universität Osnabrück}
+}
 ```
 
 which is open-access available to read [**here**](https://osnadocs.ub.uni-osnabrueck.de/handle/ds-2025112613801).
