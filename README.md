@@ -200,7 +200,18 @@ Please reference the following paper when using the Rmagine library in your scie
 }
 ```
 
-The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/10161388) and as a preprint on [arXiv](https://arxiv.org/abs/2209.13397).
+The paper is available on [IEEE Xplore](https://ieeexplore.ieee.org/document/10161388) and as a preprint on [arXiv](https://arxiv.org/abs/2209.13397). For an overview of how to integrate this library into robotics applications we recommend the following work:
+
+```bib
+@phdthesis{amock2025inverse,
+  author = {Alexander Mock},
+  title = {Inverse Sensor Modeling for 6D Mobile Robot Localization in Scene Graphs via Hardware-Accelerated Ray Tracing}
+  year = {2025},
+  doi = {10.48693/802}
+  school = "Universität Osnabrück"}
+```
+
+which is open-access available to read [**here**](https://osnadocs.ub.uni-osnabrueck.de/handle/ds-2025112613801).
 
 ## Rmagine-Accelerated Applications
 - [rmagine_viewer](https://github.com/amock/rmagine_viewer)
