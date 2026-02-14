@@ -6,8 +6,8 @@
   Library for fast and accurate simulation of range sensors in large 3D environments using ray tracing. The simulations can even be computed on embedded devices installed on a robot.
   </description>
 
-  <maintainer email="amock@uos.de">Alexander Mock</maintainer>
-
+  <maintainer email="alexander.mock@naturerobots.com">Alexander Mock</maintainer>
+  <maintainer email="lniecksch@uos.de">Lennart Niecksch</maintainer>
   <license>BSD-3-Clause</license>
 
   <url type="website">https://github.com/uos/rmagine</url>
