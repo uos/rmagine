@@ -7,6 +7,7 @@ option(RMAGINE_BUILD_TOOLS "Build tools" ON)
 option(RMAGINE_BUILD_TESTS "Build tests" ON)
 option(RMAGINE_BUILD_EXAMPLES "Build examples" OFF)
 option(RMAGINE_BUILD_DOCS "Build documentation" OFF)
+option(RMAGINE_BUILD_EXPERIMENTS "Build experiments" OFF)
 
 set(RMAGINE_DEPENDENCY_MODE "Auto" CACHE STRING "Choose the dependency management mode.")
 set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Download")
@@ -153,14 +154,16 @@ if(RMAGINE_BUILD_TOOLS)
     add_subdirectory(apps/rmagine_map_info)
     add_subdirectory(apps/rmagine_version)
     add_subdirectory(apps/rmagine_info)
-    add_subdirectory(apps/rmagine_vulkan_benchmark)
+endif(RMAGINE_BUILD_TOOLS)
+
+if(RMAGINE_BUILD_EXPERIMENTS)
     add_subdirectory(apps/rmagine_simulation_diff_calc)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_embree)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_optix)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_vulkan)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_map_files)
     add_subdirectory(apps/rmagine_measurements/rmagine_measurements_as_size)
-endif(RMAGINE_BUILD_TOOLS)
+endif(RMAGINE_BUILD_EXPERIMENTS)
 
 if(RMAGINE_BUILD_EXAMPLES)
 if(TARGET rmagine-embree)
@@ -231,8 +234,6 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/rmagine-uninstall.cmake
     COMMENT "Uninstall rmagine libraries and all header files")
 endif()
-
-
 
 ###############################################################################
 # DOCUMENTATION

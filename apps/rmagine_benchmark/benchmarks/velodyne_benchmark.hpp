@@ -36,15 +36,17 @@ struct VelodyneBenchmarkConfig
   size_t n_poses;
 };
 
-template<typename SimT>
+/**
+ * @brief Benchmark for Velodyne-like LiDAR simulation. Measures the number of Velodyne scans per second.
+ * A Velodyne scan is defined as the number of rays in the LiDAR model. For example, a Velodyne VLP-16 has 16 vertical channels and 900 horizontal channels, resulting in 16*900 = 14,400 rays per scan.
+ * The benchmarks input are a config and the specification of input and output types
+ * The input/output memory type influences the the total runtime in that sense that conversions may has to take place.
+ */
+template<typename InputMemType, typename OutputMemType, typename SimT>
 void velodyne_benchmark(
   std::shared_ptr<SimT> sim,
   const VelodyneBenchmarkConfig& config)
-{
-
-  // Total runtime of the Benchmark in seconds
-  double benchmark_duration = config.duration;
-  
+{ 
   std::cout << "Inputs: " << std::endl;
   std::cout << "- nposes: " << config.n_poses << std::endl;
   std::cout << "- duration: " << config.duration << " seconds" << std::endl;
@@ -73,23 +75,21 @@ void velodyne_benchmark(
   }
 
   // upload poses to device if necessary
-  Memory<Transform, typename SimT::FastestInputType> Tbm_device = Tbm;
+  Memory<Transform, InputMemType> Tbm_device = Tbm;
 
   double velos_per_second_mean = 0.0;
 
   std::cout << "-- Starting Benchmark --" << std::endl;
 
-  using ResultMemT = typename SimT::FastestOutputType;
-
   using ResultT = Bundle<
-    Ranges<ResultMemT>
+    Ranges<OutputMemType>
   >;
 
   ResultT res;
   res.ranges.resize(Tbm.size() * model->phi.size * model->theta.size);
 
   int run = 0;
-  while(elapsed_total < benchmark_duration)
+  while(elapsed_total < config.duration)
   {
     double n_dbl = static_cast<double>(run) + 1.0;
     // Simulate
@@ -100,10 +100,9 @@ void velodyne_benchmark(
     const double velos_per_second = static_cast<double>(config.n_poses) / elapsed;
     velos_per_second_mean = (n_dbl - 1.0)/(n_dbl) * velos_per_second_mean + (1.0 / n_dbl) * velos_per_second; 
     
-
     std::cout 
     << std::fixed
-    << "[ " << int((elapsed_total / benchmark_duration)*100.0) << "%" << " - " 
+    << "[ " << int((elapsed_total / config.duration)*100.0) << "%" << " - " 
     << velos_per_second << " velos/s" 
     << ", mean: " << velos_per_second_mean << " velos/s] \r";
     std::cout.flush();

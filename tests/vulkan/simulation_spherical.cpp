@@ -41,32 +41,32 @@ int main(int argc, char** argv)
     Memory<Transform, RAM> T(100);
     for(size_t i=0; i<T.size(); i++)
     {
-        T[i] = Transform::Identity();
+      T[i] = Transform::Identity();
     }
 
     Memory<Transform, DEVICE_LOCAL_VULKAN> T_ = T;
 
     std::cout << "Simulate!" << std::endl;
 
-    
     for(size_t i=0; i<100; i++)
     {
-        sim.simulate(T_, result);
+      sim.simulate(T_, result);
 
-        Memory<float, RAM> last_scan = result.ranges(
-            model.size() * 99,
-            model.size() * 100
-        );
+      Memory<float, RAM> last_scan = result.ranges(
+        model.size() * 99,
+        model.size() * 100
+      );
 
-        float range = last_scan[model.getBufferId((model.phi.size) / 2, 0)];
-        float error = std::fabs(range - 0.500076);
-                                                        
-        if(error > 0.0001)                                              
-        {                             
-            std::stringstream ss;
-            ss << "Simulated scan error is too high: " << error;
-            RM_THROW(VulkanException, ss.str());
-        }
+      float range = last_scan[model.getBufferId((model.phi.size) / 2, 0)];
+      std::cout << range << std::endl;
+      float error = std::fabs(range - 0.500076);
+                                                      
+      if(error > 0.0001)                                              
+      {                             
+        std::stringstream ss;
+        ss << "Simulated scan error is too high: " << error;
+        RM_THROW(VulkanException, ss.str());
+      }
     }
 
     std::cout << "Done simulating." << std::endl;

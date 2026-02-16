@@ -33,7 +33,8 @@ int main(int argc, char** argv)
         .n_poses = 5 * 1024
       };
 
-  velodyne_benchmark(cpu_sim, config);
+  // template types: InputMemType, OutputMemType
+  velodyne_benchmark<RAM,RAM>(cpu_sim, config);
 
   return 0;
 }

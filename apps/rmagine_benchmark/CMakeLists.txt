@@ -38,3 +38,23 @@ install(TARGETS rmagine_benchmark_optix
 )
 
 endif(TARGET rmagine::optix)
+
+
+if(TARGET rmagine::vulkan)
+
+add_executable(rmagine_benchmark_vulkan
+    benchmark_vulkan.cpp
+)
+
+target_link_libraries(rmagine_benchmark_vulkan
+    rmagine::core
+    rmagine::vulkan
+)
+
+##### INSTALL
+install(TARGETS rmagine_benchmark_vulkan
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT vulkan
+)
+
+endif(TARGET rmagine::vulkan)

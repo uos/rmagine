@@ -22,17 +22,6 @@ namespace rmagine
 class SimulatorOptix
 {
 public:
-
-  using PreferredOutputTypes = std::tuple<
-    VRAM_CUDA, UNIFIED_CUDA, RAM_CUDA
-  >;
-
-  // used for automatic selection of output memory type. e.g. in benchmarks
-  // change the number here to define the fastest output type
-  using FastestOutputType = typename std::tuple_element<0, PreferredOutputTypes>::type;
-  
-  using FastestInputType = VRAM_CUDA;
-
   SimulatorOptix();
   SimulatorOptix(OptixMapPtr map);
 

@@ -1,4 +1,10 @@
 
+# 0. SINGLE RAY
+add_executable(rmagine_tests_embree_simulation_single_ray simulation_single_ray.cpp)
+target_link_libraries(rmagine_tests_embree_simulation_single_ray
+    rmagine::embree
+)
+
 # 1. SPHERICAL
 add_executable(rmagine_tests_embree_simulation_spherical simulation_spherical.cpp)
 target_link_libraries(rmagine_tests_embree_simulation_spherical
