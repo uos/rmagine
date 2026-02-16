@@ -22,6 +22,17 @@ namespace rmagine
 class SimulatorOptix
 {
 public:
+
+  using PreferredOutputTypes = std::tuple<
+    VRAM_CUDA, UNIFIED_CUDA, RAM_CUDA
+  >;
+
+  // used for automatic selection of output memory type. e.g. in benchmarks
+  // change the number here to define the fastest output type
+  using FastestOutputType = typename std::tuple_element<0, PreferredOutputTypes>::type;
+  
+  using FastestInputType = VRAM_CUDA;
+
   SimulatorOptix();
   SimulatorOptix(OptixMapPtr map);
 
@@ -52,9 +63,9 @@ public:
   /**
    * @brief Simulation of a LiDAR-Sensor in a given mesh
    * 
-   * @tparam ResultT Pass disired results via ResultT=Bundle<...>;
+   * @tparam ResultT Pass desired results via ResultT=Bundle<...>;
    * @param Tbm Transformations between base and map. eg Poses or Particles. In VRAM
-   * @return ResultT 
+   * @return ResultT
    */
   template<typename BundleT>
   BundleT simulate(

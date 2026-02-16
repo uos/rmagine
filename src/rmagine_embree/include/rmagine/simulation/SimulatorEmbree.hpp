@@ -51,6 +51,17 @@ namespace rmagine
 
 class SimulatorEmbree {
 public:
+
+  using PreferredOutputTypes = std::tuple<
+    RAM
+  >;
+
+  // used for automatic selection of output memory type. e.g. in benchmarks
+  // change the number here to define the fastest output type
+  using FastestOutputType = typename std::tuple_element<0, PreferredOutputTypes>::type;
+
+  using FastestInputType = RAM;
+
   SimulatorEmbree();
   SimulatorEmbree(EmbreeMapPtr map);
   virtual ~SimulatorEmbree();
