@@ -5,6 +5,8 @@
 #include <rmagine/map/optix/OptixScene.hpp>
 #include <rmagine/simulation/optix/common.h>
 
+#include <optix.h>
+
 
 namespace rmagine
 {
@@ -114,22 +116,24 @@ ProgramModulePtr make_program_module_sim_gen(
 #endif
 
 
-    #if OPTIX_VERSION >= 70400
-    ret->compile_options->numPayloadTypes = 1;
-    RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
+    // TODO (amock): After adding optix.h, OPTIX_VERSION was showing up and triggering this. However, this was not compiling
+    // ... my fix was to comment this. All tests are running fine. I don't know why
+    // #if OPTIX_VERSION >= 70400
+    // ret->compile_options->numPayloadTypes = 1;
+    // RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
-    ret->compile_options->payloadTypes[0].numPayloadValues = 8;
-    ret->compile_options->payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ
-    };
-    #endif
+    // ret->compile_options->payloadTypes[0].numPayloadValues = 8;
+    // ret->compile_options->payloadTypes[0].payloadSemantics = (const unsigned int[8]) {
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ
+    // };
+    // #endif
     
     ProgramModulePtr module = std::make_shared<ProgramModule>();
 
@@ -170,8 +174,6 @@ ProgramModulePtr make_program_module_sim_gen(
     OptixPipelineCompileOptions pipeline_compile_options = {};
     {
         pipeline_compile_options.usesMotionBlur        = false;
-
-
         pipeline_compile_options.traversableGraphFlags = traversable_graph_flags;
         
         // max payload values: 32
@@ -183,7 +185,10 @@ ProgramModulePtr make_program_module_sim_gen(
         #endif
         pipeline_compile_options.numAttributeValues    = 2;
     #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
-        pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+        pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_USER | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+        #if OPTIX_VERSION < 80000
+        pipeline_compile_options.exceptionFlags |= OPTIX_EXCEPTION_FLAG_DEBUG;
+        #endif  
     #else
         pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
     #endif
@@ -247,22 +252,24 @@ ProgramModulePtr make_program_module_sim_hit_miss(
     ret->compile_options->boundValues = &bounds[0];
     ret->compile_options->numBoundValues = bounds.size();
 
-    #if OPTIX_VERSION >= 70400
-    ret->compile_options->numPayloadTypes = 1;
-    RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
+    // TODO (amock): After adding optix.h, OPTIX_VERSION was showing up and triggering this. However, this was not compiling
+    // ... my fix was to comment this. All tests are running fine. I don't know why
+    // #if OPTIX_VERSION >= 70400
+    // ret->compile_options->numPayloadTypes = 1;
+    // RM_CUDA_CHECK(cudaMallocHost(&ret->compile_options->payloadTypes, sizeof(OptixPayloadType) ) );
     
-    ret->compile_options->payloadTypes[0]->numPayloadValues = 8;
-    ret->compile_options->payloadTypes[0]->payloadSemantics = (const unsigned int[8]) {
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
-        OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ
-    };
-    #endif
+    // ret->compile_options->payloadTypes[0]->numPayloadValues = 8;
+    // ret->compile_options->payloadTypes[0]->payloadSemantics = (const unsigned int[8]) {
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ,
+    //     OPTIX_PAYLOAD_SEMANTICS_TRACE_CALLER_WRITE | OPTIX_PAYLOAD_SEMANTICS_CH_READ | OPTIX_PAYLOAD_SEMANTICS_MS_READ
+    // };
+    // #endif
 
     ret->ptx = std::string(kernel);
 
@@ -291,7 +298,12 @@ ProgramModulePtr make_program_module_sim_hit_miss(
         // pipeline_compile_options.numPayloadValues      = 8;
         pipeline_compile_options.numAttributeValues    = 2;
     #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
-        pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+        pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_USER | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+
+        // #pragma message "The value of ABC is: " XSTR(OPTIX_VERSION)
+        #if OPTIX_VERSION < 80000
+          pipeline_compile_options.exceptionFlags |= OPTIX_EXCEPTION_FLAG_DEBUG;
+        #endif
     #else
         pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
     #endif

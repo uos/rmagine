@@ -62,7 +62,10 @@ SphereProgramRanges::SphereProgramRanges(OptixMapPtr map)
     pipeline_compile_options.numPayloadValues      = 1;
     pipeline_compile_options.numAttributeValues    = 2;
 #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
-    pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+    pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_USER | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+    #if OPTIX_VERSION < 80000
+    pipeline_compile_options.exceptionFlags |= OPTIX_EXCEPTION_FLAG_DEBUG;
+    #endif
 #else
     pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #endif
@@ -73,7 +76,7 @@ SphereProgramRanges::SphereProgramRanges(OptixMapPtr map)
 
     if(ptx.empty())
     {
-        throw std::runtime_error("ScanProgramRanges could not find its PTX part");
+        throw std::runtime_error("SphereProgramRanges could not find its PTX part");
     }
 
     #if OPTIX_VERSION < 70700

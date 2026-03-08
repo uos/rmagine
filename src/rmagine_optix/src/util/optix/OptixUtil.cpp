@@ -7,6 +7,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <optix.h>
+
+
 #if OPTIX_VERSION < 70300
 
 // include header as actual code
