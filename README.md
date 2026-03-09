@@ -228,6 +228,7 @@ If you would like to enhance the [documentation](https://uos.github.io/rmagine_d
 ## Maintainment
 
 Maintainers:
-- [Alexander Mock](https://github.com/amock) (Nature Robots)
+* [Alexander Mock](https://github.com/amock) (Nature Robots)
+* [Lennart Niecksch](https://github.com/Elephantusparvus) (Osnabrück University, DFKI)
 
 Contact the people listed above if you want and feel capable to help maintaining this piece of open-source software.
