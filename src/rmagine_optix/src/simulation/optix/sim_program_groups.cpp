@@ -5,6 +5,7 @@
 #include "rmagine/util/optix/OptixDebug.hpp"
 
 #include <optix_stubs.h>
+#include <optix.h>
 
 namespace rmagine 
 {
