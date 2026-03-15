@@ -109,7 +109,7 @@ ProgramModulePtr make_program_module_sim_gen(
 #else
     ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     #if OPTIX_VERSION >= 70400
-    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #else
     ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #endif
@@ -177,10 +177,8 @@ ProgramModulePtr make_program_module_sim_gen(
         pipeline_compile_options.traversableGraphFlags = traversable_graph_flags;
         
         // max payload values: 32
+        // if dont use module payloads: OptiX < 7.4 cannot use them
         #if OPTIX_VERSION >= 70400
-            pipeline_compile_options.numPayloadValues      = 0;
-        #else
-            // if dont use module payloads: OptiX < 7.4 cannot use them
             pipeline_compile_options.numPayloadValues      = 8;
         #endif
         pipeline_compile_options.numAttributeValues    = 2;
@@ -244,7 +242,7 @@ ProgramModulePtr make_program_module_sim_hit_miss(
 #else
     ret->compile_options->optLevel             = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
     #if OPTIX_VERSION >= 70400
-    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+    ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #else
     ret->compile_options->debugLevel           = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     #endif
@@ -288,14 +286,8 @@ ProgramModulePtr make_program_module_sim_hit_miss(
         
         #if OPTIX_VERSION >= 70400
             // use module payloads: can specify semantics more accurately
-            pipeline_compile_options.numPayloadValues      = 0;
-        #else
-            // if dont use module payloads: OptiX < 7.4 cannot use module payloads
-            // max payload values: 32
             pipeline_compile_options.numPayloadValues       = 8;
         #endif 
-        
-        // pipeline_compile_options.numPayloadValues      = 8;
         pipeline_compile_options.numAttributeValues    = 2;
     #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
         pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_USER | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;

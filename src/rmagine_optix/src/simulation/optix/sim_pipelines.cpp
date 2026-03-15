@@ -104,15 +104,10 @@ SimPipelinePtr make_pipeline_sim(
         ret->compile_options->traversableGraphFlags = traversable_graph_flags;
         
         // max payload values: 32
+        // if dont use module payloads: OptiX < 7.4 cannot use them
         #if OPTIX_VERSION >= 70400
-        ret->compile_options->numPayloadValues      = 0;
-        #else
-        // if dont use module payloads: cannot use module paypload for Optix < 7.4
-        ret->compile_options->numPayloadValues      = 8;
+            ret->compile_options->numPayloadValues      = 8;
         #endif
-        
-
-        // pipeline_compile_options.numPayloadValues      = 8;
         ret->compile_options->numAttributeValues    = 2;
     #ifndef NDEBUG // Enables debug exceptions during optix launches. This may incur significant performance cost and should only be done during development.
         ret->compile_options->exceptionFlags = OPTIX_EXCEPTION_FLAG_USER | OPTIX_EXCEPTION_FLAG_TRACE_DEPTH | OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
