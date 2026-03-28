@@ -13,6 +13,7 @@ on:
 
 jobs:
   humble:
+    name: ros2-humble
     uses: ./.github/workflows/ros2_template.yml
     with:
       os: ubuntu-22.04

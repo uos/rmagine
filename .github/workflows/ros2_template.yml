@@ -12,7 +12,7 @@ on:
 
 jobs:
   colcon-build:
-    name: ros2-${{ inputs.ros_distro }}-build
+    name: build
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -68,43 +68,23 @@ jobs:
             ws/build
             ws/install
             ws/log
+            ws/src
 
   colcon-test:
-    name: ros2-${{ inputs.ros_distro }}-tests
+    name: tests
     runs-on: ${{ inputs.os }}
     needs: colcon-build
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          path: ws/src/rmagine
-
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
 
-      - name: Install colcon, rosdep, and vcstool
+      - name: Install colcon
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-vcstool
-
-      - name: Import source dependencies
-        shell: bash
-        run: |
-          set -euxo pipefail
-          cd ws
-          vcs import src --input src/rmagine/source_dependencies.yaml
-
-      - name: Resolve package dependencies
-        shell: bash
-        run: |
-          set -euxo pipefail
-          sudo rosdep init || true
-          rosdep update --rosdistro "${{ inputs.ros_distro }}"
-          cd ws
-          rosdep install --from-paths src --ignore-src --rosdistro "${{ inputs.ros_distro }}" -y
+          sudo apt-get install -y python3-colcon-common-extensions
 
       - name: Download workspace artifacts
         uses: actions/download-artifact@v4
