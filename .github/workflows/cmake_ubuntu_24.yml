@@ -3,10 +3,10 @@ name: cmake_ubuntu_24
 on:
   push:
     branches:
-      - ros-workflows
+      - 'main'
   pull_request:
     branches:
-      - row-workflows
+      - 'main'
   workflow_dispatch:
     branches:
       - '*'

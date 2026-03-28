@@ -3,10 +3,10 @@ name: ros2_humble
 on:
   push:
     branches:
-      - ros-workflows
+      - 'main'
   pull_request:
     branches:
-      - ros-workflows
+      - 'main'
   workflow_dispatch:
     branches:
       - '*'
