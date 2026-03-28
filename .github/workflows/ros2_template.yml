@@ -105,7 +105,5 @@ jobs:
           source ws/install/setup.bash
           set -u
           cd ws
-          colcon test \
-            --event-handlers console_direct+ \
-            --packages-select rmagine
+          colcon test --event-handlers console_direct+
           colcon test-result --verbose
