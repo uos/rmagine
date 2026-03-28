@@ -60,15 +60,14 @@ jobs:
             --event-handlers console_direct+ \
             --packages-select rmagine
 
+      - name: Archive workspace
+        run: tar czf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws .
+
       - name: Upload workspace artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ros2-${{ inputs.ros_distro }}-workspace
-          path: |
-            ws/build
-            ws/install
-            ws/log
-            ws/src
+          path: /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz
 
   colcon-test:
     name: tests
@@ -90,10 +89,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ros2-${{ inputs.ros_distro }}-workspace
-          path: ws
+          path: /tmp
 
-      - name: Restore executable permissions on build artifacts
-        run: find ws/build ws/install -type f \( -name '*.so*' -o -path '*/bin/*' \) | xargs -r chmod +x
+      - name: Extract workspace
+        run: |
+          mkdir -p ws
+          tar xzf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws
 
       - name: Run tests in ROS 2 workspace
         shell: bash
