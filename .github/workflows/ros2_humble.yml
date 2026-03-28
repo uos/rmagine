@@ -1,0 +1,19 @@
+name: ros2_humble
+
+on:
+  push:
+    branches:
+      - ros-workflows
+  pull_request:
+    branches:
+      - ros-workflows
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  humble:
+    uses: ./.github/workflows/ros2_template.yml
+    with:
+      os: ubuntu-22.04
+      ros_distro: humble

@@ -1,0 +1,127 @@
+name: ros2_reusable
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      ros_distro:
+        required: true
+        type: string
+
+jobs:
+  colcon-build:
+    name: ros2-${{ inputs.ros_distro }}-build
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ws/src/rmagine
+
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+
+      - name: Install colcon, rosdep, and vcstool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-vcstool
+
+      - name: Import source dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd ws
+          vcs import src --input src/rmagine/source_dependencies.yaml
+
+      - name: Resolve package dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rosdep init || true
+          rosdep update --rosdistro "${{ inputs.ros_distro }}"
+          cd ws
+          rosdep install --from-paths src --ignore-src --rosdistro "${{ inputs.ros_distro }}" -y
+
+      - name: Build package in ROS 2 workspace
+        shell: bash
+        run: |
+          set -euxo pipefail
+          # ROS setup scripts may reference unset vars; source with nounset disabled.
+          set +u
+          source "/opt/ros/${{ inputs.ros_distro }}/setup.bash"
+          set -u
+          cd ws
+          colcon build \
+            --event-handlers console_direct+ \
+            --packages-select rmagine
+
+      - name: Upload workspace artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ros2-${{ inputs.ros_distro }}-workspace
+          path: |
+            ws/build
+            ws/install
+            ws/log
+
+  colcon-test:
+    name: ros2-${{ inputs.ros_distro }}-tests
+    runs-on: ${{ inputs.os }}
+    needs: colcon-build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ws/src/rmagine
+
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+
+      - name: Install colcon, rosdep, and vcstool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-vcstool
+
+      - name: Import source dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd ws
+          vcs import src --input src/rmagine/source_dependencies.yaml
+
+      - name: Resolve package dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rosdep init || true
+          rosdep update --rosdistro "${{ inputs.ros_distro }}"
+          cd ws
+          rosdep install --from-paths src --ignore-src --rosdistro "${{ inputs.ros_distro }}" -y
+
+      - name: Download workspace artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ros2-${{ inputs.ros_distro }}-workspace
+          path: ws
+
+      - name: Run tests in ROS 2 workspace
+        shell: bash
+        run: |
+          set -euxo pipefail
+          set +u
+          source "/opt/ros/${{ inputs.ros_distro }}/setup.bash"
+          source ws/install/setup.bash
+          set -u
+          cd ws
+          colcon test \
+            --event-handlers console_direct+ \
+            --packages-select rmagine
+          colcon test-result --verbose
