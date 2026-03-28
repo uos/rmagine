@@ -15,6 +15,9 @@
 
   <depend>assimp</depend>
   <depend>boost</depend>
+  <depend>eigen</depend>
+  <depend>tbb</depend>
+  <depend>libjsoncpp-dev</depend>
 
   <buildtool_depend>cmake</buildtool_depend>
 
