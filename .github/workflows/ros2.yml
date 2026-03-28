@@ -8,6 +8,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+    branches:
+      - '*'
 
 jobs:
   colcon-build:
