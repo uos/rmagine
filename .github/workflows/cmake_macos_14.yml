@@ -3,10 +3,10 @@ name: cmake_macos_14
 on:
   push:
     branches:
-      - 'ros-workflows'
+      - 'main'
   pull_request:
     branches:
-      - 'ros-workflows'
+      - 'main'
   workflow_dispatch:
     branches:
       - '*'
