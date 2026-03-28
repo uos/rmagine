@@ -1,0 +1,20 @@
+name: ros2_jazzy
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  jazzy:
+    name: ros2-jazzy
+    uses: ./.github/workflows/ros2_template.yml
+    with:
+      os: ubuntu-24.04
+      ros_distro: jazzy

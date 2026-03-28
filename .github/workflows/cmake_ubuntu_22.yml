@@ -1,0 +1,19 @@
+name: cmake_ubuntu_22
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  ubuntu-22:
+    name: ubuntu-22
+    uses: ./.github/workflows/cmake_ubuntu_template.yml
+    with:
+      os: ubuntu-22.04

@@ -112,7 +112,6 @@ The supported backends differ in terms of device compatibility, acceleration cap
 
 Each backend is compiled as an optional CMake component and is only enabled if all required dependencies are available on the system. Detailed instructions and further information on building the optional backends can be found in the [Wiki](https://uos.github.io/rmagine_docs).
 
-
 ## Example
 
 This example demonstrates how to simulate ranges for 100 Velodyne VLP-16 sensors using the Embree backend.  
@@ -232,3 +231,25 @@ Maintainers:
 * [Lennart Niecksch](https://github.com/Elephantusparvus) (Osnabrück University, DFKI)
 
 Contact the people listed above if you want and feel capable to help maintaining this piece of open-source software.
+
+
+## Supported Systems (CI)
+
+We continuously test rmagine on several systems. CUDA, OptiX, and Vulkan are excluded as no suitable runners are currently available.
+
+### Operating Systems
+
+| OS | Version | Architecture | Build | Tests |
+| -- | ------- | ------------ | ----- | ----- |
+| Ubuntu | 22.04 (Jammy) | x86\_64 | [![ubuntu-22 build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ubuntu-22%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/cmake_ubuntu_22.yml) | [![ubuntu-22 tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ubuntu-22%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/cmake_ubuntu_22.yml) |
+| Ubuntu | 24.04 (Noble) | x86\_64 | [![ubuntu-24 build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ubuntu-24%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/cmake_ubuntu_24.yml) | [![ubuntu-24 tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ubuntu-24%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/cmake_ubuntu_24.yml) |
+| macOS | 14 (Sonoma) | arm64 | [![macos-14 build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=macos-14%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/cmake_macos_14.yml) | [![macos-14 tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=macos-14%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/cmake_macos_14.yml) |
+| macOS | 15 (Sequoia) | arm64 | [![macos-15 build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=macos-15%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/cmake_macos_15.yml) | [![macos-15 tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=macos-15%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/cmake_macos_15.yml) |
+
+### ROS 2
+
+| Distro | OS | Architecture | Build | Tests |
+| ------ | -- | ------------ | ----- | ----- |
+| Humble | Ubuntu 22.04 | x86\_64 | [![ros2-humble build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ros2-humble%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/ros2_humble.yml) | [![ros2-humble tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ros2-humble%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/ros2_humble.yml) |
+| Jazzy | Ubuntu 24.04 | x86\_64 | [![ros2-jazzy build](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ros2-jazzy%20%2F%20build)](https://github.com/uos/rmagine/actions/workflows/ros2_jazzy.yml) | [![ros2-jazzy tests](https://img.shields.io/github/check-runs/uos/rmagine/main?checkName=ros2-jazzy%20%2F%20tests)](https://github.com/uos/rmagine/actions/workflows/ros2_jazzy.yml) |
+
