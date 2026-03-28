@@ -61,7 +61,7 @@ jobs:
             --packages-select rmagine
 
       - name: Archive workspace
-        run: tar czf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws build install
+        run: tar czf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws build install src
 
       - name: Upload workspace artifacts
         uses: actions/upload-artifact@v4
@@ -105,5 +105,5 @@ jobs:
           source ws/install/setup.bash
           set -u
           cd ws
-          colcon test --event-handlers console_direct+
+          colcon test --event-handlers console_direct+ --packages-select rmagine
           colcon test-result --verbose
