@@ -59,7 +59,10 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          # ROS setup scripts may reference unset vars; source with nounset disabled.
+          set +u
           source "/opt/ros/${{ matrix.ros_distro }}/setup.bash"
+          set -u
           cd ws
           colcon build \
             --event-handlers console_direct+ \
