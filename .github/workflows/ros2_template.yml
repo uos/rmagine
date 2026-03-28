@@ -61,7 +61,7 @@ jobs:
             --packages-select rmagine
 
       - name: Archive workspace
-        run: tar czf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws .
+        run: tar czf /tmp/ros2-${{ inputs.ros_distro }}-workspace.tar.gz -C ws build install
 
       - name: Upload workspace artifacts
         uses: actions/upload-artifact@v4
