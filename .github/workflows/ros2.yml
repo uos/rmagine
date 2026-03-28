@@ -3,10 +3,10 @@ name: ros2_workspace_ubuntu
 on:
   push:
     branches:
-      - main
+      - ros-workflows
   pull_request:
     branches:
-      - main
+      - ros-workflows
   workflow_dispatch:
     branches:
       - '*'
