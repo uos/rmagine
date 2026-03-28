@@ -1,0 +1,19 @@
+name: cmake_macos_15
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  macos:
+    name: macos-15
+    uses: ./.github/workflows/cmake_macos_template.yml
+    with:
+      os: macos-15
