@@ -92,6 +92,9 @@ jobs:
           name: ros2-${{ inputs.ros_distro }}-workspace
           path: ws
 
+      - name: Restore executable permissions on build artifacts
+        run: find ws/build ws/install -type f \( -name '*.so*' -o -path '*/bin/*' \) | xargs -r chmod +x
+
       - name: Run tests in ROS 2 workspace
         shell: bash
         run: |
