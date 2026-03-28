@@ -22,7 +22,7 @@ jobs:
           path: ws/src/rmagine
 
       - name: Setup ROS 2
-        uses: ros-tooling/setup-ros@v0.8
+        uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
 
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Setup ROS 2
-        uses: ros-tooling/setup-ros@v0.8
+        uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ inputs.ros_distro }}
 
