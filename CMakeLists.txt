@@ -183,23 +183,6 @@ endif(RMAGINE_BUILD_EXAMPLES)
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)
 
-#### INSTALL
-# 1. Headers
-# install(DIRECTORY include/rmagine 
-#   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-# 2. Libraries
-# install(TARGETS rmagine-cuda rmagine-optix EXPORT rmagineTargets)
-# 3. Static Libraries
-# install(TARGETS rmagine-cuda-static rmagine-optix-static EXPORT rmagineTargets)
-
-# install(EXPORT rmagineTargets
-#     FILE rmagineTargets.cmake
-#     NAMESPACE rmagine::
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
-
-    
-# CMAKE FIND SCRIPT
-
 configure_package_config_file(cmake/rmagine-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine-${rmagine_VERSION}
@@ -226,12 +209,20 @@ install(FILES package.xml
 # This is required for pure CMake packages to be discoverable by downstream packages in colcon workspaces
 configure_file(
     cmake/env-hooks/rmagine.sh.in
-    ${CMAKE_CURRENT_BINARY_DIR}/package.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine.sh
     @ONLY
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/package.sh
-    DESTINATION share/rmagine
+configure_file(
+    cmake/env-hooks/rmagine.dsv.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine.dsv
+    @ONLY
+)
+
+install(FILES 
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine.dsv
+    DESTINATION share/rmagine/hook
     COMPONENT core
 )
 
