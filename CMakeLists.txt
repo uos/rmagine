@@ -15,6 +15,13 @@ set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Down
 # Auto: Use local package if available and download otherwise (default from v2.3.1)
 # Download: Always download.
 
+message(WARNING "rmagine ENV{CMAKE_PREFIX_PATH} = $ENV{CMAKE_PREFIX_PATH}")
+message(WARNING "rmagine CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
+message(WARNING "rmagine CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
+message(WARNING "rmagine CMAKE_SYSTEM_PREFIX_PATH = ${CMAKE_SYSTEM_PREFIX_PATH}")
+message(WARNING "rmagine CMAKE_LIBRARY_PATH = ${CMAKE_LIBRARY_PATH}")
+message(WARNING "rmagine CMAKE_INCLUDE_PATH = ${CMAKE_INCLUDE_PATH}")
+
 # To still use FetchContent_Populate for non CMake projects 
 # without triggering a warning
 if(POLICY CMP0169)
@@ -202,20 +209,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config.cmake
 
 install(FILES package.xml
     DESTINATION share/rmagine-${rmagine_VERSION}
-    COMPONENT core
-)
-
-# DSV environment hook: adds versioned CMake config directory to CMAKE_PREFIX_PATH.
-# Colcon reads DSV hooks natively during build, ensuring downstream packages (e.g. rmcl)
-# can find rmagine configs in lib/cmake/rmagine-VERSION via find_package(rmagine).
-configure_file(
-    cmake/env-hooks/rmagine-cmake-prefix.dsv.in
-    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cmake-prefix.dsv
-    @ONLY
-)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cmake-prefix.dsv
-    DESTINATION share/rmagine/hook
     COMPONENT core
 )
 

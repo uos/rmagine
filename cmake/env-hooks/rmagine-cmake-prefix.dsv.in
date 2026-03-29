@@ -1,1 +1,0 @@
-prepend-non-duplicate;CMAKE_PREFIX_PATH;@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/cmake/rmagine-@rmagine_VERSION@
