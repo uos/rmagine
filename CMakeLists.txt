@@ -222,6 +222,19 @@ install(FILES package.xml
     COMPONENT core
 )
 
+# Configure and install environment hook for colcon
+# This is required for pure CMake packages to be discoverable by downstream packages in colcon workspaces
+configure_file(
+    cmake/env-hooks/rmagine.sh.in
+    ${CMAKE_CURRENT_BINARY_DIR}/package.sh
+    @ONLY
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/package.sh
+    DESTINATION share/rmagine
+    COMPONENT core
+)
+
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)

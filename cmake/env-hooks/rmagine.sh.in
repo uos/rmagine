@@ -1,0 +1,10 @@
+#!/bin/sh
+# Auto-generated environment hook for rmagine package
+# This file is sourced by colcon to make rmagine discoverable to downstream packages
+
+# Prepend rmagine install prefix to CMAKE_PREFIX_PATH
+if [ -z "$CMAKE_PREFIX_PATH" ]; then
+  export CMAKE_PREFIX_PATH="@CMAKE_INSTALL_PREFIX@"
+else
+  export CMAKE_PREFIX_PATH="@CMAKE_INSTALL_PREFIX@:$CMAKE_PREFIX_PATH"
+fi
