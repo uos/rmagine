@@ -16,11 +16,13 @@ set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Down
 # Download: Always download.
 
 message(WARNING "rmagine ENV{CMAKE_PREFIX_PATH} = $ENV{CMAKE_PREFIX_PATH}")
-message(WARNING "rmagine CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
-message(WARNING "rmagine CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
-message(WARNING "rmagine CMAKE_SYSTEM_PREFIX_PATH = ${CMAKE_SYSTEM_PREFIX_PATH}")
-message(WARNING "rmagine CMAKE_LIBRARY_PATH = ${CMAKE_LIBRARY_PATH}")
-message(WARNING "rmagine CMAKE_INCLUDE_PATH = ${CMAKE_INCLUDE_PATH}")
+
+# All empty, both on my machine and in CI:
+# message(WARNING "rmagine CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
+# message(WARNING "rmagine CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
+# message(WARNING "rmagine CMAKE_SYSTEM_PREFIX_PATH = ${CMAKE_SYSTEM_PREFIX_PATH}")
+# message(WARNING "rmagine CMAKE_LIBRARY_PATH = ${CMAKE_LIBRARY_PATH}")
+# message(WARNING "rmagine CMAKE_INCLUDE_PATH = ${CMAKE_INCLUDE_PATH}")
 
 # To still use FetchContent_Populate for non CMake projects 
 # without triggering a warning
