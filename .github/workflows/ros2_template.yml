@@ -1,4 +1,4 @@
-name: ros2_reusable
+name: ros2_template
 
 on:
   workflow_call:
