@@ -1,0 +1,16 @@
+#!/bin/sh
+# Environment hook to add rmagine's versioned CMake config directory to CMAKE_PREFIX_PATH
+# This ensures find_package(rmagine) locates configs in @CMAKE_INSTALL_LIBDIR@/cmake/rmagine-VERSION
+
+if [ -z "$COLCON_CURRENT_PREFIX" ]; then
+  # Fallback if not in colcon environment (e.g., system-wide install)
+  export CMAKE_PREFIX_PATH="@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/cmake/rmagine-@rmagine_VERSION@:$CMAKE_PREFIX_PATH"
+else
+  # Use colcon prefix for workspace installs
+  _RMAGINE_CMAKE_DIR="$COLCON_CURRENT_PREFIX/@CMAKE_INSTALL_LIBDIR@/cmake/rmagine-@rmagine_VERSION@"
+  if [ -z "$CMAKE_PREFIX_PATH" ]; then
+    export CMAKE_PREFIX_PATH="$_RMAGINE_CMAKE_DIR"
+  else
+    export CMAKE_PREFIX_PATH="$_RMAGINE_CMAKE_DIR:$CMAKE_PREFIX_PATH"
+  fi
+fi

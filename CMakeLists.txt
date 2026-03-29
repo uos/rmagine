@@ -205,6 +205,19 @@ install(FILES package.xml
     COMPONENT core
 )
 
+# Environment hook to add versioned CMake config directory to CMAKE_PREFIX_PATH
+# This ensures find_package(rmagine) locates configs in lib/cmake/rmagine-VERSION
+configure_file(
+    cmake/env-hooks/rmagine-cmake-prefix.sh.in
+    ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cmake-prefix.sh
+    @ONLY
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rmagine-cmake-prefix.sh
+    DESTINATION share/rmagine/hook
+    COMPONENT core
+)
+
 # Uninstall
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
