@@ -54,7 +54,7 @@ extern "C" __global__ void __raygen__rg()
         model->range.max,                   // Max intersection distance
         0.0f,                       // rayTime -- used for motion blur
         OptixVisibilityMask( 1 ),   // Specify always visible
-        OPTIX_RAY_FLAG_DISABLE_ANYHIT,
+        OPTIX_RAY_FLAG_NONE,
         0,          // SBT offset
         1,          // SBT stride
         0,          // missSBTIndex
@@ -68,7 +68,7 @@ extern "C" __global__ void __raygen__rg()
                 model->range.max,                   // Max intersection distance
                 0.0f,                       // rayTime -- used for motion blur
                 OptixVisibilityMask( 1 ),   // Specify always visible
-                OPTIX_RAY_FLAG_DISABLE_ANYHIT,
+                OPTIX_RAY_FLAG_NONE,
                 0,          // SBT offset
                 1,          // SBT stride
                 0,          // missSBTIndex
