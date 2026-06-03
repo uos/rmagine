@@ -259,9 +259,11 @@ SimHitProgramGroupPtr make_program_group_sim_hit(
 
     SimHitProgramGroupPtr ret = std::make_shared<SimHitProgramGroup>();
 
-    ret->description->kind                     = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-    ret->description->raygen.module            = module->module;
-    ret->description->raygen.entryFunctionName = "__closesthit__ch";
+    ret->description->kind                          = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+    ret->description->hitgroup.moduleCH             = module->module;
+    ret->description->hitgroup.entryFunctionNameCH  = "__closesthit__ch";
+    ret->description->hitgroup.moduleAH             = module->module;
+    ret->description->hitgroup.entryFunctionNameAH  = "__anyhit__ah";
 
     #if OPTIX_VERSION >= 70400
     ret->options->payloadType = &module->compile_options->payloadTypes[0];

@@ -263,7 +263,7 @@ OptixSceneCommitResult OptixScene::buildGAS()
             // ADDITIONAL SETTINGS
             // move them to mesh object
             triangle_input.triangleArray.flags         = (const uint32_t [1]) { 
-                OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT
+                OPTIX_GEOMETRY_FLAG_NONE
             };
 
             // TODO: this is bad. I define the sbt records inside the sensor programs. 
