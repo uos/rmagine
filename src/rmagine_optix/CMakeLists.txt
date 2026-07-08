@@ -84,7 +84,7 @@ if(CUDA_FOUND)
     endif()
 
     set(TMP_LIST_AUTO_DOWNLOAD "Auto;Download")
-    if(NOT OptiX_FOUND AND OptiX_LIBRARY_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
+    if(NOT OptiX_FOUND AND ${RMAGINE_DEPENDENCY_MODE} IN_LIST TMP_LIST_AUTO_DOWNLOAD)
 
         # Check if desired OptiX header version fits the driver
 
