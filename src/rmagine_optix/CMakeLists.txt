@@ -187,7 +187,6 @@ if(CUDAToolkit_FOUND)
     # -> nvcc fatal   : Option '--ptx (-ptx)' is not allowed when compiling for multiple GPU architectures
 
     target_link_libraries(rmagine_optix_cu_to_ptx
-        ${OptiX_LIBRARIES}
         rmagine-core
         rmagine-cuda
     )
@@ -291,7 +290,6 @@ target_include_directories(rmagine-optix PRIVATE
 # Must be public, since headers contain optionals
 # target_compile_features(rmagine-optix PUBLIC cxx_std_17)
 target_link_libraries(rmagine-optix
-    ${OptiX_LIBRARIES}
     rmagine-cuda
 )
 
