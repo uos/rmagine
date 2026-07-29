@@ -1,0 +1,71 @@
+# Separate from this repo's own core_ubuntu/embree_ubuntu/etc. workflows,
+# which build and test rmagine standalone. This one builds the downstream
+# 4-package Harmonic radar workspace (rmagine, rmagine_gazebo_plugins,
+# radarays_gazebo_plugins, radarays_ros) against rmagine's current commit,
+# so a rmagine change that breaks the downstream integration gets caught
+# here rather than only being noticed later in one of the other repos.
+#
+# Runs `colcon test` across all four packages. This CPU-only GitHub-hosted
+# runner has no GPU/CUDA, so rmagine's own OptiX build/tests are a no-op
+# here -- see radarays_gazebo_plugins/build-and-test-gpu.yml for the
+# GPU/OptiX-covering counterpart, which needs a self-hosted runner with a
+# real NVIDIA GPU (MIGRATION_HANDOFF.md, "Phase 2: CI on a real runner").
+# See radarays_gazebo_plugins/scripts/ci_build_and_test.sh for the actual
+# build+test logic (shared across all four repos' workflows) and its own
+# header comment for what has and hasn't been verified.
+name: radarays_workspace_integration
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout rmagine
+        uses: actions/checkout@v4
+        with:
+          path: ws/src/rmagine
+
+      - name: Checkout sibling packages
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 --branch ros2 https://github.com/uos/rmagine_gazebo_plugins.git ws/src/rmagine_gazebo_plugins
+          git clone --depth 1 --branch main https://github.com/uos/radarays_gazebo_plugins.git ws/src/radarays_gazebo_plugins
+          git clone --depth 1 --branch main https://github.com/uos/radarays_ros.git ws/src/radarays_ros
+
+      - name: Install ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install Gazebo Harmonic and workspace system dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y \
+            ros-jazzy-ros-gz \
+            ros-jazzy-tf2-ros \
+            ros-jazzy-cv-bridge \
+            ros-jazzy-image-transport \
+            libopencv-dev \
+            libyaml-cpp-dev \
+            libtbb-dev \
+            libassimp-dev \
+            libeigen3-dev
+
+      - name: rosdep install
+        run: |
+          set -euxo pipefail
+          source /opt/ros/jazzy/setup.bash
+          cd ws
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro jazzy || true
+
+      - name: Build workspace and run regression fixtures
+        run: |
+          chmod +x ws/src/radarays_gazebo_plugins/scripts/ci_build_and_test.sh
+          ws/src/radarays_gazebo_plugins/scripts/ci_build_and_test.sh
