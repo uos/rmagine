@@ -37,8 +37,11 @@ jobs:
           # fail for reasons unrelated to this repo's own change. MUST be
           # reverted to uos/*  main/ros2 before opening the PR upstream.
           set -euxo pipefail
+          rm -rf ws/src/rmagine_gazebo_plugins
           git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/rmagine_gazebo_plugins.git ws/src/rmagine_gazebo_plugins
+          rm -rf ws/src/radarays_gazebo_plugins
           git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/radarays_gazebo_plugins.git ws/src/radarays_gazebo_plugins
+          rm -rf ws/src/radarays_ros
           git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/radarays_ros.git ws/src/radarays_ros
 
       - name: Install ROS 2 Jazzy
