@@ -60,7 +60,15 @@ jobs:
       - name: rosdep install
         run: |
           set -euxo pipefail
+          # ROS 2's setup.bash references variables it doesn't guarantee are
+          # set (e.g. AMENT_TRACE_SETUP_FILES) -- not compatible with `set -u`.
+          # Found the hard way: this step failed on a real runner with
+          # "AMENT_TRACE_SETUP_FILES: unbound variable" the first time this
+          # workflow actually ran (see ci_build_and_test.sh, which already had
+          # this same fix -- just never applied to this inline step before).
+          set +u
           source /opt/ros/jazzy/setup.bash
+          set -u
           cd ws
           rosdep update
           rosdep install --from-paths src --ignore-src -y --rosdistro jazzy || true
