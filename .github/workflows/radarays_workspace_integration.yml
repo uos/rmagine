@@ -16,9 +16,9 @@
 name: radarays_workspace_integration
 on:
   push:
-    branches: [main]
+    branches: [main, ros2-jazzy-harmonic]
   pull_request:
-    branches: [main]
+    branches: [main, ros2-jazzy-harmonic]
   workflow_dispatch:
 
 jobs:
