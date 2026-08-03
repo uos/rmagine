@@ -148,6 +148,18 @@ void main()
     vec3 rayDirS = getRayDir();
     vec3 rayDirM = rotateVec3(tsm.rot, rayDirS);
 
+    if(gl_LaunchIDEXT.x == 0 && gl_LaunchIDEXT.y == 0 && gl_LaunchIDEXT.z == 0)
+    {
+        debugPrintfEXT("[RGEN] origin=(%f,%f,%f) dirS=(%f,%f,%f) dirM=(%f,%f,%f) rot=(%f,%f,%f,%f) tMin=%f tMax=%f phi.min=%f phi.inc=%f phi.size=%d theta.min=%f theta.inc=%f theta.size=%d",
+            tsm.pos.x, tsm.pos.y, tsm.pos.z,
+            rayDirS.x, rayDirS.y, rayDirS.z,
+            rayDirM.x, rayDirM.y, rayDirM.z,
+            tsm.rot.x, tsm.rot.y, tsm.rot.z, tsm.rot.w,
+            sensor.range.rayMin, sensor.range.rayMax,
+            sensor.phi.angleMin, sensor.phi.angleInc, sensor.phi.size,
+            sensor.theta.angleMin, sensor.theta.angleInc, sensor.theta.size);
+    }
+
     //trace ray
     //         (AS        | flags                         | shader binding table     | ray data                                                          | 0)
     //         (----------+---------------------+---------+-------+-------+----------+----------+--------------------+--------------+--------------------+--)

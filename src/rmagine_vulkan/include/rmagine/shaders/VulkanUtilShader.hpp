@@ -16,6 +16,7 @@ static const std::string util_code = R""""(#version 460 core
 #extension GL_EXT_shader_explicit_arithmetic_types : require
 #extension GL_ARB_shading_language_include : require
 #extension GL_EXT_shader_explicit_arithmetic_types : require
+#extension GL_EXT_debug_printf : enable
 
 
 

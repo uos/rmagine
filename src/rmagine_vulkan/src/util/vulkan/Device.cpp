@@ -318,6 +318,11 @@ void Device::createLogicalDevice()
     std::vector<const char *> deviceExtensionList = {
         "VK_KHR_ray_tracing_pipeline",
         "VK_KHR_acceleration_structure",
+        // Hard dependency of VK_KHR_acceleration_structure -- without it,
+        // device creation still succeeds on some drivers but the
+        // acceleration-structure extension is not actually fully enabled,
+        // causing every ray to silently miss instead of an obvious error.
+        "VK_KHR_deferred_host_operations",
         "VK_KHR_maintenance3",
         "VK_KHR_buffer_device_address",
         "VK_KHR_external_memory_fd",

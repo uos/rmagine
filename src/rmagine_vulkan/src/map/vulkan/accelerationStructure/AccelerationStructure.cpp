@@ -1,5 +1,6 @@
 #include "rmagine/map/vulkan/accelerationStructure/AccelerationStructure.hpp"
 #include "rmagine/util/VulkanContext.hpp"
+#include <iostream>
 
 
 
@@ -52,11 +53,19 @@ void AccelerationStructure::createAccelerationStructure(
     }
 
     vulkan_context->extensionFuncs.vkGetAccelerationStructureBuildSizesKHR(
-        vulkan_context->getDevice()->getLogicalDevice(), 
-        VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, 
-        &accelerationStructureBuildGeometryInfo, 
-        maxPrimitiveCountList.data(), 
+        vulkan_context->getDevice()->getLogicalDevice(),
+        VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+        &accelerationStructureBuildGeometryInfo,
+        maxPrimitiveCountList.data(),
         &accelerationStructureBuildSizesInfo);
+
+    std::cout << "[DIAG-AS] type=" << accelerationStructureType
+              << " geomCount=" << accelerationStructureGeometrys.size()
+              << " maxPrim[0]=" << (maxPrimitiveCountList.empty() ? -1 : (int)maxPrimitiveCountList[0])
+              << " asSize=" << accelerationStructureBuildSizesInfo.accelerationStructureSize
+              << " buildScratch=" << accelerationStructureBuildSizesInfo.buildScratchSize
+              << " geomType[0]=" << (accelerationStructureGeometrys.empty() ? -1 : (int)accelerationStructureGeometrys[0].geometryType)
+              << std::endl;
 
     accelerationStructureMem.resize(accelerationStructureBuildSizesInfo.accelerationStructureSize);
 
@@ -77,8 +86,11 @@ void AccelerationStructure::createAccelerationStructure(
     accelerationStructureDeviceAddressInfo.accelerationStructure = accelerationStructure;
 
     accelerationStructureDeviceAddress = vulkan_context->extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR(
-        vulkan_context->getDevice()->getLogicalDevice(), 
+        vulkan_context->getDevice()->getLogicalDevice(),
         &accelerationStructureDeviceAddressInfo);
+
+    std::cout << "[DIAG-AS] handle=" << (void*)accelerationStructure
+              << " deviceAddress=" << accelerationStructureDeviceAddress << std::endl;
 
     // for building acceleration structure
     Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem(accelerationStructureBuildSizesInfo.buildScratchSize);

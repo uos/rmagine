@@ -3,6 +3,7 @@
 #include "rmagine/map/vulkan/VulkanMesh.hpp"
 #include "rmagine/map/vulkan/VulkanInst.hpp"
 #include "rmagine/map/vulkan/VulkanScene.hpp"
+#include <iostream>
 
 
 
@@ -46,6 +47,22 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::map<unsigned i
     }
     m_asInstances = m_asInstances_ram;
     m_asInstancesDescriptions = m_asInstancesDescriptions_ram;
+
+    for(size_t i = 0; i < m_asInstances_ram.size(); i++)
+    {
+      const auto &inst = m_asInstances_ram[i];
+      std::cout << "[DIAG-TLAS] inst" << i
+                << " asRef=" << inst.accelerationStructureReference
+                << " mask=" << (int)inst.mask
+                << " flags=" << inst.flags
+                << " customIdx=" << inst.instanceCustomIndex
+                << " sbtOffset=" << inst.instanceShaderBindingTableRecordOffset
+                << " transform=["
+                << inst.transform.matrix[0][0] << "," << inst.transform.matrix[0][1] << "," << inst.transform.matrix[0][2] << "," << inst.transform.matrix[0][3] << " | "
+                << inst.transform.matrix[1][0] << "," << inst.transform.matrix[1][1] << "," << inst.transform.matrix[1][2] << "," << inst.transform.matrix[1][3] << " | "
+                << inst.transform.matrix[2][0] << "," << inst.transform.matrix[2][1] << "," << inst.transform.matrix[2][2] << "," << inst.transform.matrix[2][3]
+                << "]" << std::endl;
+    }
 
     // tlas must have geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR
     // https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03789

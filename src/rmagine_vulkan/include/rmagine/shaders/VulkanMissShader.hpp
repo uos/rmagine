@@ -35,6 +35,10 @@ void main()
                   + gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x
                   + gl_LaunchIDEXT.x;
 
+    if(rayIndex == 0)
+    {
+        debugPrintfEXT("[MISS] rayIndex=0 tMax=%f", gl_RayTmaxEXT);
+    }
 
     //write data to buffer(s)
     #if defined(HITS)
