@@ -149,12 +149,6 @@ void main()
                   + gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x
                   + gl_LaunchIDEXT.x;
 
-    if(rayIndex == 0)
-    {
-        debugPrintfEXT("[CHIT] rayIndex=0 hitT=%f primId=%d instId=%d geomIdx=%d",
-            gl_HitTEXT, gl_PrimitiveID, gl_InstanceCustomIndexEXT, gl_GeometryIndexEXT);
-    }
-
     //write data to buffer(s)
     #if defined(HITS)
         //1
