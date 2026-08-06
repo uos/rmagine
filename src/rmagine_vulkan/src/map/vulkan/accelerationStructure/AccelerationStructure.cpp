@@ -27,13 +27,16 @@ AccelerationStructure::~AccelerationStructure()
 }
 
 void AccelerationStructure::createAccelerationStructure(
-    std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
-    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos)
+    std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys,
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos,
+    VkBuildAccelerationStructureModeKHR mode)
 {
     VkAccelerationStructureBuildGeometryInfoKHR accelerationStructureBuildGeometryInfo{};
     accelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     accelerationStructureBuildGeometryInfo.type = accelerationStructureType;
-    accelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+    // always allow future refits, even on the very first (mode == BUILD) call
+    accelerationStructureBuildGeometryInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR;
+    accelerationStructureBuildGeometryInfo.mode = mode;
     accelerationStructureBuildGeometryInfo.geometryCount = accelerationStructureGeometrys.size();
     accelerationStructureBuildGeometryInfo.pGeometries = accelerationStructureGeometrys.data();
     accelerationStructureBuildGeometryInfo.scratchData = {};
@@ -58,32 +61,51 @@ void AccelerationStructure::createAccelerationStructure(
         maxPrimitiveCountList.data(),
         &accelerationStructureBuildSizesInfo);
 
-    accelerationStructureMem.resize(accelerationStructureBuildSizesInfo.accelerationStructureSize);
+    VkDeviceSize scratchSize;
 
-    VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo{};
-    accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    accelerationStructureCreateInfo.buffer = accelerationStructureMem.getBuffer()->getBuffer();
-    accelerationStructureCreateInfo.size = accelerationStructureBuildSizesInfo.accelerationStructureSize;
-    accelerationStructureCreateInfo.type = accelerationStructureType;
-    accelerationStructureCreateInfo.deviceAddress = 0;
-
-    if(vulkan_context->extensionFuncs.vkCreateAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), &accelerationStructureCreateInfo, nullptr, &accelerationStructure) != VK_SUCCESS)
+    if(mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
     {
-        throw std::runtime_error("[AccelerationStructure::createAccelerationStructure()] ERROR - failed to creates acceleration structure!");
+        // refit in place: same handle, same backing buffer, primitive counts unchanged
+        // since the last BUILD - only vertex/instance/transform data changed.
+        if(accelerationStructure == VK_NULL_HANDLE)
+        {
+            throw std::runtime_error("[AccelerationStructure::createAccelerationStructure()] ERROR - cannot update an acceleration structure that was never built!");
+        }
+
+        accelerationStructureBuildGeometryInfo.srcAccelerationStructure = accelerationStructure;
+        accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
+        scratchSize = accelerationStructureBuildSizesInfo.updateScratchSize;
     }
-    
-    VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo{};
-    accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
-    accelerationStructureDeviceAddressInfo.accelerationStructure = accelerationStructure;
+    else
+    {
+        accelerationStructureMem.resize(accelerationStructureBuildSizesInfo.accelerationStructureSize);
 
-    accelerationStructureDeviceAddress = vulkan_context->extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR(
-        vulkan_context->getDevice()->getLogicalDevice(),
-        &accelerationStructureDeviceAddressInfo);
+        VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo{};
+        accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+        accelerationStructureCreateInfo.buffer = accelerationStructureMem.getBuffer()->getBuffer();
+        accelerationStructureCreateInfo.size = accelerationStructureBuildSizesInfo.accelerationStructureSize;
+        accelerationStructureCreateInfo.type = accelerationStructureType;
+        accelerationStructureCreateInfo.deviceAddress = 0;
 
-    // for building acceleration structure
-    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem(accelerationStructureBuildSizesInfo.buildScratchSize);
+        if(vulkan_context->extensionFuncs.vkCreateAccelerationStructureKHR(vulkan_context->getDevice()->getLogicalDevice(), &accelerationStructureCreateInfo, nullptr, &accelerationStructure) != VK_SUCCESS)
+        {
+            throw std::runtime_error("[AccelerationStructure::createAccelerationStructure()] ERROR - failed to creates acceleration structure!");
+        }
 
-    accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
+        VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo{};
+        accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+        accelerationStructureDeviceAddressInfo.accelerationStructure = accelerationStructure;
+
+        accelerationStructureDeviceAddress = vulkan_context->extensionFuncs.vkGetAccelerationStructureDeviceAddressKHR(
+            vulkan_context->getDevice()->getLogicalDevice(),
+            &accelerationStructureDeviceAddressInfo);
+
+        accelerationStructureBuildGeometryInfo.dstAccelerationStructure = accelerationStructure;
+        scratchSize = accelerationStructureBuildSizesInfo.buildScratchSize;
+    }
+
+    // for building/updating acceleration structure
+    Memory<char, DEVICE_LOCAL_VULKAN> accelerationStructureScratchMem(scratchSize);
     accelerationStructureBuildGeometryInfo.scratchData.deviceAddress = accelerationStructureScratchMem.getBuffer()->getBufferDeviceAddress();
 
     commandBuffer->recordBuildingASToCommandBuffer(accelerationStructureBuildGeometryInfo, accelerationStructureBuildRangeInfos.data());

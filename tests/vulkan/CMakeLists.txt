@@ -33,3 +33,12 @@ target_link_libraries(rmagine_tests_vulkan_simulation_ondn
 )
 
 add_test(NAME vulkan_simulation_ondn COMMAND rmagine_tests_vulkan_simulation_ondn)
+
+
+# 5. SCENE UPDATE (incremental TLAS/BLAS refit vs. full rebuild)
+add_executable(rmagine_tests_vulkan_scene_update scene_update.cpp)
+target_link_libraries(rmagine_tests_vulkan_scene_update
+    rmagine::vulkan
+)
+
+add_test(NAME vulkan_scene_update COMMAND rmagine_tests_vulkan_scene_update)
