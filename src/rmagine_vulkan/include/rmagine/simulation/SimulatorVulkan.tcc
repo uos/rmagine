@@ -188,7 +188,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
                                            sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
-        std::cout << "[RMagine - SimulatorVulkan] updated descriptor set" << std::endl;
+        std::cout << "[Rmagine - SimulatorVulkan] updated descriptor set" << std::endl;
 
         //TODO:
         //maybe the commandbuffer does not need to be rerecorded
@@ -209,7 +209,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         previousDimensions.depth  = newDimensions.depth;
 
         commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, shaderBindingTable, newDimensions.width, newDimensions.height, newDimensions.depth);
-        std::cout << "[RMagine - SimulatorVulkan] (re)recorded instructions to command buffer" << std::endl;
+        std::cout << "[Rmagine - SimulatorVulkan] (re)recorded instructions to command buffer" << std::endl;
     }
 
     commandBuffer->submitRecordedCommandAndWait();

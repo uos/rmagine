@@ -39,11 +39,11 @@ void Device::createInstance()
 
     // enalbe validation layers
     #if defined(VDEBUG)
-        std::cout << "[RMagine - (Vulkan) Device] Mode: Debug" << std::endl;
+        std::cout << "[Rmagine - (Vulkan) Device] Mode: Debug" << std::endl;
         instanceCreateInfo.enabledLayerCount = (uint32_t)validationLayers.size();
         instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
     #else
-        std::cout << "[RMagine - (Vulkan) Device] Mode: Release" << std::endl;
+        std::cout << "[Rmagine - (Vulkan) Device] Mode: Release" << std::endl;
         instanceCreateInfo.enabledLayerCount = 0;
     #endif
 
@@ -59,7 +59,7 @@ void Device::choosePhysicalDevice()
     // get list physical devices
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
-    std::cout << "[RMagine - (Vulkan) Device] Number of pysical devices found: "<< physicalDeviceCount << std::endl;
+    std::cout << "[Rmagine - (Vulkan) Device] Number of pysical devices found: "<< physicalDeviceCount << std::endl;
     if(physicalDeviceCount == 0)
     {
         throw std::runtime_error("[Device::choosePhysicalDevice()] ERROR - Failed to find any compatible pysical devices!");
@@ -71,7 +71,7 @@ void Device::choosePhysicalDevice()
     // iterate over all available physical devices and choose one
     // potential issue: if there are multiple physical device on the same level, the one that appears later in the list will get chosen
     // you could maybe introduce a tiebraker like amount of vram for example for those cases...
-    std::cout << "[RMagine - (Vulkan) Device] Pysical devices:" << std::endl;
+    std::cout << "[Rmagine - (Vulkan) Device] Pysical devices:" << std::endl;
     VkPhysicalDeviceType pysicalDeviceType = VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_OTHER;
     for(const auto& dev : physicalDevices)
     {
@@ -142,9 +142,9 @@ void Device::choosePhysicalDevice()
     maxInstanceCount = physicalDeviceAccelerationStructureProperties.maxInstanceCount;
 
     //print physical device properties on chosen physical device
-    std::cout << "[RMagine - (Vulkan) Device] Chosen physical device: " << physicalDeviceProperties2.properties.deviceName << std::endl;
+    std::cout << "[Rmagine - (Vulkan) Device] Chosen physical device: " << physicalDeviceProperties2.properties.deviceName << std::endl;
     const uint32_t apiVesion = physicalDeviceProperties2.properties.apiVersion;
-    std::cout << "[RMagine - (Vulkan) Device] Vulkan version: " << VK_VERSION_MAJOR(apiVesion) << "." << VK_VERSION_MINOR(apiVesion) << "." << VK_VERSION_PATCH(apiVesion) << std::endl;
+    std::cout << "[Rmagine - (Vulkan) Device] Vulkan version: " << VK_VERSION_MAJOR(apiVesion) << "." << VK_VERSION_MINOR(apiVesion) << "." << VK_VERSION_PATCH(apiVesion) << std::endl;
 }
 
 
@@ -269,7 +269,7 @@ void Device::chooseQueueFamily()
     }
 
     #if defined(VDEBUG)
-        std::cout << "[RMagine - (Vulkan) Device] Queue family index: " << queueFamilyIndex << "    (Out of " << queueFamilyProperties.size() << " queue families)"<< std::endl;
+        std::cout << "[Rmagine - (Vulkan) Device] Queue family index: " << queueFamilyIndex << "    (Out of " << queueFamilyProperties.size() << " queue families)"<< std::endl;
     #endif
 }
 
