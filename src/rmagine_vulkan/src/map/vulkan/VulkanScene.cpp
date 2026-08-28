@@ -140,16 +140,21 @@ std::unordered_map<VulkanGeometryPtr, unsigned int> VulkanScene::ids() const
 
 void VulkanScene::commit()
 {
-    std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
-    std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
-
-    // TODO: only update as instead of recreating it when just these things were changed:
-    //       instance definitions, transform matrices, and vertex positions
+    // if no geometry was added/removed since the last commit, the AS topology (instance/mesh
+    // count) is unchanged - refit it in place instead of rebuilding it from scratch.
+    const bool do_update = (!m_geom_added && !m_geom_removed && m_as);
 
     if(m_type == VulkanSceneType::INSTANCES)
     {
-        // create top level AS
-        m_as = std::make_shared<TopLevelAccelerationStructure>(m_geometries);
+        if(do_update)
+        {
+            m_as->this_shared<TopLevelAccelerationStructure>()->update(m_geometries);
+        }
+        else
+        {
+            // create top level AS
+            m_as = std::make_shared<TopLevelAccelerationStructure>(m_geometries);
+        }
 
         unsigned int depth_ = 0;
         for(auto const& geometry : m_geometries)
@@ -161,12 +166,19 @@ void VulkanScene::commit()
     }
     else if(m_type == VulkanSceneType::GEOMETRIES)
     {
-        // create bottom level AS
-        m_as = std::make_shared<BottomLevelAccelerationStructure>(m_geometries);
+        if(do_update)
+        {
+            m_as->this_shared<BottomLevelAccelerationStructure>()->update(m_geometries);
+        }
+        else
+        {
+            // create bottom level AS
+            m_as = std::make_shared<BottomLevelAccelerationStructure>(m_geometries);
+        }
 
         m_depth = 1;
     }
-    
+
     m_geom_added = false;
     m_geom_removed = false;
 }

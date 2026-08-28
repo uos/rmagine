@@ -25,13 +25,13 @@ CudaContext::CudaContext(int device_id)
 {
     if(!cuda_initialized())
     {
-        // std::cout << "[RMagine - CudaContext] Init Cuda" << std::endl;
+        // std::cout << "[Rmagine - CudaContext] Init Cuda" << std::endl;
         printCudaInfo();
         cuda_initialize();
     }
 
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
-    std::cout << "[RMagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
+    std::cout << "[Rmagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 
     // We use cuCtxCreate which is part of the driver. 
     // this is why we can use CUDA_VERSION

@@ -35,7 +35,6 @@ void main()
                   + gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x
                   + gl_LaunchIDEXT.x;
 
-
     //write data to buffer(s)
     #if defined(HITS)
         //0
