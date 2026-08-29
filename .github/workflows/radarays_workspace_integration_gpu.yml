@@ -30,12 +30,13 @@ jobs:
 
       - name: Checkout sibling packages
         run: |
-          # TEMPORARY, pre-merge validation only: sibling-package clone URLs
-          # below point at this fork's own ros2-jazzy-harmonic branch, not
-          # upstream uos/* main/ros2 -- none of the 4 repos' Harmonic ports are
-          # merged upstream yet, so cloning uos/* would pull unported code and
-          # fail for reasons unrelated to this repo's own change. MUST be
-          # reverted to uos/*  main/ros2 before opening the PR upstream.
+          # Clones sibling packages from this workspace's own forks
+          # (sotomotocross/*) at ros2-jazzy-harmonic. This is the real,
+          # permanent development line now, not a staging step for an
+          # upstream PR -- see MIGRATION_HANDOFF.md for why (amock's own
+          # rewrite superseded rmagine_gazebo_plugins upstream; we're
+          # continuing independently on our forks rather than chasing
+          # that merge).
           set -euxo pipefail
           rm -rf ws/src/rmagine_gazebo_plugins
           git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/rmagine_gazebo_plugins.git ws/src/rmagine_gazebo_plugins
