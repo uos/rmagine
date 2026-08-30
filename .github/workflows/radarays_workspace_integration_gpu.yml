@@ -1,0 +1,87 @@
+# GPU/OptiX counterpart to radarays_workspace_integration.yml -- runs on a
+# self-hosted runner with a real NVIDIA GPU (`runs-on: [self-hosted, gpu]`).
+# Catches a rmagine change that breaks the downstream OptiX build/tests
+# specifically, which the CPU-only integration workflow can't see at all.
+#
+# NOT exercised against a live runner yet -- no self-hosted GPU runner is
+# registered for this repo (or any of the other three) as of writing. See
+# MIGRATION_HANDOFF.md, "Phase 2: CI on a real runner", and
+# radarays_gazebo_plugins/scripts/ci_build_and_test_gpu.sh's header comment
+# for what's needed to turn this on (a registered `gpu`-labeled runner, plus
+# the OPTIX_INCLUDE_DIR repository variable).
+name: radarays_workspace_integration_gpu
+on:
+  push:
+    branches: [main, ros2-jazzy-harmonic]
+  pull_request:
+    branches: [main, ros2-jazzy-harmonic]
+  workflow_dispatch:
+
+jobs:
+  build-and-test-gpu:
+    runs-on: [self-hosted, gpu]
+    env:
+      OPTIX_INCLUDE_DIR: ${{ vars.OPTIX_INCLUDE_DIR }}
+    steps:
+      - name: Checkout rmagine
+        uses: actions/checkout@v4
+        with:
+          path: ws/src/rmagine
+
+      - name: Checkout sibling packages
+        run: |
+          # Clones sibling packages from this workspace's own forks
+          # (sotomotocross/*) at ros2-jazzy-harmonic. This is the real,
+          # permanent development line now, not a staging step for an
+          # upstream PR -- see MIGRATION_HANDOFF.md for why (amock's own
+          # rewrite superseded rmagine_gazebo_plugins upstream; we're
+          # continuing independently on our forks rather than chasing
+          # that merge).
+          set -euxo pipefail
+          rm -rf ws/src/rmagine_gazebo_plugins
+          git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/rmagine_gazebo_plugins.git ws/src/rmagine_gazebo_plugins
+          rm -rf ws/src/radarays_gazebo_plugins
+          git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/radarays_gazebo_plugins.git ws/src/radarays_gazebo_plugins
+          rm -rf ws/src/radarays_ros
+          git clone --depth 1 --branch ros2-jazzy-harmonic https://github.com/sotomotocross/radarays_ros.git ws/src/radarays_ros
+
+      - name: Install ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install Gazebo Harmonic and workspace system dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y \
+            ros-jazzy-ros-gz \
+            ros-jazzy-tf2-ros \
+            ros-jazzy-cv-bridge \
+            ros-jazzy-image-transport \
+            libopencv-dev \
+            libyaml-cpp-dev \
+            libtbb-dev \
+            libassimp-dev \
+            libeigen3-dev
+
+      - name: rosdep install
+        run: |
+          set -euxo pipefail
+          # ROS 2's setup.bash references variables it doesn't guarantee are
+          # set (e.g. AMENT_TRACE_SETUP_FILES) -- not compatible with `set -u`.
+          # Found the hard way: this step failed on a real runner with
+          # "AMENT_TRACE_SETUP_FILES: unbound variable" the first time this
+          # workflow actually ran (see ci_build_and_test.sh, which already had
+          # this same fix -- just never applied to this inline step before).
+          set +u
+          source /opt/ros/jazzy/setup.bash
+          set -u
+          cd ws
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y --rosdistro jazzy || true
+
+      - name: Build workspace and run GPU/OptiX regression tests
+        run: |
+          chmod +x ws/src/radarays_gazebo_plugins/scripts/ci_build_and_test_gpu.sh
+          ws/src/radarays_gazebo_plugins/scripts/ci_build_and_test_gpu.sh
