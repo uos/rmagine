@@ -13,7 +13,6 @@
 #include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
-#include <optix.h>
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
@@ -26,12 +25,7 @@ enum class Culling
   Backface
 };
 
-inline uint32_t optix_ray_flags(Culling culling)
-{
-  return culling == Culling::Backface
-      ? OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES
-      : OPTIX_RAY_FLAG_NONE;
-}
+uint32_t optix_ray_flags(Culling culling);
 
 class SimulatorOptix
 {

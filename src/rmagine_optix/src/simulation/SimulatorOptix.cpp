@@ -16,6 +16,13 @@
 namespace rmagine
 {
 
+uint32_t optix_ray_flags(Culling culling)
+{
+  return culling == Culling::Backface
+      ? OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES
+      : OPTIX_RAY_FLAG_NONE;
+}
+
 SimulatorOptix::SimulatorOptix()
 :m_Tsb(1)
 {
