@@ -275,12 +275,6 @@ void computeNoObjectId()
     mem.object_ids[glob_id] = __UINT_MAX__;
 }
 
-extern "C" __global__ void __anyhit__ah()
-{
-    if(optixGetHitKind() == OPTIX_HIT_KIND_TRIANGLE_BACK_FACE)
-        optixIgnoreIntersection();
-}
-
 extern "C" __global__ void __miss__ms()
 {
     #if OPTIX_VERSION >= 70400

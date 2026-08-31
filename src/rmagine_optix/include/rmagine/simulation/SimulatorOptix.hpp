@@ -13,11 +13,25 @@
 #include <rmagine/simulation/optix/sim_program_data.h>
 
 #include <cuda_runtime.h>
+#include <optix.h>
 
 #include <rmagine/util/cuda/cuda_definitions.h>
 
 namespace rmagine
 {
+
+enum class Culling
+{
+  None,
+  Backface
+};
+
+inline uint32_t optix_ray_flags(Culling culling)
+{
+  return culling == Culling::Backface
+      ? OPTIX_RAY_FLAG_CULL_BACK_FACING_TRIANGLES
+      : OPTIX_RAY_FLAG_NONE;
+}
 
 class SimulatorOptix
 {
@@ -44,10 +58,15 @@ public:
    * @param Tbm Transform from base to map. aka pose in map
    */
   template<typename BundleT>
-  void simulate(const Transform& Tbm, BundleT& ret) const;
+  void simulate(
+      const Transform& Tbm,
+      BundleT& ret,
+      Culling culling = Culling::None) const;
 
   template<typename BundleT>
-  BundleT simulate(const Transform& Tbm) const;
+  BundleT simulate(
+      const Transform& Tbm,
+      Culling culling = Culling::None) const;
 
   /**
    * @brief Simulation of a LiDAR-Sensor in a given mesh
@@ -58,7 +77,8 @@ public:
    */
   template<typename BundleT>
   BundleT simulate(
-      const Memory<Transform, VRAM_CUDA>& Tbm) const;
+      const Memory<Transform, VRAM_CUDA>& Tbm,
+      Culling culling = Culling::None) const;
 
   // template<typename BundleT>
   // virtual void simulate(

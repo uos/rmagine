@@ -139,10 +139,15 @@ public:
      * @param ret 
      */
     template<typename BundleT>
-    void simulate(const Transform& Tbm, BundleT& ret) const;
+    void simulate(
+        const Transform& Tbm,
+        BundleT& ret,
+        Culling culling = Culling::None) const;
 
     template<typename BundleT>
-    BundleT simulate(const Transform& Tbm) const;
+    BundleT simulate(
+        const Transform& Tbm,
+        Culling culling = Culling::None) const;
 
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
@@ -153,12 +158,14 @@ public:
      */
     template<typename BundleT>
     BundleT simulate(
-        const Memory<Transform, VRAM_CUDA>& Tbm) const;
+        const Memory<Transform, VRAM_CUDA>& Tbm,
+        Culling culling = Culling::None) const;
 
     template<typename BundleT>
     void simulate(
         const Memory<Transform, VRAM_CUDA>& Tbm,
-        BundleT& res) const;
+        BundleT& res,
+        Culling culling = Culling::None) const;
 
     template<typename BundleT>
     void preBuildProgram();

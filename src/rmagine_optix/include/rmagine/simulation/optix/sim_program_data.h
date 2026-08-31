@@ -7,6 +7,7 @@
 #include <rmagine/types/MemoryCuda.hpp>
 
 #include <cuda_runtime.h>
+#include <optix.h>
 
 namespace rmagine
 {
@@ -46,6 +47,8 @@ struct OptixSimulationDataGeneric {
     uint32_t                    Nposes;
     // Handle
     unsigned long long      handle;
+    // Runtime traversal configuration
+    uint32_t                    ray_flags;
     // Generic Options
     bool                        computeHits;
     bool                        computeRanges;
@@ -76,6 +79,7 @@ struct OptixSimulationDataGeneric {
         ret.computeFaceIds = false;
         ret.computeGeomIds = false;
         ret.computeObjectIds = false;
+        ret.ray_flags = OPTIX_RAY_FLAG_NONE;
         ret.hits = nullptr;
         ret.ranges = nullptr;
         ret.points = nullptr;
