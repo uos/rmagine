@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <rmagine/util/exceptions.h>
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 
 #define RM_CUDA_CHECK(call)    \
 {                 \

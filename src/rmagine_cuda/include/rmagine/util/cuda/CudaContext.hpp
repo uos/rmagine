@@ -35,8 +35,7 @@
 #ifndef RMAGINE_UTIL_CUDA_CONTEXT_HPP
 #define RMAGINE_UTIL_CUDA_CONTEXT_HPP
 
-#include <cuda_runtime.h>
-#include <cuda.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 #include <memory>
 #include <iostream>
 #include <sstream>

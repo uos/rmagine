@@ -108,16 +108,21 @@ CudaStreamPtr CudaContext::createStream(unsigned int flags) const
 
 void CudaContext::setSharedMemBankSize(unsigned int bytes)
 {
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // CDNA has no configurable LDS bank width; cuCtxSetSharedMemConfig has no
+    // HIP analogue. This is a no-op on AMD.
+    (void)bytes;
+#else
     CUcontext old;
     cuCtxGetCurrent(&old);
     cuCtxSetCurrent(m_context);
 
     CUresult status;
-    
+
     if(bytes == 4)
     {
         status = cuCtxSetSharedMemConfig(CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE);
-    } 
+    }
     else if(bytes == 8)
     {
         status = cuCtxSetSharedMemConfig(CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE);
@@ -125,15 +130,19 @@ void CudaContext::setSharedMemBankSize(unsigned int bytes)
 
     if(status != CUDA_SUCCESS)
     {
-        std::cout << "WARNING: Could not set SMEM Size to " << bytes << std::endl; 
-    } 
+        std::cout << "WARNING: Could not set SMEM Size to " << bytes << std::endl;
+    }
 
     // restore old
     cuCtxSetCurrent(old);
+#endif
 }
 
 unsigned int CudaContext::getSharedMemBankSize() const
 {
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    return 4;
+#else
     CUcontext old;
     cuCtxGetCurrent(&old);
     cuCtxSetCurrent(m_context);
@@ -154,6 +163,7 @@ unsigned int CudaContext::getSharedMemBankSize() const
     cuCtxSetCurrent(old);
 
     return bytes;
+#endif
 }
 
 void CudaContext::synchronize()

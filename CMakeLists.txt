@@ -9,6 +9,11 @@ option(RMAGINE_BUILD_EXAMPLES "Build examples" OFF)
 option(RMAGINE_BUILD_DOCS "Build documentation" OFF)
 option(RMAGINE_BUILD_EXPERIMENTS "Build experiments" OFF)
 
+# Build the rmagine::cuda component with the ROCm/HIP toolchain instead of CUDA.
+# The .cu sources stay in CUDA spelling and are translated by the cuda_to_hip.h
+# compat shim; the NVIDIA path is unchanged when USE_HIP is OFF.
+option(USE_HIP "Build the GPU compute backend (rmagine::cuda) with ROCm/HIP" OFF)
+
 set(RMAGINE_DEPENDENCY_MODE "Auto" CACHE STRING "Choose the dependency management mode.")
 set_property(CACHE RMAGINE_DEPENDENCY_MODE PROPERTY STRINGS "Local" "Auto" "Download")
 # Local: Use local packages only. This is the old default behavior until v2.3.0
@@ -116,6 +121,12 @@ option(RMAGINE_CUDA_DISABLE "Disable rmagine::cuda compilation" OFF)
 if(NOT RMAGINE_CUDA_DISABLE)
     add_subdirectory(src/rmagine_cuda)
 endif(NOT RMAGINE_CUDA_DISABLE)
+
+### RMAGINE HIPRT COMPONENT (AMD ray tracing backend, USE_HIP-gated)
+# Only builds when USE_HIP is set and HIPRT SDK is available
+if(USE_HIP)
+    add_subdirectory(src/rmagine_hiprt)
+endif()
 
 ### RMAGINE OPTIX COMPONENT
 option(RMAGINE_OPTIX_DISABLE "Disable rmagine::optix compilation" OFF)
