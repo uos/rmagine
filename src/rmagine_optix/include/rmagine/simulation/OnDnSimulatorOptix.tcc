@@ -24,30 +24,28 @@ void OnDnSimulatorOptix::preBuildProgram()
 template<typename BundleT>
 void OnDnSimulatorOptix::simulate(
     const Transform& Tbm,
-    BundleT& ret,
-    Culling culling) const
+    BundleT& ret) const
 {
   // upload pose
   Transform Tbm_tmp = Tbm;
   const MemoryView<Transform, RAM> Tbm_mem(&Tbm_tmp, 1);
   Memory<Transform, VRAM_CUDA> Tbm_gpu = Tbm_mem;
-  simulate(Tbm_gpu, ret, culling);
+  simulate(Tbm_gpu, ret);
 }
 
 template<typename BundleT>
-BundleT OnDnSimulatorOptix::simulate(const Transform& Tbm, Culling culling) const
+BundleT OnDnSimulatorOptix::simulate(const Transform& Tbm) const
 {
   BundleT res;
   resize_memory_bundle<VRAM_CUDA>(res, m_model->getWidth(), m_model->getHeight(), 1);
-  simulate(Tbm, res, culling);
+  simulate(Tbm, res);
   return res;
 }
 
 template<typename BundleT>
 void OnDnSimulatorOptix::simulate(
     const Memory<Transform, VRAM_CUDA>& Tbm,
-    BundleT& res,
-    Culling culling) const
+    BundleT& res) const
 {
   if(!m_map)
   {
@@ -67,7 +65,7 @@ void OnDnSimulatorOptix::simulate(
   Memory<OptixSimulationDataGeneric, RAM> mem(1);
   mem[0] = OptixSimulationDataGeneric::Zero();
   mem[0].model_type = 3;
-  mem[0].ray_flags = optix_ray_flags(culling);
+  mem[0].ray_flags = optix_ray_flags(m_culling);
   set_generic_flags(res, mem[0]);
 
   SimPipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
@@ -91,12 +89,11 @@ void OnDnSimulatorOptix::simulate(
 
 template<typename BundleT>
 BundleT OnDnSimulatorOptix::simulate(
-    const Memory<Transform, VRAM_CUDA>& Tbm,
-    Culling culling) const
+    const Memory<Transform, VRAM_CUDA>& Tbm) const
 {
   BundleT res;
   resize_memory_bundle<VRAM_CUDA>(res, m_width, m_height, Tbm.size());
-  simulate(Tbm, res, culling);
+  simulate(Tbm, res);
   return res;
 }
 

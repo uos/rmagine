@@ -9,6 +9,7 @@
 
 // Generic
 #include <rmagine/simulation/SimulationResults.hpp>
+#include <rmagine/simulation/SimulatorSettings.hpp>
 #include <rmagine/types/Bundle.hpp>
 #include <rmagine/simulation/optix/sim_program_data.h>
 
@@ -18,12 +19,6 @@
 
 namespace rmagine
 {
-
-enum class Culling
-{
-  None,
-  Backface
-};
 
 uint32_t optix_ray_flags(Culling culling);
 
@@ -40,9 +35,23 @@ public:
   void setTsb(const Memory<Transform, RAM>& Tsb);
   void setTsb(const Transform& Tsb);
 
-  inline OptixMapPtr map() const 
+  inline OptixMapPtr map() const
   {
     return m_map;
+  }
+
+  /**
+   * @brief Set the face culling mode used for all subsequent simulate() calls.
+   * Default: Culling::None
+   */
+  inline void setCulling(Culling culling)
+  {
+    m_culling = culling;
+  }
+
+  inline Culling culling() const
+  {
+    return m_culling;
   }
 
   /**
@@ -54,13 +63,11 @@ public:
   template<typename BundleT>
   void simulate(
       const Transform& Tbm,
-      BundleT& ret,
-      Culling culling = Culling::None) const;
+      BundleT& ret) const;
 
   template<typename BundleT>
   BundleT simulate(
-      const Transform& Tbm,
-      Culling culling = Culling::None) const;
+      const Transform& Tbm) const;
 
   /**
    * @brief Simulation of a LiDAR-Sensor in a given mesh
@@ -71,8 +78,7 @@ public:
    */
   template<typename BundleT>
   BundleT simulate(
-      const Memory<Transform, VRAM_CUDA>& Tbm,
-      Culling culling = Culling::None) const;
+      const Memory<Transform, VRAM_CUDA>& Tbm) const;
 
   // template<typename BundleT>
   // virtual void simulate(
@@ -85,6 +91,8 @@ protected:
   CudaStreamPtr m_stream;
   
   Memory<Transform, VRAM_CUDA> m_Tsb;
+
+  Culling m_culling = Culling::None;
 
   // generic model parameter
   uint32_t m_width;
