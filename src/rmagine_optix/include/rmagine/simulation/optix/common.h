@@ -290,7 +290,7 @@ struct hash<rmagine::OptixSimulationDataGeneric>
         std::size_t sensorTypeKey = static_cast<std::size_t>(k.model_type) << 24;
         
         // bitwise or
-        return (hitsKey | rangesKey | pointKey | normalsKey | faceIdsKey | geomIdsKey | objectIdsKey | barycentricsIdsKey);
+        return (hitsKey | rangesKey | pointKey | normalsKey | faceIdsKey | geomIdsKey | objectIdsKey | barycentricsIdsKey | sensorTypeKey);
     }
 };
 
@@ -299,9 +299,24 @@ struct hash<rmagine::OptixSimulationDataGeneric>
 namespace rmagine
 {
 
+/**
+ * @brief Equality of the pipeline-relevant fields (used as pipeline cache key).
+ *
+ * Compares the fields directly instead of comparing hashes, so that a field
+ * missing in the hash cannot make two different pipelines compare equal.
+ * Runtime launch parameters (e.g. ray_flags, buffers, poses) are not part of it.
+ */
 inline bool operator==(const OptixSimulationDataGeneric &a, const OptixSimulationDataGeneric &b)
-{ 
-    return std::hash<OptixSimulationDataGeneric>()(a) == std::hash<OptixSimulationDataGeneric>()(b);
+{
+    return a.model_type == b.model_type
+        && a.computeHits == b.computeHits
+        && a.computeRanges == b.computeRanges
+        && a.computePoints == b.computePoints
+        && a.computeNormals == b.computeNormals
+        && a.computeFaceIds == b.computeFaceIds
+        && a.computeGeomIds == b.computeGeomIds
+        && a.computeObjectIds == b.computeObjectIds
+        && a.computeBarycentrics == b.computeBarycentrics;
 }
 
 } // namespace rmagine
