@@ -68,8 +68,6 @@ void cuda_initialize();
 class CudaContext : std::enable_shared_from_this<CudaContext>
 {
 public:
-    CudaContext(int device_id = 0);
-    CudaContext(CUcontext ctx);
     ~CudaContext();
 
     /// Create a CudaContext using the device's primary context.
@@ -105,6 +103,10 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const CudaContext& dt);
 
 private:
+    /// Only used by the factories, which attach the matching cleanup
+    /// (release / destroy / nothing) to the returned shared_ptr.
+    CudaContext(CUcontext ctx);
+
     CUcontext m_context;
 };
 

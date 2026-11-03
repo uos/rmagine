@@ -34,15 +34,6 @@ static void ensure_cuda_init(int device_id)
     std::cout << "[Rmagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 }
 
-// Default constructor: uses primary context (backward compatible).
-// Lifetime is managed by the static factories below.
-CudaContext::CudaContext(int device_id)
-{
-    ensure_cuda_init(device_id);
-    cuDevicePrimaryCtxRetain(&m_context, device_id);
-    cuCtxSetCurrent(m_context);
-}
-
 CudaContext::CudaContext(CUcontext ctx)
 :m_context(ctx)
 {
