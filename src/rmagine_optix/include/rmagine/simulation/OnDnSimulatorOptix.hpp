@@ -139,10 +139,13 @@ public:
      * @param ret 
      */
     template<typename BundleT>
-    void simulate(const Transform& Tbm, BundleT& ret) const;
+    void simulate(
+        const Transform& Tbm,
+        BundleT& ret) const;
 
     template<typename BundleT>
-    BundleT simulate(const Transform& Tbm) const;
+    BundleT simulate(
+        const Transform& Tbm) const;
 
     /**
      * @brief Simulation of a LiDAR-Sensor in a given mesh
