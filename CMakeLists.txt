@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(rmagine 
     LANGUAGES CXX C
-    VERSION 2.4.1)# TODO update this version when merging into main-branch
+    VERSION 2.4.3)# TODO update this version when merging into main-branch
 
 option(RMAGINE_BUILD_TOOLS "Build tools" ON)
 option(RMAGINE_BUILD_TESTS "Build tests" ON)
@@ -182,23 +182,6 @@ endif(RMAGINE_BUILD_EXAMPLES)
 
 # CMAKE FIND SCRIPT
 include(CMakePackageConfigHelpers)
-
-#### INSTALL
-# 1. Headers
-# install(DIRECTORY include/rmagine 
-#   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-# 2. Libraries
-# install(TARGETS rmagine-cuda rmagine-optix EXPORT rmagineTargets)
-# 3. Static Libraries
-# install(TARGETS rmagine-cuda-static rmagine-optix-static EXPORT rmagineTargets)
-
-# install(EXPORT rmagineTargets
-#     FILE rmagineTargets.cmake
-#     NAMESPACE rmagine::
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rmagine)
-
-    
-# CMAKE FIND SCRIPT
 
 configure_package_config_file(cmake/rmagine-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/rmagine-config.cmake

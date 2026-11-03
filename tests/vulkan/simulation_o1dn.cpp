@@ -14,11 +14,21 @@ using namespace rmagine;
 
 VulkanMapPtr make_map()
 {
-    VulkanScenePtr scene = std::make_shared<VulkanScene>();
-
+    // A raw mesh added directly to the top-level scene (no instance
+    // wrapping) is not a valid top-level acceleration structure for
+    // simulate() to trace against -- always wrap meshes in an instance,
+    // same as make_vulkan_scene(const aiScene*) does.
+    VulkanScenePtr mesh_scene = std::make_shared<VulkanScene>();
     VulkanGeometryPtr mesh = std::make_shared<VulkanCube>();
     mesh->commit();
-    scene->add(mesh);
+    mesh_scene->add(mesh);
+    mesh_scene->commit();
+
+    VulkanScenePtr scene = std::make_shared<VulkanScene>();
+    VulkanInstPtr inst = mesh_scene->instantiate();
+    inst->apply();
+    inst->commit();
+    scene->add(inst);
     scene->commit();
 
     return std::make_shared<VulkanMap>(scene);

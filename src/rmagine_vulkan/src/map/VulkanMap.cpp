@@ -12,7 +12,12 @@ VulkanMap::VulkanMap() : VulkanEntity()
 
 VulkanMap::VulkanMap(VulkanScenePtr scene) : VulkanEntity()
 {
-    setScene(scene);
+    // Store directly, without setScene()'s validate-and-auto-wrap logic --
+    // mirrors OptixMap's constructor. A scene constructed together with its
+    // map (as every RmagineXMapSystem does) starts out empty (type NONE)
+    // and is only populated/committed afterwards, so validating its type
+    // here would reject the exact pattern this constructor exists for.
+    m_scene = scene;
 }
 
 VulkanMap::~VulkanMap()

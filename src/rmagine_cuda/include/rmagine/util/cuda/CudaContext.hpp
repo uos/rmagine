@@ -59,7 +59,7 @@ static void printCudaInfo()
     driver_version_str << driver / 1000 << "." << (driver % 1000) / 10 << "." << driver % 10;
     cuda_version_str << cuda_version / 1000 << "." << (cuda_version % 1000) / 10 << "." << cuda_version % 10;
 
-    std::cout << "[RMagine - CudaContext] CUDA Driver Version / Runtime Version: " << driver_version_str.str() << " / " << cuda_version_str.str() << std::endl;
+    std::cout << "[Rmagine - CudaContext] CUDA Driver Version / Runtime Version: " << driver_version_str.str() << " / " << cuda_version_str.str() << std::endl;
 }
 
 bool cuda_initialized();

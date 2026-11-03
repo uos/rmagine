@@ -107,7 +107,7 @@ static EmbreeMapPtr import_embree_map(
 
     if(!ascene->HasMeshes())
     {
-        std::cerr << "[RMagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
+        std::cerr << "[Rmagine - Error] importEmbreeMap() - file '" << meshfile << "' contains no meshes" << std::endl;
     }
 
     EmbreeScenePtr scene = make_embree_scene(ascene, device);

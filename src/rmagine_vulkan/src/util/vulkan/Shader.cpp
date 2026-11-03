@@ -8,7 +8,7 @@ namespace rmagine
 
 Shader::Shader(DeviceWPtr device, ShaderType shaderType, ShaderDefineFlags shaderDefines) :  device(device)
 {
-    std::cout << "[RMagine - Shader] compiling & creating shader: " << get_shader_info(shaderType, shaderDefines) << std::endl;
+    std::cout << "[Rmagine - Shader] compiling & creating shader: " << get_shader_info(shaderType, shaderDefines) << std::endl;
     createShader(compileShader(shaderType, shaderDefines));
 }
 

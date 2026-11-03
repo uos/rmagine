@@ -7,7 +7,7 @@ It introduces:
 - Vulkan buffer as rmagine memory object `Memory<DEVICE_LOCAL_VULKAN>`
     - copyable to `Memory<CPU>`
     - copyable to `Memory<VRAM_CUDA>` via [rmagine_vulkan_cuda_interop](/src/rmagine_vulkan_cuda_interop).
-- Vulkan Scene description (currently only static scenes are possible, TODO for the future)
+- Vulkan Scene description, with incremental updates (instance transforms and mesh vertex/pre-transform changes are refit in place instead of rebuilding the acceleration structure from scratch; adding/removing geometry still triggers a full rebuild)
 - Vulkan Simulators (Spherical, Pinhole, O1Dn, OnDn)
 
 ## Requirements

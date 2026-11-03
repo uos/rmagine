@@ -1,0 +1,81 @@
+name: cmake_macos_reusable
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  cmake-build:
+    name: build
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: rmagine
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install tbb boost eigen assimp jsoncpp cmake
+          echo 'MACOSX_DEPLOYMENT_TARGET=13.0' >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: |
+          set -euxo pipefail
+          mkdir -p rmagine/build
+          cd rmagine/build
+          cmake \
+              -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}" \
+              -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+              -DRMAGINE_CUDA_DISABLE=ON \
+              -DRMAGINE_OPTIX_DISABLE=ON \
+              ..
+
+      - name: Build
+        run: make -j"$(sysctl -n hw.logicalcpu)" -C rmagine/build
+
+      - name: Archive build directory
+        run: tar czf /tmp/cmake-macos-build.tar.gz -C rmagine build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmake-macos-build
+          path: /tmp/cmake-macos-build.tar.gz
+
+  cmake-test:
+    name: tests
+    runs-on: ${{ inputs.os }}
+    needs: cmake-build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: rmagine
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install tbb boost eigen assimp jsoncpp cmake
+          echo 'MACOSX_DEPLOYMENT_TARGET=13.0' >> "$GITHUB_ENV"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cmake-macos-build
+          path: /tmp
+
+      - name: Extract build directory
+        run: tar xzf /tmp/cmake-macos-build.tar.gz -C rmagine
+
+      - name: Run tests
+        run: |
+          cd rmagine/build
+          ./bin/rmagine_version
+          ctest --output-on-failure

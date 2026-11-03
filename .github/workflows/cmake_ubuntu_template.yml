@@ -1,0 +1,89 @@
+name: cmake_ubuntu_reusable
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  cmake-build:
+    name: build
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: rmagine
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libtbb-dev \
+            libboost-dev \
+            libeigen3-dev \
+            libassimp-dev \
+            libjsoncpp-dev \
+            cmake
+
+      - name: Configure
+        run: |
+          set -euxo pipefail
+          mkdir -p rmagine/build
+          cd rmagine/build
+          cmake \
+              -DRMAGINE_CUDA_DISABLE=ON \
+              -DRMAGINE_OPTIX_DISABLE=ON \
+              ..
+
+      - name: Build
+        run: make -j"$(nproc)" -C rmagine/build
+
+      - name: Archive build directory
+        run: tar czf /tmp/cmake-ubuntu-build.tar.gz -C rmagine build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmake-ubuntu-build
+          path: /tmp/cmake-ubuntu-build.tar.gz
+
+  cmake-test:
+    name: tests
+    runs-on: ${{ inputs.os }}
+    needs: cmake-build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: rmagine
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libtbb-dev \
+            libboost-dev \
+            libeigen3-dev \
+            libassimp-dev \
+            libjsoncpp-dev \
+            cmake
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cmake-ubuntu-build
+          path: /tmp
+
+      - name: Extract build directory
+        run: tar xzf /tmp/cmake-ubuntu-build.tar.gz -C rmagine
+
+      - name: Run tests
+        run: |
+          cd rmagine/build
+          ./bin/rmagine_version
+          ctest --output-on-failure

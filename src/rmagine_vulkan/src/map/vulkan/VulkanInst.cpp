@@ -55,13 +55,8 @@ void VulkanInst::apply()
 
 void VulkanInst::commit()
 {
-    if(m_scene)
-    {
-        // nothing to do here currently
-        // is here just in case
-
-        // TODO: track changes to m_data for updating acceleration structures
-    }
+    // nothing to do here: m_data already holds the latest transform (set in apply()) and is
+    // re-read from the parent VulkanScene on its next commit() (build or update)
 }
 
 unsigned int VulkanInst::depth() const 
