@@ -5,7 +5,8 @@ namespace rmagine
 
 template<typename BundleT>
 void SimulatorOptix::simulate(
-  const Transform& Tbm, BundleT& ret) const
+  const Transform& Tbm,
+  BundleT& ret) const
 {
   // upload pose
   Transform Tbm_tmp = Tbm;

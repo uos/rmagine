@@ -26,7 +26,7 @@ public:
 
     static OptixContextPtr create(int device = 0)
     {
-        CudaContextPtr cuda_ctx(new CudaContext(0));
+        CudaContextPtr cuda_ctx = CudaContext::createPrimary(device);
         return std::make_shared<OptixContext>(cuda_ctx);
     }
 

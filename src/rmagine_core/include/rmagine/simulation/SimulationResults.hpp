@@ -100,6 +100,16 @@ struct FaceIds {
     Memory<unsigned int, MemT> face_ids;
 };
 
+/**
+ * @brief Barycentrics (u, v) computed by simulators, w=1-u-v
+ * 
+ * @tparam MemT 
+ */
+template<typename MemT>
+struct Barycentrics {
+    Memory<Vector2, MemT> barycentrics;
+};
+
 template<typename MemT>
 using PrimitiveIds = FaceIds<MemT>;
 
@@ -155,6 +165,7 @@ using IntAttrAll = Bundle<
     Points<MemT>,
     Normals<MemT>,
     FaceIds<MemT>,
+    Barycentrics<MemT>,
     GeomIds<MemT>,
     ObjectIds<MemT>
 >;
@@ -203,6 +214,12 @@ static void resize_memory_bundle(BundleT& res,
     {
         res.FaceIds<MemT>::face_ids.resize(W*H*N);
     }
+
+    if constexpr(BundleT::template has<Barycentrics<MemT> >())
+    {
+        res.Barycentrics<MemT>::barycentrics.resize(W*H*N);
+    }
+
 
     if constexpr(BundleT::template has<GeomIds<MemT> >())
     {
