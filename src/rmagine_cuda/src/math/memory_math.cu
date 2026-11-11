@@ -444,6 +444,20 @@ __global__ void cov_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -457,6 +471,7 @@ __global__ void cov_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {
@@ -611,7 +626,12 @@ void multNx1(
 {
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
-    cuda::multNxN_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
+    // multNx1 multiplies all N entries of A by the single element b[0]; the
+    // sibling Transform/Matrix3x3 overloads already use multNx1_kernel. This
+    // one wrongly used multNxN_kernel, which reads b[id] for id<N and walks off
+    // the size-1 b buffer. CUDA tolerated the out-of-bounds read; AMD faults
+    // (Memory access fault, cuda_math test). Use multNx1_kernel like the rest.
+    cuda::multNx1_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
     RM_CUDA_DEBUG();
 }
 
@@ -1431,7 +1451,12 @@ __global__ void sum_kernel(
     const unsigned int bid = blockIdx.x;
     const unsigned int glob_shift = n_elems_per_block * bid;
 
-    sdata[tid] *= 0.0;
+    // Seed each lane with a true typed zero (data[0] - data[0]). The previous
+    // `sdata[tid] *= 0.0` read uninitialized shared memory first; on AMD that
+    // garbage is routinely NaN/Inf, which survives the multiply and poisons the
+    // reduction. data[0] is always in bounds for a non-empty reduction input.
+    sdata[tid] = data[0];
+    sdata[tid] -= data[0];
     for(unsigned int i=0; i<n_rows; i++)
     {
         const unsigned int data_id = glob_shift + i * nMemElems + tid; // advance one row
@@ -1442,6 +1467,22 @@ __global__ void sum_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        } else {
+            // TODO: can this thread do something useful in the meantime?
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s = nMemElems / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -1457,6 +1498,7 @@ __global__ void sum_kernel(
     {
         warpReduce<nMemElems>(sdata, tid);
     }
+#endif
 
     // Do this instead for types that have no volotile operators implemented:
     // for(unsigned int s = nMemElems / 2; s > 0; s >>= 1)

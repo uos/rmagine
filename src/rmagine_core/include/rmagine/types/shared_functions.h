@@ -41,7 +41,13 @@
 #ifndef RMAGINE_TYPES_SHARED_FUNCTIONS_H
 #define RMAGINE_TYPES_SHARED_FUNCTIONS_H
 
-#ifdef __CUDA_ARCH__
+// __CUDACC__/__HIPCC__ are defined in BOTH the host and device compiler passes
+// (unlike __CUDA_ARCH__/__HIP_DEVICE_COMPILE__, which are device-pass only).
+// Keying on them gives the host/device functions a consistent signature across
+// passes, which the stricter HIP/clang front end requires when device code
+// calls these shared math/memory helpers. A plain g++ CPU build defines neither
+// macro, so it still gets the empty host-only expansions below.
+#if defined(__CUDACC__) || defined(__HIPCC__)
 #define RMAGINE_FUNCTION __host__ __device__
 #define RMAGINE_INLINE_FUNCTION __inline__ __host__ __device__ 
 #define RMAGINE_HOST_FUNCTION __host__

@@ -13,6 +13,11 @@ __device__ void warpReduce(volatile T* sdata, unsigned int tid)
     if(blockSize >=  2) sdata[tid] += sdata[tid + 1];
 }
 
+// NOTE: this sum_kernel is unused -- it has no callers in src/ or tests/ and is
+// not declared in any header. The load-bearing sum/cov/mean reductions live in
+// memory_math.cu (sum_kernel<1024>, cov_kernel<1024>); the exported statistics
+// path is statistics_p2p/p2l/objectwise_p2l below. The wave-size hardening here
+// is kept only so all warp-tail reductions in this TU read consistently.
 template<unsigned int blockSize, typename T>
 __global__ void sum_kernel(
     const T* data,
@@ -35,6 +40,23 @@ __global__ void sum_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: the CUDA path below runs the __syncthreads tree down
+    // to s>32 and then a 32-lane warp-synchronous (volatile, no __syncwarp)
+    // tail. That tail assumes a 32-lane lockstep wavefront. A 64-lane wavefront
+    // (gfx90a) executes the low 32 lanes in lockstep in practice, so this is not
+    // observed to miscompute today, but the unsynchronized tail is not
+    // guaranteed on a 64-lane wave. Run the full block-wide __syncthreads tree
+    // to s>0 instead: same add order, correct on any wave size. CUDA unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -48,6 +70,7 @@ __global__ void sum_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {

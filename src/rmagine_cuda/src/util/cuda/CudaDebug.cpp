@@ -1,6 +1,6 @@
 #include "rmagine/util/cuda/CudaDebug.hpp"
 
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 
 void cudaAssert(
    cudaError_t code, 
