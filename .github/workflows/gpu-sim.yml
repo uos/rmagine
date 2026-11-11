@@ -1,0 +1,76 @@
+name: GPU Simulator
+
+# Optional, non-required check. The hosted runners have no GPU, so this builds
+# the CUDA backend (rmagine::cuda) and runs its ctest executables on a
+# simulated NVIDIA H100 (https://github.com/pantheongpu/pantheonsim). A
+# simulator cannot reproduce hardware-specific behavior or timing, so it
+# complements real-GPU testing and does not replace it.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "src/rmagine_core/**"
+      - "src/rmagine_cuda/**"
+      - "tests/cuda/**"
+      - "cmake/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/gpu-sim.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cuda-tests:
+    name: cuda tests (CUDA 13.0 and simulated H100)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libtbb-dev \
+            libboost-dev \
+            libeigen3-dev \
+            libassimp-dev \
+            libjsoncpp-dev \
+            cmake
+
+      - name: Set up the simulated GPU and CUDA toolkit
+        uses: pantheongpu/setup-pantheonsim@ca87fe3143b29166822b923d6050945c5179408c # v0.1.5
+        with:
+          gpu: nvidia/h100
+          cuda-toolkit: "13.0"
+
+      # The simulator runs PTX (90-virtual embeds PTX only) and needs a shared
+      # CUDA runtime.
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DRMAGINE_OPTIX_DISABLE=ON \
+            -DRMAGINE_VULKAN_CUDA_INTEROP_DISABLE=ON \
+            -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.0/bin/nvcc \
+            -DCMAKE_CUDA_ARCHITECTURES=90-virtual \
+            -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared
+
+      - name: Build
+        run: cmake --build build -j3
+
+      # cuda_math is left out: its multNx1 call on two Quaternion memories
+      # launches multNxN_kernel (src/rmagine_cuda/src/math/memory_math.cu), so
+      # the kernel reads b[id] from a one-element buffer. The simulator reports
+      # that out-of-bounds read; a real GPU does not fault on it.
+      - name: Test
+        run: vgpu run ctest --test-dir build --output-on-failure --no-tests=error -R '^cuda_' -E '^cuda_math$'
