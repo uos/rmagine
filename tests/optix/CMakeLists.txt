@@ -42,3 +42,11 @@ target_link_libraries(rmagine_tests_optix_correction_rcc
 )
 
 add_test(NAME optix_correction_rcc COMMAND rmagine_tests_optix_correction_rcc)
+
+# 6. Multiple sensor types on one shared scene (pipeline cache)
+add_executable(rmagine_tests_optix_simulation_multi_sensor simulation_multi_sensor.cpp)
+target_link_libraries(rmagine_tests_optix_simulation_multi_sensor
+    rmagine::optix
+)
+
+add_test(NAME optix_simulation_multi_sensor COMMAND rmagine_tests_optix_simulation_multi_sensor)

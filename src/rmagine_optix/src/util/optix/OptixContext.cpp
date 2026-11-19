@@ -45,7 +45,7 @@ void optix_initialize()
   
   required_driver_version = driver_it->second;
   
-  std::cout << "[RMagine - OptixContext] Init Optix (" << optix_version_str.str() << "). Required GPU driver >= " << driver_it->second / 100 << "." << driver_it->second % 100;
+  std::cout << "[Rmagine - OptixContext] Init Optix (" << optix_version_str.str() << "). Required GPU driver >= " << driver_it->second / 100 << "." << driver_it->second % 100;
   
   if(driver_it->first != OPTIX_VERSION)
   {

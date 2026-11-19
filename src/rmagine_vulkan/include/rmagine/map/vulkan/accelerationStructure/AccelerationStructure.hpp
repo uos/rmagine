@@ -60,9 +60,18 @@ public:
     }
 
 protected:
+    /**
+     * @brief (re)build or in-place update the acceleration structure
+     *
+     * mode == BUILD: (re)create the AS from scratch, sized for accelerationStructureGeometrys/
+     *                accelerationStructureBuildRangeInfos as given.
+     * mode == UPDATE: refit the existing AS in place (same handle/buffer, same primitive counts
+     *                 as the last BUILD) - only valid after a prior BUILD.
+     */
     void createAccelerationStructure(
-        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys, 
-        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos);
+        std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys,
+        std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos,
+        VkBuildAccelerationStructureModeKHR mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR);
 };
 
 using AccelerationStructurePtr = std::shared_ptr<AccelerationStructure>;

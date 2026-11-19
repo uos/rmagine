@@ -218,6 +218,20 @@ void computeNoFaceId()
 }
 
 __forceinline__ __device__
+void computeBarycentrics()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    const float2 barycentrics = optixGetTriangleBarycentrics();
+    mem.barycentrics[glob_id] = {barycentrics.x, barycentrics.y};
+}
+
+__forceinline__ __device__
+void computeNoBarycentrics()
+{
+    const unsigned int glob_id = optixGetPayload_0();
+    mem.barycentrics[glob_id] = {CUDART_NAN_F, CUDART_NAN_F};
+}
+__forceinline__ __device__
 void computeGeomId()
 {
     const unsigned int glob_id = optixGetPayload_0();
@@ -292,6 +306,11 @@ extern "C" __global__ void __miss__ms()
         computeNoFaceId();
     }
 
+    if(mem.computeBarycentrics)
+    {
+        computeNoBarycentrics();
+    }
+
     if(mem.computeGeomIds)
     {
         computeNoGeomId();
@@ -332,6 +351,11 @@ extern "C" __global__ void __closesthit__ch()
     if(mem.computeFaceIds)
     {
         computeFaceId();
+    }
+
+    if(mem.computeBarycentrics)
+    {
+      computeBarycentrics();
     }
 
     if(mem.computeGeomIds)

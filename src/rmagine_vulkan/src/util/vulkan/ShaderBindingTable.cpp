@@ -11,18 +11,15 @@ ShaderBindingTable::ShaderBindingTable(DeviceWPtr device, RayTracingPipelineLayo
     pipeline(new RayTracingPipeline(device, pipelineLayout, shaderDefines)),
     shaderBindingTableMemory(0, VulkanMemoryUsage::Usage_ShaderBindingTable)
 {
-    std::cout << "[RMagine - ShaderBindingTable] creating sbt & pipeline: " << get_shader_defines_info(shaderDefines) << std::endl;
+    std::cout << "[Rmagine - ShaderBindingTable] creating sbt & pipeline: " << get_shader_defines_info(shaderDefines) << std::endl;
     createShaderBindingTable();
 }
-
 
 ShaderBindingTable::~ShaderBindingTable()
 {
     if(pipeline != nullptr)
         pipeline.reset();
 }
-
-
 
 void ShaderBindingTable::createShaderBindingTable()
 {
@@ -73,12 +70,10 @@ void ShaderBindingTable::createShaderBindingTable()
     callableShaderBindingTable.size = 0;
 }
 
-
 RayTracingPipelinePtr ShaderBindingTable::getPipeline()
 {
     return pipeline;
 }
-
 
 VkStridedDeviceAddressRegionKHR* ShaderBindingTable::getRayGenerationShaderBindingTablePtr()
 {

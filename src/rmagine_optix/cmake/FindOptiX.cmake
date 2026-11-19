@@ -1,8 +1,6 @@
 ### FindOptiX
 # Variables Set:
 # Pure Optix:
-# - OptiX_LIBRARY (Path to optix library)
-# - OptiX_LIBRARY_DRIVER_VERSION (NVIDIA driver version for optix library, fetched from library name)
 # - OptiX_INCLUDE_DIR (Path to OptiX header folder)
 # - OptiX_VERSION (fetched from headers)
 # - OptiX_FOUND (= TRUE, only if header & lib is found) 
@@ -10,42 +8,8 @@
 # - OptiX_INCLUDE_DIRS
 # - Optix_LIBRARIES
 
-find_package(PkgConfig)
-pkg_check_modules(OptiX QUIET optix)
-
-# 1. LIBRARY
-
-# 1. general search
-find_library(OptiX_LIBRARY
-  NAMES optix.1 optix
-  )
-
-# 2. more special search
-if(NOT OptiX_LIBRARY)
-find_library(OptiX_LIBRARY
-  NAMES nvoptix.1 nvoptix libnvoptix.so.1 libnvoptix.so
-  )
-endif()
-# 3. more special search
-if(NOT OptiX_LIBRARY)
-find_library(OptiX_LIBRARY
-  NAMES libnvoptix.so.1 libnvoptix.so
-  )
-endif()
-
-if(OptiX_LIBRARY)
-  set(OptiX_LIBRARY_FOUND TRUE)
-
-  # try to auto-determine driver version
-  get_filename_component(OptiX_LIBRARY_REALPATH ${OptiX_LIBRARY} REALPATH)
-  get_filename_component(OptiX_LIBRARY_REALNAME ${OptiX_LIBRARY_REALPATH} NAME)
-
-  # Try extracting version number from filename
-  string(REGEX MATCH "[0-9]+(\\.[0-9]+)*" OptiX_LIBRARY_DRIVER_VERSION "${OptiX_LIBRARY_REALNAME}")
-
-  message(STATUS "OptiX Driver version: ${OptiX_LIBRARY_DRIVER_VERSION}")
-
-endif(OptiX_LIBRARY)
+#find_package(PkgConfig)
+#pkg_check_modules(OptiX QUIET optix)
 
 # 2. HEADERS
 
@@ -123,12 +87,10 @@ endif()
 
 
 # 3. Cleanup 
-if(OptiX_LIBRARY AND OptiX_INCLUDE_DIR)
+if(OptiX_INCLUDE_DIR)
   set(OptiX_FOUND TRUE)
-  set(OptiX_LIBRARIES ${OptiX_LIBRARY})
   set(OptiX_INCLUDE_DIRS ${OptiX_INCLUDE_DIR})
 
-  message(STATUS "OPTIX LIB: ${OptiX_LIBRARY}")
 
 
   

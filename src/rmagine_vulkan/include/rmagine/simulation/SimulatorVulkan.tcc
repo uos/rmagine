@@ -6,10 +6,10 @@ namespace rmagine
 {
 
 template<typename SensorModelRamT>
-SimulatorVulkan<SensorModelRamT>::SimulatorVulkan() : 
-    vulkan_context(get_vulkan_context()), map(nullptr), sensorMem(1), 
-    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
-    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan() :
+    vulkan_context(get_vulkan_context()), map(nullptr), sensorMem(1),
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform),
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform),
     tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
     // uniform buffers might slightly increase performance for small readonly buffers
 {
@@ -17,13 +17,21 @@ SimulatorVulkan<SensorModelRamT>::SimulatorVulkan() :
 
     commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
     descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+
+    // tsbMem is otherwise left as uninitialized GPU memory -- without this,
+    // a caller that never calls setTsb() gets a degenerate all-zero
+    // transform (not identity), which zeroes out every ray direction via
+    // rotateVec3() and silently makes every ray miss. SimulatorOptix/
+    // SimulatorEmbree both default their Tsb to identity in their
+    // constructors; this mirrors that.
+    setTsb(Transform::Identity());
 }
 
 template<typename SensorModelRamT>
-SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) : 
-    vulkan_context(get_vulkan_context()), map(map), sensorMem(1), 
-    tsbMem(1, VulkanMemoryUsage::Usage_Uniform), 
-    resultsMem(1, VulkanMemoryUsage::Usage_Uniform), 
+SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) :
+    vulkan_context(get_vulkan_context()), map(map), sensorMem(1),
+    tsbMem(1, VulkanMemoryUsage::Usage_Uniform),
+    resultsMem(1, VulkanMemoryUsage::Usage_Uniform),
     tbmAndSensorSpecificMem(1, VulkanMemoryUsage::Usage_Uniform)
     // uniform buffers might slightly increase performance for small readonly buffers
 {
@@ -31,6 +39,9 @@ SimulatorVulkan<SensorModelRamT>::SimulatorVulkan(VulkanMapPtr map) :
 
     commandBuffer = std::make_shared<CommandBuffer>(vulkan_context);
     descriptorSet = std::make_shared<DescriptorSet>(vulkan_context);
+
+    // see the identical comment in the default constructor above.
+    setTsb(Transform::Identity());
 }
 
 template<typename SensorModelRamT>
@@ -177,7 +188,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         descriptorSet->updateDescriptorSet(map->scene()->as(), 
                                            map->scene()->as()->this_shared<TopLevelAccelerationStructure>()->m_asInstancesDescriptions.getBuffer(), 
                                            sensorMem.getBuffer(), resultsMem.getBuffer(), tsbMem.getBuffer(), tbmAndSensorSpecificMem.getBuffer());
-        std::cout << "[RMagine - SimulatorVulkan] updated descriptor set" << std::endl;
+        std::cout << "[Rmagine - SimulatorVulkan] updated descriptor set" << std::endl;
 
         //TODO:
         //maybe the commandbuffer does not need to be rerecorded
@@ -198,7 +209,7 @@ void SimulatorVulkan<SensorModelRamT>::simulate(Memory<Transform, DEVICE_LOCAL_V
         previousDimensions.depth  = newDimensions.depth;
 
         commandBuffer->recordRayTracingToCommandBuffer(descriptorSet, shaderBindingTable, newDimensions.width, newDimensions.height, newDimensions.depth);
-        std::cout << "[RMagine - SimulatorVulkan] (re)recorded instructions to command buffer" << std::endl;
+        std::cout << "[Rmagine - SimulatorVulkan] (re)recorded instructions to command buffer" << std::endl;
     }
 
     commandBuffer->submitRecordedCommandAndWait();

@@ -626,11 +626,6 @@ void multNx1(
 {
     constexpr unsigned int blockSize = 64;
     const unsigned int gridSize = (A.size() + blockSize - 1) / blockSize;
-    // multNx1 multiplies all N entries of A by the single element b[0]; the
-    // sibling Transform/Matrix3x3 overloads already use multNx1_kernel. This
-    // one wrongly used multNxN_kernel, which reads b[id] for id<N and walks off
-    // the size-1 b buffer. CUDA tolerated the out-of-bounds read; AMD faults
-    // (Memory access fault, cuda_math test). Use multNx1_kernel like the rest.
     cuda::multNx1_kernel<<<gridSize, blockSize>>>(A.raw(), b.raw(), C.raw(), A.size());
     RM_CUDA_DEBUG();
 }

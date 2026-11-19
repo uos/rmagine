@@ -8,14 +8,11 @@
 namespace rmagine
 {
 
-BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries) : 
-    AccelerationStructure(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR),
-    m_meshDescriptions_ram(geometries.size()),
-    m_meshDescriptions(geometries.size())
+void BottomLevelAccelerationStructure::makeGeometryInput(
+    std::map<unsigned int, VulkanGeometryPtr>& geometries,
+    std::vector<VkAccelerationStructureGeometryKHR>& accelerationStructureGeometrys,
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR>& accelerationStructureBuildRangeInfos)
 {
-    std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
-    std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
-
     size_t idx = 0;
     for(auto const& geometry : geometries)
     {
@@ -67,8 +64,27 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(std::map<unsi
         idx++;
     }
     m_meshDescriptions = m_meshDescriptions_ram;
+}
+
+BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(std::map<unsigned int, VulkanGeometryPtr>& geometries) :
+    AccelerationStructure(VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR),
+    m_meshDescriptions_ram(geometries.size()),
+    m_meshDescriptions(geometries.size())
+{
+    std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
+    makeGeometryInput(geometries, accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
 
     createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+}
+
+void BottomLevelAccelerationStructure::update(std::map<unsigned int, VulkanGeometryPtr>& geometries)
+{
+    std::vector<VkAccelerationStructureGeometryKHR> accelerationStructureGeometrys;
+    std::vector<VkAccelerationStructureBuildRangeInfoKHR> accelerationStructureBuildRangeInfos;
+    makeGeometryInput(geometries, accelerationStructureGeometrys, accelerationStructureBuildRangeInfos);
+
+    createAccelerationStructure(accelerationStructureGeometrys, accelerationStructureBuildRangeInfos, VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR);
 }
 
 BottomLevelAccelerationStructure::~BottomLevelAccelerationStructure()

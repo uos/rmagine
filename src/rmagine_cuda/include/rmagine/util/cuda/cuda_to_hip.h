@@ -67,6 +67,8 @@
 #define cuCtxPushCurrent            hipCtxPushCurrent
 #define cuCtxGetDevice              hipCtxGetDevice
 #define cuCtxSynchronize            hipCtxSynchronize
+#define cuDevicePrimaryCtxRetain    hipDevicePrimaryCtxRetain
+#define cuDevicePrimaryCtxRelease   hipDevicePrimaryCtxRelease
 
 #else // CUDA
 

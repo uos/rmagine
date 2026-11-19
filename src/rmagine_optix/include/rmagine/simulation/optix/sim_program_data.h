@@ -46,11 +46,14 @@ struct OptixSimulationDataGeneric {
     uint32_t                    Nposes;
     // Handle
     unsigned long long      handle;
+    // Runtime traversal configuration
+    uint32_t                    ray_flags;
     // Generic Options
     bool                        computeHits;
     bool                        computeRanges;
     bool                        computePoints;
     bool                        computeNormals;
+    bool                        computeBarycentrics;
     bool                        computeFaceIds;
     bool                        computeGeomIds;
     bool                        computeObjectIds;
@@ -59,6 +62,7 @@ struct OptixSimulationDataGeneric {
     float*                      ranges;
     Point*                      points;
     Vector*                     normals;
+    Vector2*                    barycentrics;
     unsigned int*               face_ids;
     unsigned int*               geom_ids;
     unsigned int*               object_ids;
@@ -70,13 +74,16 @@ struct OptixSimulationDataGeneric {
         ret.computeRanges = false;
         ret.computePoints = false;
         ret.computeNormals = false;
+        ret.computeBarycentrics = false;
         ret.computeFaceIds = false;
         ret.computeGeomIds = false;
         ret.computeObjectIds = false;
+        ret.ray_flags = 0; // OPTIX_RAY_FLAG_NONE
         ret.hits = nullptr;
         ret.ranges = nullptr;
         ret.points = nullptr;
         ret.normals = nullptr;
+        ret.barycentrics = nullptr;
         ret.face_ids = nullptr;
         ret.geom_ids = nullptr;
         ret.object_ids = nullptr;
@@ -95,6 +102,7 @@ inline uint32_t get_bounding_id(const OptixSimulationDataGeneric& flags)
     ret |= static_cast<uint32_t>(flags.computeFaceIds) << 4;
     ret |= static_cast<uint32_t>(flags.computeGeomIds) << 5;
     ret |= static_cast<uint32_t>(flags.computeObjectIds) << 6;
+    ret |= static_cast<uint32_t>(flags.computeBarycentrics) << 7;
 
     return ret;
 }

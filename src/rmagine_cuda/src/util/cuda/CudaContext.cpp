@@ -21,40 +21,67 @@ void cuda_initialize()
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-CudaContext::CudaContext(int device_id)
+static void ensure_cuda_init(int device_id)
 {
     if(!cuda_initialized())
     {
-        // std::cout << "[RMagine - CudaContext] Init Cuda" << std::endl;
+        // std::cout << "[Rmagine - CudaContext] Init Cuda" << std::endl;
         printCudaInfo();
         cuda_initialize();
     }
 
     cudaDeviceProp info = cuda::getDeviceInfo(device_id);
-    std::cout << "[RMagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
-
-    // We use cuCtxCreate which is part of the driver. 
-    // this is why we can use CUDA_VERSION
-    #if CUDA_VERSION >= 13000
-    // New API since CUDA 13: CUctxCreateParams* ctxCreateParams (nullptr)
-    // TODO: check if we should do something with it instead of setting it to nullptr
-    cuCtxCreate(&m_context, nullptr, 0, device_id);
-    #else
-    // CUDA < 13
-    cuCtxCreate(&m_context, 0, device_id);
-    #endif
+    std::cout << "[Rmagine - CudaContext] Construct context on device " << device_id << " - " << info.name << " " << info.luid << std::endl;
 }
 
 CudaContext::CudaContext(CUcontext ctx)
 :m_context(ctx)
 {
-    
 }
 
+// Destructor is intentionally a no-op. Cleanup is handled by
+// the custom deleters in the static factory methods.
 CudaContext::~CudaContext()
 {
-    cuCtxDestroy(m_context);
-    // std::cout << "[CudaContext::~CudaContext()] destroyed." << std::endl;
+}
+
+CudaContextPtr CudaContext::createPrimary(int device_id)
+{
+    ensure_cuda_init(device_id);
+
+    CUcontext ctx;
+    cuDevicePrimaryCtxRetain(&ctx, device_id);
+    cuCtxSetCurrent(ctx);
+
+    return CudaContextPtr(new CudaContext(ctx), [device_id](CudaContext* p) {
+        cuDevicePrimaryCtxRelease(device_id);
+        delete p;
+    });
+}
+
+CudaContextPtr CudaContext::createStandalone(int device_id)
+{
+    ensure_cuda_init(device_id);
+
+    CUcontext ctx;
+    #if CUDA_VERSION >= 13000
+    cuCtxCreate(&ctx, nullptr, 0, device_id);
+    #else
+    cuCtxCreate(&ctx, 0, device_id);
+    #endif
+
+    return CudaContextPtr(new CudaContext(ctx), [](CudaContext* p) {
+        cuCtxDestroy(p->ref());
+        delete p;
+    });
+}
+
+CudaContextPtr CudaContext::fromExternal(CUcontext ctx)
+{
+    // No-op deleter: caller owns the context
+    return CudaContextPtr(new CudaContext(ctx), [](CudaContext* p) {
+        delete p;
+    });
 }
 
 int CudaContext::getDeviceId() const
@@ -184,7 +211,7 @@ CUcontext CudaContext::ref()
 
 std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
 {
-    
+
     cudaDeviceProp info = ctx.getDeviceInfo();
     int device = ctx.getDeviceId();
 
@@ -196,17 +223,11 @@ std::ostream& operator<<(std::ostream& os, const CudaContext& ctx)
     return os;
 }
 
-CudaContextPtr cuda_def_ctx(new CudaContext(0));
+// Default global context: uses primary context for runtime API interop.
+CudaContextPtr cuda_def_ctx = CudaContext::createPrimary(0);
 
 CudaContextPtr cuda_current_context()
 {
-    // if(!cuda_def_ctx->defaultStream())
-    // {
-    //     std::cout << "initDefaultStream" << std::endl;
-    //     cuda_def_ctx->initDefaultStream();
-    //     std::cout << "initDefaultStream done." << std::endl;
-    // }
-    
     return cuda_def_ctx;
 }
 

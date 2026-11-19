@@ -56,6 +56,14 @@ static std::vector<OptixModuleCompileBoundValueEntry> make_bounds(
         options.push_back(option);
     }
 
+    { // computeBarycentrics
+        OptixModuleCompileBoundValueEntry option = {};
+        option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeBarycentrics);
+        option.sizeInBytes = sizeof( OptixSimulationDataGeneric::computeBarycentrics );
+        option.boundValuePtr = &flags.computeBarycentrics;
+        options.push_back(option);
+    }
+
     { // computeGeomIds
         OptixModuleCompileBoundValueEntry option = {};
         option.pipelineParamOffsetInBytes = offsetof(OptixSimulationDataGeneric, computeGeomIds);

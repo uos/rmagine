@@ -23,7 +23,9 @@ void PinholeSimulatorOptix::preBuildProgram()
 }
 
 template<typename BundleT>
-void PinholeSimulatorOptix::simulate(const Transform& Tbm, BundleT& ret) const
+void PinholeSimulatorOptix::simulate(
+    const Transform& Tbm,
+    BundleT& ret) const
 {
   // upload pose
   Transform Tbm_tmp = Tbm;
@@ -64,6 +66,7 @@ void PinholeSimulatorOptix::simulate(
   Memory<OptixSimulationDataGeneric, RAM> mem(1);
   mem[0] = OptixSimulationDataGeneric::Zero();
   mem[0].model_type = 1;
+  mem[0].ray_flags = optix_ray_flags(m_culling);
   set_generic_flags(res, mem[0]);
 
   PipelinePtr program = make_pipeline_sim(m_map->scene(), mem[0]);
