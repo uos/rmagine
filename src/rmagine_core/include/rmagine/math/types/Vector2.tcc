@@ -122,7 +122,7 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 DataT Vector2_<DataT>::l2norm() const 
 {
-    return sqrtf(l2normSquared());
+    return std::sqrt(l2normSquared());
 }
 
 template<typename DataT>

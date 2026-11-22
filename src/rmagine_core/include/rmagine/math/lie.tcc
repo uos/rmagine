@@ -41,8 +41,8 @@ Matrix3x3_<DataT> rodrigues(
   if(t2 < 1e-12f) 
   {
     // R ≈ I + θ K + 1/2 θ^2 K^2
-    const float a1 = theta;
-    const float a2 = 0.5f * t2;
+    const DataT a1 = theta;
+    const DataT a2 = DataT(0.5) * t2;
     for(int r=0;r<3;++r)
     {
       for(int c=0;c<3;++c)
@@ -71,13 +71,13 @@ Matrix3x3_<DataT> rodrigues(
 template<typename DataT>
 Matrix3x3_<DataT> rodrigues(const Vector3_<DataT>& omega)
 {
-  const float theta = std::sqrt(omega.x*omega.x + omega.y*omega.y + omega.z*omega.z);
-  if(theta < 1e-12f) 
+  const DataT theta = std::sqrt(omega.x*omega.x + omega.y*omega.y + omega.z*omega.z);
+  if(theta < DataT(1e-12)) 
   {
       return Matrix3x3_<DataT>::Identity();
   }
-  const float inv = 1.0f / theta;
-  Vector3 k{omega.x * inv, omega.y * inv, omega.z * inv};
+  const DataT inv = DataT(1) / theta;
+  Vector3_<DataT> k{omega.x * inv, omega.y * inv, omega.z * inv};
   return rodrigues(k, theta);
 }
 
@@ -86,10 +86,10 @@ Vector3_<DataT> so3_log(const Matrix3x3_<DataT>& R)
 {
   // clamp trace for numerical stability
   DataT tr = R(0,0) + R(1,1) + R(2,2);
-  tr = std::max(-1.0f, std::min(3.0f, tr));
+  tr = std::max(DataT(-1), std::min(DataT(3), tr));
 
-  DataT c = (tr - 1.0f) * 0.5f;
-  c = std::max(-1.0f, std::min(1.0f, c));
+  DataT c = (tr - DataT(1)) * DataT(0.5);
+  c = std::max(DataT(-1), std::min(DataT(1), c));
 
   const DataT theta = std::acos(c);
   if(theta < 1e-12f) {
@@ -107,7 +107,7 @@ Vector3_<DataT> so3_log(const Matrix3x3_<DataT>& R)
   const DataT wz = (R(1,0) - R(0,1)) * scale;
 
   // Direction is unit axis, multiply by θ to get ω
-  Vector3 axis{wx, wy, wz};
+  Vector3_<DataT> axis{wx, wy, wz};
   const DataT n = std::sqrt(wx*wx + wy*wy + wz*wz);
   if(n < 1e-20f) 
   {

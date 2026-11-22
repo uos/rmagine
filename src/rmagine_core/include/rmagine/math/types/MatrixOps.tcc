@@ -1500,25 +1500,25 @@ MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator Quaternion_<std::remove_c
   Quaternion_<DataTNonConst> q;
 
   if (tr > 0) { 
-    DataTConst S = sqrtf(tr + 1.0) * 2; // S=4*qw 
+    DataTConst S = std::sqrt(tr + 1.0) * 2; // S=4*qw 
     q.w = 0.25f * S;
     q.x = (at(2,1) - at(1,2)) / S;
     q.y = (at(0,2) - at(2,0)) / S; 
     q.z = (at(1,0) - at(0,1)) / S;
   } else if ((at(0,0) > at(1,1)) && (at(0,0) > at(2,2))) { 
-    DataTConst S = sqrtf(1.0 + at(0,0) - at(1,1) - at(2,2)) * 2.0; // S=4*qx 
+    DataTConst S = std::sqrt(1.0 + at(0,0) - at(1,1) - at(2,2)) * 2.0; // S=4*qx 
     q.w = (at(2,1) - at(1,2)) / S;
     q.x = 0.25f * S;
     q.y = (at(0,1) + at(1,0)) / S; 
     q.z = (at(0,2) + at(2,0)) / S; 
   } else if (at(1,1) > at(2,2) ) { 
-    DataTConst S = sqrtf(1.0 + at(1,1) - at(0,0) - at(2,2)) * 2.0; // S=4*qy
+    DataTConst S = std::sqrt(1.0 + at(1,1) - at(0,0) - at(2,2)) * 2.0; // S=4*qy
     q.w = (at(0,2) - at(2,0)) / S;
     q.x = (at(0,1) + at(1,0)) / S; 
     q.y = 0.25f * S;
     q.z = (at(1,2) + at(2,1)) / S;
   } else { 
-    DataTConst S = sqrtf(1.0 + at(2,2) - at(0,0) - at(1,1)) * 2.0; // S=4*qz
+    DataTConst S = std::sqrt(1.0 + at(2,2) - at(0,0) - at(1,1)) * 2.0; // S=4*qz
     q.w = (at(1,0) - at(0,1)) / S;
     q.x = (at(0,2) + at(2,0)) / S;
     q.y = (at(1,2) + at(2,1)) / S;
@@ -1558,11 +1558,11 @@ MatrixOps_<DataT, Rows, Cols, MatrixAccess_>::operator EulerAngles_<std::remove_
   {
     e.pitch = copysignf(M_PI_2, sB); // use 90 degrees if out of range
   } else {
-    e.pitch = asinf(sB);
+    e.pitch = std::asin(sB);
   }
 
   // yaw (z-axis)
-  e.yaw = atan2f(sC_cB, cC_cB);
+  e.yaw = std::atan2(sC_cB, cC_cB);
 
   return e;
 }

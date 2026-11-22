@@ -110,44 +110,27 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 Quaternion_<DataT> Quaternion_<DataT>::pow(const DataT& scalar) const
 {
-    // TODO: Test this function properly
-    Quaternion_<DataT> res = Quaternion_<DataT>::Identity();
-    
-    const float len = l2norm();
-    // L = |q|
-    // L^2 = q.x**2 ... + q.w**2
-    // L^2 - q.w**2 = q.x**2 ... + q.z**2
-    // sqrt(L^2 - q.w**2) = sqrt(q.x**2 ... + q.z **2) = |imag(q)|
-    const DataT imag_len = std::sqrt(len * len - w * w);
-
-    // imag_len = sqrt(1 - w^2) for normalized quaternions
-    // = sin(acos(w))
-    // hmm. mayber better use an epsilon here
-    if(imag_len > DataT(0.00001) )
+    // q = |q| * (n * sin(theta), cos(theta))
+    // q^s = |q|^s * (n * sin(s * theta), cos(s * theta))
+    const DataT imag_len = std::sqrt(x * x + y * y + z * z); // = |q| * sin(theta)
+    const DataT len = std::sqrt(imag_len * imag_len + w * w);
+    const DataT theta = std::atan2(imag_len, w);
+    if(len == DataT(0))
     {
-        // sin(acos(a)) / |imag(q)| 
-        // = sqrt(1-a^2) / sqrt(q_x^2 + q_y^2 + q_z^2)
-        // for normalized quaternions
-        // = sin(acos(w) * scalar) / sin(acos(w))
-        // lim w -> 0: sin(s * pi/2)
-        // lim w -> 1: s
-
-        const DataT theta = acos(w); // acos(1) == 0
-        const DataT theta_new = theta * scalar;
-        const DataT sts = sin(theta_new); // sin(0 * scalar) = 0 
-        const DataT cts = cos(theta_new);
-      
-        // 0 * q.x / 0 -> numerically instable!
-        // TODO: how to simplify this equation 
-        // and get rid of numerical problems?
-        const DataT factor = sts * std::pow(len, scalar) / imag_len;
-        
-        res.x = x * factor;
-        res.y = y * factor;
-        res.z = z * factor;
-        res.w = cts;
+        return {DataT(0), DataT(0), DataT(0), DataT(0)};
     }
+    const DataT len_pow = std::pow(len, scalar);
 
+    // sin(s * theta) / |imag(q)|, limit for theta -> 0: s / |q|
+    const DataT ratio = (imag_len > DataT(0))
+        ? std::sin(theta * scalar) / imag_len
+        : scalar / len;
+
+    Quaternion_<DataT> res;
+    res.x = x * ratio * len_pow;
+    res.y = y * ratio * len_pow;
+    res.z = z * ratio * len_pow;
+    res.w = std::cos(theta * scalar) * len_pow;
     return res;
 }
 
