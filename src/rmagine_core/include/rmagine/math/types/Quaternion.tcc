@@ -195,13 +195,13 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     // checked once
 
     // roll (x-axis)
-    const DataT sinr_cosp = 2.0 * (w * x + y * z);
-    const DataT cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
+    const DataT sinr_cosp = DataT(2) * (w * x + y * z);
+    const DataT cosr_cosp = DataT(1) - DataT(2) * (x * x + y * y);
     // pitch (y-axis)
-    const DataT sinp =      2.0 * (w * y - z * x);
+    const DataT sinp =      DataT(2) * (w * y - z * x);
     // yaw (z-axis)
-    const DataT siny_cosp = 2.0 * (w * z + x * y);
-    const DataT cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
+    const DataT siny_cosp = DataT(2) * (w * z + x * y);
+    const DataT cosy_cosp = DataT(1) - DataT(2) * (y * y + z * z);
 
 
     // Tested with python:
@@ -216,18 +216,18 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     EulerAngles_<DataT> e;
 
     // roll (x-axis)
-    e.roll = atan2(sinr_cosp, cosr_cosp);
+    e.roll = std::atan2(sinr_cosp, cosr_cosp);
 
     // pitch (y-axis)
-    if (fabs(sinp) >= 1.0f)
+    if (std::abs(sinp) >= DataT(1))
     {
-        e.pitch = copysign(M_PI_2, sinp); // use 90 degrees if out of range
+        e.pitch = std::copysign(DataT(M_PI_2), sinp); // use 90 degrees if out of range
     } else {
-        e.pitch = asin(sinp);
+        e.pitch = std::asin(sinp);
     }
 
     // yaw (z-axis)
-    e.yaw = atan2(siny_cosp, cosy_cosp);
+    e.yaw = std::atan2(siny_cosp, cosy_cosp);
 
     return e;
 }
