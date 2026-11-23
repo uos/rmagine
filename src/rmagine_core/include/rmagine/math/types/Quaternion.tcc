@@ -110,44 +110,27 @@ template<typename DataT>
 RMAGINE_INLINE_FUNCTION
 Quaternion_<DataT> Quaternion_<DataT>::pow(const DataT& scalar) const
 {
-    // TODO: Test this function properly
-    Quaternion_<DataT> res = Quaternion_<DataT>::Identity();
-    
-    const float len = l2norm();
-    // L = |q|
-    // L^2 = q.x**2 ... + q.w**2
-    // L^2 - q.w**2 = q.x**2 ... + q.z**2
-    // sqrt(L^2 - q.w**2) = sqrt(q.x**2 ... + q.z **2) = |imag(q)|
-    const DataT imag_len = std::sqrt(len * len - w * w);
-
-    // imag_len = sqrt(1 - w^2) for normalized quaternions
-    // = sin(acos(w))
-    // hmm. mayber better use an epsilon here
-    if(imag_len > DataT(0.00001) )
+    // q = |q| * (n * sin(theta), cos(theta))
+    // q^s = |q|^s * (n * sin(s * theta), cos(s * theta))
+    const DataT imag_len = std::sqrt(x * x + y * y + z * z); // = |q| * sin(theta)
+    const DataT len = std::sqrt(imag_len * imag_len + w * w);
+    const DataT theta = std::atan2(imag_len, w);
+    if(len == DataT(0))
     {
-        // sin(acos(a)) / |imag(q)| 
-        // = sqrt(1-a^2) / sqrt(q_x^2 + q_y^2 + q_z^2)
-        // for normalized quaternions
-        // = sin(acos(w) * scalar) / sin(acos(w))
-        // lim w -> 0: sin(s * pi/2)
-        // lim w -> 1: s
-
-        const DataT theta = acos(w); // acos(1) == 0
-        const DataT theta_new = theta * scalar;
-        const DataT sts = sin(theta_new); // sin(0 * scalar) = 0 
-        const DataT cts = cos(theta_new);
-      
-        // 0 * q.x / 0 -> numerically instable!
-        // TODO: how to simplify this equation 
-        // and get rid of numerical problems?
-        const DataT factor = sts * std::pow(len, scalar) / imag_len;
-        
-        res.x = x * factor;
-        res.y = y * factor;
-        res.z = z * factor;
-        res.w = cts;
+        return {DataT(0), DataT(0), DataT(0), DataT(0)};
     }
+    const DataT len_pow = std::pow(len, scalar);
 
+    // sin(s * theta) / |imag(q)|, limit for theta -> 0: s / |q|
+    const DataT ratio = (imag_len > DataT(0))
+        ? std::sin(theta * scalar) / imag_len
+        : scalar / len;
+
+    Quaternion_<DataT> res;
+    res.x = x * ratio * len_pow;
+    res.y = y * ratio * len_pow;
+    res.z = z * ratio * len_pow;
+    res.w = std::cos(theta * scalar) * len_pow;
     return res;
 }
 
@@ -212,13 +195,13 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     // checked once
 
     // roll (x-axis)
-    const DataT sinr_cosp = 2.0 * (w * x + y * z);
-    const DataT cosr_cosp = 1.0 - 2.0 * (x * x + y * y);
+    const DataT sinr_cosp = DataT(2) * (w * x + y * z);
+    const DataT cosr_cosp = DataT(1) - DataT(2) * (x * x + y * y);
     // pitch (y-axis)
-    const DataT sinp =      2.0 * (w * y - z * x);
+    const DataT sinp =      DataT(2) * (w * y - z * x);
     // yaw (z-axis)
-    const DataT siny_cosp = 2.0 * (w * z + x * y);
-    const DataT cosy_cosp = 1.0 - 2.0 * (y * y + z * z);
+    const DataT siny_cosp = DataT(2) * (w * z + x * y);
+    const DataT cosy_cosp = DataT(1) - DataT(2) * (y * y + z * z);
 
 
     // Tested with python:
@@ -233,18 +216,18 @@ Quaternion_<DataT>::operator EulerAngles_<DataT>() const
     EulerAngles_<DataT> e;
 
     // roll (x-axis)
-    e.roll = atan2(sinr_cosp, cosr_cosp);
+    e.roll = std::atan2(sinr_cosp, cosr_cosp);
 
     // pitch (y-axis)
-    if (fabs(sinp) >= 1.0f)
+    if (std::abs(sinp) >= DataT(1))
     {
-        e.pitch = copysign(M_PI_2, sinp); // use 90 degrees if out of range
+        e.pitch = std::copysign(DataT(M_PI_2), sinp); // use 90 degrees if out of range
     } else {
-        e.pitch = asin(sinp);
+        e.pitch = std::asin(sinp);
     }
 
     // yaw (z-axis)
-    e.yaw = atan2(siny_cosp, cosy_cosp);
+    e.yaw = std::atan2(siny_cosp, cosy_cosp);
 
     return e;
 }

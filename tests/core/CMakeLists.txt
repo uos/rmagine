@@ -109,3 +109,9 @@ target_link_libraries(rmagine_tests_core_math_lie
 add_test(NAME core_math_lie COMMAND rmagine_tests_core_math_lie)
 
 
+
+add_executable(rmagine_tests_core_math_double_precision math_double_precision.cpp)
+target_link_libraries(rmagine_tests_core_math_double_precision
+    rmagine::core
+)
+add_test(NAME core_math_double_precision COMMAND rmagine_tests_core_math_double_precision)

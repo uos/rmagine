@@ -44,12 +44,12 @@ EulerAngles_<DataT>::operator Quaternion_<DataT>() const
     // 1. test: correct
     // TODO:
     // - generic trigo functions
-    const DataT cr = cosf(roll / 2.0f);
-    const DataT sr = sinf(roll / 2.0f);
-    const DataT cp = cosf(pitch / 2.0f);
-    const DataT sp = sinf(pitch / 2.0f);
-    const DataT cy = cosf(yaw / 2.0f);
-    const DataT sy = sinf(yaw / 2.0f);
+    const DataT cr = std::cos(roll / DataT(2));
+    const DataT sr = std::sin(roll / DataT(2));
+    const DataT cp = std::cos(pitch / DataT(2));
+    const DataT sp = std::sin(pitch / DataT(2));
+    const DataT cy = std::cos(yaw / DataT(2));
+    const DataT sy = std::sin(yaw / DataT(2));
 
     // std::cout << "Cast Euler to Quat - Done." << std::endl;
     return {
@@ -69,12 +69,12 @@ EulerAngles_<DataT>::operator Matrix_<DataT, 3, 3>() const
     // Wrong?
     // TODO check
     // 1. test: correct
-    const DataT cA = cosf(roll);
-    const DataT sA = sinf(roll);
-    const DataT cB = cosf(pitch);
-    const DataT sB = sinf(pitch);
-    const DataT cC = cosf(yaw);
-    const DataT sC = sinf(yaw);
+    const DataT cA = std::cos(roll);
+    const DataT sA = std::sin(roll);
+    const DataT cB = std::cos(pitch);
+    const DataT sB = std::sin(pitch);
+    const DataT cC = std::cos(yaw);
+    const DataT sC = std::sin(yaw);
 
     // order: p_rotated = Rz * Ry * Rx * p
     // row 0
