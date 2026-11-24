@@ -42,8 +42,7 @@
 #define RMAGINE_NOISE_NOISE_CUDA_HPP
 
 #include <rmagine/types/MemoryCuda.hpp>
-#include <curand.h>
-#include <curand_kernel.h>
+#include <rmagine/util/cuda/curand_to_hiprand.h>
 #include <memory>
 #include <utility>
 

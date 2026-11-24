@@ -38,7 +38,12 @@ __global__ void chunk_sums_kernel(
     const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
     const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
 
-    sdata[tid] *= 0.0;
+    // Seed each lane with a true typed zero (data[0] - data[0]); see
+    // memory_math.cu sum_kernel. The previous `sdata[tid] *= 0.0` read
+    // uninitialized shared memory, which is routinely NaN/Inf on AMD and
+    // survives the multiply.
+    sdata[tid] = data[0];
+    sdata[tid] -= data[0];
     for(unsigned int i=0; i<rows; i++)
     {
         if(tid + blockSize * i < chunkSize)
@@ -48,6 +53,20 @@ __global__ void chunk_sums_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s = blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -61,6 +80,7 @@ __global__ void chunk_sums_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {
@@ -82,7 +102,12 @@ __global__ void chunk_sums_masked_kernel(
     const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
     const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
 
-    sdata[tid] *= 0.0;
+    // Seed each lane with a true typed zero (data[0] - data[0]); see
+    // memory_math.cu sum_kernel. The previous `sdata[tid] *= 0.0` read
+    // uninitialized shared memory, which is routinely NaN/Inf on AMD and
+    // survives the multiply.
+    sdata[tid] = data[0];
+    sdata[tid] -= data[0];
 
     for(unsigned int i=0; i<rows; i++)
     {
@@ -96,6 +121,20 @@ __global__ void chunk_sums_masked_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -109,6 +148,7 @@ __global__ void chunk_sums_masked_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {
@@ -131,7 +171,12 @@ __global__ void chunk_sums_masked_kernel(
     // old: const unsigned int rows = chunkSize / blockSize;
     const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
 
-    sdata[tid] *= 0.0;
+    // Seed each lane with a true typed zero (data[0] - data[0]); see
+    // memory_math.cu sum_kernel. The previous `sdata[tid] *= 0.0` read
+    // uninitialized shared memory, which is routinely NaN/Inf on AMD and
+    // survives the multiply.
+    sdata[tid] = data[0];
+    sdata[tid] -= data[0];
 
     for(unsigned int i=0; i<rows; i++)
     {
@@ -145,6 +190,20 @@ __global__ void chunk_sums_masked_kernel(
     }
     __syncthreads();
     
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -158,6 +217,7 @@ __global__ void chunk_sums_masked_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {
@@ -178,7 +238,12 @@ __global__ void chunk_sums_masked_kernel(
     const unsigned int globId = chunkSize * blockIdx.x + threadIdx.x;
     const unsigned int rows = (chunkSize + blockSize - 1) / blockSize;
 
-    sdata[tid] *= 0.0;
+    // Seed each lane with a true typed zero (data[0] - data[0]); see
+    // memory_math.cu sum_kernel. The previous `sdata[tid] *= 0.0` read
+    // uninitialized shared memory, which is routinely NaN/Inf on AMD and
+    // survives the multiply.
+    sdata[tid] = data[0];
+    sdata[tid] -= data[0];
 
     for(unsigned int i=0; i<rows; i++)
     {
@@ -192,6 +257,20 @@ __global__ void chunk_sums_masked_kernel(
     }
     __syncthreads();
 
+#if defined(USE_HIP) || defined(__HIP_PLATFORM_AMD__)
+    // wave-size hardening: run the full __syncthreads tree to s>0 instead of
+    // the 32-lane warp-synchronous tail, which assumes a 32-lane lockstep
+    // wavefront not guaranteed on a 64-lane wave. See statistics.cu sum_kernel
+    // for the rationale. CUDA path unchanged.
+    for(unsigned int s = blockSize / 2; s > 0; s >>= 1)
+    {
+        if(tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+#else
     for(unsigned int s=blockSize / 2; s > 32; s >>= 1)
     {
         if(tid < s)
@@ -205,6 +284,7 @@ __global__ void chunk_sums_masked_kernel(
     {
         warpReduce<blockSize>(sdata, tid);
     }
+#endif
 
     if(tid == 0)
     {

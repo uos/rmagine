@@ -55,12 +55,14 @@ MemoryView<DataT, MemT>& MemoryView<DataT, MemT>::operator=(const MemoryView<Dat
 }
 
 template<typename DataT, typename MemT>
+RMAGINE_FUNCTION
 DataT* MemoryView<DataT, MemT>::raw()
 {
     return m_mem;
 }
 
 template<typename DataT, typename MemT>
+RMAGINE_FUNCTION
 const DataT* MemoryView<DataT, MemT>::raw() const {
     return m_mem;
 }

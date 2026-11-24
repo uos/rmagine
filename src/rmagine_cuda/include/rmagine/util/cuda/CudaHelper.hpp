@@ -35,7 +35,7 @@
 #ifndef RMAGINE_UTIL_CUDA_HELPER_HPP
 #define RMAGINE_UTIL_CUDA_HELPER_HPP
 
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 
 namespace rmagine {
 

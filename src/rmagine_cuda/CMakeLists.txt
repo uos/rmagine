@@ -37,6 +37,25 @@ endif()
 # set(CUDA_STANDARD 14)
 
 include(CheckLanguage)
+if(USE_HIP)
+    enable_language(HIP)
+    find_package(hip REQUIRED)
+    find_package(hiprand REQUIRED)
+    set(CUDA_FOUND True)
+    # Force-include the cuda->hip compat shim on every HIP translation unit so
+    # the cuda*/curand*/cuCtx* spellings resolve before any use. -fgpu-rdc gives
+    # the relocatable device code that the cross-TU __device__ svd/umeyama calls
+    # need (the CUDA path uses CUDA_SEPARABLE_COMPILATION for the same reason).
+    set(CMAKE_HIP_FLAGS
+        "${CMAKE_HIP_FLAGS} -include ${CMAKE_CURRENT_SOURCE_DIR}/include/rmagine/util/cuda/cuda_to_hip.h -DUSE_HIP -fgpu-rdc")
+    # Default to gfx90a only when the caller did not pick an architecture; a
+    # caller passing -DCMAKE_HIP_ARCHITECTURES=gfx1100 (etc.) is left alone.
+    if(NOT DEFINED CMAKE_HIP_ARCHITECTURES)
+        set(CMAKE_HIP_ARCHITECTURES gfx90a)
+    endif()
+    set(CUDA_VERSION "HIP")
+    set(CUDA_INCLUDE_DIRS "")
+else()
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
 
@@ -60,6 +79,7 @@ if(CMAKE_CUDA_COMPILER)
         endif(CUDA_FOUND)
     endif(CUDAToolkit_FOUND)
 endif(CMAKE_CUDA_COMPILER)
+endif(USE_HIP)
 
 
 if(CUDA_FOUND)
@@ -87,6 +107,12 @@ set(RMAGINE_CUDA_SRCS
     src/map/mesh_preprocessing.cu
 )
 
+if(USE_HIP)
+    # Compile the existing .cu (and the .cpp util TUs that use the driver API)
+    # as HIP. The compat shim is force-included via CMAKE_HIP_FLAGS above.
+    set_source_files_properties(${RMAGINE_CUDA_SRCS} PROPERTIES LANGUAGE HIP)
+endif()
+
 add_library(rmagine-cuda SHARED
     ${RMAGINE_CUDA_SRCS}
 )
@@ -99,6 +125,21 @@ target_include_directories(rmagine-cuda
 )
 
 # TODO: use CUDA language instead of find_package
+if(USE_HIP)
+    # SVD/cholesky in linalg.cu are self-contained device kernels (no
+    # cusolver/cublas call sites), so no hipBLAS/hipSOLVER is needed; the HIP
+    # runtime + hipRAND cover the rest.
+    # hip::device carries --offload-arch device compile flags; keep it PRIVATE
+    # so plain-C++ consumers (the tests link rmagine::cuda) do not inherit them.
+    target_link_libraries(rmagine-cuda
+        PUBLIC
+            rmagine-core
+            hip::host
+            hip::hiprand
+        PRIVATE
+            hip::device
+    )
+else()
 target_link_libraries(rmagine-cuda PUBLIC
     rmagine-core
     ${CUDA_LIBRARIES}
@@ -106,6 +147,7 @@ target_link_libraries(rmagine-cuda PUBLIC
     ${CUDA_cublas_LIBRARY}
     ${CUDA_DRIVER_LIBRARY}
 )
+endif()
 
 add_dependencies(rmagine-cuda
     rmagine-core
@@ -125,14 +167,19 @@ set_target_properties(rmagine-cuda
         EXPORT_NAME cuda
         SOVERSION ${rmagine_VERSION_MAJOR}
         VERSION ${rmagine_VERSION}
-        CUDA_SEPARABLE_COMPILATION ON
-        # CUDA_STANDARD 17 -> only works for 
-        # CXX_STANDARD 17
 )
 
-# set CUDA_ARCHITECTURES with CMake >= 3.23 when CMAKE_* is not set
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-    set_target_properties(rmagine-cuda PROPERTIES CUDA_ARCHITECTURES all)
+if(USE_HIP)
+    set_target_properties(rmagine-cuda PROPERTIES
+        HIP_ARCHITECTURES "${CMAKE_HIP_ARCHITECTURES}")
+    # Device-link the relocatable device objects produced by -fgpu-rdc.
+    target_link_options(rmagine-cuda PRIVATE --hip-link -fgpu-rdc)
+else()
+    set_target_properties(rmagine-cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    # set CUDA_ARCHITECTURES with CMake >= 3.23 when CMAKE_* is not set
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.23" AND NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set_target_properties(rmagine-cuda PROPERTIES CUDA_ARCHITECTURES all)
+    endif()
 endif()
 
 add_library(rmagine::cuda ALIAS rmagine-cuda)

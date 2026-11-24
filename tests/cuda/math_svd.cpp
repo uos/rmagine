@@ -5,7 +5,7 @@
 
 #include <Eigen/Dense>
 
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 
 namespace rm = rmagine;
 

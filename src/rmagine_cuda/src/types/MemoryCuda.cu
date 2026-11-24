@@ -1,7 +1,7 @@
 #include "rmagine/types/MemoryCuda.hpp"
 #include "rmagine/util/cuda/CudaStream.hpp"
 
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 #include "rmagine/util/cuda/CudaDebug.hpp"
 
 

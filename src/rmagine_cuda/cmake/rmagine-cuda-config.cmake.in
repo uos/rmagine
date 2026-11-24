@@ -8,14 +8,29 @@ include(${CMAKE_CURRENT_LIST_DIR}/rmagine-cuda-targets.cmake)
 # find_dependency(assimp)
 
 include(CMakeFindDependencyMacro)
-if(@CUDAToolkit_FOUND@)
-    find_dependency(CUDAToolkit)
-else(@CUDAToolkit_FOUND@)
-    find_dependency(CUDA)
-endif(@CUDAToolkit_FOUND@)
 
-include(CheckLanguage)
-check_language(CUDA)    
+# Which GPU backend this component was built against. Kept as a variable so the
+# test below does not depend on the consumer's CMP0012 setting, and so a
+# consumer can ask which backend it is linking.
+set(rmagine_cuda_USE_HIP @USE_HIP@)
+
+if(rmagine_cuda_USE_HIP)
+    # rmagine-cuda-targets.cmake names hip::host and hip::hiprand in its public
+    # link interface, so a consumer needs both imported targets in scope. There
+    # is no CUDA toolkit to look for in this configuration, and looking for one
+    # would fail the whole rmagine package on a machine that has no CUDA.
+    find_dependency(hip)
+    find_dependency(hiprand)
+else()
+    if(@CUDAToolkit_FOUND@)
+        find_dependency(CUDAToolkit)
+    else()
+        find_dependency(CUDA)
+    endif()
+
+    include(CheckLanguage)
+    check_language(CUDA)
+endif()
 
 check_required_components(cuda)
 

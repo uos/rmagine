@@ -1,6 +1,6 @@
 #include <rmagine/math/types.h>
 #include <rmagine/math/linalg.cuh>
-#include <cuda_runtime.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 
 #include <rmagine/math/math.h>
 

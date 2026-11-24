@@ -2,8 +2,7 @@
 #define RMAGINE_UTIL_CUDA_RANDOM_CUH
 
 #include <rmagine/types/MemoryCuda.hpp>
-#include <curand.h>
-#include <curand_kernel.h>
+#include <rmagine/util/cuda/curand_to_hiprand.h>
 
 namespace rmagine
 {

@@ -1,8 +1,7 @@
 #ifndef RMAGINE_UTIL_CUDA_STREAM_HPP
 #define RMAGINE_UTIL_CUDA_STREAM_HPP
 
-#include <cuda_runtime.h>
-#include <cuda.h>
+#include <rmagine/util/cuda/cuda_to_hip.h>
 #include <memory>
 
 #include <rmagine/util/cuda/cuda_definitions.h>

@@ -50,3 +50,19 @@ target_link_libraries(rmagine_tests_cuda_math_reduction
 )
 
 add_test(NAME cuda_math_reduction COMMAND rmagine_tests_cuda_math_reduction)
+
+# 7. Reduction correctness (asserting: rm::sum/mean/cov vs CPU ref + determinism)
+add_executable(rmagine_tests_cuda_math_reduction_correctness math_reduction_correctness.cpp)
+target_link_libraries(rmagine_tests_cuda_math_reduction_correctness
+    rmagine::cuda
+)
+
+add_test(NAME cuda_math_reduction_correctness COMMAND rmagine_tests_cuda_math_reduction_correctness)
+
+# 8. Public header hygiene (plain C++ TU, headers first, no GPU compiler)
+add_executable(rmagine_tests_cuda_public_headers public_headers.cpp)
+target_link_libraries(rmagine_tests_cuda_public_headers
+    rmagine::cuda
+)
+
+add_test(NAME cuda_public_headers COMMAND rmagine_tests_cuda_public_headers)
